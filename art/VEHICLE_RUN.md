@@ -5,7 +5,7 @@ One painted side view per vehicle, for the Hangar, store cards and the side view
 Message 1: attach both style sheets, then paste:
 
 ```
-These two character sheets are the approved art style for my kids' mobile game BASED. Keep this style for the vehicles I ask for next: realistic anime illustration, detailed cel shading, crisp line work, light from the upper left. Rules for every image: one vehicle only, a pure side view facing RIGHT (no perspective), the whole vehicle in frame with a little space around it, plain solid magenta background (#FF00FF), no ground shadow, no checkerboard, no text, no brand logos or badges, no people, no borders, no panels. Military aircraft: no missiles or bombs mounted (weapons are added by the game).
+These two character sheets are the approved art style for my kids' mobile game BASED. Keep this style for the vehicles I ask for next: realistic anime illustration, detailed cel shading, crisp line work, light from the upper left. Rules for every image: one vehicle only, a pure side view facing RIGHT (no perspective), the whole vehicle in frame with a little space around it, wheels, tracks or landing gear level at the bottom (aircraft with gear down), plain solid magenta background (#FF00FF), no ground shadow, no checkerboard, no text, no brand logos or badges, no people, no borders, no panels. Military aircraft: no missiles or bombs mounted (weapons are added by the game).
 ```
 
 Then one message per vehicle. Start a fresh chat (sheets plus Message 1 again) after vehicles 8 and 16.
