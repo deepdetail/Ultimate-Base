@@ -240,3 +240,29 @@ Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.
 
 - **v0.6 Interiors:** walk-in 3D Hangar (career mode feel) and Dojo, zoom in and out of the base.
 - **v0.7 Missions 2.0:** better jet and drone models, enemy recon and geographic recon that discovers new bases, walkable mechs with rocket boosters.
+
+## 23. v0.6 build: anime refresh, lobby defense, difficulty, raids
+
+**Art refresh**
+- Characters redrawn with realistic anime proportions: smaller head, long legs, cel shading, a darker far arm, sharper eyes with highlights, and a hair shine. Novice, Intermediate and Advanced builds now differ in shoulders, waist, arms and legs.
+- Room interiors got side walls, a ceiling, a lamp light cone and a floor sheen, so every room reads as a lit 3D box.
+- The lobby building was redrawn with gradients, rim light, glowing windows with reflections, glass walls, lamp posts, trees and AC units. The location sign moves to the grass at the big tiers so it never covers the building.
+- Raiders redrawn to look more real: dune buggy, biker, scorpion tank, drone and yeti. Two new bosses: the Badlands Warlord Rig (desert) and the Ancient Snow Titan (mountain).
+
+**Lobby defense**
+- Anyone waiting out front (no room job, not hurt, not a clone, not away) shoots raiders with their equipped weapon. Better weapons hit harder, reach farther and fire faster.
+
+**Battle Ready difficulty picker**
+- Five choices: Easy, Normal, Hard, Extreme (2 Adventure Points) and Boss Fight (2 points, unlocks at level 5). Pay scales from 0.6x to 5x.
+- The WIN % on each row is honest: the game runs the fight 14 times in the background against your real turrets, Barracks defenders and lobby shooters and reports how often you won.
+- Balance check (sandbox, level 50): twelve level 6 turrets beat every difficulty including the boss; two level 1 machine guns with four rail gun shooters win Easy to Hard, 70% on Extreme, and lose the boss.
+
+**Raids on bad guy bases (expeditions)**
+- New ATTACK A BASE tab. Five enemy bases per map, from a Badlands Gang Camp (power 18) to a Warlord Citadel (power 320). Some must be found first (finish a Hangar mission, or catch 3 clones), and the top ones need level 20 or 40.
+- Pick up to 3 soldiers (the strongest are picked for you) and 1 vehicle. The win chance comes from squad power (strength, aim, weapon, armor) plus vehicle power (speed, armor, weapon) versus base power.
+- Only one raid at a time. The squad and vehicle are away (they do not work, defend or fly) and a red HUD pill counts down until they return.
+- A win pays loot and tech, gives squad XP, and has a 20% chance to capture a vehicle. The base then rebuilds 30% stronger. A loss knocks the squad out to heal; nobody is hurt for real.
+
+**Next up (needs a go)**
+- Walk-in 3D Hangar and Dojo, plus zooming in and out of the base.
+- v0.7: more realistic jets and drones, recon missions that discover new bases, and walkable mechs with rocket boosters.

@@ -97,7 +97,7 @@ input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-6
 /* each room is a small diorama with its own painted interior */
 .room{position:relative;overflow:hidden;border:1px solid rgba(201,209,217,.25);border-top-color:rgba(201,209,217,.5);text-align:left;padding:0;width:100%;background:#3a4149}
 .room .decor{position:absolute;inset:0;width:100%;height:100%;z-index:0}
-.room .shade{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(110% 70% at 50% 0%,rgba(255,231,176,.22),transparent 60%);box-shadow:inset 12px 0 12px -8px rgba(0,0,0,.55),inset -12px 0 12px -8px rgba(0,0,0,.55),inset 0 10px 10px -8px rgba(0,0,0,.55)}
+.room .shade{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55;background:radial-gradient(110% 70% at 50% 0%,rgba(255,231,176,.22),transparent 60%);box-shadow:inset 12px 0 12px -8px rgba(0,0,0,.55),inset -12px 0 12px -8px rgba(0,0,0,.55),inset 0 10px 10px -8px rgba(0,0,0,.55)}
 .room .rh{position:absolute;left:5px;top:5px;z-index:3;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;background:rgba(16,19,23,.78);border:1px solid rgba(201,209,217,.2);border-radius:5px;padding:2px 5px;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis}
 .room .rb{display:block;font-size:9px;color:var(--teal);font-variant-numeric:tabular-nums;letter-spacing:.02em;text-transform:none;font-weight:600}
 .room .rb.low{color:var(--warn)}
@@ -320,6 +320,12 @@ button.shaft{border:none;padding:0;gap:4px}
 .upbar{display:flex;gap:3px}
 .upbar i{width:9px;height:6px;border-radius:2px;background:rgba(255,255,255,.12)}
 .upbar i.on{background:var(--warn)}
+.tower,.bunker{position:relative}
+.tower>.floor,.bunker>.floor{position:relative;z-index:1}
+.tower::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.18),transparent 28%,transparent 62%,rgba(0,0,0,.32)),linear-gradient(180deg,rgba(255,231,176,.12),transparent 40%);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),inset 0 -6px 10px rgba(0,0,0,.25)}
+.crown{filter:drop-shadow(0 -2px 0 rgba(255,255,255,.25)) drop-shadow(0 6px 8px rgba(0,0,0,.25))}
+.exp-pill{margin:0 0 6px;font-size:11px;font-weight:700;background:rgba(255,77,94,.14);border:1px solid rgba(255,77,94,.45);color:#ffc2c8;border-radius:8px;padding:3px 8px}
+.tag.gold{background:rgba(255,200,69,.15);color:var(--warn)}
 @media (prefers-reduced-motion:reduce){.person,.person svg,.pulse,.bub{animation:none}.panel,.toast{animation:none}}
 </style>
 
@@ -357,6 +363,7 @@ button.shaft{border:none;padding:0;gap:4px}
       <span class="lv" id="h-lv">LV 1</span>
       <button class="gear" id="b-gear" aria-label="Settings"></button>
     </div>
+    <div id="h-exp" class="exp-pill" hidden></div>
     <div class="res">
       <div class="chip cash"><div class="k" data-ic="cash">Cash</div><div class="v" id="h-cr">0</div></div>
       <div class="chip"><div class="k" data-ic="food">Food</div><div class="v" id="h-food">0</div><div class="bar"><i id="hb-food"></i></div></div>
@@ -453,13 +460,15 @@ const VART={
 };
 const vehArt=id=>`<svg viewBox="0 0 120 44" aria-hidden="true">${VART[id]||''}</svg>`;
 const EART={
-  buggy:`<path d="M6 27 h50 l-4 -8 h-12 l-6 -8 h-14 l-6 8 h-4z" fill="#b5532f" stroke="#6a2a14" stroke-width=".8"/><path d="M20 19 L24 8 H38 L44 19" fill="none" stroke="#2b3036" stroke-width="2"/><circle cx="32" cy="14" r="4" fill="#3a4149"/><rect x="29" y="12.6" width="6" height="2" fill="#FFC845"/><rect x="52" y="20" width="6" height="3" fill="#FFC845"/>${WHEEL(15,31,7.5)}${WHEEL(50,31,7.5)}`,
-  biker:`<path d="M14 30 L30 22 L44 22 L50 30 M30 22 L26 14 L34 14" stroke="#2b3036" stroke-width="2.4" fill="none"/><path d="M24 22 h20 l-4 -4 h-12z" fill="#c0392b"/><path d="M30 18 L28 6 L36 6 L38 16Z" fill="#4a525c"/><circle cx="33" cy="5" r="4.4" fill="#c0392b"/><rect x="33" y="3.4" width="5" height="2.4" rx="1" fill="#1d3b52"/>${WHEEL(14,31,7)}${WHEEL(50,31,7)}`,
-  scorpion:`<path d="M10 28 Q20 20 34 22 Q46 24 50 28 Q40 32 22 32 Q12 32 10 28Z" fill="#d9773f" stroke="#8a3a1a"/><path d="M12 26 Q2 18 6 8 Q10 2 16 6" fill="none" stroke="#d9773f" stroke-width="4" stroke-linecap="round"/><path d="M16 6 l4 -3 -1 5z" fill="#2b2238"/><path d="M48 26 L58 20 L62 24 M48 29 L58 30 L62 26" stroke="#d9773f" stroke-width="3" fill="none" stroke-linecap="round"/>${[20,28,36,44].map(x=>`<path d="M${x} 31 l-3 6 M${x} 31 l3 6" stroke="#8a3a1a" stroke-width="1.4"/>`).join('')}<circle cx="47" cy="24" r="1.4" fill="#2b2238"/>`,
-  drone:`<rect x="18" y="16" width="28" height="10" rx="4" fill="#d9773f" stroke="#8a3a1a"/><circle cx="40" cy="21" r="2.6" fill="#ff4d5e"/><path d="M10 12 H26 M38 12 H54 M18 12 V16 M46 12 V16" stroke="#2b3036" stroke-width="2"/><ellipse cx="18" cy="11" rx="10" ry="2" fill="rgba(40,40,40,.35)"/><ellipse cx="46" cy="11" rx="10" ry="2" fill="rgba(40,40,40,.35)"/><path d="M24 26 L22 32 M40 26 L42 32" stroke="#2b3036" stroke-width="1.6"/>`,
-  yeti:`<path d="M12 36 Q8 14 30 8 Q52 10 50 36Z" fill="#eef2f5" stroke="#a9b3be"/><path d="M20 10 L16 2 L24 8 M40 10 L46 2 L38 8" fill="#c9b894" stroke="#8a7a5a"/><circle cx="26" cy="18" r="2.2" fill="#2b2238"/><circle cx="38" cy="18" r="2.2" fill="#2b2238"/><path d="M26 26 Q32 30 38 26" stroke="#2b2238" stroke-width="1.6" fill="none"/><path d="M50 22 Q60 24 58 32 M12 22 Q4 24 6 32" stroke="#eef2f5" stroke-width="6" stroke-linecap="round" fill="none"/>`
+  buggy:`<path d="M8 27 L12 18 L24 16 L30 9 L44 9 L50 17 L58 19 L58 27Z" fill="#a8532f"/><path d="M30 9 L44 9 L50 17 L58 19 L58 27 L36 27Z" fill="rgba(0,0,0,.22)"/><path d="M12 18 L24 16 L30 9 L36 9" stroke="#e08a57" stroke-width="1" fill="none"/><path d="M22 16 L27 4 H41 L47 16" fill="none" stroke="#2b3036" stroke-width="2"/><path d="M27 4 L34 16" stroke="#2b3036" stroke-width="1.4"/><rect x="14" y="20" width="10" height="5" rx="1" fill="#6a7480"/><circle cx="17" cy="22.5" r="1" fill="#2b3036"/><circle cx="21" cy="22.5" r="1" fill="#2b3036"/><circle cx="35" cy="11" r="3.6" fill="#c98e5a"/><path d="M31.6 10 h6.8 v2.4 h-6.8z" fill="#1d3b52"/><path d="M31.4 12.6 Q35 16 38.6 12.6 L38.6 15 Q35 17 31.4 15Z" fill="#c0392b"/><rect x="52" y="20" width="6" height="2.6" fill="#FFE27A"/><path d="M6 24 h-4 l-1 2" stroke="#4a525c" stroke-width="1.6" fill="none"/><circle cx="1" cy="27" r="1.6" fill="rgba(180,180,180,.5)"/>${[15,51].map(x=>`<circle cx="${x}" cy="30" r="8" fill="#1e2227"/><circle cx="${x}" cy="30" r="8" fill="none" stroke="#3a4149" stroke-width="1.6" stroke-dasharray="2 1.6"/><circle cx="${x}" cy="30" r="3.6" fill="#8a939e"/><circle cx="${x}" cy="30" r="1.4" fill="#4a525c"/>`).join('')}`,
+  biker:`<path d="M14 30 L28 21 L44 21 L50 30" stroke="#2b3036" stroke-width="2.2" fill="none"/><path d="M22 23 Q30 16 44 18 L46 24 L26 25Z" fill="#c0392b"/><path d="M34 17 Q44 17 46 24 L36 24Z" fill="rgba(0,0,0,.25)"/><path d="M44 18 L50 14 L52 16 L46 22Z" fill="#8a1f1f"/><path d="M30 19 L27 9 L35 7 L39 17Z" fill="#3a4149"/><path d="M33 8 L39 17 L36 18 L31 9Z" fill="rgba(0,0,0,.25)"/><path d="M36 13 L46 16" stroke="#3a4149" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="32" cy="5.4" rx="4.6" ry="4.2" fill="#c0392b"/><path d="M33 3.6 h4.6 a2 2 0 0 1 0 3.6 h-4.6z" fill="#1d3b52"/><path d="M34 4 h2.6" stroke="#9ff6f8" stroke-width=".7"/><path d="M8 26 q-4 0 -6 3" stroke="rgba(170,170,170,.5)" stroke-width="2.4" fill="none" stroke-linecap="round"/>${[14,50].map(x=>`<circle cx="${x}" cy="31" r="7" fill="#1e2227"/><circle cx="${x}" cy="31" r="4.4" fill="none" stroke="#8a939e" stroke-width=".8"/><circle cx="${x}" cy="31" r="1.4" fill="#8a939e"/>`).join('')}`,
+  scorpion:`<path d="M10 28 Q18 19 34 21 Q47 23 51 28 Q41 33 22 33 Q12 33 10 28Z" fill="#c9653c"/><path d="M30 21 Q47 23 51 28 Q41 33 26 33Z" fill="rgba(0,0,0,.22)"/>${[18,24,30,36,42].map(x=>`<path d="M${x} 22 Q${x+1} 27 ${x} 32" stroke="#8a3a1a" stroke-width=".7" fill="none"/>`).join('')}<path d="M14 25 Q3 18 6 8 Q9 1 16 5" fill="none" stroke="#c9653c" stroke-width="4.2" stroke-linecap="round"/><path d="M14 25 Q4 18 7 8" fill="none" stroke="rgba(0,0,0,.2)" stroke-width="1.6"/><path d="M16 5 l4.4 -3 -1 5.4z" fill="#2b2238"/><path d="M49 26 L58 19 L62 22 L59 24 M49 29 L58 30 L62 27 L59 26" stroke="#c9653c" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${[20,27,34,41].map(x=>`<path d="M${x} 32 l-3 6 M${x} 32 l3 6" stroke="#8a3a1a" stroke-width="1.3"/>`).join('')}<circle cx="47" cy="24" r="1.3" fill="#2b2238"/><circle cx="47.4" cy="23.6" r=".4" fill="#fff"/><path d="M20 23 Q30 20 40 23" stroke="#f0a070" stroke-width="1" fill="none" opacity=".7"/>`,
+  drone:`<path d="M10 14 H28 M36 14 H54" stroke="#2b3036" stroke-width="2"/><rect x="17" y="14" width="30" height="11" rx="4.6" fill="#c9653c"/><rect x="32" y="14" width="15" height="11" rx="4.6" fill="rgba(0,0,0,.22)"/><path d="M19 16 H36" stroke="#f0a070" stroke-width="1"/><rect x="26" y="25" width="12" height="4" rx="1.4" fill="#3a4149"/><circle cx="32" cy="27" r="2.2" fill="#FF4D5E"/><circle cx="32.6" cy="26.4" r=".6" fill="#fff"/>${[12,52].map(x=>`<rect x="${x-2}" y="10" width="4" height="5" rx="1" fill="#3a4149"/><ellipse cx="${x}" cy="9.4" rx="11" ry="1.8" fill="rgba(80,80,80,.35)"/>`).join('')}<path d="M22 25 L20 31 M42 25 L44 31" stroke="#2b3036" stroke-width="1.4"/>`,
+  yeti:`<path d="M12 37 Q7 15 30 8 Q53 11 50 37Z" fill="#e6ecf1"/><path d="M30 8 Q53 11 50 37 L34 37 Q44 22 30 8Z" fill="#b9c4ce"/>${[16,22,28,34,40,46].map((x,i)=>`<path d="M${x} ${16+i%3*4} l-2 4 M${x+2} ${22+i%2*5} l-1.6 4" stroke="#a9b3be" stroke-width=".8"/>`).join('')}<path d="M20 11 L15 2 L23 8 M40 11 L46 2 L38 8" fill="#c9b894" stroke="#8a7a5a" stroke-width=".6"/><ellipse cx="30" cy="20" rx="10" ry="7" fill="#7a8a96"/><circle cx="26" cy="19" r="2" fill="#7FF0F3"/><circle cx="34" cy="19" r="2" fill="#7FF0F3"/><path d="M26 25 Q30 28 34 25" stroke="#2b2238" stroke-width="1.4" fill="none"/><path d="M27 25 l1 2 1 -2 M31 25 l1 2 1 -2" fill="#fff"/><path d="M50 22 Q61 25 58 34 M12 22 Q2 25 5 34" stroke="#d2dbe2" stroke-width="7" stroke-linecap="round" fill="none"/>`,
+  warlord:`<rect x="2" y="16" width="60" height="14" rx="2" fill="#5a3a26"/><path d="M34 16 H62 V30 H34Z" fill="rgba(0,0,0,.22)"/><path d="M2 16 L10 6 H30 L36 16Z" fill="#7a4a2a"/><rect x="12" y="8" width="14" height="6" fill="#1d3b52"/><rect x="40" y="6" width="16" height="10" rx="2" fill="#4a525c"/><rect x="54" y="9" width="10" height="3" fill="#2b3036"/>${[4,12,20,28,36,44,52,60].map(x=>`<path d="M${x} 16 l2 -4 2 4z" fill="#c9d1d9"/>`).join('')}${[10,32,54].map(x=>`<circle cx="${x}" cy="32" r="6.4" fill="#1e2227"/><circle cx="${x}" cy="32" r="2.6" fill="#8a939e"/>`).join('')}<circle cx="48" cy="11" r="1.6" fill="#FF4D5E" class="pulse"/>`,
+  titan:`<path d="M8 38 Q2 10 32 3 Q62 10 56 38Z" fill="#dfe8ef"/><path d="M32 3 Q62 10 56 38 L38 38 Q50 18 32 3Z" fill="#a9bccb"/><path d="M14 18 L22 12 L18 24Z M50 18 L42 12 L46 24Z M26 6 L32 0 L38 6Z" fill="#9fd6f0" stroke="#5aa8d0" stroke-width=".6"/><ellipse cx="32" cy="20" rx="12" ry="8" fill="#6a7a86"/><circle cx="27" cy="19" r="2.4" fill="#7FF0F3"/><circle cx="37" cy="19" r="2.4" fill="#7FF0F3"/><path d="M26 26 Q32 30 38 26" stroke="#2b2238" stroke-width="1.6" fill="none"/>`
 };
-const enemyArt=k=>`<svg viewBox="0 0 64 40" aria-hidden="true">${EART[k]||''}</svg>`;
+const enemyArt=k=>`<svg viewBox="0 0 64 40" aria-hidden="true" style="overflow:visible">${EART[k]||''}</svg>`;
 const BADGE={
   trophy:'<path d="M20 10h24v12a12 12 0 0 1-24 0z" fill="#FFC845" stroke="#b8860b" stroke-width="2"/><path d="M20 14h-8a8 8 0 0 0 8 10M44 14h8a8 8 0 0 1-8 10" fill="none" stroke="#FFC845" stroke-width="3"/><rect x="28" y="34" width="8" height="8" fill="#b8860b"/><rect x="20" y="42" width="24" height="7" rx="2" fill="#4a525c"/><path d="M32 14l2 4 4.4.6-3.2 3 .8 4.4-4-2.2-4 2.2.8-4.4-3.2-3 4.4-.6z" fill="#fff6c8"/>',
   dizzy:'<circle cx="32" cy="32" r="20" fill="#FFC845" stroke="#b8860b" stroke-width="2"/><path d="M22 26l6 6M28 26l-6 6M36 26l6 6M42 26l-6 6" stroke="#2b2238" stroke-width="2.4" stroke-linecap="round"/><path d="M24 42q8 -6 16 0" stroke="#2b2238" stroke-width="2.4" fill="none"/><path d="M10 12l3 5 5 .6-3.6 3.4.9 5-4.3-2.4-4.3 2.4.9-5L4 17.6l5-.6z" fill="#fff"/>',
@@ -654,13 +663,15 @@ const ENEMIES={
     {name:'Badlands Gang Buggy',art:'buggy',hp:30,speed:38,dmg:6},
     {name:'Badlands Gang Biker',art:'biker',hp:18,speed:62,dmg:4},
     {name:'Canyon Scorpion',art:'scorpion',hp:95,speed:18,dmg:12,min:4,big:true},
-    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2}
+    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2},
+    {name:'Badlands Warlord Rig',art:'warlord',hp:520,speed:12,dmg:22,boss:true,big:true}
   ],
   mountain:[
     {name:'Badlands Gang Snow Buggy',art:'buggy',hp:30,speed:36,dmg:6},
     {name:'Badlands Gang Biker',art:'biker',hp:18,speed:58,dmg:4},
     {name:'Snow Beast',art:'yeti',hp:105,speed:16,dmg:13,min:4,big:true},
-    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2}
+    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2},
+    {name:'Ancient Snow Titan',art:'titan',hp:600,speed:10,dmg:24,boss:true,big:true}
   ]
 };
 // mission routes use real landmark names from the terrain file; the last stop hides the outpost
@@ -742,7 +753,7 @@ const ERAS=[{min:1,key:'brutal',name:'Minimalist Brutalist'},{min:10,key:'futur'
 const eraOf=L=>ERAS.filter(e=>L>=e.min).pop();
 const maxFloors=()=>Math.min(10,5+Math.floor(level()/10));
 const roomsOf=t=>Object.keys(S.rooms).filter(k=>S.rooms[k].type===t);
-const crewIn=k=>S.crew.filter(c=>c.room===k);
+const crewIn=k=>S.crew.filter(c=>c.room===k&&!c.away);
 // rooms can be 1 to 3 slots wide, floors 1 to 3 times taller, rooms level 1 to 5
 const rW=k=>S.rooms[k].w||1,rH=k=>(S.floorH&&S.floorH[k.split(':')[0]])||1,rL=k=>S.rooms[k].lvl||1;
 const sumOf=(t,f)=>roomsOf(t).reduce((s,k)=>s+f(k),0);
@@ -768,93 +779,116 @@ function roomRate(k){
 
 // ---------- people: slim anime ninja crew ----------
 // back hair, front bangs (drawn over the headband)
+// ---------- people: realistic proportion anime crew, cel shaded ----------
+// hair: back layer (behind head) and front bangs (over the headband), with an anime shine ring
 const HAIR=[
-  {b:'<path d="M11 17 L8.5 7 L13.5 9.5 L12.5 1.5 L17.5 6 L20.5 -1 L23 6 L28 1 L27 8.5 L32 7 L29 16 Q27 7 20 7 Q13 7 11 17 Z"/>',f:'<path d="M12.6 14 L14.6 7.6 L16.4 13.2 L18.4 7.6 L20.2 13 L22.2 7.6 L23.8 13 L26.2 8 L27.4 14 Q27.4 5.6 20 5.6 Q12.6 5.6 12.6 14 Z"/>'},
-  {b:'<path d="M12 15 Q11.5 4 20 4 Q28.5 4 28 15 Z"/><path d="M25 5 Q37 3 35 22 Q34 13 27 9 Z"/><circle cx="26" cy="5.5" r="1.8"/>',f:'<path d="M12.6 14 Q14 7 19.5 7.8 L17.2 14 Z M27.4 14 Q26 7 20.5 7.8 L22.8 14 Z"/>'},
-  {b:'<path d="M11.5 18 Q10.5 4 20.5 4 Q30 4 28.6 17 Z"/>',f:'<path d="M12.4 16 Q12.6 5.5 21 5.5 Q28 5.5 27.6 12.5 L25.6 10.2 Q21 9.6 18 12 Q15.6 14.6 14.4 19.5 Z"/>'},
-  {b:'<path d="M12 15 Q11 4.5 20 4.5 Q29 4.5 28 15 Z"/>',f:'<path d="M12.4 14.5 L14.2 9 L15.8 12.6 L17.6 8.4 L19.4 12.4 L21.2 8.2 L22.8 12.4 L24.6 8.6 L26 12.6 L27.6 14.5 Q28 5.4 20 5.4 Q12 5.4 12.4 14.5 Z"/>'}
+  {b:'M14 12.4 L10.6 6.6 L14.4 6.8 L13 1.6 L17.2 4.2 L18.6 -.8 L21.2 3.6 L23.8 -.6 L24.8 4 L28.8 1.8 L27.2 6.6 L30.2 7.2 L26.2 12.4 Q25.6 4.8 20 4.8 Q14.4 4.8 14 12.4Z',
+   f:'M14.7 9.8 L15.8 5.2 L16.9 9.2 L18.3 4.8 L19.6 9 L21 4.8 L22.3 9 L23.7 5.2 L25.3 9.8 Q25.2 3.2 20 3.2 Q14.8 3.2 14.7 9.8Z'},
+  {b:'M14.4 12.6 Q13.8 2.8 20 2.8 Q26.2 2.8 25.6 12.6Z M23.6 4.6 Q32.6 5.6 30.6 22 Q29.6 33 26.4 41 Q27.4 28 25.2 16Z',
+   f:'M14.6 13.4 Q14.4 4.2 19.4 4 L17.4 8 Q16.2 10.6 16 14.6Z M25.4 13.4 Q25.6 4.2 20.6 4 L22.6 8 Q23.8 10.6 24 14.6Z M17.6 7.6 Q20 3 22.4 7.6 Q20 6.2 17.6 7.6Z'},
+  {b:'M14 13.4 Q13.4 2.8 20.4 2.8 Q26.8 2.8 26 12.8Z',
+   f:'M14.4 10.4 Q14.8 3.4 21 3.6 Q26.2 3.8 25.8 9.2 L24.2 7.8 Q21 7.4 18.6 9.8 Q17 11.4 16.4 13.8Z'},
+  {b:'M14.6 10.8 Q14.4 3.4 20 3.2 Q25.6 3.4 25.4 10.8Z',
+   f:'M14.7 9.2 L15.7 5.4 L16.9 8.2 L18.1 4.6 L19.5 7.8 L20.9 4.4 L22.3 7.8 L23.7 5 L25.3 9.2 Q25 2.8 20 2.8 Q15 2.8 14.7 9.2Z'}
 ];
-const BODY=[{sh:7.2,wa:4.9,arm:2.9,leg:3.7},{sh:9,wa:5.5,arm:3.5,leg:4.2},{sh:11,wa:6.3,arm:4.4,leg:4.8}];
+const BODY=[{sh:6.4,wa:4.2,arm:2.3,leg:3},{sh:7.7,wa:4.7,arm:2.85,leg:3.45},{sh:9.4,wa:5.4,arm:3.55,leg:3.95}];
 const shade=(hexc,k)=>{const n=parseInt(hexc.slice(1),16);const f=x=>clamp(Math.round(x*k),0,255);return '#'+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('')};
+function eyeSVG(x,dir,eye,closed){
+  // x is the eye center; dir 1 for the left eye, -1 for the right (mirrors the outer lash flick)
+  if(closed) return `<path d="M${x-1.5} 11.4 Q${x} 10.6 ${x+1.5} 11.4" stroke="#1a1520" stroke-width=".45" fill="none" stroke-linecap="round"/>`;
+  const o=x-dir*1.6,i=x+dir*1.6;
+  return `<path d="M${o} 11.3 Q${x} 10.1 ${i} 11.1 Q${x} 12.5 ${o} 11.3Z" fill="#fbfbff"/>
+    <ellipse cx="${x+dir*.05}" cy="11.4" rx=".78" ry="1" fill="${eye}"/><ellipse cx="${x+dir*.05}" cy="11" rx=".78" ry=".5" fill="rgba(0,0,0,.35)"/>
+    <ellipse cx="${x+dir*.05}" cy="11.45" rx=".34" ry=".55" fill="#120e16"/><circle cx="${x+dir*.3}" cy="11.05" r=".26" fill="#fff"/><circle cx="${x-dir*.25}" cy="11.85" r=".12" fill="#fff" opacity=".8"/>
+    <path d="M${o-dir*.2} 11.25 Q${x} 9.8 ${i+dir*.1} 10.95 L${i+dir*.55} 10.6" stroke="#15111a" stroke-width=".55" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M${o+dir*.4} 11.95 Q${x} 12.45 ${i-dir*.3} 11.8" stroke="rgba(26,21,32,.35)" stroke-width=".25" fill="none"/>`;
+}
 function personSVG(c,vb){
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
   const eye=c.eye||EYES[Math.abs(c.id||0)%EYES.length];
-  const P=BODY[physOf(c)],o=c.isCmd&&(!c.outfit||c.outfit==='jumpsuit')?'cmd':(c.outfit||'jumpsuit');
+  const ph=physOf(c),P=BODY[ph],o=c.isCmd&&(!c.outfit||c.outfit==='jumpsuit')?'cmd':(c.outfit||'jumpsuit');
   const sad=(c.mood!==undefined&&c.mood<35)||c.hurt>0;
   const top={jumpsuit:c.shirt,gi:'#262a36',flight:'#7a5230',labcoat:'#eef2f5',armor:'#4a525c',suit:'#1e2227',cmd:'#262b31'}[o];
   const pants={jumpsuit:shade(c.shirt,.7),gi:'#262a36',flight:'#2f3a44',labcoat:'#3a4252',armor:'#3a4149',suit:'#1e2227',cmd:'#1e2227'}[o];
-  const trim=c.trim||'#2EC4C9';
+  const trim=c.trim||'#2EC4C9',skin=c.skin,skinS=shade(skin,.82),hairS=shade(c.hair,.7);
   const L=20-P.sh,R=20+P.sh,wl=20-P.wa,wr=20+P.wa;
   const hipL=20-P.wa+P.leg/2,hipR=20+P.wa-P.leg/2;
-  // weapon behind the body
+  // weapons
   let wBack='',wFront='';
-  const look=(WEAPONS[c.weapon||'none']||WEAPONS.none).look,hx=R+.4;
-  const longGun=(body,acc)=>`<g transform="rotate(-30 20 46)">${body}</g>${acc||''}`;
-  if(look==='katana') wBack='<g transform="rotate(-38 20 40)"><rect x="19" y="20" width="2.2" height="36" rx="1" fill="#c9d1d9"/><rect x="18.4" y="17" width="3.4" height="1.4" fill="#FFC845"/><rect x="18.8" y="9" width="2.6" height="8" rx="1" fill="#2b2238"/></g>';
-  if(look==='bow') wBack='<path d="M9 20 Q1 40 10 62" stroke="#8a5a32" stroke-width="1.8" fill="none"/><path d="M9 20 L10 62" stroke="#e8e2d4" stroke-width=".5"/><rect x="27" y="22" width="4" height="16" rx="1.4" fill="#5a3a26" transform="rotate(20 29 30)"/><path d="M30 20 l1.4 -3 1.4 3z M33 21 l1.4 -3 1.4 3z" fill="#FF4D5E"/>';
-  if(look==='staff') wFront=`<rect x="${R+1.6}" y="14" width="1.8" height="80" rx=".9" fill="#8a5a32"/>`;
-  if(look==='sling') wFront=`<path d="M${hx} 60 V55 M${hx} 55 l-2.6 -4.4 M${hx} 55 l2.6 -4.4" stroke="#8a5a32" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M${hx-2.4} 51 Q${hx} 54 ${hx+2.4} 51" stroke="#FF4D5E" stroke-width=".6" fill="none"/>`;
-  if(look==='bb') wFront=`<g><rect x="${hx-1}" y="54" width="11" height="2" rx=".8" fill="#8a5a32"/><rect x="${hx+8}" y="54.4" width="5" height="1.2" fill="#2b3036"/></g>`;
-  if(look==='pistol') wFront=`<g><rect x="${hx-1}" y="53" width="7.4" height="3" rx="1" fill="#2b3036"/><rect x="${hx+5}" y="53.6" width="2.6" height="1.4" fill="#2EC4C9"/><rect x="${hx}" y="55.6" width="2" height="3" fill="#2b3036"/></g>`;
-  if(look==='rifle') wFront=longGun('<rect x="4" y="44" width="12" height="3.6" rx="1.2" fill="#8a5a32"/><rect x="14" y="44.4" width="26" height="2.2" fill="#2b3036"/><rect x="20" y="42" width="8" height="2" rx="1" fill="#2b3036"/>');
-  if(look==='assault') wFront=longGun('<rect x="5" y="44" width="8" height="3.4" fill="#2b3036"/><rect x="12" y="43.4" width="20" height="4.4" rx="1" fill="#3a4149"/><rect x="31" y="44.4" width="8" height="2" fill="#2b3036"/><rect x="20" y="47.6" width="3" height="5" fill="#2b3036"/>');
-  if(look==='mg') wFront=longGun('<rect x="5" y="43" width="30" height="5" rx="1.4" fill="#2b3036"/><rect x="34" y="44.4" width="8" height="2.2" fill="#2b3036"/><path d="M30 48 l-3 6 M30 48 l3 6" stroke="#2b3036" stroke-width="1.2"/>','<path d="M14 54 q-3 6 2 9" stroke="#FFC845" stroke-width="1.6" fill="none" stroke-dasharray="1.6 .8"/>');
-  if(look==='laser') wFront=longGun('<rect x="6" y="44" width="30" height="3.4" rx="1.2" fill="#c9d1d9"/><rect x="30" y="44.6" width="9" height="2.2" fill="#3A8DDE"/><rect x="12" y="45" width="14" height="1.2" fill="#7FF0F3"/>');
-  if(look==='plasma') wFront=longGun('<rect x="6" y="42.6" width="26" height="6.4" rx="2.6" fill="#3a3f55"/><circle cx="34" cy="45.8" r="3.6" fill="#ff5fd2"/><circle cx="34" cy="45.8" r="1.6" fill="#ffd1f2"/>');
-  if(look==='rail') wFront=longGun('<rect x="5" y="43.4" width="8" height="5" fill="#2b3036"/><rect x="12" y="42.8" width="30" height="1.6" fill="#8a939e"/><rect x="12" y="47.2" width="30" height="1.6" fill="#8a939e"/><rect x="13" y="45.2" width="29" height="1" fill="#9fb8ff"/>');
-  if(look==='kunai') wFront=`<g><rect x="${hipR+1.4}" y="58" width="3" height="5" rx="1" fill="#2b3036"/><path d="M${hipR+2.9} 63 l-1.3 4 h2.6z" fill="#c9d1d9"/></g>`;
+  const look=(WEAPONS[c.weapon||'none']||WEAPONS.none).look,hx=R+.2;
+  const longGun=(body,acc)=>`<g transform="rotate(-30 20 40)">${body}</g>${acc||''}`;
+  if(look==='katana') wBack='<g transform="rotate(-38 20 34)"><rect x="19" y="14" width="1.8" height="32" rx=".8" fill="#d9e0e6"/><rect x="18.5" y="12" width="2.8" height="1.2" fill="#FFC845"/><rect x="18.8" y="5" width="2.2" height="7" rx=".8" fill="#2b2238"/></g>';
+  if(look==='bow') wBack='<path d="M10 15 Q3 33 11 52" stroke="#8a5a32" stroke-width="1.5" fill="none"/><path d="M10 15 L11 52" stroke="#e8e2d4" stroke-width=".4"/><rect x="26" y="16" width="3.4" height="14" rx="1.2" fill="#5a3a26" transform="rotate(20 28 23)"/><path d="M29 14 l1.2 -2.6 1.2 2.6z M31.6 15 l1.2 -2.6 1.2 2.6z" fill="#FF4D5E"/>';
+  if(look==='staff') wFront=`<rect x="${R+1.4}" y="8" width="1.5" height="86" rx=".7" fill="#8a5a32"/><rect x="${R+1.2}" y="40" width="1.9" height="5" fill="#2b2238"/>`;
+  if(look==='sling') wFront=`<path d="M${hx} 52 V47.5 M${hx} 47.5 l-2.2 -3.8 M${hx} 47.5 l2.2 -3.8" stroke="#8a5a32" stroke-width="1.1" stroke-linecap="round" fill="none"/>`;
+  if(look==='bb') wFront=`<rect x="${hx-1}" y="47" width="10" height="1.8" rx=".7" fill="#8a5a32"/><rect x="${hx+7}" y="47.3" width="5" height="1.1" fill="#2b3036"/>`;
+  if(look==='pistol') wFront=`<rect x="${hx-1}" y="46.4" width="6.6" height="2.6" rx=".8" fill="#2b3036"/><rect x="${hx+4.4}" y="46.9" width="2.4" height="1.2" fill="#2EC4C9"/><rect x="${hx}" y="48.6" width="1.8" height="2.6" fill="#2b3036"/>`;
+  if(look==='rifle') wFront=longGun('<rect x="5" y="38" width="11" height="3.2" rx="1" fill="#8a5a32"/><rect x="14" y="38.4" width="24" height="2" fill="#2b3036"/><rect x="19" y="36.2" width="7" height="1.8" rx=".8" fill="#2b3036"/>');
+  if(look==='assault') wFront=longGun('<rect x="6" y="38" width="7" height="3" fill="#2b3036"/><rect x="12" y="37.4" width="18" height="4" rx="1" fill="#3a4149"/><rect x="29" y="38.3" width="8" height="1.8" fill="#2b3036"/><rect x="19" y="41.2" width="2.8" height="4.4" fill="#2b3036"/>');
+  if(look==='mg') wFront=longGun('<rect x="6" y="37" width="28" height="4.6" rx="1.2" fill="#2b3036"/><rect x="33" y="38.3" width="7" height="2" fill="#2b3036"/><path d="M29 41.6 l-2.6 5 M29 41.6 l2.6 5" stroke="#2b3036" stroke-width="1"/>','<path d="M15 47 q-3 5 2 8" stroke="#FFC845" stroke-width="1.4" fill="none" stroke-dasharray="1.4 .7"/>');
+  if(look==='laser') wFront=longGun('<rect x="7" y="38" width="28" height="3" rx="1" fill="#c9d1d9"/><rect x="30" y="38.5" width="8" height="2" fill="#3A8DDE"/><rect x="12" y="38.9" width="13" height="1" fill="#7FF0F3"/>');
+  if(look==='plasma') wFront=longGun('<rect x="7" y="36.8" width="24" height="5.8" rx="2.4" fill="#3a3f55"/><circle cx="33" cy="39.7" r="3.2" fill="#ff5fd2"/><circle cx="33" cy="39.7" r="1.4" fill="#ffd1f2"/>');
+  if(look==='rail') wFront=longGun('<rect x="6" y="37.6" width="7" height="4.4" fill="#2b3036"/><rect x="12" y="37" width="28" height="1.4" fill="#8a939e"/><rect x="12" y="41" width="28" height="1.4" fill="#8a939e"/><rect x="13" y="39.2" width="27" height=".9" fill="#9fb8ff"/>');
+  if(look==='kunai') wFront=`<rect x="${hipR+1.2}" y="53" width="2.6" height="4.4" rx=".8" fill="#2b3036"/><path d="M${hipR+2.5} 57.4 l-1.1 3.4 h2.2z" fill="#d9e0e6"/>`;
+  // legs and feet
+  const legPath=(x,d)=>`M${x} 49 L${x+d*.3} 70 L${x} 90.5`;
+  const legs=`<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${legPath(hipL,-1)}" stroke="${pants}" stroke-width="${P.leg}"/><path d="${legPath(hipR,1)}" stroke="${shade(pants,.82)}" stroke-width="${P.leg}"/><path d="M${hipL+P.leg*.25} 52 L${hipL+P.leg*.3} 69" stroke="rgba(255,255,255,.12)" stroke-width=".5"/><path d="M${hipL-.3} 70 l.8 .4 M${hipR+.3} 70 l-.8 .4" stroke="rgba(0,0,0,.3)" stroke-width=".4"/></g>`+
+    (o==='gi'?`<g stroke="#e8e2d4" stroke-width="${P.leg+.3}"><path d="M${hipL} 86 L${hipL} 89.6"/><path d="M${hipR} 86 L${hipR} 89.6"/></g>`:'');
   const feet=c.clone
-    ?`<g fill="#5BE36B" stroke="#2c8c3c" stroke-width=".6"><ellipse cx="${hipL-.6}" cy="93" rx="${P.leg*.8+.6}" ry="2.4"/><ellipse cx="${hipR+.6}" cy="93" rx="${P.leg*.8+.6}" ry="2.4"/><circle cx="${hipL-3}" cy="92" r="1.1"/><circle cx="${hipL-1}" cy="91.4" r="1.1"/><circle cx="${hipR+3}" cy="92" r="1.1"/><circle cx="${hipR+1}" cy="91.4" r="1.1"/></g>`
-    :`<g fill="#1e2227"><path d="M${hipL-P.leg*.7-1.4} 94.6 Q${hipL-P.leg*.7-1.4} 90 ${hipL} 89.6 Q${hipL+P.leg*.6} 90 ${hipL+P.leg*.6} 94.6 Z"/><path d="M${hipR+P.leg*.7+1.4} 94.6 Q${hipR+P.leg*.7+1.4} 90 ${hipR} 89.6 Q${hipR-P.leg*.6} 90 ${hipR-P.leg*.6} 94.6 Z"/></g>`;
-  const legs=`<g stroke="${pants}" stroke-width="${P.leg}" stroke-linecap="round" fill="none"><path d="M${hipL} 52 L${hipL-.4} 71 L${hipL} 89"/><path d="M${hipR} 52 L${hipR+.4} 71 L${hipR} 89"/></g>`+
-    (o==='gi'?`<g stroke="#e8e2d4" stroke-width="${P.leg+.4}"><path d="M${hipL} 84 L${hipL} 88"/><path d="M${hipR} 84 L${hipR} 88"/></g>`:'');
+    ?`<g fill="#5BE36B" stroke="#2c8c3c" stroke-width=".5"><ellipse cx="${hipL-.5}" cy="93" rx="${P.leg*.75+.6}" ry="2.1"/><ellipse cx="${hipR+.5}" cy="93" rx="${P.leg*.75+.6}" ry="2.1"/><circle cx="${hipL-2.8}" cy="92.1" r="1"/><circle cx="${hipL-1}" cy="91.6" r="1"/><circle cx="${hipR+2.8}" cy="92.1" r="1"/><circle cx="${hipR+1}" cy="91.6" r="1"/></g>`
+    :`<g><path d="M${hipL-P.leg*.6-1.6} 94.6 Q${hipL-P.leg*.6-1.6} 90.6 ${hipL} 90.2 Q${hipL+P.leg*.55} 90.6 ${hipL+P.leg*.55} 94.6 Z" fill="#1e2227"/><path d="M${hipR+P.leg*.6+1.6} 94.6 Q${hipR+P.leg*.6+1.6} 90.6 ${hipR} 90.2 Q${hipR-P.leg*.55} 90.6 ${hipR-P.leg*.55} 94.6 Z" fill="#14171b"/><path d="M${hipL-P.leg*.6-1.2} 93.8 H${hipL+P.leg*.4}" stroke="rgba(255,255,255,.2)" stroke-width=".4"/></g>`;
+  // arms with cel shading: the far arm is darker
   const sleeve=o==='labcoat'?'#eef2f5':top;
-  const arm=(x0,dir)=>{const ex=x0+dir*2.4,hx=x0+dir*1.4;return `<path d="M${x0} 31 L${ex} 43 L${hx} 55" stroke="${sleeve}" stroke-width="${P.arm}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>${physOf(c)===2?`<ellipse cx="${x0+dir*1.4}" cy="36" rx="${P.arm*.62}" ry="3.6" fill="${sleeve}"/>`:''}<circle cx="${hx}" cy="56" r="${P.arm*.55+.3}" fill="var(--skin)"/>`};
-  let torso=`<path d="M${L} 29.5 Q20 26.5 ${R} 29.5 L${wr} 53 L${wl} 53 Z" fill="${top}"/><path d="M20 27.4 Q${R-1} 27.6 ${R} 29.5 L${wr} 53 L20 53 Z" fill="rgba(0,0,0,.18)"/>`;
-  if(o==='jumpsuit') torso+=`<path d="M20 29 L20 52" stroke="rgba(255,255,255,.35)" stroke-width=".8"/><path d="M17 28.4 L20 31.6 L23 28.4" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1"/><rect x="${R-4.4}" y="33" width="2.6" height="1.6" fill="#2EC4C9"/>`;
-  if(o==='gi') torso+=`<path d="M${L+1.6} 29.6 L22.6 44 M${R-1.6} 29.6 L18 41" stroke="#e8e2d4" stroke-width="1.6"/><rect x="${wl-.4}" y="44.5" width="${2*P.wa+.8}" height="2.6" fill="#c0392b"/><path d="M${wr-1} 46.5 l2.4 5 M${wr-2.2} 46.5 l1 5.6" stroke="#c0392b" stroke-width="1.2"/>`;
-  if(o==='flight') torso+=`<path d="M${L+.4} 29.4 Q20 33.5 ${R-.4} 29.4 Q20 28 ${L+.4} 29.4 Z" fill="#e8dcc0" stroke="#e8dcc0" stroke-width="1.6"/><path d="M20 31 L20 52" stroke="#c9a36a" stroke-width=".9"/><circle cx="${L+3}" cy="35" r="1.4" fill="#2EC4C9"/>`;
-  if(o==='labcoat') torso=`<path d="M${L} 29.5 Q20 26.5 ${R} 29.5 L${wr+2.6} 74 L${wl-2.6} 74 Z" fill="#eef2f5"/><path d="M20 27.4 Q${R-1} 27.6 ${R} 29.5 L${wr+2.6} 74 L20 74 Z" fill="rgba(0,0,0,.08)"/><path d="M17 28.4 L20 40 L23 28.4" fill="${c.shirt}"/><path d="M20 40 L20 74" stroke="#c9d1d9" stroke-width=".8"/><rect x="${R-4.6}" y="36" width="3" height="3.6" fill="none" stroke="#c9d1d9" stroke-width=".6"/><rect x="${R-3.6}" y="34.4" width=".8" height="3" fill="#3A8DDE"/>`;
-  if(o==='armor') torso+=`<path d="M${L+1.4} 31 Q20 29.4 ${R-1.4} 31 L${wr-.6} 44 Q20 46 ${wl+.6} 44 Z" fill="#6a7480"/><path d="M${L+2} 38 L${R-2} 38" stroke="#2EC4C9" stroke-width=".9"/><ellipse cx="${L+.4}" cy="30.4" rx="3.2" ry="2.2" fill="#6a7480"/><ellipse cx="${R-.4}" cy="30.4" rx="3.2" ry="2.2" fill="#6a7480"/>`;
-  if(o==='cmd') torso=`<path d="M${L} 29.5 Q20 26.5 ${R} 29.5 L${wr+3} 76 L${wl-3} 76 Z" fill="#262b31"/><path d="M20 27.4 Q${R-1} 27.6 ${R} 29.5 L${wr+3} 76 L20 76 Z" fill="rgba(0,0,0,.2)"/><path d="M${L+.6} 29.6 L20 38 L${R-.6} 29.6" fill="none" stroke="${trim}" stroke-width="1.6"/><path d="M20 38 L20 76" stroke="${trim}" stroke-width="1"/><rect x="${L-1.6}" y="28" width="5" height="2.2" rx="1" fill="#FFC845"/><rect x="${R-3.4}" y="28" width="5" height="2.2" rx="1" fill="#FFC845"/><path d="M${L+3.6} 34.4 l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="#FFC845"/>`;
-  if(o==='suit') torso+=`<path d="M17 28.4 L20 40 L23 28.4" fill="#f4f7fa"/><path d="M20 30 L19.2 38 L20 40.6 L20.8 38Z" fill="#FFC845"/><path d="M${L+1} 29.6 L19 40 M${R-1} 29.6 L21 40" stroke="#3a4149" stroke-width="1.2"/>`;
-  if(physOf(c)>=1&&(o==='jumpsuit'||o==='gi'||o==='armor')) torso+=`<path d="M${20-P.sh*.62} 35 Q${20-P.sh*.3} 38 20 36.4 Q${20+P.sh*.3} 38 ${20+P.sh*.62} 35" stroke="rgba(0,0,0,.22)" fill="none" stroke-width=".8"/>`+(physOf(c)===2?'<path d="M20 38 V49 M17.6 42 H22.4 M17.8 45.6 H22.2" stroke="rgba(0,0,0,.16)" stroke-width=".7"/>':'');
+  const arm=(x0,dir,col)=>{const ex=x0+dir*2.1,hx2=x0+dir*1.1;return `<path d="M${x0} 24.6 L${ex} 35.6 L${hx2} 46.4" stroke="${col}" stroke-width="${P.arm}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>${ph===2?`<ellipse cx="${x0+dir*1.2}" cy="28.4" rx="${P.arm*.62}" ry="3" fill="${col}"/>`:''}<path d="M${x0+dir*.6} 25.4 L${ex+dir*.4} 35.4" stroke="rgba(0,0,0,.14)" stroke-width="${P.arm*.35}" fill="none"/><ellipse cx="${hx2}" cy="47.6" rx="${P.arm*.48+.2}" ry="${P.arm*.6+.3}" fill="${skin}"/>`};
+  // torso with a crisp cel shadow on the far side
+  let torso=`<path d="M${L} 23.6 Q20 21.6 ${R} 23.6 L${wr} 45 L${wr+.4} 49 L${wl-.4} 49 L${wl} 45 Z" fill="${top}"/><path d="M20.6 22.4 Q${R-.6} 22.5 ${R} 23.6 L${wr} 45 L${wr+.4} 49 L21.4 49 Q22.6 36 20.6 22.4Z" fill="rgba(0,0,0,.22)"/><path d="M${L+.6} 24 L${wl+.3} 44" stroke="rgba(255,255,255,.16)" stroke-width=".6"/>`;
+  const fold=`<path d="M${wl+.8} 40 Q20 41.4 ${wr-.8} 40 M${wl+1.2} 43.4 Q20 44.4 ${wr-1.4} 43.2" stroke="rgba(0,0,0,.14)" stroke-width=".4" fill="none"/>`;
+  if(o==='jumpsuit') torso+=`<path d="M20 23 L20 48" stroke="rgba(255,255,255,.3)" stroke-width=".6"/><path d="M17.4 22.6 L20 25.6 L22.6 22.6" fill="none" stroke="rgba(255,255,255,.55)" stroke-width=".8"/><rect x="${R-3.8}" y="26.4" width="2.2" height="1.3" fill="#2EC4C9"/>${fold}`;
+  if(o==='gi') torso+=`<path d="M${L+1.4} 23.8 L22.4 37.6 M${R-1.4} 23.8 L18.2 35" stroke="#e8e2d4" stroke-width="1.3"/><rect x="${wl-.3}" y="39.6" width="${2*P.wa+.6}" height="2.2" fill="#c0392b"/><path d="M${wr-1} 41.6 l2.2 4.4 M${wr-2} 41.6 l.9 5" stroke="#c0392b" stroke-width="1"/>`;
+  if(o==='flight') torso+=`<path d="M${L+.4} 23.6 Q20 27.4 ${R-.4} 23.6 Q20 22.2 ${L+.4} 23.6 Z" fill="#e8dcc0" stroke="#e8dcc0" stroke-width="1.3"/><path d="M20 25 L20 48" stroke="#c9a36a" stroke-width=".7"/><circle cx="${L+2.6}" cy="28.4" r="1.1" fill="#2EC4C9"/>${fold}`;
+  if(o==='labcoat') torso=`<path d="M${L} 23.6 Q20 21.6 ${R} 23.6 L${wr+2.4} 66 L${wl-2.4} 66 Z" fill="#eef2f5"/><path d="M20.6 22.4 Q${R-.6} 22.5 ${R} 23.6 L${wr+2.4} 66 L21 66 Z" fill="rgba(0,0,0,.09)"/><path d="M17.4 22.6 L20 33 L22.6 22.6" fill="${c.shirt}"/><path d="M20 33 L20 66" stroke="#c9d1d9" stroke-width=".6"/><rect x="${R-4.2}" y="29" width="2.6" height="3" fill="none" stroke="#c9d1d9" stroke-width=".5"/><rect x="${R-3.3}" y="27.8" width=".7" height="2.6" fill="#3A8DDE"/>`;
+  if(o==='armor') torso+=`<path d="M${L+1.2} 25 Q20 23.6 ${R-1.2} 25 L${wr-.4} 37 Q20 38.6 ${wl+.4} 37 Z" fill="#6a7480"/><path d="M${L+1.8} 31 L${R-1.8} 31" stroke="#2EC4C9" stroke-width=".7"/><ellipse cx="${L+.4}" cy="24.4" rx="2.8" ry="1.9" fill="#6a7480"/><ellipse cx="${R-.4}" cy="24.4" rx="2.8" ry="1.9" fill="#5a636d"/>`;
+  if(o==='suit') torso+=`<path d="M17.4 22.6 L20 33 L22.6 22.6" fill="#f4f7fa"/><path d="M20 24 L19.3 31 L20 33.4 L20.7 31Z" fill="#FFC845"/><path d="M${L+.8} 23.8 L19 33 M${R-.8} 23.8 L21 33" stroke="#3a4149" stroke-width="1"/>`;
+  if(o==='cmd') torso=`<path d="M${L} 23.6 Q20 21.6 ${R} 23.6 L${wr+2.8} 68 L${wl-2.8} 68 Z" fill="#262b31"/><path d="M20.6 22.4 Q${R-.6} 22.5 ${R} 23.6 L${wr+2.8} 68 L21 68 Z" fill="rgba(0,0,0,.22)"/><path d="M${L+.6} 23.8 L20 31 L${R-.6} 23.8" fill="none" stroke="${trim}" stroke-width="1.3"/><path d="M20 31 L20 68" stroke="${trim}" stroke-width=".8"/><rect x="${L-1.4}" y="22.4" width="4.4" height="1.9" rx=".8" fill="#FFC845"/><rect x="${R-3}" y="22.4" width="4.4" height="1.9" rx=".8" fill="#FFC845"/><path d="M${L+3.2} 27.8 l.9 1.7 1.9.3-1.4 1.3.3 1.9-1.7-.9-1.7.9.3-1.9-1.4-1.3 1.9-.3z" fill="#FFC845"/>`;
+  if(ph>=1&&(o==='jumpsuit'||o==='gi'||o==='armor')) torso+=`<path d="M${20-P.sh*.6} 28.4 Q${20-P.sh*.3} 31 20 29.6 Q${20+P.sh*.3} 31 ${20+P.sh*.6} 28.4" stroke="rgba(0,0,0,.22)" fill="none" stroke-width=".6"/>`+(ph===2?'<path d="M20 31.4 V42 M17.8 34.6 H22.2 M18 38 H22" stroke="rgba(0,0,0,.15)" stroke-width=".55"/>':'');
   const ar=c.armor||'none';let armorSVG='';
-  if(ar==='padded') armorSVG=`<path d="M${L+1.4} 30.4 Q20 28.6 ${R-1.4} 30.4 L${wr-.2} 50 L${wl+.2} 50 Z" fill="#6b7a4a"/><path d="M${L+2} 36 H${R-2} M${L+2.6} 41 H${R-2.6} M${wl+.6} 46 H${wr-.6}" stroke="#4a5530" stroke-width=".7"/>`;
-  if(ar==='kevlar') armorSVG=`<path d="M${L+1.4} 30.4 Q20 28.6 ${R-1.4} 30.4 L${wr-.2} 50 L${wl+.2} 50 Z" fill="#1e2227"/><rect x="${wl+.6}" y="43" width="3.4" height="4" fill="#3a4149"/><rect x="18.3" y="43" width="3.4" height="4" fill="#3a4149"/><rect x="${wr-4}" y="43" width="3.4" height="4" fill="#3a4149"/>`;
-  if(ar==='plate') armorSVG=`<path d="M${L+1} 30.6 Q20 28.6 ${R-1} 30.6 L${wr} 50 L${wl} 50 Z" fill="#3a4149"/><path d="M${L+1.6} 35 H${R-1.6} M${L+2.2} 39.6 H${R-2.2} M${wl+.4} 44.4 H${wr-.4}" stroke="#5a636d" stroke-width="1.1"/><ellipse cx="${L+.4}" cy="30.6" rx="3.4" ry="2.4" fill="#3a4149"/><ellipse cx="${R-.4}" cy="30.6" rx="3.4" ry="2.4" fill="#3a4149"/>`;
-  if(ar==='power') armorSVG=`<path d="M${L-.6} 30 Q20 27.4 ${R+.6} 30 L${wr+1} 51 L${wl-1} 51 Z" fill="#8a939e" stroke="#4a525c" stroke-width=".6"/><ellipse cx="${L-.4}" cy="30.6" rx="4.4" ry="3.2" fill="#6a7480"/><ellipse cx="${R+.4}" cy="30.6" rx="4.4" ry="3.2" fill="#6a7480"/><circle cx="20" cy="37" r="2.6" fill="#7FF0F3"/><circle cx="20" cy="37" r="1.2" fill="#fff"/><path d="M${wl} 46 H${wr}" stroke="#4a525c"/>`;
-  if(ar==='nano') armorSVG=`<path d="M${L+.4} 29.8 Q20 27.4 ${R-.4} 29.8 L${wr+.2} 52 L${wl-.2} 52 Z" fill="#12161a"/><path d="M${L+2} 31 L20 38 L${R-2} 31 M20 38 V51 M${wl+1} 45 H${wr-1}" stroke="#2EC4C9" stroke-width=".7" fill="none"/>`;
-  const belt=(o==='labcoat'||o==='cmd'||o==='gi'||o==='suit')?'':`<rect x="${wl-.3}" y="50.6" width="${2*P.wa+.6}" height="2.6" fill="#1e2227"/><rect x="18.8" y="50.4" width="2.4" height="3" fill="#c9d1d9"/>`;
-  const eyes=c.hurt>0
-    ?'<g stroke="#2b2238" stroke-width="1" fill="none" stroke-linecap="round"><path d="M14.8 15.4 Q16.6 14 18.4 15.4"/><path d="M21.6 15.4 Q23.4 14 25.2 15.4"/></g>'
-    :`<g><path d="M14.4 14.1 Q16.6 12.6 18.8 13.9" stroke="#1a1520" stroke-width="1.1" fill="none" stroke-linecap="round"/><path d="M25.6 14.1 Q23.4 12.6 21.2 13.9" stroke="#1a1520" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-      <ellipse cx="16.7" cy="15.6" rx="1.3" ry="1.8" fill="${eye}"/><ellipse cx="23.3" cy="15.6" rx="1.3" ry="1.8" fill="${eye}"/><ellipse cx="16.7" cy="16" rx=".6" ry=".9" fill="#1a1520"/><ellipse cx="23.3" cy="16" rx=".6" ry=".9" fill="#1a1520"/>
-      <circle cx="17.2" cy="14.9" r=".5" fill="#fff"/><circle cx="23.8" cy="14.9" r=".5" fill="#fff"/></g>`;
-  const brows=`<g stroke="${shade(c.hair,.8)}" stroke-width=".9" stroke-linecap="round"><path d="M14.6 12.2 L18.4 12.9"/><path d="M25.4 12.2 L21.6 12.9"/></g>`;
-  const mouth=sad?'<path d="M19 21 Q20 20.3 21 21" stroke="#7a3b3b" stroke-width=".8" fill="none" stroke-linecap="round"/>'
-    :'<path d="M19 20.6 Q20 21.3 21 20.6" stroke="#7a3b3b" stroke-width=".8" fill="none" stroke-linecap="round"/>';
-  const band=`<rect x="12.6" y="9.6" width="14.8" height="2.4" fill="#262b31"/><path d="M12.8 10 Q8 11 6.5 15.5 M12.8 11.4 Q9 13 8.4 17.5" stroke="#262b31" stroke-width="1.4" fill="none" stroke-linecap="round"/><rect x="17.2" y="9.1" width="5.6" height="3.4" rx=".7" fill="#c9d1d9"/><path d="M20 9.7 L21.2 10.8 L20 11.9 L18.8 10.8 Z" fill="${c.isCmd?'#FFC845':'#2EC4C9'}"/>`;
-  const hurtBand=c.hurt>0?'<rect x="12.6" y="12.6" width="14.8" height="2.6" rx="1" fill="#fff" opacity=".95"/><path d="M26 2 l1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.3z" fill="#FFC845"/>':'';
-  const coat=`<g class="coatg"><path d="M${L-1.6} 28.5 Q20 25 ${R+1.6} 28.5 L${wr+6} 82 Q20 85 ${wl-6} 82 Z" fill="#A88A5C"/><path d="M20 27 L20 83" stroke="#6E5937" stroke-width="1"/><rect x="${wl-3}" y="48" width="${2*P.wa+6}" height="2.6" fill="#6E5937"/><path d="M15.5 27.6 L20 36 L24.5 27.6" fill="#8C7246"/><ellipse cx="20" cy="7" rx="11.5" ry="2.6" fill="#5a4630"/><rect x="13.4" y="-1.5" width="13.2" height="8.6" rx="3" fill="#6E5937"/><rect x="13.4" y="4" width="13.2" height="1.8" fill="#3b2d1c"/></g>`;
-  return `<svg viewBox="${vb||'0 0 40 100'}" aria-hidden="true" style="--skin:${c.skin}">
-    <ellipse cx="20" cy="95" rx="${P.sh+2}" ry="2" fill="rgba(0,0,0,.3)"/>
+  const vest=(f)=>`<path d="M${L+1.2} 24.4 Q20 22.8 ${R-1.2} 24.4 L${wr-.2} 45 L${wl+.2} 45 Z" fill="${f}"/><path d="M20.6 23.4 Q${R-1.6} 23.6 ${R-1.2} 24.4 L${wr-.2} 45 L21.4 45 Z" fill="rgba(0,0,0,.2)"/>`;
+  if(ar==='padded') armorSVG=vest('#6b7a4a')+`<path d="M${L+1.8} 29.4 H${R-1.8} M${L+2.4} 34 H${R-2.4} M${wl+.6} 39 H${wr-.6}" stroke="#4a5530" stroke-width=".6"/>`;
+  if(ar==='kevlar') armorSVG=vest('#1e2227')+`<rect x="${wl+.5}" y="38" width="3" height="3.6" fill="#3a4149"/><rect x="18.5" y="38" width="3" height="3.6" fill="#3a4149"/><rect x="${wr-3.5}" y="38" width="3" height="3.6" fill="#3a4149"/>`;
+  if(ar==='plate') armorSVG=vest('#3a4149')+`<path d="M${L+1.4} 28.4 H${R-1.4} M${L+2} 32.8 H${R-2} M${wl+.4} 37.4 H${wr-.4}" stroke="#5a636d" stroke-width=".9"/><ellipse cx="${L+.4}" cy="24.6" rx="3" ry="2.1" fill="#3a4149"/><ellipse cx="${R-.4}" cy="24.6" rx="3" ry="2.1" fill="#2b3036"/>`;
+  if(ar==='power') armorSVG=`<path d="M${L-.6} 24 Q20 21.6 ${R+.6} 24 L${wr+1} 46 L${wl-1} 46 Z" fill="#8a939e" stroke="#4a525c" stroke-width=".5"/><path d="M20.6 22.8 Q${R} 23 ${R+.6} 24 L${wr+1} 46 L21.4 46 Z" fill="rgba(0,0,0,.2)"/><ellipse cx="${L-.4}" cy="24.6" rx="3.8" ry="2.8" fill="#6a7480"/><ellipse cx="${R+.4}" cy="24.6" rx="3.8" ry="2.8" fill="#5a636d"/><circle cx="20" cy="30.6" r="2.2" fill="#7FF0F3"/><circle cx="20" cy="30.6" r="1" fill="#fff"/><path d="M${wl} 40 H${wr}" stroke="#4a525c"/>`;
+  if(ar==='nano') armorSVG=`<path d="M${L+.4} 23.8 Q20 21.6 ${R-.4} 23.8 L${wr+.2} 47 L${wl-.2} 47 Z" fill="#12161a"/><path d="M${L+1.8} 25 L20 31.4 L${R-1.8} 25 M20 31.4 V46 M${wl+.8} 39.4 H${wr-.8}" stroke="#2EC4C9" stroke-width=".6" fill="none"/>`;
+  const belt=(o==='labcoat'||o==='cmd'||o==='gi'||o==='suit')?'':`<rect x="${wl-.3}" y="45.6" width="${2*P.wa+.6}" height="2.2" fill="#1e2227"/><rect x="19" y="45.4" width="2" height="2.6" fill="#c9d1d9"/>`;
+  // face
+  const H=HAIR[hs];
+  const face=`<path d="M15 10 Q15 3.6 20 3.6 Q25 3.6 25 10 Q25 14.6 22.4 17.6 Q21.2 19 20 19.2 Q18.8 19 17.6 17.6 Q15 14.6 15 10 Z" fill="${skin}"/>
+    <path d="M23.4 5.4 Q25 7.4 25 10 Q25 14.6 22.4 17.6 Q21.2 19 20 19.2 Q23 15.4 23.4 5.4Z" fill="${skinS}" opacity=".55"/>
+    <ellipse cx="15.1" cy="11.6" rx=".8" ry="1.5" fill="${skinS}"/><ellipse cx="24.9" cy="11.6" rx=".8" ry="1.5" fill="${skinS}"/>
+    <path d="M15.4 8.6 Q20 10.4 24.6 8.6 L24.6 9.8 Q20 11.4 15.4 9.8Z" fill="rgba(70,30,20,.18)"/>`;
+  const eyes=eyeSVG(17.9,1,eye,c.hurt>0)+eyeSVG(22.1,-1,eye,c.hurt>0);
+  const brows=`<g stroke="${hairS}" stroke-width=".45" stroke-linecap="round" fill="none"><path d="M16.2 9.4 Q17.8 8.6 19.4 9.2"/><path d="M23.8 9.4 Q22.2 8.6 20.6 9.2"/></g>`;
+  const nose=`<path d="M20.3 12.4 L20.7 14.3 L20.05 14.6" stroke="${shade(skin,.7)}" stroke-width=".35" fill="none" stroke-linecap="round"/>`;
+  const mouth=sad?`<path d="M19.1 16.6 Q20 16.1 20.9 16.6" stroke="#9a4a48" stroke-width=".4" fill="none" stroke-linecap="round"/>`
+    :`<path d="M19.1 16.2 Q20 16.7 20.9 16.2" stroke="#9a4a48" stroke-width=".4" fill="none" stroke-linecap="round"/><path d="M19.6 16.8 Q20 17 20.4 16.8" stroke="rgba(160,70,70,.35)" stroke-width=".3" fill="none"/>`;
+  const blush=`<ellipse cx="16.6" cy="14" rx="1.1" ry=".5" fill="#ff8fa3" opacity=".3"/><ellipse cx="23.4" cy="14" rx="1.1" ry=".5" fill="#ff8fa3" opacity=".3"/>`;
+  const band=`<rect x="14.8" y="6.4" width="10.4" height="1.5" fill="#262b31"/><path d="M14.9 6.8 Q11.4 7.6 10.2 11 M14.9 7.6 Q12 8.8 11.6 12" stroke="#262b31" stroke-width="1" fill="none" stroke-linecap="round"/><rect x="18" y="6" width="4" height="2.3" rx=".4" fill="#c9d1d9"/><path d="M20 6.4 L20.8 7.15 L20 7.9 L19.2 7.15 Z" fill="${c.isCmd?'#FFC845':'#2EC4C9'}"/>`;
+  const shine=`<path d="M16.4 5.4 Q20 3.8 23.6 5.4" stroke="rgba(255,255,255,.42)" stroke-width=".7" fill="none" stroke-linecap="round"/>`;
+  const hurtBand=c.hurt>0?'<rect x="14.8" y="8.6" width="10.4" height="1.8" rx=".7" fill="#fff" opacity=".95"/><path d="M27 1 l.9 1.8 1.8.3-1.3 1.2.3 1.8-1.7-.9-1.7.9.3-1.8-1.3-1.2 1.8-.3z" fill="#FFC845"/>':'';
+  const coat=`<g class="coatg"><path d="M${L-1.4} 23 Q20 20 ${R+1.4} 23 L${wr+5} 76 Q20 79 ${wl-5} 76 Z" fill="#A88A5C"/><path d="M20.6 22 Q${R+1} 22.2 ${R+1.4} 23 L${wr+5} 76 Q22 78 21 78Z" fill="rgba(0,0,0,.15)"/><path d="M20 22 L20 77" stroke="#6E5937" stroke-width=".8"/><rect x="${wl-2.6}" y="42" width="${2*P.wa+5.2}" height="2.2" fill="#6E5937"/><path d="M16 22.4 L20 29.6 L24 22.4" fill="#8C7246"/><ellipse cx="20" cy="4.6" rx="9" ry="2" fill="#5a4630"/><rect x="15" y="-2.4" width="10" height="7" rx="2.4" fill="#6E5937"/><rect x="15" y="2.4" width="10" height="1.4" fill="#3b2d1c"/></g>`;
+  return `<svg viewBox="${vb||'0 0 40 100'}" aria-hidden="true">
+    <ellipse cx="20" cy="95.4" rx="${P.sh+2.4}" ry="1.8" fill="rgba(0,0,0,.3)"/>
     ${wBack}
-    <g fill="${c.hair}">${HAIR[hs].b}</g>
+    <path d="${H.b}" fill="${c.hair}"/><path d="${H.b}" fill="rgba(0,0,0,.18)" transform="translate(.6 .6)" opacity=".6"/>
     ${legs}${feet}
-    ${arm(L+1,-1)}
+    ${arm(R-1,1,shade(sleeve,.82))}
     ${torso}${belt}${armorSVG}
-    ${arm(R-1,1)}
-    ${wFront}
-    <rect x="18.4" y="22.5" width="3.2" height="6" fill="var(--skin)"/><path d="M18.4 26 L21.6 26 L21.6 28.5 L18.4 28.5 Z" fill="rgba(0,0,0,.15)"/>
-    <path d="M12.6 14 Q12.6 5 20 5 Q27.4 5 27.4 14 Q27.4 20.6 20 24.6 Q12.6 20.6 12.6 14 Z" fill="var(--skin)"/>
-    <path d="M24 6.4 Q27.4 9 27.4 14 Q27.4 20.6 20 24.6 Q25 19 24 6.4 Z" fill="rgba(0,0,0,.08)"/>
-    <ellipse cx="15" cy="18.4" rx="1.6" ry=".9" fill="#ff8fa3" opacity=".45"/><ellipse cx="25" cy="18.4" rx="1.6" ry=".9" fill="#ff8fa3" opacity=".45"/>
-    ${eyes}${brows}<path d="M20.2 17.2 L19.7 18.6 L20.4 18.7" stroke="rgba(0,0,0,.25)" stroke-width=".5" fill="none"/>${mouth}
+    ${arm(L+1,-1,sleeve)}
+    <g transform="translate(0 -6)">${wFront}</g>
+    <rect x="18.7" y="17.4" width="2.6" height="5.6" fill="${skin}"/><path d="M18.7 17.6 Q20 19.6 21.3 17.6 L21.3 20 Q20 21 18.7 20Z" fill="${skinS}"/>
+    ${face}${blush}${eyes}${brows}${nose}${mouth}
     ${band}
-    <g fill="${c.hair}">${HAIR[hs].f}</g>
-    <path d="M15 7.4 Q18 6 21 6.6" stroke="rgba(255,255,255,.35)" stroke-width=".9" fill="none" stroke-linecap="round"/>
-    ${hurtBand}${coat}
+    <path d="${H.f}" fill="${c.hair}"/><path d="${H.f}" fill="${hairS}" opacity=".35" transform="translate(.35 .25)"/><path d="${H.f}" fill="${c.hair}" transform="translate(-.2 -.2)"/>
+    ${shine}${hurtBand}${coat}
   </svg>`;
 }
 function personHTML(c,extra){
@@ -994,11 +1028,14 @@ const LVL_UP=lv=>(lv>=2?'<g><rect x="5" y="66" width="9" height="14" rx="2" fill
   +(lv>=3?'<path d="M2 3H118" stroke="#2EC4C9" stroke-width="2.4" class="pulse"/><path d="M11 80H109" stroke="#2EC4C9" stroke-width="1.4" opacity=".8"/>':'')
   +(lv>=4?'<rect x="1.5" y="1.5" width="117" height="97" fill="none" stroke="#d4af37" stroke-width="2"/><ellipse cx="60" cy="90" rx="38" ry="6" fill="#8a2a3a" opacity=".75"/>':'')
   +(lv>=5?'<g class="pulse"><path d="M60 6 l6 8 -6 8 -6 -8z" fill="#7FF0F3" opacity=".9"/><circle cx="48" cy="10" r="1.2" fill="#fff"/><circle cx="73" cy="18" r="1.4" fill="#fff"/></g>':'');
+const ROOM_DEFS='<defs><radialGradient id="rlc" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#ffe7b0" stop-opacity=".5"/><stop offset=".55" stop-color="#ffe7b0" stop-opacity=".1"/><stop offset="1" stop-color="#ffe7b0" stop-opacity="0"/></radialGradient><linearGradient id="rwl" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity=".05"/></linearGradient><linearGradient id="rwr" x1="1" x2="0"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></linearGradient><linearGradient id="rfl" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>';
+const ROOM_LIGHT='<path d="M0 0 H120 L109 7 H11Z" fill="rgba(0,0,0,.38)"/><path d="M0 0 L11 7 L11 80 L0 100Z" fill="url(#rwl)"/><path d="M120 0 L109 7 L109 80 L120 100Z" fill="url(#rwr)"/><path d="M11 7 H109 M11 7 V80 M109 7 V80" stroke="rgba(255,255,255,.14)" stroke-width=".8" fill="none"/><path d="M46 7 L74 7 L102 80 L18 80Z" fill="url(#rlc)"/><rect x="11" y="77.5" width="98" height="3" fill="rgba(0,0,0,.22)"/><path d="M28 80 L92 80 L104 98 L16 98Z" fill="url(#rfl)"/><rect x="50" y="3.2" width="20" height="2.4" rx="1.2" fill="#fff6dc"/>';
 function decorSVG(type,w,h,lv){
   const base=DECOR[type]||'',wall=(base.match(/fill="(#[0-9a-fA-F]{6})"/)||[])[1]||'#3a4149',W=120*w,Hh=100*h,up=100*(h-1);
   let s='';
   if(h>1){s+=`<rect width="${W}" height="${Hh}" fill="${wall}"/><rect width="${W}" height="${up}" fill="rgba(0,0,0,.12)"/>`;for(let i=0;i<w;i++) s+=TALL_UP(i*120,up)}
-  for(let i=0;i<w;i++) s+=`<g transform="translate(${i*120} ${up})">${base}${LVL_UP(lv)}</g>`;
+  for(let i=0;i<w;i++) s+=`<g transform="translate(${i*120} ${up})">${base}${LVL_UP(lv)}${ROOM_LIGHT}</g>`;
+  s=ROOM_DEFS+s;
   return `<svg class="decor" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${s}</svg>`;
 }
 function roomHTML(k){
@@ -1041,29 +1078,38 @@ const ERA_PAL={brutal:{wall:'#8f8e89',wall2:'#6e6e6a',trim:'#5e5d59',glass:'#2b3
 // ground floor lobby: starts as a half buried bunker and grows into a mega building
 function lobbySVG(t,W){
   const B=LOBBY[t],P=ERA_PAL[eraOf(level()).key],w=Math.round(W*B.w),h=B.h,cx=w/2;
-  const win=(x,y,ww,hh,n,m)=>{let o='';const gw=ww/n,gh=hh/m;for(let i=0;i<n;i++)for(let j=0;j<m;j++)o+=`<rect x="${(x+i*gw+gw*.16).toFixed(1)}" y="${(y+j*gh+gh*.18).toFixed(1)}" width="${(gw*.68).toFixed(1)}" height="${(gh*.62).toFixed(1)}" rx="1.4" fill="${P.glass}" opacity=".92"/>`;return o};
-  const glassWall=(x,y,ww,hh)=>`<rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="${P.glass}" opacity=".85"/>${Array.from({length:Math.max(2,Math.round(ww/14))},(_,i)=>`<path d="M${(x+(i+1)*ww/(Math.round(ww/14)+1)).toFixed(1)} ${y}V${y+hh}" stroke="${P.wall2}" stroke-width="1.6"/>`).join('')}<path d="M${x} ${y+hh*.5}H${x+ww}" stroke="${P.wall2}" stroke-width="1.2"/><path d="M${x+4} ${y+hh-6} L${x+ww*.35} ${y+4}" stroke="#fff" opacity=".35" stroke-width="2"/>`;
-  let s='';
+  const defs=`<defs><linearGradient id="lbw" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></linearGradient>
+    <linearGradient id="lbg" y1="0" y2="1"><stop offset="0" stop-color="#fff6d8"/><stop offset=".55" stop-color="${P.glass}"/><stop offset="1" stop-color="${shade(P.glass,.7)}"/></linearGradient>
+    <radialGradient id="lbp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffe7b0" stop-opacity=".75"/><stop offset="1" stop-color="#ffe7b0" stop-opacity="0"/></radialGradient></defs>`;
+  const wall=(x,y,ww,hh,f)=>`<rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="${f}"/><rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="url(#lbw)"/><rect x="${x}" y="${y}" width="${ww}" height="1.6" fill="rgba(255,255,255,.45)"/><rect x="${x}" y="${y+hh-5}" width="${ww}" height="5" fill="rgba(0,0,0,.18)"/>`;
+  const win=(x,y,ww,hh,n,m)=>{let o='';const gw=ww/n,gh=hh/m;for(let i=0;i<n;i++)for(let j=0;j<m;j++){const X=x+i*gw+gw*.16,Y=y+j*gh+gh*.18,Wd=gw*.68,Hd=gh*.62;
+    o+=`<rect x="${X.toFixed(1)}" y="${Y.toFixed(1)}" width="${Wd.toFixed(1)}" height="${Hd.toFixed(1)}" rx="1.2" fill="url(#lbg)"/><rect x="${X.toFixed(1)}" y="${(Y+Hd-1.4).toFixed(1)}" width="${Wd.toFixed(1)}" height="1.4" fill="${P.wall2}"/><path d="M${(X+Wd*.2).toFixed(1)} ${(Y+Hd*.9).toFixed(1)} L${(X+Wd*.6).toFixed(1)} ${(Y+Hd*.1).toFixed(1)}" stroke="#fff" stroke-width="1" opacity=".45"/>`}return o};
+  const glassWall=(x,y,ww,hh)=>{const n=Math.max(2,Math.round(ww/14));return `<rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="url(#lbg)"/>${Array.from({length:n},(_,i)=>`<path d="M${(x+(i+1)*ww/(n+1)).toFixed(1)} ${y}V${y+hh}" stroke="${P.wall2}" stroke-width="1.6"/>`).join('')}<path d="M${x} ${y+hh*.5}H${x+ww}" stroke="${P.wall2}" stroke-width="1.2"/><path d="M${x+6} ${y+hh-8} L${x+ww*.38} ${y+6}" stroke="#fff" opacity=".5" stroke-width="3"/><path d="M${x+ww*.3} ${y+hh-6} L${x+ww*.52} ${y+hh*.3}" stroke="#fff" opacity=".3" stroke-width="1.6"/>`};
+  const lamp=x=>`<rect x="${x-.8}" y="${h-30}" width="1.6" height="30" fill="#2b3036"/><path d="M${x} ${h-30} q4 0 5 3" stroke="#2b3036" stroke-width="1.6" fill="none"/><circle cx="${x+5}" cy="${h-26}" r="2.2" fill="#fff2c0"/><circle cx="${x+5}" cy="${h-26}" r="7" fill="url(#lbp)"/>`;
+  const tree=x=>`<rect x="${x-4}" y="${h-7}" width="8" height="7" rx="1.4" fill="${P.wall2}"/><circle cx="${x}" cy="${h-14}" r="7" fill="#3f7d52"/><circle cx="${x-2.6}" cy="${h-16}" r="4.4" fill="#5aa86a"/><circle cx="${x+2}" cy="${h-18}" r="2.6" fill="#7cc58a" opacity=".8"/>`;
+  const ac=(x,y)=>`<rect x="${x}" y="${y-7}" width="14" height="7" rx="1" fill="#8a939e"/><circle cx="${x+5}" cy="${y-3.5}" r="2.4" fill="#4a525c"/><rect x="${x+9}" y="${y-6}" width="3.6" height="5" fill="#6a7480"/>`;
+  let s=`<ellipse cx="${cx}" cy="${h+2}" rx="${w*.56}" ry="5" fill="rgba(0,0,0,.28)"/>`;
   if(t<=1){
-    s+=`<path d="M0 ${h} Q0 ${h*.16} ${cx} ${h*.08} Q${w} ${h*.16} ${w} ${h} Z" fill="${P.wall}" stroke="${P.wall2}" stroke-width="2"/><path d="M${w*.1} ${h} Q${w*.12} ${h*.36} ${cx} ${h*.3} Q${w*.88} ${h*.36} ${w*.9} ${h}" fill="none" stroke="${P.wall2}" stroke-width="2.4"/>`;
-    s+=[.2,.8].map(f=>`<rect x="${w*f-6}" y="${h*.5}" width="12" height="3" rx="1" fill="#1e2227"/>`).join('');
+    s+=`<path d="M0 ${h} Q0 ${h*.16} ${cx} ${h*.08} Q${w} ${h*.16} ${w} ${h} Z" fill="${P.wall}"/><path d="M${cx} ${h*.08} Q${w} ${h*.16} ${w} ${h} L${cx+w*.1} ${h} Q${cx+w*.3} ${h*.3} ${cx} ${h*.08}Z" fill="rgba(0,0,0,.22)"/><path d="M${w*.06} ${h*.7} Q${w*.16} ${h*.22} ${cx} ${h*.14}" stroke="rgba(255,255,255,.4)" stroke-width="2" fill="none"/>`;
+    s+=`<path d="M${w*.1} ${h} Q${w*.12} ${h*.36} ${cx} ${h*.3} Q${w*.88} ${h*.36} ${w*.9} ${h}" fill="none" stroke="${P.wall2}" stroke-width="2.4"/>`+[.2,.8].map(f=>`<rect x="${w*f-6}" y="${h*.5}" width="12" height="3" rx="1" fill="#1e2227"/><rect x="${w*f-6}" y="${h*.5}" width="12" height="1" fill="#ffe7b0" opacity=".6"/>`).join('');
     s+=`<rect x="${cx-2}" y="${h*.02}" width="4" height="${h*.12}" fill="${P.wall2}"/><circle cx="${cx}" cy="${h*.02}" r="2.4" fill="${P.acc}" class="pulse"/>`;
-    if(t===1){const bag=(x,y)=>`<rect x="${x}" y="${y}" width="12" height="6" rx="3" fill="#c9b48a" stroke="#8a7a5a" stroke-width=".8"/>`;
+    if(t===1){const bag=(x,y)=>`<rect x="${x}" y="${y}" width="12" height="6" rx="3" fill="#c9b48a"/><rect x="${x}" y="${y+3.4}" width="12" height="2.6" rx="1.3" fill="rgba(0,0,0,.18)"/>`;
       for(let r=0;r<3;r++) for(let i=0;i<2;i++){s+=bag(2+i*11+(r%2)*5,h-6-r*6);s+=bag(w-26+i*11-(r%2)*5,h-6-r*6)}}
   } else if(t===2){
-    s+=`<rect x="0" y="${h*.16}" width="${w}" height="${h*.84}" fill="${P.wall}"/><rect x="-2" y="${h*.08}" width="${w+4}" height="${h*.1}" fill="${P.trim}"/>`+win(w*.04,h*.32,w*.3,h*.42,3,1)+win(w*.66,h*.32,w*.3,h*.42,3,1)+`<rect x="${w*.06}" y="${h-4}" width="${w*.88}" height="4" fill="${P.wall2}"/>`;
+    s+=wall(0,h*.16,w,h*.84,P.wall)+`<rect x="-3" y="${h*.08}" width="${w+6}" height="${h*.1}" fill="${P.trim}"/><rect x="-3" y="${h*.16}" width="${w+6}" height="2" fill="rgba(0,0,0,.25)"/>`+win(w*.04,h*.32,w*.3,h*.42,3,1)+win(w*.66,h*.32,w*.3,h*.42,3,1)+ac(w*.12,h*.08)+lamp(cx-34)+lamp(cx+34);
   } else if(t===3){
-    s+=`<rect x="0" y="0" width="${w}" height="${h}" fill="${P.wall}"/><rect x="-2" y="-2" width="${w+4}" height="6" fill="${P.trim}"/><path d="M0 ${h*.5}H${w}" stroke="${P.trim}" stroke-width="2.4"/>`+win(w*.03,h*.08,w*.94,h*.36,8,1)+win(w*.03,h*.56,w*.3,h*.32,3,1)+win(w*.67,h*.56,w*.3,h*.32,3,1)+`<path d="M${cx-40} ${h*.52} H${cx+40} L${cx+34} ${h*.6} H${cx-34}Z" fill="${P.trim}"/>`+[.05,.95].map(f=>`<rect x="${w*f-1}" y="${-26}" width="2" height="26" fill="#8a939e"/><path d="M${w*f+1} -26 h12 l-3 4 3 4 h-12z" fill="${P.acc}"/>`).join('');
+    s+=wall(0,0,w,h,P.wall)+`<rect x="-3" y="-3" width="${w+6}" height="6" fill="${P.trim}"/><path d="M0 ${h*.5}H${w}" stroke="${P.trim}" stroke-width="2.4"/><path d="M0 ${h*.5+2}H${w}" stroke="rgba(0,0,0,.2)" stroke-width="1.6"/>`+win(w*.03,h*.08,w*.94,h*.36,8,1)+win(w*.03,h*.56,w*.3,h*.32,3,1)+win(w*.67,h*.56,w*.3,h*.32,3,1)+`<path d="M${cx-40} ${h*.52} H${cx+40} L${cx+34} ${h*.6} H${cx-34}Z" fill="${P.trim}"/><path d="M${cx-34} ${h*.6} H${cx+34} L${cx+30} ${h*.62} H${cx-30}Z" fill="rgba(0,0,0,.3)"/>`+[.05,.95].map(f=>`<rect x="${w*f-1}" y="${-26}" width="2" height="26" fill="#8a939e"/><path d="M${w*f+1} -26 h12 l-3 4 3 4 h-12z" fill="${P.acc}"/>`).join('')+ac(w*.3,0)+ac(w*.62,0)+tree(cx-48)+tree(cx+48)+lamp(cx-30)+lamp(cx+30);
   } else {
     const wingH=t===6?h*.55:h*.6,cw=t===6?w*.3:w*.36,tw=t===6?w*.14:w*.12,th=t===6?h*.85:h;
-    s+=`<rect x="0" y="${h-wingH}" width="${w}" height="${wingH}" fill="${P.wall}"/><rect x="-2" y="${h-wingH-4}" width="${w+4}" height="5" fill="${P.trim}"/>`+win(w*.02,h-wingH+6,w*.3,wingH-12,4,2)+win(w*.68,h-wingH+6,w*.3,wingH-12,4,2);
-    if(t>=5) s+=[0,w-tw].map(x=>`<rect x="${x}" y="${h-th}" width="${tw}" height="${th}" fill="${P.wall2}"/><rect x="${x-2}" y="${h-th-4}" width="${tw+4}" height="5" fill="${P.trim}"/>`+win(x+2,h-th+6,tw-4,th-14,2,t===6?6:5)).join('');
-    s+=`<rect x="${cx-cw/2-3}" y="0" width="${cw+6}" height="${h}" fill="${P.wall2}"/>`+glassWall(cx-cw/2,4,cw,h-4)+`<rect x="${cx-cw/2-5}" y="-4" width="${cw+10}" height="6" fill="${P.trim}"/>`;
-    if(t>=5) s+=`<path d="M${cx-cw*.3} 10 h${cw*.6} v${h*.3} l-${cw*.3} 8 l-${cw*.3} -8z" fill="${P.acc}" opacity=".9"/><text x="${cx}" y="${10+h*.17}" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Orbitron,Arial">B</text>`;
-    if(t===6) s+=[.16,.84].map(f=>`<path d="M${w*f} ${h*.3} l-10 -40 M${w*f} ${h*.3} l10 -40" stroke="#FFE27A" stroke-width="5" opacity=".18"/>`).join('')+[-1,1].map(d=>`<rect x="${cx+d*w*.16-9}" y="${h*.3}" width="18" height="3" fill="${P.trim}"/>`).join('');
-    s+=`<path d="M${cx-34} ${h-58} H${cx+34} L${cx+30} ${h-52} H${cx-30}Z" fill="${P.trim}"/>`+[-1,1].map(d=>`<rect x="${cx+d*30-2}" y="${h-52}" width="4" height="52" fill="${P.trim}"/>`).join('');
+    s+=wall(0,h-wingH,w,wingH,P.wall)+`<rect x="-3" y="${h-wingH-4}" width="${w+6}" height="5" fill="${P.trim}"/>`+win(w*.02,h-wingH+6,w*.3,wingH-12,4,2)+win(w*.68,h-wingH+6,w*.3,wingH-12,4,2)+ac(w*.08,h-wingH-4)+ac(w*.84,h-wingH-4);
+    if(t>=5) s+=[0,w-tw].map(x=>wall(x,h-th,tw,th,P.wall2)+`<rect x="${x-2}" y="${h-th-4}" width="${tw+4}" height="5" fill="${P.trim}"/>`+win(x+2,h-th+6,tw-4,th-14,2,t===6?6:5)).join('');
+    s+=wall(cx-cw/2-3,0,cw+6,h,P.wall2)+glassWall(cx-cw/2,4,cw,h-4)+`<rect x="${cx-cw/2-5}" y="-4" width="${cw+10}" height="6" fill="${P.trim}"/>`;
+    if(t>=5) s+=`<path d="M${cx-cw*.3} 10 h${cw*.6} v${h*.3} l-${cw*.3} 8 l-${cw*.3} -8z" fill="${P.acc}" opacity=".92"/><path d="M${cx} 10 h${cw*.3} v${h*.3} l-${cw*.3} 8z" fill="rgba(0,0,0,.18)"/><text x="${cx}" y="${10+h*.17}" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Orbitron,Arial">B</text>`;
+    if(t===6) s+=[.16,.84].map(f=>`<path d="M${w*f} ${h*.3} l-12 -60 M${w*f} ${h*.3} l12 -60" stroke="#FFE27A" stroke-width="6" opacity=".16"/>`).join('')+[-1,1].map(d=>`<rect x="${cx+d*w*.16-9}" y="${h*.3}" width="18" height="3" fill="${P.trim}"/>`).join('');
+    s+=`<path d="M${cx-34} ${h-58} H${cx+34} L${cx+30} ${h-52} H${cx-30}Z" fill="${P.trim}"/><path d="M${cx-30} ${h-52} H${cx+30} L${cx+28} ${h-50} H${cx-28}Z" fill="rgba(0,0,0,.3)"/>`+[-1,1].map(d=>`<rect x="${cx+d*30-2}" y="${h-52}" width="4" height="52" fill="${P.trim}"/><rect x="${cx+d*30}" y="${h-52}" width="2" height="52" fill="rgba(0,0,0,.18)"/>`).join('')+tree(cx-46)+tree(cx+46)+lamp(cx-56)+lamp(cx+56);
   }
-  return `<svg viewBox="-14 -30 ${w+28} ${h+30}" width="${w+28}" height="${h+30}" aria-hidden="true">${s}</svg>`;
+  s+=`<ellipse cx="${cx}" cy="${h+1}" rx="34" ry="5" fill="url(#lbp)"/>`;
+  return `<svg viewBox="-14 -30 ${w+28} ${h+36}" width="${w+28}" height="${h+36}" aria-hidden="true">${defs}${s}</svg>`;
 }
 function turretHTML(i,pos,open){
   const t=S.turrets[i],x=pos[0]*100,y=24+pos[1],mount=pos[1]>0?' mount':'';
@@ -1080,9 +1126,9 @@ function renderWorld(){
   for(let f=S.up;f>=1;f--) h+=floorHTML(f);
   const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=Math.max(156,LB.h+104),small=lt<=1;
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
-    <div class="lobbyart" style="width:${Math.round(LB.w*100)}%">${lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
-    <div class="sign" style="bottom:${lt>=3?94:24+LB.h+10}px">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
-    <div class="lobby">${S.crew.filter(c=>!c.room).map(c=>personHTML(c)).join('')}</div>
+    <div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
+    <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
+    <div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>
     ${pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x"><div class="bunker">`;
   for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
@@ -1107,7 +1153,7 @@ function setBar(id,v,max){const el=$(id);const p=clamp(v/max,0,1);el.style.width
 function updateHUD(full){
   if(!S) return;
   const cmd=S.crew.find(c=>c.isCmd);
-  if(full&&cmd) $('#h-avatar').innerHTML=personSVG(cmd,'9 1 22 24');
+  if(full&&cmd) $('#h-avatar').innerHTML=personSVG(cmd,'12.5 0 15 20');
   $('#h-lv').textContent='LV '+level();
   $('#h-name').textContent=S.cmd.name;
   $('#h-place').textContent=eraOf(level()).name+' · '+FACTIONS[S.faction].place;
@@ -1119,6 +1165,7 @@ function updateHUD(full){
   $('#h-ap').innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<S.res.ap?'on':''}"></i>`).join('');
   $('#n-crew').textContent=S.crew.length+'/'+crewCap();
   $('#n-veh').textContent=S.vehicles.length+' of '+VEH.length;
+  {const ep=$('#h-exp');if(S.exp){const b=findBase(S.exp.base);ep.hidden=false;ep.textContent=`Squad raiding ${b?b.name:'a base'} · back in ${fmtT(S.exp.end-S.t)}`}else ep.hidden=true}
   $('#b-battle').disabled=!!B;
   document.querySelectorAll('[data-badge]').forEach(el=>{
     const k=el.dataset.badge,r=S.rooms[k]; if(!r) return; const def=ROOMS[r.type],n=crewIn(k).length;
@@ -1440,6 +1487,7 @@ function pilotFor(){
   return null;
 }
 function missionSheet(vid){
+  if(S.exp&&S.exp.veh===vid){openSheet('Vehicle is away',`<div class="muted">This vehicle is out on a raid with your squad. It will be back in ${fmtT(S.exp.end-S.t)}.</div><button class="btn" data-close>OKAY</button>`);return}
   const v=VEH.find(x=>x.id===vid),mk=mapKey(),route=ROUTES[mk][v.cat];
   const pilot=pilotFor();
   if(!route){openSheet('No water route here',`<div class="muted">Moab has no big lake for boats. Boat missions run at Lake Tahoe. Try an aircraft or the Cybertruck here.</div><button class="btn" data-close>OKAY</button>`);return}
@@ -1460,33 +1508,132 @@ function missionSheet(vid){
 }
 
 // ---------- battle ----------
-function makeWave(){
-  const lv=level(),pool=ENEMIES[biome()].filter(e=>!e.min||lv>=e.min);
-  const n=3+Math.min(7,Math.floor(lv/4))+ri(0,1);
-  return Array.from({length:n},()=>pick(pool));
+// difficulty: how big and tough the raid is. Win chance comes from actually simulating the fight.
+const DIFFS=[
+  {k:'easy',name:'Easy',desc:'A few weak raiders',cnt:.6,hp:.75,rew:.6,ap:1},
+  {k:'normal',name:'Normal',desc:'A regular raid',cnt:1,hp:1,rew:1,ap:1},
+  {k:'hard',name:'Hard',desc:'Bigger crew, tougher rides',cnt:1.4,hp:1.3,rew:1.8,ap:1},
+  {k:'extreme',name:'Extreme',desc:'A huge raid',cnt:1.8,hp:1.7,rew:3,ap:2},
+  {k:'boss',name:'Boss Fight',desc:'A boss leads the raid',cnt:1,hp:1.2,rew:5,ap:2,boss:true,level:5}
+];
+function makeWave(dk){
+  const D=DIFFS.find(d=>d.k===(dk||'normal')),lv=level(),all=ENEMIES[biome()],pool=all.filter(e=>!e.boss&&(!e.min||lv>=e.min));
+  const n=Math.max(2,Math.round((3+Math.min(7,Math.floor(lv/4)))*D.cnt))+ri(0,1);
+  const w=Array.from({length:n},()=>Object.assign({},pick(pool),{m:D.hp}));
+  if(D.boss) w.splice(Math.floor(n/2),0,Object.assign({},all.find(e=>e.boss),{m:D.hp*(1+.025*(lv-1))}));
+  return w;
 }
-let pendingWave=null;
+// crew waiting out front fight with whatever they have equipped
+const lobbyShooters=()=>S.crew.filter(c=>!c.room&&!c.away&&!c.hurt&&!c.clone);
+function shooterStats(c){const W=WEAPONS[curGear(c,'weapon')],wd=W.dmg||0;
+  return {dmg:1+wd+eff(c,'aim')*.3,range:45+Math.min(170,wd*12),rate:Math.max(.5,1-wd*.02),col:{laser:'#7FF0F3',plasma:'#ff5fd2',rail:'#9fb8ff',bow:'#f4efe2',sling:'#c9a36a',kunai:'#d9e0e6',staff:'#c9a36a',katana:'#d9e0e6'}[W.look]||'#FFE27A'}}
+function simBattle(wave){
+  const W=390,door=W/2,pos=slotPositions(),nOpen=slotCount(),lv=level(),powF=S.res.power>0?1:.5,defs=defenders(),lob=lobbyShooters().map(shooterStats);
+  let shield=100+defs.reduce((a,c)=>a+armorDef(c)*6,0);const dD=defs.reduce((a,c)=>a+2+eff(c,'aim')*.6+(WEAPONS[curGear(c,'weapon')].dmg||0),0);
+  const en=wave.map((d,i)=>({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:i*1.1,slow:0,st:0}));
+  const cds=new Array(16).fill(0),lcd=lob.map(()=>Math.random()*.8);let dcd=0,t=0;const dt=.1;
+  const kill=e=>{if(e.hp<=0) e.st=2};
+  while(t<180){t+=dt;
+    for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=e.d.dmg*dt}
+    const tg=en.filter(e=>e.st===1);
+    S.turrets.forEach((tu,i)=>{if(!tu||i>=nOpen||!pos[i]) return;const d=TURRETS[tu.type],px=pos[i][0]*W,range=d.range*(pos[i][1]>0?1.2:1);cds[i]-=dt*powF;if(cds[i]>0) return;
+      let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-px);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
+      cds[i]=d.rate;best.hp-=turDmg(tu);if(d.splash) tg.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(tu)*.5;kill(o)}});if(d.slow) best.slow=1.6;kill(best)});
+    dcd-=dt;if(defs.length&&dcd<=0){const nr=tg.filter(e=>e.st===1&&Math.abs(e.x-door)<110).sort((a,b)=>Math.abs(a.x-door)-Math.abs(b.x-door))[0];if(nr){dcd=1.1;nr.hp-=dD;kill(nr)}}
+    lob.forEach((st,j)=>{lcd[j]-=dt;if(lcd[j]>0) return;const sx=door+(j%2?1:-1)*(10+j*6),e=tg.filter(e=>e.st===1&&Math.abs(e.x-sx)<st.range).sort((a,b)=>Math.abs(a.x-sx)-Math.abs(b.x-sx))[0];if(!e) return;lcd[j]=st.rate;e.hp-=st.dmg;kill(e)});
+    if(shield<=0) return false;if(en.every(e=>e.st===2)) return true;
+  }
+  return true;
+}
+function winChance(dk,n){n=n||14;let w=0;for(let i=0;i<n;i++) if(simBattle(makeWave(dk))) w++;return Math.round(w/n*100)}
+let battleTab='defend';
 function battlePreview(){
   if(B) return;
-  if(S.res.ap<1){toast('No Adventure Points left. They refill over time, or catch a clone!','warn');return}
-  const wave=makeWave();
-  openSheet('Battle Ready',`<div class="muted">Spend 1 Adventure Point to call out a random enemy group from the Badlands. Win cash, XP, and maybe a vehicle they leave behind.</div>
-    <div class="wave">${wave.map(e=>`<span class="wv">${enemyArt(e.art)}</span>`).join('')}</div>
-    <div class="muted" style="text-align:center">${[...new Set(wave.map(e=>e.name))].map(esc).join(', ')}</div>
-    <div class="muted" style="font-size:12px">Nobody gets hurt for real. Stun hits knock raiders out and they drive home, and your crew can always heal.</div>
-    <button class="btn danger" data-act="fight" style="font-family:var(--font-display)">FIGHT!</button>`);
-  pendingWave=wave;
+  const tabs=`<div class="tabs"><button data-act="btab" data-t="defend" class="${battleTab==='defend'?'on':''}">DEFEND THE BASE</button><button data-act="btab" data-t="attack" class="${battleTab==='attack'?'on':''}">ATTACK A BASE</button></div>`;
+  if(battleTab==='attack') return expeditionSheet(tabs);
+  const lv=level(),base=8000+1500*lv;
+  const rows=DIFFS.map(d=>{const lock=d.level&&lv<d.level,p=lock?0:winChance(d.k),col=p>=70?'ok':p>=40?'gold':'bad';
+    return `<button class="li" data-act="fight" data-d="${d.k}" ${S.res.ap<d.ap||lock?'disabled':''}><span class="wv">${enemyArt(d.boss?(biome()==='desert'?'warlord':'titan'):d.k==='easy'?'biker':d.k==='extreme'?'scorpion':'buggy')}</span><span class="grow"><b>${d.name}</b><span>${d.desc} · pays about ${money(base*d.rew)} · ${d.ap} Adv Pt${d.ap>1?'s':''}</span></span><span class="tag ${lock?'dim':col}">${lock?'LV '+d.level:p+'% WIN'}</span></button>`}).join('');
+  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">Pick how tough the raid is. The win chance comes from running the fight against your turrets, Barracks defenders, and anyone waiting out front with a weapon.</div><div class="list">${rows}</div>
+    <div class="muted" style="font-size:12px">${S.res.ap<1?'No Adventure Points left. They refill over time, or catch a clone!':'Nobody gets hurt for real. Stun hits knock raiders out and they drive home.'}</div>`);
 }
-const defenders=()=>S.crew.filter(c=>c.room&&S.rooms[c.room]&&S.rooms[c.room].type==='barracks'&&!c.hurt);
-function startBattle(wave,paid){
+// ---------- expeditions: raid the bad guy bases ----------
+const EBASES={
+  tahoe:[
+    {id:'tb1',name:'Badlands Gang Camp',fac:'Badlands Gang',where:'Truckee',pow:18,loot:20000,art:'buggy'},
+    {id:'tb2',name:'Badlands Gang Outpost',fac:'Badlands Gang',where:'South Lake Tahoe',pow:40,loot:45000,art:'biker',need:'found'},
+    {id:'tb3',name:'Clone Syndicate Lab',fac:'Clone Syndicate',where:'Emerald Bay',pow:85,loot:120000,art:'drone',need:'clones'},
+    {id:'tb4',name:'Raider King Fortress',fac:'Raider Kings',where:'Incline Village',pow:160,loot:300000,art:'titan',minLv:20},
+    {id:'tb5',name:'Warlord Citadel',fac:'Raider Kings',where:'Sand Harbor',pow:320,loot:900000,art:'warlord',minLv:40}],
+  moab:[
+    {id:'mb1',name:'Badlands Gang Camp',fac:'Badlands Gang',where:'Colorado River',pow:18,loot:20000,art:'buggy'},
+    {id:'mb2',name:'Badlands Gang Outpost',fac:'Badlands Gang',where:'Balanced Rock',pow:40,loot:45000,art:'biker',need:'found'},
+    {id:'mb3',name:'Clone Syndicate Lab',fac:'Clone Syndicate',where:'Fiery Furnace',pow:85,loot:120000,art:'drone',need:'clones'},
+    {id:'mb4',name:'Raider King Fortress',fac:'Raider Kings',where:'Slickrock',pow:160,loot:300000,art:'scorpion',minLv:20},
+    {id:'mb5',name:'Warlord Citadel',fac:'Raider Kings',where:'Delicate Arch',pow:320,loot:900000,art:'warlord',minLv:40}]
+};
+const findBase=id=>Object.values(EBASES).flat().find(b=>b.id===id);
+const fmtT=sec=>{sec=Math.max(0,Math.ceil(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')};
+function baseState(b){S.eb=S.eb||{};return S.eb[b.id]||(S.eb[b.id]={beat:0,until:0})}
+const basePow=b=>Math.round(b.pow*Math.pow(1.3,baseState(b).beat));
+function baseLock(b){
+  if(b.minLv&&level()<b.minLv) return 'Needs base Level '+b.minLv;
+  if(b.need==='found'&&!Object.keys(S.found||{}).some(k=>k.startsWith(mapKey()))) return 'Find it first: finish any Hangar mission';
+  if(b.need==='clones'&&S.caught<3) return 'Catch 3 clones to learn where their lab is ('+S.caught+'/3)';
+  if(baseState(b).until>S.t) return 'Rebuilding · back in '+fmtT(baseState(b).until-S.t);
+  return '';
+}
+const memberPow=c=>3+eff(c,'aim')*1.2+eff(c,'str')*.8+(WEAPONS[curGear(c,'weapon')].dmg||0)*1.6+armorDef(c)*2.2+physOf(c)*2;
+const vehPow=v=>v?4+(v.arm||0)*2+VWEAPONS[vUp(v).wpn].dmg*1.2+(vUp(v).arm-1)*3+(vUp(v).spd-1)*1.5:0;
+const expChance=(P,E)=>clamp(1/(1+Math.exp(-4*(P/E-1))),.03,.97);
+let expPlan=null;
+function expeditionSheet(tabs){
+  if(S.exp){const b=findBase(S.exp.base);openSheet('Battle Ready',`${tabs}<div class="li"><span class="veh">${vehArt(S.exp.veh)}</span><span class="grow"><b>Squad on the way to ${esc(b.name)}</b><span>${esc(b.where)} · back in ${fmtT(S.exp.end-S.t)} · ${Math.round(S.exp.chance*100)}% win chance</span></span></div><div class="muted" style="font-size:12px">Only one expedition can be out at a time. The squad and their vehicle are away until they get back.</div>`);return}
+  const list=EBASES[mapKey()].map(b=>{const lk=baseLock(b);return `<button class="li" data-act="eplan" data-b="${b.id}" ${lk?'disabled':''}><span class="wv">${enemyArt(b.art)}</span><span class="grow"><b>${esc(b.name)}</b><span>${esc(b.fac)} · ${esc(b.where)} · Power ${basePow(b)} · Loot ${money(b.loot)}</span>${lk?`<span style="display:block;color:var(--warn)">${esc(lk)}</span>`:''}</span></button>`}).join('');
+  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">Send your top 3 soldiers in one vehicle to raid a bad guy base. Only one expedition can be out at a time. Beaten bases rebuild stronger.</div><div class="list">${list}</div>`);
+}
+function planSheet(bid){
+  const b=findBase(bid),avail=S.crew.filter(c=>!c.away&&!c.hurt&&!c.clone);
+  const vehs=S.vehicles.map(id=>VEH.find(v=>v.id===id)).filter(v=>v&&!v.locked);
+  if(!expPlan||expPlan.base!==bid){const top=[...avail].sort((x,y)=>memberPow(y)-memberPow(x)).slice(0,3).map(c=>c.id),bv=[...vehs].sort((x,y)=>vehPow(y)-vehPow(x))[0];expPlan={base:bid,squad:top,veh:bv?bv.id:null}}
+  expPlan.squad=expPlan.squad.filter(id=>avail.some(c=>c.id===id));
+  const squad=expPlan.squad.map(id=>S.crew.find(c=>c.id===id)),v=VEH.find(x=>x.id===expPlan.veh);
+  const P=Math.round(squad.reduce((a,c)=>a+memberPow(c),0)+vehPow(v)),E=basePow(b),ch=expChance(P,E),dur=Math.round(40+Math.min(200,E*.4)),pc=Math.round(ch*100),col=pc>=70?'ok':pc>=40?'gold':'bad';
+  expPlan.P=P;expPlan.ch=ch;expPlan.dur=dur;
+  const crewRows=avail.map(c=>{const on=expPlan.squad.includes(c.id);return `<button class="li" data-act="etog" data-id="${c.id}" style="${on?'border-color:var(--teal)':''}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>Power ${Math.round(memberPow(c))} · ${esc(WEAPONS[curGear(c,'weapon')].name)} · ${esc(ARMOR[curGear(c,'armor')].name)}</span></span>${on?'<span class="tag ok">IN SQUAD</span>':''}</button>`}).join('');
+  const vehRows=vehs.map(x=>`<button class="li" data-act="eveh" data-v="${x.id}" style="${expPlan.veh===x.id?'border-color:var(--teal)':''}"><span class="veh">${vehArt(x.id)}</span><span class="grow"><b>${esc(x.name)}</b><span>Power ${Math.round(vehPow(x))} · ${esc(VWEAPONS[vUp(x).wpn].name)}</span></span>${expPlan.veh===x.id?'<span class="tag ok">TAKING</span>':''}</button>`).join('');
+  openSheet('Raid: '+esc(b.name),`<div class="row" style="align-items:center"><span class="wv">${enemyArt(b.art)}</span><span class="muted" style="flex:1;font-size:12px">${esc(b.fac)} at ${esc(b.where)}. Enemy power ${E}, your squad ${P}. Trip time ${fmtT(dur)}.</span><span class="tag ${col}" style="font-size:13px">${pc}% WIN</span></div>
+    <button class="btn danger" data-act="elaunch" style="font-family:var(--font-display)" ${squad.length&&v?'':'disabled'}>SEND THE SQUAD</button>
+    <div class="label">Squad · ${squad.length}/3 · tap to swap</div><div class="list">${crewRows||'<div class="muted">Nobody is free right now.</div>'}</div>
+    <div class="label">Vehicle</div><div class="list">${vehRows}</div>
+    <button class="btn" data-act="btab" data-t="attack">BACK</button>`);
+}
+function resolveExp(){
+  const X=S.exp,b=findBase(X.base),win=Math.random()<X.chance,squad=X.squad.map(id=>S.crew.find(c=>c.id===id)).filter(Boolean);
+  squad.forEach(c=>c.away=false);S.exp=null;
+  let body;
+  if(win){
+    const st=baseState(b),loot=Math.round(b.loot*(1+.03*level())*(.8+Math.random()*.4)),tech=Math.round(basePow(b)/4);
+    S.res.credits+=loot;S.res.tech+=tech;S.xp+=80;squad.forEach(c=>c.xp+=60);st.beat++;st.until=S.t+300;
+    let veh='';if(Math.random()<.2&&S.vehicles.length<vehCap()){const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&(!v.level||level()>=v.level));if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>Captured: ${esc(v.name)}</b><span>Worth about ${money(v.cost)}!</span></span></div>`}}
+    body=`${badge('trophy')}<div class="muted" style="text-align:center">Your squad stormed the ${esc(b.name)} at ${esc(b.where)} and came home with the loot. It will rebuild stronger.</div><div class="stats"><div class="stat"><span class="label">Loot</span><b>+${money(loot)}</b></div><div class="stat"><span class="label">Tech</span><b>+${tech}</b></div><div class="stat"><span class="label">Squad XP</span><b>+60</b></div></div>${veh}`;
+  } else {
+    squad.forEach(c=>c.hurt=40);S.xp+=15;
+    body=`${badge('dizzy')}<div class="muted" style="text-align:center">The ${esc(b.fac)} held them off. Your squad got knocked out and limped home. Give them better weapons and armor, or bring a stronger vehicle.</div>`;
+  }
+  openSheet(win?'Raid won!':'Raid failed',body+`<button class="btn primary" data-close>OKAY</button>`);
+  renderWorld();save();
+}
+const defenders=()=>S.crew.filter(c=>c.room&&S.rooms[c.room]&&S.rooms[c.room].type==='barracks'&&!c.hurt&&!c.away);
+function startBattle(wave,paid,D){
   if(B||M) return;
   if(paid){ if(S.res.ap<1) return; S.res.ap--; }
   closeSheet(); scrollToSurface(true);
   const W=$('#surface').clientWidth,lv=level(),sh=100+defenders().reduce((a,c)=>a+armorDef(c)*6,0);
-  B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,over:false};
+  B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,lcd:{},over:false,diff:D||DIFFS[1]};
   wave.forEach((d,i)=>{
     const left=i%2===0;
-    B.enemies.push({d,hp:d.hp*(1+.06*(lv-1)),max:d.hp*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
+    B.enemies.push({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),max:d.hp*(d.m||1)*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
   });
   renderShield();
   requestAnimationFrame(battleLoop);
@@ -1526,6 +1673,9 @@ function battleLoop(now){
     if(d.slow) best.slow=1.6;
     tur3dFire(i,best.x,33);
   });
+  lobbyShooters().forEach((c,j)=>{B.lcd[c.id]=(B.lcd[c.id]===undefined?rnd(0,.8):B.lcd[c.id])-dt;if(B.lcd[c.id]>0) return;
+    const st=shooterStats(c),sx=door+(j%2?1:-1)*(10+j*6),tg=targets.filter(e=>e.hp>0&&Math.abs(e.x-sx)<st.range).sort((a,b)=>Math.abs(a.x-sx)-Math.abs(b.x-sx))[0];
+    if(!tg) return;B.lcd[c.id]=st.rate;hit(tg,st.dmg,{x:sx,y:H-50},st.col)});
   const defs=defenders();
   B.dcd-=dt;
   if(defs.length&&B.dcd<=0){
@@ -1549,10 +1699,10 @@ function endBattle(won){
   S.nextRaid=S.t+ri(200,280);
   let body;
   if(won){
-    const cr=8000+1500*level()+ri(0,3000); S.res.credits+=cr; S.xp+=50; S.wins++;
+    const DF=ended.diff||DIFFS[1],cr=Math.round((8000+1500*level()+ri(0,3000))*DF.rew); S.res.credits+=cr; S.xp+=50; S.wins++;
     S.crew.forEach(c=>c.xp+=20);
     let veh='';
-    if(Math.random()<.3&&S.vehicles.length<vehCap()){
+    if(Math.random()<Math.min(.7,.3*DF.rew)&&S.vehicles.length<vehCap()){
       const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&(!v.level||level()>=v.level));
       if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>New vehicle: ${esc(v.name)}</b><span>The raiders left it behind. Worth about ${money(v.cost)}!</span></span></div>`}
     }
@@ -2256,6 +2406,7 @@ function tick(){
   if(!S) return;
   S.t++;
   if(SANDBOX) sandboxFill();
+  if(S.exp&&S.t>=S.exp.end&&!M&&!B) resolveExp();
   const r=S.res;
   let grew=false;
   S.xp+=.25;
@@ -2355,7 +2506,13 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='go') startMission(b.dataset.v);
   else if(a==='m-resume'){closeSheet();if(M){M.paused=false;M.last=performance.now()}}
   else if(a==='m-quit'){closeSheet();closeMission();renderWorld()}
-  else if(a==='fight'&&pendingWave){startBattle(pendingWave,true);pendingWave=null}
+  else if(a==='fight'){const D=DIFFS.find(x=>x.k===b.dataset.d);if(!D||S.res.ap<D.ap) return;S.res.ap-=D.ap;startBattle(makeWave(D.k),false,D)}
+  else if(a==='btab'){battleTab=b.dataset.t;battlePreview()}
+  else if(a==='eplan') planSheet(b.dataset.b);
+  else if(a==='etog'){const i=expPlan.squad.indexOf(id);if(i>=0) expPlan.squad.splice(i,1);else{if(expPlan.squad.length>=3) expPlan.squad.shift();expPlan.squad.push(id)}planSheet(expPlan.base)}
+  else if(a==='eveh'){expPlan.veh=b.dataset.v;planSheet(expPlan.base)}
+  else if(a==='elaunch'){if(S.exp||!expPlan||!expPlan.squad.length||!expPlan.veh) return;S.exp={base:expPlan.base,squad:[...expPlan.squad],veh:expPlan.veh,start:S.t,end:S.t+expPlan.dur,chance:expPlan.ch};
+    S.exp.squad.forEach(cid=>{const c=S.crew.find(x=>x.id===cid);if(c) c.away=true});const bb=findBase(expPlan.base);expPlan=null;closeSheet();renderWorld();save();toast(`Squad launched toward the ${bb.name}! Back in ${fmtT(S.exp.end-S.t)}.`,'ok')}
   else if(a==='cheat'){const v=($('#cheat').value||'').trim().toUpperCase();if(v!==CHEAT){toast('That code does not work. Try again!','warn');return}
     try{if(!localStorage.getItem('based-sandbox-v1')&&S){const c=JSON.parse(JSON.stringify(S));c.sandbox=true;localStorage.setItem('based-sandbox-v1',JSON.stringify(c))}localStorage.setItem('based-mode','sandbox')}catch(err){}
     save();location.hash='sandbox';location.reload()}
@@ -2376,7 +2533,7 @@ $('#b-battle').onclick=battlePreview;
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.5${SANDBOX?' · SANDBOX MODE (separate test save)':''}. Your game saves on this device automatically.</div>${sandboxPanel()}<button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. Your game saves on this device automatically.</div>${sandboxPanel()}<button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
