@@ -225,3 +225,18 @@ Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.
 3. **Base styles:** Minimalist Brutalist (1), Standard Futuristic (10), Vintage Mid-Century (20), Antique Grand (35), Ultra Modern (50), Luxury Futuristic (70), Brutalist Billionaire (85). Each changes the tower walls, rooftop crown, door and sign.
 4. **Bigger rooms:** expand any room to 2 or 3 slots wide. Raise a floor's ceiling to double height at level 3 and triple height mega floors at level 10 (tap the floor number). Tall rooms get windows, catwalks and lamps.
 5. **Room levels 1 to 5:** +25% output each; decor grows from plant and poster, to neon trim, to gold frame and rug, to a floating hologram crest.
+
+## 21. Prototype v0.5 (built)
+
+1. **Ground floor lobby:** the base entrance grows with the base: Bunker (Lv 1), Fortified Bunker with sandbags (3), Outpost (5), Two Story Lobby with flags (10), Atrium with glass center (20), Grand Hall with side towers (32), Mega Lobby with a glass tower and spotlights (50). It uses the colors of the current base style.
+2. **Turret spots:** 2 at Level 1, then one more at Levels 2, 3, 5, 7, 10, 15, 20, 32, 42, 50, 60, 75, 90 and 100 (16 total). Later spots sit on the lobby roofs and balconies and shoot 20% farther.
+3. **Realistic boxy turrets, 10 upgrade levels:** Machine Gun Nest, Auto Cannon, Net Launcher, Gatling (Lv 7), Laser (10), Stun Missile Pod (15), Rail Gun (32), Plasma Cannon (50). Looks change at levels 3, 5, 8 and 10.
+4. **Store and gear:** every crew member has a weapon, armor and outfit slot. Weapons: Slingshot, BB Gun, Kunai, Bow, Bo Staff, Stun Pistol, Katana, Hunting Rifle, Assault Rifle, Machine Gun, Laser Rifle, Plasma Cannon, Rail Gun. Armor: Padded Vest, Kevlar, Ninja Plate, Power Armor, Nano Suit. All hits are stun hits (kid friendly).
+5. **Vehicle upgrades:** Engine and Armor (5 levels each) and a weapon ladder (Paintball Cannon, Machine Gun, Auto Cannon, Stun Rockets, Laser, Rail Gun) capped per vehicle.
+6. **Original illustrations replace emoji:** side view art for every vehicle, raiders, badges, gear icons, faction badges and room thumbnails.
+7. **Recon:** drones can now be photographed for an intel bonus as well as shot down.
+
+## 22. Roadmap
+
+- **v0.6 Interiors:** walk-in 3D Hangar (career mode feel) and Dojo, zoom in and out of the base.
+- **v0.7 Missions 2.0:** better jet and drone models, enemy recon and geographic recon that discovers new bases, walkable mechs with rocket boosters.

@@ -127,11 +127,12 @@ input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-6
 .enemy{position:absolute;bottom:20px;transform:translateX(-50%);z-index:5;font-size:26px;line-height:1;pointer-events:none}
 .enemy .em{display:block}
 .enemy.flip .em{transform:scaleX(-1)}
+.enemy .em{display:block}
 .enemy.big{font-size:36px}
 .enemy .hpb{position:absolute;left:4px;right:4px;top:-6px;height:4px;background:rgba(0,0,0,.5);border-radius:2px;overflow:hidden}
 .enemy .hpb i{display:block;height:100%;background:var(--bad)}
 .enemy.ko .hpb{display:none}
-.enemy.ko::after{content:"💫";position:absolute;left:50%;top:-18px;transform:translateX(-50%);font-size:16px}
+.enemy.ko::after{content:"\2726 \2726";position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:13px;color:var(--warn);white-space:nowrap}
 .shield{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:62%;z-index:7;text-align:center}
 .shield .bar{height:7px;border:1px solid rgba(255,255,255,.3)}
 .shield .label{color:var(--text);font-size:10px;text-shadow:0 1px 2px #000}
@@ -294,6 +295,31 @@ button.shaft{border:none;padding:0;gap:4px}
 .era-list div{display:flex;justify-content:space-between;padding:6px 10px;border-radius:9px;background:rgba(10,12,15,.5);font-size:12px}
 .era-list div.on{background:var(--teal-dim);color:var(--teal);font-weight:700}
 .era-list div.next{outline:1px dashed var(--teal)}
+/* v0.5: lobby building, art, store */
+.door,.sign,.lobby{z-index:2}
+.lobbyart{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:1;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+.lobbyart svg{display:block}
+.tpad.mount::after{content:"";position:absolute;left:1px;right:1px;bottom:-5px;height:6px;background:linear-gradient(#5a636d,#2b3036);border-radius:2px}
+.tpad.locked{opacity:.0;pointer-events:none}
+.enemy svg{width:52px;height:33px;display:block}
+.enemy.big svg{width:72px;height:45px}
+.veh{width:66px;flex:none;font-size:0}
+.veh svg{width:66px;height:25px;display:block}
+.room .park{font-size:0;flex-wrap:wrap;max-width:62%;justify-content:flex-end}
+.room .park svg{width:34px;height:13px}
+.room.tall .park svg{width:56px;height:21px}
+.badge{display:flex;justify-content:center}
+.badge svg{width:76px;height:76px}
+.thumb{width:44px;height:36px;border-radius:7px;flex:none;border:1px solid var(--glass-line);background:#3a4149}
+.thumb.icon{display:grid;place-items:center;background:rgba(10,12,15,.5)}
+.thumb.icon svg{width:42px;height:21px}
+.fac .biome svg{width:40px;height:28px;display:block}
+.wv{display:inline-block}
+.wv svg{width:46px;height:29px}
+.wave{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.upbar{display:flex;gap:3px}
+.upbar i{width:9px;height:6px;border-radius:2px;background:rgba(255,255,255,.12)}
+.upbar i.on{background:var(--warn)}
 @media (prefers-reduced-motion:reduce){.person,.person svg,.pulse,.bub{animation:none}.panel,.toast{animation:none}}
 </style>
 
@@ -344,7 +370,7 @@ button.shaft{border:none;padding:0;gap:4px}
     <button class="btn" id="b-crew"><span data-ic="crew"></span>CREW<small id="n-crew">0/0</small></button>
     <button class="btn" id="b-hangar"><span data-ic="plane"></span>HANGAR<small id="n-veh">0</small></button>
     <button class="btn battle" id="b-battle"><span data-ic="swords"></span>BATTLE READY<small>1 Adv Pt</small></button>
-    <button class="btn" id="b-recruit"><span data-ic="plus"></span>RECRUIT<small id="n-rec">$2,500</small></button>
+    <button class="btn" id="b-store"><span data-ic="cart"></span>STORE<small>Gear</small></button>
   </div>
 </div>
 
@@ -387,9 +413,94 @@ const ICONS={
   build:'<path d="M12 5v14M5 12h14"/>',
   shirt:'<path d="M8 3 3 6l2 4 2-1v12h10V9l2 1 2-4-5-3c-1 2-2.5 3-4 3S9 5 8 3z"/>',
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  cart:'<path d="M3 4h2l2.4 11h10.2l2.2-8H6.2"/><circle cx="9" cy="19.5" r="1.6"/><circle cx="17" cy="19.5" r="1.6"/>',
+  ninja:'<circle cx="12" cy="9" r="6"/><path d="M6 8.5h12M18 8.5l4 2.5M4 22c1-4 4-6 8-6s7 2 8 6"/>',
+  door:'<rect x="6" y="3" width="12" height="18" rx="1"/><circle cx="15" cy="12" r="1"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  dna:'<path d="M7 3c0 6 10 6 10 12s-10 6-10 6M17 3c0 6-10 6-10 12M8 7h8M8 17h8"/>',
+  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
   rocket:'<path d="M12 2c3 2 5 6 5 10l-2 4H9l-2-4c0-4 2-8 5-10z"/><circle cx="12" cy="10" r="2"/><path d="M9 16l-3 5M15 16l3 5M12 18v4"/>'
 };
 const icon=(n,cls)=>`<svg class="ic ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||''}</svg>`;
+
+// ---------- original illustrations (vehicles, raiders, badges, gear) ----------
+function jetArt(o){
+  const fins=o.fins===2?`<path d="M21 23 L14 7 h9 l13 16z" fill="${o.dark}"/><path d="M15 23 L8 5 h9 l13 18z" fill="${o.body}" stroke="${o.dark}" stroke-width=".6"/>`:`<path d="M14 23 L7 5 h10 l14 18z" fill="${o.body}" stroke="${o.dark}" stroke-width=".6"/>`;
+  const wing=o.wing==='straight'?`<path d="M46 27 h28 l-4 5 h-22z" fill="${o.dark}"/>`:`<path d="M36 27 L82 26 L52 33 L34 33Z" fill="${o.dark}"/>`;
+  return `${fins}<path d="M3 26.5 h21 l-1 3.5 H4z" fill="${o.dark}"/>${wing}<path d="M8 25 L30 22.5 L84 21.5 Q100 21.5 117 25.2 Q100 28.6 84 29 L30 29.5 L8 28Z" fill="${o.body}" stroke="${o.dark}" stroke-width=".7"/>${o.extra||''}<ellipse cx="${o.cx||88}" cy="21.4" rx="${o.cw||11}" ry="3.6" fill="${o.canopy}" opacity=".92"/><path d="M${(o.cx||88)-8} 20.4 Q${o.cx||88} 18.6 ${(o.cx||88)+8} 20.3" stroke="#fff" stroke-width=".8" opacity=".6" fill="none"/>${o.intake===false?'':`<rect x="60" y="28.4" width="16" height="3.6" rx="1.4" fill="${o.dark}"/>`}<rect x="1" y="23.6" width="8" height="5" rx="1" fill="#2b3036"/><circle cx="1.6" cy="26.1" r="1.6" fill="#ff9f43" opacity=".7"/>`;
+}
+const WHEEL=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#1e2227"/><circle cx="${x}" cy="${y}" r="${r*.55}" fill="#c9d1d9"/><circle cx="${x}" cy="${y}" r="${r*.18}" fill="#4a525c"/>`;
+const VART={
+  cessna:`<path d="M12 22 L6 6 h9 l10 14z" fill="#f4f4f4" stroke="#8a939e" stroke-width=".8"/><path d="M4 24 h18 l-1 3 H6z" fill="#e6e6e6" stroke="#8a939e" stroke-width=".5"/><path d="M10 26 Q12 20 30 19 L80 18 Q94 18 101 22 L104 26 Q93 30 80 30 L30 30 Q14 30 10 26Z" fill="#f4f4f4" stroke="#8a939e" stroke-width=".8"/><path d="M14 27.5 L102 26 L102.5 27.6 L16 29.5Z" fill="#2f5fa8"/><rect x="38" y="13" width="44" height="4" rx="2" fill="#e8e8e8" stroke="#8a939e" stroke-width=".6"/><path d="M52 29 L64 17" stroke="#8a939e" stroke-width="1.2"/><path d="M64 19.5 H78 L82 24 H64Z" fill="#1d3b52"/><rect x="52" y="20" width="9" height="4" rx="1" fill="#1d3b52"/><ellipse cx="107" cy="24" rx="1.6" ry="11" fill="rgba(60,60,60,.35)"/><circle cx="105" cy="24" r="2.2" fill="#FF4D5E"/><path d="M62 30 L60 35 M90 29.5 L91 34" stroke="#2b3036" stroke-width="1.4"/><circle cx="60" cy="36" r="3.2" fill="#1e2227"/><circle cx="91" cy="35" r="2.6" fill="#1e2227"/>`,
+  l39:jetArt({body:'#f4f4f4',dark:'#c0392b',canopy:'#3a8dde',wing:'straight',cx:84,cw:15,intake:false,extra:'<path d="M100 21.8 Q110 23 117 25.2 Q110 27.4 100 28.6Z" fill="#c0392b"/><rect x="66" y="22.6" width="8" height="5" rx="2" fill="#c9d1d9"/>'}),
+  huey:`<rect x="6" y="5" width="102" height="2.2" rx="1" fill="#2b3036"/><rect x="55" y="7" width="3" height="5" fill="#2b3036"/><path d="M30 19 L4 16 L4 21 L30 25Z" fill="#6b7a4a"/><path d="M4 16 L1 8 L6 8 L8 16Z" fill="#6b7a4a"/><circle cx="4" cy="12" r="5.5" fill="none" stroke="rgba(40,40,40,.4)" stroke-width="1.4"/><path d="M28 19 Q32 11 52 11 L72 12 Q84 14 86 23 L84 31 L36 31 Q26 29 28 19Z" fill="#6b7a4a" stroke="#4a5530" stroke-width=".8"/><path d="M68 14 L80 16 L83 23 L68 23Z" fill="#1d3b52"/><rect x="44" y="16" width="16" height="12" rx="1" fill="#4a5530"/><path d="M34 36 H92 M44 31 L42 36 M78 31 L80 36" stroke="#2b3036" stroke-width="1.6"/><text x="48" y="26" font-size="5" fill="#f4f4f4" font-weight="700">BASED</text>`,
+  f16:jetArt({body:'#a7b2bd',dark:'#6a7480',canopy:'#c9a36a',extra:'<path d="M60 28.5 h18 l-2 4 h-14z" fill="#6a7480"/>',intake:false}),
+  mig:jetArt({body:'#8f9e80',dark:'#5e6b52',canopy:'#3a8dde',fins:2,extra:'<path d="M40 24 q6 -2 12 0 q-6 3 -12 0z M64 23 q6 -2 10 1 q-6 2 -10 -1z" fill="#6f7d5f"/><text x="54" y="28" font-size="4.5" fill="#c0392b" font-weight="700">★</text>'}),
+  f18:jetArt({body:'#9aa5b0',dark:'#66707a',canopy:'#3a8dde',fins:2,extra:'<path d="M70 22 L96 22 L84 24Z" fill="#7d8792"/>'}),
+  f22:jetArt({body:'#6a717a',dark:'#454b53',canopy:'#d9b45a',fins:2,extra:'<path d="M30 22.5 L84 21.5 L70 24 L34 25Z" fill="#7a818a"/>'}),
+  hover:`<ellipse cx="60" cy="27" rx="50" ry="8" fill="#8a939e" stroke="#4a525c"/><ellipse cx="60" cy="25" rx="44" ry="4" fill="#c9d1d9"/><path d="M38 23 Q60 4 82 23Z" fill="#7FF0F3" opacity=".75"/><path d="M48 18 Q60 10 70 17" stroke="#fff" opacity=".6" fill="none"/><ellipse cx="60" cy="33" rx="22" ry="3" fill="#2EC4C9" opacity=".8"/>${[22,40,60,80,98].map(x=>`<circle cx="${x}" cy="28" r="1.6" fill="#FFC845"/>`).join('')}`,
+  rocket:`<path d="M90 25 Q110 25 118 27 Q110 29 90 29Z" fill="#e8e8f0"/><path d="M14 22 L90 21 L90 31 L14 30Z" fill="#e8e8f0" stroke="#8a939e" stroke-width=".7"/><path d="M14 22 L6 8 L22 8 L34 21Z" fill="#c0392b"/><path d="M30 30 L52 40 L64 30Z" fill="#c0392b"/><ellipse cx="80" cy="23" rx="10" ry="3" fill="#3a8dde"/><path d="M14 23 L0 21 L4 26 L0 31 L14 29Z" fill="#ff9f43"/><path d="M14 24 L6 26 L14 28Z" fill="#ffe27a"/>`,
+  airship:`<ellipse cx="62" cy="20" rx="50" ry="14" fill="#f4f4f4" stroke="#c9d1d9"/><path d="M14 20 L4 8 L14 10Z M14 20 L4 32 L14 30Z" fill="#ff6fae"/><text x="40" y="23" font-size="8" font-weight="700" fill="#ff6fae">SKY VEGAS</text><rect x="50" y="34" width="24" height="7" rx="3" fill="#4a525c"/><path d="M54 34 L52 32 M70 34 L72 32" stroke="#8a939e"/>`,
+  mustang:`<path d="M8 31 L8 25 Q10 22 22 21 L42 20 L55 13 L77 13 Q85 14 92 20 L108 22 Q113 23 113 27 L113 31Z" fill="#d23a3a" stroke="#8a1f1f" stroke-width=".7"/><path d="M45 20 L56 14.5 L66 14.5 L66 20Z M69 20 L69 14.5 L77 14.8 Q83 15.6 88 20Z" fill="#1d3b52"/><path d="M10 24.5 L112 24.5 M10 26.4 L112 26.4" stroke="#f4f7fa" stroke-width="1.1"/><rect x="108" y="23" width="5" height="2.6" fill="#fff2c0"/><rect x="8" y="23" width="3.6" height="2.4" fill="#ff4d5e"/>${WHEEL(28,32,7)}${WHEEL(93,32,7)}`,
+  cyber:`<path d="M6 31 L6 24.5 L48 11 L113 20.5 L113 31Z" fill="#b8bec6" stroke="#6a7480" stroke-width=".7"/><path d="M42 15.4 L48 13 L80 17.4 L74 20.2Z" fill="#1d3b52"/><path d="M6 25 L113 21.2" stroke="#8a939e" stroke-width=".7"/><rect x="108" y="20.6" width="5" height="1.6" fill="#fff"/><rect x="6" y="24" width="4" height="1.6" fill="#ff4d5e"/>${WHEEL(26,32,6.8)}${WHEEL(93,32,6.8)}`,
+  ferrari:`<path d="M6 30 L8 25 Q30 22 46 18 Q56 13 70 14 Q84 16 96 22 L113 25 L113 30Z" fill="#e8221c" stroke="#8a1310" stroke-width=".7"/><path d="M50 18.6 Q58 15 68 15.4 L72 21 L50 21Z M74 21 L72 15.6 Q80 16.8 88 21Z" fill="#1d3b52"/><path d="M38 26 h14 l-2 3 h-12z" fill="#2b3036"/><rect x="109" y="24.6" width="4" height="2" fill="#fff2c0"/><path d="M6 24 L14 23" stroke="#2b3036" stroke-width="1.4"/>${WHEEL(28,31,6.6)}${WHEEL(94,31,6.6)}`,
+  tank:`<rect x="8" y="27" width="104" height="11" rx="5.5" fill="#2b3036"/>${[16,30,44,58,72,86,100].map(x=>`<circle cx="${x}" cy="32.5" r="4" fill="#4a525c" stroke="#1e2227"/>`).join('')}<path d="M10 27 L18 19 L104 19 L112 27Z" fill="#6b7a4a" stroke="#4a5530" stroke-width=".7"/><path d="M38 19 L44 11 L74 11 L80 19Z" fill="#7a8a58" stroke="#4a5530" stroke-width=".7"/><rect x="78" y="13" width="40" height="3.2" rx="1.4" fill="#4a5530"/><rect x="54" y="8" width="8" height="3" fill="#4a5530"/>`,
+  mech:`<path d="M44 36 L40 26 L48 26 L52 36Z M66 36 L70 26 L78 26 L74 36Z" fill="#4a525c"/><rect x="38" y="35" width="16" height="4" rx="1" fill="#2b3036"/><rect x="64" y="35" width="16" height="4" rx="1" fill="#2b3036"/><path d="M40 26 L42 12 L78 12 L80 26Z" fill="#2ec4c9" stroke="#147d81" stroke-width=".8"/><ellipse cx="60" cy="10" rx="9" ry="5" fill="#1d3b52" stroke="#7FF0F3"/><rect x="78" y="15" width="30" height="5" rx="2" fill="#2b3036"/><rect x="104" y="14" width="6" height="7" rx="1" fill="#4a525c"/><rect x="26" y="12" width="12" height="14" rx="2" fill="#4a525c"/><path d="M28 26 L26 34 L36 34 L34 26Z" fill="#ff9f43" opacity=".85"/>`,
+  speedboat:`<path d="M4 26 L100 26 Q112 25 117 20 L22 20 Q8 20 4 26Z" fill="#f4f4f4" stroke="#8a939e" stroke-width=".7"/><path d="M8 24.6 L108 24 L104 25.4 L10 26Z" fill="#3a8dde"/><path d="M58 20 L70 12 L80 12 L74 20Z" fill="#1d3b52" opacity=".85"/><rect x="2" y="16" width="6" height="8" rx="1" fill="#2b3036"/><path d="M0 30 Q20 27 40 30 T80 30 T120 30" stroke="#7FF0F3" stroke-width="1.6" fill="none"/>`,
+  sub:`<ellipse cx="60" cy="26" rx="52" ry="10" fill="#2E8C90" stroke="#1d5e60"/><rect x="58" y="10" width="18" height="10" rx="3" fill="#2E8C90" stroke="#1d5e60"/><rect x="66" y="4" width="2" height="7" fill="#4a525c"/><path d="M8 26 L0 18 L0 34Z" fill="#1d5e60"/>${[40,52,84,96].map(x=>`<circle cx="${x}" cy="25" r="2.2" fill="#7FF0F3"/>`).join('')}`
+};
+const vehArt=id=>`<svg viewBox="0 0 120 44" aria-hidden="true">${VART[id]||''}</svg>`;
+const EART={
+  buggy:`<path d="M6 27 h50 l-4 -8 h-12 l-6 -8 h-14 l-6 8 h-4z" fill="#b5532f" stroke="#6a2a14" stroke-width=".8"/><path d="M20 19 L24 8 H38 L44 19" fill="none" stroke="#2b3036" stroke-width="2"/><circle cx="32" cy="14" r="4" fill="#3a4149"/><rect x="29" y="12.6" width="6" height="2" fill="#FFC845"/><rect x="52" y="20" width="6" height="3" fill="#FFC845"/>${WHEEL(15,31,7.5)}${WHEEL(50,31,7.5)}`,
+  biker:`<path d="M14 30 L30 22 L44 22 L50 30 M30 22 L26 14 L34 14" stroke="#2b3036" stroke-width="2.4" fill="none"/><path d="M24 22 h20 l-4 -4 h-12z" fill="#c0392b"/><path d="M30 18 L28 6 L36 6 L38 16Z" fill="#4a525c"/><circle cx="33" cy="5" r="4.4" fill="#c0392b"/><rect x="33" y="3.4" width="5" height="2.4" rx="1" fill="#1d3b52"/>${WHEEL(14,31,7)}${WHEEL(50,31,7)}`,
+  scorpion:`<path d="M10 28 Q20 20 34 22 Q46 24 50 28 Q40 32 22 32 Q12 32 10 28Z" fill="#d9773f" stroke="#8a3a1a"/><path d="M12 26 Q2 18 6 8 Q10 2 16 6" fill="none" stroke="#d9773f" stroke-width="4" stroke-linecap="round"/><path d="M16 6 l4 -3 -1 5z" fill="#2b2238"/><path d="M48 26 L58 20 L62 24 M48 29 L58 30 L62 26" stroke="#d9773f" stroke-width="3" fill="none" stroke-linecap="round"/>${[20,28,36,44].map(x=>`<path d="M${x} 31 l-3 6 M${x} 31 l3 6" stroke="#8a3a1a" stroke-width="1.4"/>`).join('')}<circle cx="47" cy="24" r="1.4" fill="#2b2238"/>`,
+  drone:`<rect x="18" y="16" width="28" height="10" rx="4" fill="#d9773f" stroke="#8a3a1a"/><circle cx="40" cy="21" r="2.6" fill="#ff4d5e"/><path d="M10 12 H26 M38 12 H54 M18 12 V16 M46 12 V16" stroke="#2b3036" stroke-width="2"/><ellipse cx="18" cy="11" rx="10" ry="2" fill="rgba(40,40,40,.35)"/><ellipse cx="46" cy="11" rx="10" ry="2" fill="rgba(40,40,40,.35)"/><path d="M24 26 L22 32 M40 26 L42 32" stroke="#2b3036" stroke-width="1.6"/>`,
+  yeti:`<path d="M12 36 Q8 14 30 8 Q52 10 50 36Z" fill="#eef2f5" stroke="#a9b3be"/><path d="M20 10 L16 2 L24 8 M40 10 L46 2 L38 8" fill="#c9b894" stroke="#8a7a5a"/><circle cx="26" cy="18" r="2.2" fill="#2b2238"/><circle cx="38" cy="18" r="2.2" fill="#2b2238"/><path d="M26 26 Q32 30 38 26" stroke="#2b2238" stroke-width="1.6" fill="none"/><path d="M50 22 Q60 24 58 32 M12 22 Q4 24 6 32" stroke="#eef2f5" stroke-width="6" stroke-linecap="round" fill="none"/>`
+};
+const enemyArt=k=>`<svg viewBox="0 0 64 40" aria-hidden="true">${EART[k]||''}</svg>`;
+const BADGE={
+  trophy:'<path d="M20 10h24v12a12 12 0 0 1-24 0z" fill="#FFC845" stroke="#b8860b" stroke-width="2"/><path d="M20 14h-8a8 8 0 0 0 8 10M44 14h8a8 8 0 0 1-8 10" fill="none" stroke="#FFC845" stroke-width="3"/><rect x="28" y="34" width="8" height="8" fill="#b8860b"/><rect x="20" y="42" width="24" height="7" rx="2" fill="#4a525c"/><path d="M32 14l2 4 4.4.6-3.2 3 .8 4.4-4-2.2-4 2.2.8-4.4-3.2-3 4.4-.6z" fill="#fff6c8"/>',
+  dizzy:'<circle cx="32" cy="32" r="20" fill="#FFC845" stroke="#b8860b" stroke-width="2"/><path d="M22 26l6 6M28 26l-6 6M36 26l6 6M42 26l-6 6" stroke="#2b2238" stroke-width="2.4" stroke-linecap="round"/><path d="M24 42q8 -6 16 0" stroke="#2b2238" stroke-width="2.4" fill="none"/><path d="M10 12l3 5 5 .6-3.6 3.4.9 5-4.3-2.4-4.3 2.4.9-5L4 17.6l5-.6z" fill="#fff"/>',
+  map:'<path d="M8 14l14-5 20 6 14-5v40l-14 5-20-6-14 5z" fill="#e8dcc0" stroke="#8a6a3a" stroke-width="2"/><path d="M22 9v40M42 15v40" stroke="#c9b48a" stroke-width="2"/><path d="M14 36 Q24 24 34 32 T50 22" stroke="#FF4D5E" stroke-width="2.4" stroke-dasharray="4 3" fill="none"/><path d="M48 20l4 4M52 20l-4 4" stroke="#FF4D5E" stroke-width="2.4"/>',
+  flag:'<path d="M16 8v48" stroke="#4a525c" stroke-width="3"/>'+[0,1,2,3].map(r=>[0,1,2,3,4].map(c=>`<rect x="${18+c*7}" y="${10+r*6}" width="7" height="6" fill="${(r+c)%2?'#fff':'#1e2227'}"/>`).join('')).join(''),
+  chute:'<path d="M8 26 Q32 0 56 26 Q50 22 44 26 Q38 22 32 26 Q26 22 20 26 Q14 22 8 26Z" fill="#FF4D5E" stroke="#a82a38" stroke-width="1.6"/><path d="M8 26L30 46M20 26L31 46M44 26L33 46M56 26L34 46" stroke="#4a525c"/><rect x="28" y="44" width="8" height="10" rx="3" fill="#2EC4C9"/><circle cx="32" cy="42" r="3.2" fill="#F1C7A3"/>'
+};
+const badge=k=>`<div class="badge"><svg viewBox="0 0 64 64" aria-hidden="true">${BADGE[k]}</svg></div>`;
+const FART={
+  desert:'<rect width="34" height="24" rx="4" fill="#ffd2a6"/><circle cx="26" cy="7" r="3.4" fill="#fff4c8"/><path d="M0 24V14h6l2-4h8l2 4h4v10Z" fill="#c9653c"/><path d="M18 24V12h10l2 2v10Z" fill="#b5532f"/>',
+  mountain:'<rect width="34" height="24" rx="4" fill="#bfe3f5"/><path d="M0 24 L11 6 L19 18 L24 11 L34 24Z" fill="#5f7d96"/><path d="M8 11 L11 6 L14 11 L12 10 L11 12 L10 10Z M22 13 L24 11 L26 13Z" fill="#fff"/><rect y="20" width="34" height="4" fill="#3f7a5a"/>',
+  ocean:'<rect width="34" height="24" rx="4" fill="#1d6fa0"/><path d="M0 12 Q5 8 10 12 T20 12 T34 12 V24 H0Z" fill="#2EC4C9"/><path d="M0 17 Q5 13 10 17 T20 17 T34 17" stroke="#c9fbfc" fill="none"/>',
+  sky:'<rect width="34" height="24" rx="4" fill="#c7b2ff"/><rect x="8" y="6" width="5" height="12" fill="#4a525c"/><rect x="15" y="3" width="6" height="15" fill="#3a4149"/><rect x="23" y="8" width="4" height="10" fill="#4a525c"/><ellipse cx="17" cy="19" rx="14" ry="4" fill="#fff"/>'
+};
+const factionArt=b=>`<svg viewBox="0 0 34 24" aria-hidden="true">${FART[b]||''}</svg>`;
+function gearArt(kind,key){
+  let g='';
+  if(kind==='weapon'){
+    const L=(WEAPONS[key]||{}).look;
+    g={none:'<circle cx="24" cy="12" r="6" fill="#F1C7A3"/><path d="M20 10h8" stroke="#c9946a"/>',
+      sling:'<path d="M24 22V12M24 12L18 3M24 12l6-9" stroke="#8a5a32" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M18 4 Q24 10 30 4" stroke="#FF4D5E" fill="none"/>',
+      bb:'<rect x="6" y="9" width="30" height="4" rx="1.4" fill="#8a5a32"/><rect x="34" y="10" width="10" height="2" fill="#2b3036"/><path d="M14 13 l-2 7 h5 l2-7z" fill="#5a3a26"/>',
+      kunai:'<path d="M8 12 L30 9 L44 12 L30 15Z" fill="#c9d1d9" stroke="#4a525c"/><rect x="4" y="10.5" width="8" height="3" fill="#2b2238"/><circle cx="4" cy="12" r="2.2" fill="none" stroke="#2b2238"/>',
+      bow:'<path d="M14 2 Q40 12 14 22" stroke="#8a5a32" stroke-width="2.4" fill="none"/><path d="M14 2V22" stroke="#e8e2d4"/><path d="M8 12H40" stroke="#4a525c" stroke-width="1.4"/><path d="M40 12l-4-3v6z" fill="#FF4D5E"/>',
+      staff:'<rect x="2" y="10.6" width="44" height="2.8" rx="1.4" fill="#8a5a32"/><rect x="8" y="10" width="3" height="4" fill="#2b2238"/><rect x="37" y="10" width="3" height="4" fill="#2b2238"/>',
+      pistol:'<path d="M12 8h24v5H22l-2 8h-6l1-8h-3z" fill="#2b3036"/><rect x="34" y="9" width="6" height="2.4" fill="#2EC4C9"/>',
+      katana:'<path d="M14 12 L46 6 L44 9 L14 14Z" fill="#c9d1d9" stroke="#8a939e" stroke-width=".5"/><rect x="11" y="10" width="3" height="6" fill="#FFC845"/><rect x="2" y="11.4" width="10" height="3" fill="#2b2238"/>',
+      rifle:'<path d="M4 12 L14 9 L40 9 L46 10 L46 12 L14 13 L8 17 L4 16Z" fill="#8a5a32"/><rect x="18" y="8" width="28" height="2.4" fill="#2b3036"/><rect x="22" y="5" width="10" height="3" rx="1.4" fill="#2b3036"/>',
+      assault:'<path d="M4 10h12v6H8z" fill="#2b3036"/><rect x="14" y="8" width="24" height="6" rx="1" fill="#3a4149"/><rect x="36" y="9.6" width="10" height="2.4" fill="#2b3036"/><path d="M24 14 l2 7 h4 l-1-7z" fill="#2b3036"/><rect x="20" y="5.6" width="8" height="2.4" fill="#2b3036"/>',
+      mg:'<rect x="6" y="8" width="34" height="7" rx="1.4" fill="#2b3036"/><rect x="38" y="10" width="9" height="3" fill="#2b3036"/><path d="M32 15 l-4 7 M32 15 l4 7" stroke="#2b3036" stroke-width="1.6"/><path d="M14 15 q-4 6 2 8" stroke="#FFC845" stroke-width="2" fill="none" stroke-dasharray="2 1"/>',
+      laser:'<rect x="6" y="8" width="30" height="7" rx="3" fill="#c9d1d9" stroke="#4a525c"/><rect x="34" y="9.6" width="12" height="3.6" rx="1.4" fill="#3A8DDE"/><rect x="14" y="10" width="14" height="2.4" fill="#7FF0F3"/>',
+      plasma:'<rect x="6" y="6" width="28" height="11" rx="4" fill="#3a3f55"/><circle cx="38" cy="11.5" r="5.4" fill="#ff5fd2"/><circle cx="38" cy="11.5" r="2.4" fill="#ffd1f2"/><rect x="10" y="9" width="16" height="2" fill="#ff5fd2"/>',
+      rail:'<rect x="4" y="9" width="10" height="7" rx="1" fill="#2b3036"/><rect x="12" y="7" width="34" height="2.4" fill="#8a939e"/><rect x="12" y="14" width="34" height="2.4" fill="#8a939e"/><rect x="14" y="10.6" width="32" height="1.6" fill="#9fb8ff"/>'}[L]||'';
+  } else if(kind==='armor'){
+    const c={none:'#3a4149',padded:'#6b7a4a',kevlar:'#1e2227',plate:'#3a4149',power:'#8a939e',nano:'#12161a'}[key];
+    g=`<path d="M16 3 L20 2 Q24 5 28 2 L32 3 L35 8 L33 22 L15 22 L13 8Z" fill="${c}" stroke="#8a939e" stroke-width=".8"/>`+(key==='kevlar'?'<rect x="17" y="13" width="5" height="4" fill="#3a4149"/><rect x="26" y="13" width="5" height="4" fill="#3a4149"/>':'')+(key==='padded'?'<path d="M15 10h18M15 15h18" stroke="#4a5530"/>':'')+(key==='power'?'<circle cx="24" cy="11" r="3" fill="#7FF0F3"/>':'')+(key==='nano'?'<path d="M18 8 L24 14 L30 8 M24 14 V22" stroke="#2EC4C9" fill="none"/>':'')+(key==='plate'?'<path d="M14 9h20M14 13h20M14 17h20" stroke="#5a636d" stroke-width="1.4"/>':'');
+  } else {
+    const c=(OUTFITS[key]||{}).col||'#4a525c';
+    g=`<path d="M17 3 L21 2 Q24 5 27 2 L31 3 L37 8 L34 12 L32 11 V22 H16 V11 L14 12 L11 8Z" fill="${c}" stroke="#8a939e" stroke-width=".8"/>`+(key==='suit'?'<path d="M22 3 L24 12 L26 3" fill="#fff"/><path d="M24 6 L23 12 L24 15 L25 12Z" fill="#FFC845"/>':'')+(key==='gi'?'<path d="M19 3 L27 13 M29 3 L21 11" stroke="#e8e2d4" stroke-width="1.4"/><rect x="16" y="14" width="16" height="2" fill="#c0392b"/>':'');
+  }
+  return `<svg viewBox="0 0 48 24" aria-hidden="true">${g}</svg>`;
+}
+const roomThumb=t=>`<svg class="thumb" viewBox="0 0 120 100" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${DECOR[t]||''}</svg>`;
 
 // ---------- game data ----------
 const SKINS=['#FBE0C8','#F1C7A3','#D9A07A','#A86E4A','#6E4630'];
@@ -401,24 +512,24 @@ const FIRST=['Zip','Nova','Rex','Juno','Kai','Luna','Bolt','Mira','Dex','Sky','R
 const LAST=['Stone','Vega','Ridge','Canyon','Steel','Sparks','Mesa','Rivers','Flint','Hawk','Cruz','Arches','Quartz','Dune','Pike','Frost','Shadow','Storm'];
 
 const FACTIONS={
-  nus:{name:'New United States',place:'Moab, Utah',biome:'desert',map:'moab',icon:'🏜️',blurb:'Red rock canyons and giant stone arches.'},
-  icr:{name:'Independent California Republic',place:'Lake Tahoe and Truckee',biome:'mountain',map:'tahoe',icon:'🏔️',blurb:'Snowy peaks and pine forests above a deep blue lake.'},
-  atl:{name:'Atlantis',place:'The Bahamas, underwater',biome:'ocean',icon:'🌊',blurb:'Unlocks later.',locked:true},
-  sky:{name:'Sky Vegas',place:'New Las Vegas, in the clouds',biome:'sky',icon:'☁️',blurb:'Unlocks later.',locked:true}
+  nus:{name:'New United States',place:'Moab, Utah',biome:'desert',map:'moab',blurb:'Red rock canyons and giant stone arches.'},
+  icr:{name:'Independent California Republic',place:'Lake Tahoe and Truckee',biome:'mountain',map:'tahoe',blurb:'Snowy peaks and pine forests above a deep blue lake.'},
+  atl:{name:'Atlantis',place:'The Bahamas, underwater',biome:'ocean',blurb:'Unlocks later.',locked:true},
+  sky:{name:'Sky Vegas',place:'New Las Vegas, in the clouds',biome:'sky',blurb:'Unlocks later.',locked:true}
 };
 
 const ROOMS={
-  hq:{short:'HQ',name:'Headquarters',icon:'🎖️',cost:0,cap:2,prod:'credits',rate:30,stat:'smarts',cls:'Crew',desc:'The Commander\'s office. Earns cash from contracts.'},
-  quarters:{short:'Quarters',name:'Sleeping Quarters',icon:'🛏️',cost:25000,cap:2,beds:4,cls:'Crew',desc:'Bunks for 4 more crew members.'},
-  food:{short:'Food Hall',name:'Food Hall',icon:'🍔',cost:30000,cap:2,prod:'food',rate:1.0,stat:'smarts',cls:'Cook',desc:'Makes food. Hungry crew get grumpy.'},
-  power:{short:'Power Core',name:'Power Core',icon:'⚡',cost:40000,cap:2,prod:'power',rate:1.0,stat:'str',cls:'Engineer',desc:'Makes power. Missions use it as fuel. Low power slows turrets.'},
-  tech:{short:'Tech Lab',name:'Tech Center',icon:'🧪',cost:60000,cap:2,prod:'tech',rate:0.35,stat:'smarts',cls:'Scientist',desc:'Makes tech points for lasers, mechs and the antidote.'},
-  fitness:{short:'Dojo',name:'Fitness Dojo',icon:'🥋',cost:20000,cap:2,train:'str',cls:'Athlete',desc:'Trains Strength. Crew grow from Novice to Advanced physique.'},
-  barracks:{short:'Barracks',name:'Barracks',icon:'🛡️',cost:35000,cap:2,train:'aim',cls:'Defender',desc:'Trains Aim. Defenders here fight in every battle.'},
-  med:{short:'Med Bay',name:'Med Bay',icon:'🩹',cost:45000,cap:2,heal:true,cls:'Medic',desc:'Knocked out crew heal 4 times faster.'},
-  hangar:{short:'Hangar',name:'Hangar',icon:'🛩️',cost:120000,cap:2,vslots:4,train:'aim',cls:'Pilot',desc:'Parks 4 vehicles. Crew here fly and drive the missions.'},
-  cell:{short:'Cell',name:'Holding Cell',icon:'🔒',cost:50000,cap:1,level:4,jail:2,cls:'Defender',desc:'Jail for 2 caught clones. You can talk to them later.'},
-  clonelab:{short:'Clone Lab',name:'Clone Lab',icon:'🧬',cost:150000,cap:1,level:6,cls:'Scientist',desc:'Lets you cure clones with antidote (30 tech).'}
+  hq:{short:'HQ',name:'Headquarters',cost:0,cap:2,prod:'credits',rate:30,stat:'smarts',cls:'Crew',desc:'The Commander\'s office. Earns cash from contracts.'},
+  quarters:{short:'Quarters',name:'Sleeping Quarters',cost:25000,cap:2,beds:4,cls:'Crew',desc:'Bunks for 4 more crew members.'},
+  food:{short:'Food Hall',name:'Food Hall',cost:30000,cap:2,prod:'food',rate:1.0,stat:'smarts',cls:'Cook',desc:'Makes food. Hungry crew get grumpy.'},
+  power:{short:'Power Core',name:'Power Core',cost:40000,cap:2,prod:'power',rate:1.0,stat:'str',cls:'Engineer',desc:'Makes power. Missions use it as fuel. Low power slows turrets.'},
+  tech:{short:'Tech Lab',name:'Tech Center',cost:60000,cap:2,prod:'tech',rate:0.35,stat:'smarts',cls:'Scientist',desc:'Makes tech points for lasers, mechs and the antidote.'},
+  fitness:{short:'Dojo',name:'Fitness Dojo',cost:20000,cap:2,train:'str',cls:'Athlete',desc:'Trains Strength. Crew grow from Novice to Advanced physique.'},
+  barracks:{short:'Barracks',name:'Barracks',cost:35000,cap:2,train:'aim',cls:'Defender',desc:'Trains Aim. Defenders here fight in every battle.'},
+  med:{short:'Med Bay',name:'Med Bay',cost:45000,cap:2,heal:true,cls:'Medic',desc:'Knocked out crew heal 4 times faster.'},
+  hangar:{short:'Hangar',name:'Hangar',cost:120000,cap:2,vslots:4,train:'aim',cls:'Pilot',desc:'Parks 4 vehicles. Crew here fly and drive the missions.'},
+  cell:{short:'Cell',name:'Holding Cell',cost:50000,cap:1,level:4,jail:2,cls:'Defender',desc:'Jail for 2 caught clones. You can talk to them later.'},
+  clonelab:{short:'Clone Lab',name:'Clone Lab',cost:150000,cap:1,level:6,cls:'Scientist',desc:'Lets you cure clones with antidote (30 tech).'}
 };
 const TIERS={
   Pilot:['Prop Pilot','Jet Pilot','Fighter Ace','Test Pilot'],
@@ -434,62 +545,120 @@ const PHYS=['Novice','Intermediate','Advanced'];
 const physOf=c=>c.str>=7?2:c.str>=4.5?1:0;
 // gear, Fallout style: each crew member wears one outfit and carries one weapon
 const OUTFITS={
-  jumpsuit:{name:'Base Jumpsuit',cost:0,desc:'Standard issue.'},
-  gi:{name:'Ninja Gi',cost:4000,bonus:{str:1},desc:'+1 Strength. Quiet and quick.'},
-  flight:{name:'Flight Jacket',cost:6000,bonus:{aim:1},desc:'+1 Aim. Pilots love it.'},
-  labcoat:{name:'Lab Coat',cost:5000,bonus:{smarts:2},desc:'+2 Smarts. Has a pen in the pocket.'},
-  armor:{name:'Combat Armor',cost:15000,bonus:{str:1,aim:1},desc:'+1 Strength, +1 Aim. Heavy duty.'}
+  jumpsuit:{name:'Base Jumpsuit',cost:0,col:'#3A6E9E',desc:'Standard issue.'},
+  gi:{name:'Ninja Gi',cost:4000,col:'#262a36',bonus:{str:1},desc:'+1 Strength. Quiet and quick.'},
+  flight:{name:'Flight Jacket',cost:6000,col:'#7a5230',bonus:{aim:1},desc:'+1 Aim. Pilots love it.'},
+  labcoat:{name:'Lab Coat',cost:5000,col:'#eef2f5',bonus:{smarts:2},desc:'+2 Smarts. Has a pen in the pocket.'},
+  armor:{name:'Tactical Gear',cost:15000,col:'#4a525c',bonus:{str:1,aim:1},desc:'+1 Strength, +1 Aim.'},
+  suit:{name:'Billionaire Suit',cost:50000,col:'#1e2227',bonus:{smarts:3},level:20,desc:'+3 Smarts. Gold tie included.'}
 };
+// weapons go from backyard toys to sci fi. Every hit is a stun hit: raiders get knocked out, never hurt for real.
 const WEAPONS={
-  none:{name:'No weapon',cost:0,dmg:0,desc:'Fists of fury.'},
-  kunai:{name:'Kunai',cost:1500,dmg:1,desc:'+1 battle damage.'},
-  staff:{name:'Bo Staff',cost:2500,dmg:2,desc:'+2 battle damage.'},
-  blaster:{name:'Stun Blaster',cost:6000,dmg:3,desc:'+3 battle damage.'},
-  katana:{name:'Katana',cost:8000,dmg:4,desc:'+4 battle damage.'},
-  laser:{name:'Laser Rifle',cost:25000,tech:20,dmg:7,level:5,desc:'+7 battle damage.'}
+  none:{name:'No weapon',cost:0,dmg:0,look:'none',desc:'Fists of fury.'},
+  slingshot:{name:'Slingshot',cost:500,dmg:1,look:'sling',desc:'+1 battle damage. Rubber band power.'},
+  bb:{name:'BB Gun',cost:1500,dmg:2,look:'bb',desc:'+2 battle damage.'},
+  kunai:{name:'Kunai',cost:2000,dmg:2,look:'kunai',desc:'+2 battle damage. A ninja classic.'},
+  bow:{name:'Bow and Arrows',cost:3000,dmg:3,look:'bow',desc:'+3 battle damage. Foam tipped arrows.'},
+  staff:{name:'Bo Staff',cost:2500,dmg:3,look:'staff',desc:'+3 battle damage.'},
+  handgun:{name:'Stun Pistol',cost:6000,dmg:4,look:'pistol',desc:'+4 battle damage.'},
+  katana:{name:'Katana',cost:8000,dmg:5,look:'katana',desc:'+5 battle damage.'},
+  rifle:{name:'Hunting Rifle',cost:12000,dmg:6,look:'rifle',level:3,desc:'+6 battle damage. Long range.'},
+  assault:{name:'Assault Rifle',cost:25000,dmg:8,look:'assault',level:5,desc:'+8 battle damage. Stun rounds.'},
+  mg:{name:'Machine Gun',cost:45000,dmg:11,look:'mg',level:8,desc:'+11 battle damage. Heavy.'},
+  laser:{name:'Laser Rifle',cost:80000,tech:20,dmg:15,look:'laser',level:12,desc:'+15 battle damage.'},
+  plasma:{name:'Plasma Cannon',cost:150000,tech:40,dmg:20,look:'plasma',level:20,desc:'+20 battle damage.'},
+  rail:{name:'Rail Gun',cost:300000,tech:80,dmg:28,look:'rail',level:32,desc:'+28 battle damage.'}
 };
-const gearBonus=(c,s)=>((OUTFITS[c.outfit||'jumpsuit']||{}).bonus||{})[s]||0;
+const ARMOR={
+  none:{name:'No armor',cost:0,def:0,desc:'Just vibes.'},
+  padded:{name:'Padded Vest',cost:2000,def:1,desc:'+1 defense.'},
+  kevlar:{name:'Kevlar Vest',cost:8000,def:2,desc:'+2 defense. Lots of pockets.'},
+  plate:{name:'Ninja Plate',cost:15000,def:3,level:3,desc:'+3 defense. Never gets knocked out in a lost battle.'},
+  power:{name:'Power Armor',cost:60000,tech:20,def:5,level:10,desc:'+5 defense. Glowing core.'},
+  nano:{name:'Nano Suit',cost:150000,tech:50,def:7,level:25,desc:'+7 defense. Basically a superhero.'}
+};
+const GEAR={outfit:OUTFITS,weapon:WEAPONS,armor:ARMOR};
+const curGear=(c,k)=>c[k]||(k==='outfit'?'jumpsuit':'none');
+const gearBonus=(c,s)=>((OUTFITS[curGear(c,'outfit')]||{}).bonus||{})[s]||0;
 const eff=(c,s)=>c[s]+gearBonus(c,s);
+const armorDef=c=>(ARMOR[curGear(c,'armor')]||ARMOR.none).def;
+// base defenses: realistic boxy turrets, each with 10 upgrade levels
 const TURRETS={
-  auto:{name:'Auto Turret',cost:25000,dmg:6,rate:.8,range:150,desc:'Fast shots. Good all around.'},
-  net:{name:'Net Turret',cost:18000,dmg:2,rate:1.1,range:130,slow:true,desc:'Sticky nets slow enemies way down.'},
-  laser:{name:'Laser Turret',cost:80000,tech:40,dmg:16,rate:1.6,range:190,level:5,desc:'Big zap. Needs 40 tech.'}
+  mg:{name:'Machine Gun Nest',cost:15000,dmg:4,rate:.35,range:140,col:'#FFC845',desc:'Cheap and fast. Stun rounds.'},
+  auto:{name:'Auto Cannon',cost:25000,dmg:7,rate:.8,range:160,col:'#FFC845',desc:'Twin barrels. Good all around.'},
+  net:{name:'Net Launcher',cost:18000,dmg:2,rate:1.1,range:130,slow:true,col:'#2EC4C9',desc:'Sticky nets slow raiders way down.'},
+  gatling:{name:'Gatling Turret',cost:60000,dmg:3,rate:.12,range:150,level:7,col:'#FFE27A',desc:'Spinning barrels. Super fast.'},
+  laser:{name:'Laser Turret',cost:80000,tech:40,dmg:16,rate:1.4,range:190,level:10,col:'#3A8DDE',desc:'Long range beam. Needs tech.'},
+  missile:{name:'Stun Missile Pod',cost:90000,dmg:22,rate:2.2,range:220,splash:true,level:15,col:'#FF7F50',desc:'Six missiles. Hits a whole group.'},
+  rail:{name:'Rail Gun',cost:250000,tech:80,dmg:60,rate:3.5,range:260,level:32,col:'#7F9CFF',desc:'Huge range, huge hit.'},
+  plasma:{name:'Plasma Cannon',cost:500000,tech:150,dmg:35,rate:1.2,range:220,splash:true,level:50,col:'#FF5FD2',desc:'Glowing balls of stun energy.'}
 };
-const PAD_X=[.08,.24,.76,.92];
-// prices are rough real world values (new or used); cat: air, ground or sea; gun: can shoot on missions
+const TUR_MAX=10;
+const turDmg=t=>TURRETS[t.type].dmg*(1+.3*(t.lvl-1));
+const turUpCost=t=>Math.round(TURRETS[t.type].cost*.6*t.lvl);
+// the ground floor lobby grows from a bunker into a mega building
+const LOBBY=[{min:1,w:.34,h:46,name:'Bunker'},{min:3,w:.42,h:50,name:'Fortified Bunker'},{min:5,w:.54,h:66,name:'Outpost'},{min:10,w:.64,h:96,name:'Two Story Lobby'},{min:20,w:.8,h:114,name:'Atrium'},{min:32,w:.92,h:136,name:'Grand Hall'},{min:50,w:1,h:158,name:'Mega Lobby'}];
+const lobbyTier=()=>{const L=level();let t=0;LOBBY.forEach((b,i)=>{if(L>=b.min)t=i});return t};
+const SLOT_MS=[1,2,3,5,7,10,15,20,32,42,50,60,75,90,100];
+const slotCount=()=>Math.min(16,1+SLOT_MS.filter(m=>level()>=m).length);
+const nextSlotLv=()=>SLOT_MS.find(m=>m>level());
+function slotPositions(){
+  const t=lobbyTier(),B=LOBBY[t],L0=.5-B.w/2,h=B.h,out=[[.075,0],[.925,0],[.18,0],[.82,0],[.285,0],[.715,0]];
+  if(t===3) out.push([.5-B.w*.16,h],[.5+B.w*.16,h]);
+  if(t===4) out.push([.5-B.w*.1,h],[.5+B.w*.1,h],[.5-B.w*.34,Math.round(h*.6)],[.5+B.w*.34,Math.round(h*.6)]);
+  if(t===5) out.push([.5-B.w*.1,h],[.5+B.w*.1,h],[.5-B.w*.28,Math.round(h*.6)],[.5+B.w*.28,Math.round(h*.6)],[L0+B.w*.06,h],[1-L0-B.w*.06,h]);
+  if(t===6) out.push([.5-B.w*.08,h],[.5+B.w*.08,h],[L0+B.w*.07,Math.round(h*.85)],[1-L0-B.w*.07,Math.round(h*.85)],[.5-B.w*.27,Math.round(h*.55)],[.5+B.w*.27,Math.round(h*.55)],[.5-B.w*.16,Math.round(h*.7)],[.5+B.w*.16,Math.round(h*.7)]);
+  out.push([.38,0],[.62,0]);
+  return out;
+}
+// prices are rough real world values (new or used); cat: air, ground or sea
 const VEH=[
-  {id:'cessna',name:'Cessna 182',e:'🛩️',era:'classic',cat:'air',kind:'Prop plane',cost:450000,spd:2,arm:2,col:0xf4f4f4},
-  {id:'l39',name:'Aero L-39 Albatros',e:'✈️',era:'classic',cat:'air',kind:'Trainer jet',cost:380000,spd:4,arm:2,gun:1,col:0xc9d1d9,f:'hue-rotate(40deg)'},
-  {id:'huey',name:'Huey Helicopter',e:'🚁',era:'classic',cat:'air',kind:'Helicopter',cost:1200000,spd:2,arm:4,col:0x6b7a4a},
-  {id:'f16',name:'F-16 Fighting Falcon',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:28000000,spd:5,arm:3,gun:1,level:8,col:0x9aa6b2},
-  {id:'mig',name:'MiG-29',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:22000000,spd:5,arm:3,gun:1,level:8,f:'hue-rotate(90deg)',col:0x8a9a7a},
-  {id:'f18',name:'F/A-18 Hornet',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:65000000,spd:5,arm:4,gun:1,level:10,f:'hue-rotate(170deg)',col:0x7f8c99},
-  {id:'f22',name:'F-22 Raptor',e:'✈️',era:'classic',cat:'air',kind:'Stealth jet',cost:150000000,spd:6,arm:4,gun:1,level:15,f:'grayscale(1) brightness(.8)',col:0x5f6670},
-  {id:'hover',name:'Hover Saucer',e:'🛸',era:'future',cat:'air',kind:'Hover craft',cost:90000000,tech:40,spd:5,arm:3,gun:1,level:10,col:0x2ec4c9},
-  {id:'rocket',name:'Star Hopper',e:'🚀',era:'future',cat:'air',kind:'Rocket plane',cost:250000000,tech:100,spd:7,arm:3,gun:1,level:20,col:0xe8e8f0},
-  {id:'airship',name:'Sky Vegas Airship',e:'🎈',era:'future',cat:'air',kind:'Airship',cost:0,locked:'Unlocks with Sky Vegas'},
-  {id:'mustang',name:'Ford Mustang',e:'🚗',era:'classic',cat:'ground',kind:'Muscle car',cost:42000,spd:4,arm:2,col:0xd23a3a},
-  {id:'cyber',name:'Cybertruck',e:'🛻',era:'classic',cat:'ground',kind:'Truck',cost:80000,spd:3,arm:5,col:0xb8bec6,upg:{name:'Roof Zapper',cost:15000}},
-  {id:'ferrari',name:'Ferrari',e:'🏎️',era:'classic',cat:'ground',kind:'Supercar',cost:320000,spd:6,arm:1,col:0xe8221c},
-  {id:'tank',name:'Battle Tank',e:'🛡️',era:'classic',cat:'ground',kind:'Tank',cost:8000000,spd:2,arm:7,gun:1,level:6,col:0x6b7a4a},
-  {id:'mech',name:'Titan Mech',e:'🤖',era:'future',cat:'ground',kind:'Mech',cost:40000000,tech:60,spd:2,arm:6,gun:1,level:10,col:0x2ec4c9},
-  {id:'speedboat',name:'Speedboat',e:'🚤',era:'classic',cat:'sea',kind:'Boat',cost:65000,spd:5,arm:2,col:0xf4f4f4},
-  {id:'sub',name:'Atlantis Deep Sub',e:'🐋',era:'future',cat:'sea',kind:'Submarine',cost:0,locked:'Unlocks with Atlantis'}
+  {id:'cessna',name:'Cessna 182',era:'classic',cat:'air',kind:'Prop plane',cost:450000,spd:2,arm:2,col:0xf4f4f4},
+  {id:'l39',name:'Aero L-39 Albatros',era:'classic',cat:'air',kind:'Trainer jet',cost:380000,spd:4,arm:2,col:0xc9d1d9},
+  {id:'huey',name:'Huey Helicopter',era:'classic',cat:'air',kind:'Helicopter',cost:1200000,spd:2,arm:4,col:0x6b7a4a},
+  {id:'f16',name:'F-16 Fighting Falcon',era:'classic',cat:'air',kind:'Jet fighter',cost:28000000,spd:5,arm:3,level:8,col:0x9aa6b2},
+  {id:'mig',name:'MiG-29',era:'classic',cat:'air',kind:'Jet fighter',cost:22000000,spd:5,arm:3,level:8,col:0x8a9a7a},
+  {id:'f18',name:'F/A-18 Hornet',era:'classic',cat:'air',kind:'Jet fighter',cost:65000000,spd:5,arm:4,level:10,col:0x7f8c99},
+  {id:'f22',name:'F-22 Raptor',era:'classic',cat:'air',kind:'Stealth jet',cost:150000000,spd:6,arm:4,level:15,col:0x5f6670},
+  {id:'hover',name:'Hover Saucer',era:'future',cat:'air',kind:'Hover craft',cost:90000000,tech:40,spd:5,arm:3,level:10,col:0x2ec4c9},
+  {id:'rocket',name:'Star Hopper',era:'future',cat:'air',kind:'Rocket plane',cost:250000000,tech:100,spd:7,arm:3,level:20,col:0xe8e8f0},
+  {id:'airship',name:'Sky Vegas Airship',era:'future',cat:'air',kind:'Airship',cost:0,locked:'Unlocks with Sky Vegas'},
+  {id:'mustang',name:'Ford Mustang',era:'classic',cat:'ground',kind:'Muscle car',cost:42000,spd:4,arm:2,col:0xd23a3a},
+  {id:'cyber',name:'Cybertruck',era:'classic',cat:'ground',kind:'Truck',cost:80000,spd:3,arm:5,col:0xb8bec6},
+  {id:'ferrari',name:'Ferrari',era:'classic',cat:'ground',kind:'Supercar',cost:320000,spd:6,arm:1,col:0xe8221c},
+  {id:'tank',name:'Battle Tank',era:'classic',cat:'ground',kind:'Tank',cost:8000000,spd:2,arm:7,level:6,col:0x6b7a4a},
+  {id:'mech',name:'Titan Mech',era:'future',cat:'ground',kind:'Mech',cost:40000000,tech:60,spd:2,arm:6,level:10,col:0x2ec4c9},
+  {id:'speedboat',name:'Speedboat',era:'classic',cat:'sea',kind:'Boat',cost:65000,spd:5,arm:2,col:0xf4f4f4},
+  {id:'sub',name:'Atlantis Deep Sub',era:'future',cat:'sea',kind:'Submarine',cost:0,locked:'Unlocks with Atlantis'}
 ];
-const isArmed=v=>!!(v.gun||(v.upg&&S.upg&&S.upg[v.id]));
+// vehicle weapon ladder; [max tier, starting tier] per vehicle
+const VWEAPONS=[
+  {name:'No weapon',dmg:0,rate:1,cost:0,color:0xffffff},
+  {name:'Paintball Cannon',dmg:4,rate:.25,cost:8000,color:0xff6fae},
+  {name:'Machine Gun',dmg:6,rate:.1,cost:30000,color:0xffe27a},
+  {name:'Auto Cannon',dmg:12,rate:.2,cost:120000,color:0xffb347},
+  {name:'Stun Rockets',dmg:30,rate:.7,cost:400000,color:0xff7f50,rocket:true,level:8},
+  {name:'Laser',dmg:18,rate:.12,cost:1500000,tech:40,color:0x7ff0f3,level:12},
+  {name:'Rail Gun',dmg:60,rate:.6,cost:5000000,tech:100,color:0x9fb8ff,level:25}
+];
+const VCAP={cessna:[2,0],l39:[3,2],huey:[4,0],f16:[5,3],mig:[5,3],f18:[5,3],f22:[6,3],hover:[6,5],rocket:[6,5],mustang:[3,0],cyber:[4,0],ferrari:[2,0],tank:[6,3],mech:[6,4],speedboat:[3,0]};
+VEH.forEach(v=>{const c=VCAP[v.id];if(c){v.wcap=c[0];v.wdef=c[1]}});
+const vUp=v=>{S.vup=S.vup||{};if(!S.vup[v.id]) S.vup[v.id]={spd:1,arm:1,wpn:v.wdef||0};return S.vup[v.id]};
+const vUpCost=(v,l)=>Math.max(4000,Math.round((v.cost||50000)*.06*l));
+const isArmed=v=>!v.locked&&vUp(v).wpn>0;
 const missionType=v=>isArmed(v)?'strike':v.cat==='air'?'recon':'rally';
 const ENEMIES={
   desert:[
-    {name:'Badlands Gang Buggy',e:'🚙',hp:30,speed:38,dmg:6},
-    {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:62,dmg:4},
-    {name:'Canyon Scorpion',e:'🦂',hp:95,speed:18,dmg:12,min:4,big:true},
-    {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
+    {name:'Badlands Gang Buggy',art:'buggy',hp:30,speed:38,dmg:6},
+    {name:'Badlands Gang Biker',art:'biker',hp:18,speed:62,dmg:4},
+    {name:'Canyon Scorpion',art:'scorpion',hp:95,speed:18,dmg:12,min:4,big:true},
+    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2}
   ],
   mountain:[
-    {name:'Badlands Gang Snow Buggy',e:'🚙',hp:30,speed:36,dmg:6},
-    {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:58,dmg:4},
-    {name:'Snow Beast',e:'🦣',hp:105,speed:16,dmg:13,min:4,big:true},
-    {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
+    {name:'Badlands Gang Snow Buggy',art:'buggy',hp:30,speed:36,dmg:6},
+    {name:'Badlands Gang Biker',art:'biker',hp:18,speed:58,dmg:4},
+    {name:'Snow Beast',art:'yeti',hp:105,speed:16,dmg:13,min:4,big:true},
+    {name:'Junk Drone',art:'drone',hp:26,speed:46,dmg:5,min:2}
   ]
 };
 // mission routes use real landmark names from the terrain file; the last stop hides the outpost
@@ -538,12 +707,12 @@ function makeCrew(o){
     clone:false,str:rnd(2,4.2),aim:ri(2,6),smarts:ri(2,6),xp:0,mood:75,hurt:0,room:null,joined:S.t,lastSab:S.t,outfit:'jumpsuit',weapon:'none'},o||{});
 }
 function newGame(cfg){
-  S={v:2,cmd:{name:cfg.name,skin:cfg.skin,hair:cfg.hair,suit:cfg.suit,hs:cfg.hs},faction:cfg.faction,
+  S={v:3,cmd:{name:cfg.name,skin:cfg.skin,hair:cfg.hair,suit:cfg.suit,hs:cfg.hs},faction:cfg.faction,
     res:{credits:150000,food:80,power:80,tech:0,ap:3},xp:0,up:1,down:2,
     rooms:{'1:0':{type:'hq'},'1:1':{type:'quarters'},'-1:0':{type:'food'},'-1:1':{type:'power'},'-2:0':{type:'hangar'}},
-    turrets:[null,{type:'auto',lvl:1},{type:'auto',lvl:1},null],
+    turrets:[{type:'mg',lvl:1},{type:'mg',lvl:1},...new Array(14).fill(null)],vup:{},
     crew:[],vehicles:['cessna','cyber'],upg:{},floorH:{},jail:[],caught:0,t:0,uid:1,nextArrival:18,arrivals:0,nextRaid:210,wins:0,found:{}};
-  S.crew.push({id:0,name:cfg.name,skin:cfg.skin,hair:cfg.hair,shirt:'#262b31',trim:cfg.suit,hs:cfg.hs,eye:EYES[0],isCmd:true,clone:false,str:5,aim:5,smarts:6,xp:0,mood:95,hurt:0,room:'1:0',joined:0,outfit:'jumpsuit',weapon:'katana'});
+  S.crew.push({id:0,name:cfg.name,skin:cfg.skin,hair:cfg.hair,shirt:'#262b31',trim:cfg.suit,hs:cfg.hs,eye:EYES[0],isCmd:true,clone:false,str:5,aim:5,smarts:6,xp:0,mood:95,hurt:0,room:'1:0',joined:0,outfit:'jumpsuit',weapon:'katana',armor:'none'});
   S.crew.push(makeCrew({room:'-1:0'}));
   S.crew.push(makeCrew({room:'-1:1'}));
   S.crew.push(makeCrew({room:'-2:0',outfit:'flight'}));
@@ -552,6 +721,11 @@ function migrate(s){
   if(s.v===1){ s.res.credits=Math.round(s.res.credits*375); s.v=2; s.upg=s.upg||{};
     s.crew.forEach(c=>{c.outfit=c.outfit||'jumpsuit';c.weapon=c.weapon||(c.isCmd?'katana':'none');if(c.isCmd){c.trim=c.shirt;c.shirt='#262b31'}});
     if(!s.vehicles.includes('cyber')) s.vehicles.push('cyber'); }
+  if(s.v===2){ s.v=3;
+    const old=s.turrets||[],map=[0,2,3,1],nt=new Array(16).fill(null);old.forEach((t,i)=>{if(t&&map[i]!==undefined) nt[map[i]]=t});s.turrets=nt;
+    s.vup=s.vup||{};if(s.upg&&s.upg.cyber) s.vup.cyber={spd:1,arm:1,wpn:2};
+    s.crew.concat(s.jail||[]).forEach(c=>{if(c.weapon==='blaster') c.weapon='handgun';c.armor=c.armor||'none'}); }
+  while(s.turrets.length<16) s.turrets.push(null);
   return s;
 }
 
@@ -598,26 +772,35 @@ const HAIR=[
   {b:'<path d="M11.5 18 Q10.5 4 20.5 4 Q30 4 28.6 17 Z"/>',f:'<path d="M12.4 16 Q12.6 5.5 21 5.5 Q28 5.5 27.6 12.5 L25.6 10.2 Q21 9.6 18 12 Q15.6 14.6 14.4 19.5 Z"/>'},
   {b:'<path d="M12 15 Q11 4.5 20 4.5 Q29 4.5 28 15 Z"/>',f:'<path d="M12.4 14.5 L14.2 9 L15.8 12.6 L17.6 8.4 L19.4 12.4 L21.2 8.2 L22.8 12.4 L24.6 8.6 L26 12.6 L27.6 14.5 Q28 5.4 20 5.4 Q12 5.4 12.4 14.5 Z"/>'}
 ];
-const BODY=[{sh:6.6,wa:4.6,arm:2.5,leg:3.3},{sh:8.2,wa:5.2,arm:3.1,leg:3.8},{sh:10.2,wa:5.9,arm:3.9,leg:4.4}];
+const BODY=[{sh:7.2,wa:4.9,arm:2.9,leg:3.7},{sh:9,wa:5.5,arm:3.5,leg:4.2},{sh:11,wa:6.3,arm:4.4,leg:4.8}];
 const shade=(hexc,k)=>{const n=parseInt(hexc.slice(1),16);const f=x=>clamp(Math.round(x*k),0,255);return '#'+[f(n>>16&255),f(n>>8&255),f(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('')};
 function personSVG(c,vb){
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
   const eye=c.eye||EYES[Math.abs(c.id||0)%EYES.length];
   const P=BODY[physOf(c)],o=c.isCmd&&(!c.outfit||c.outfit==='jumpsuit')?'cmd':(c.outfit||'jumpsuit');
   const sad=(c.mood!==undefined&&c.mood<35)||c.hurt>0;
-  const top={jumpsuit:c.shirt,gi:'#262a36',flight:'#7a5230',labcoat:'#eef2f5',armor:'#4a525c',cmd:'#262b31'}[o];
-  const pants={jumpsuit:shade(c.shirt,.7),gi:'#262a36',flight:'#2f3a44',labcoat:'#3a4252',armor:'#3a4149',cmd:'#1e2227'}[o];
+  const top={jumpsuit:c.shirt,gi:'#262a36',flight:'#7a5230',labcoat:'#eef2f5',armor:'#4a525c',suit:'#1e2227',cmd:'#262b31'}[o];
+  const pants={jumpsuit:shade(c.shirt,.7),gi:'#262a36',flight:'#2f3a44',labcoat:'#3a4252',armor:'#3a4149',suit:'#1e2227',cmd:'#1e2227'}[o];
   const trim=c.trim||'#2EC4C9';
   const L=20-P.sh,R=20+P.sh,wl=20-P.wa,wr=20+P.wa;
   const hipL=20-P.wa+P.leg/2,hipR=20+P.wa-P.leg/2;
   // weapon behind the body
   let wBack='',wFront='';
-  const w=c.weapon||'none';
-  if(w==='katana') wBack='<g transform="rotate(-38 20 40)"><rect x="19" y="20" width="2.2" height="36" rx="1" fill="#c9d1d9"/><rect x="18.4" y="17" width="3.4" height="1.4" fill="#FFC845"/><rect x="18.8" y="9" width="2.6" height="8" rx="1" fill="#2b2238"/></g>';
-  if(w==='staff') wFront=`<rect x="${R+1.6}" y="14" width="1.8" height="80" rx=".9" fill="#8a5a32"/>`;
-  if(w==='blaster') wFront=`<g><rect x="${R-1}" y="52" width="8" height="3.2" rx="1" fill="#2b3036"/><rect x="${R+5}" y="52.6" width="3" height="1.4" fill="#2EC4C9"/></g>`;
-  if(w==='laser') wFront=`<g transform="rotate(-30 20 46)"><rect x="6" y="44" width="30" height="3.4" rx="1.2" fill="#3a4149"/><rect x="30" y="44.6" width="9" height="2.2" fill="#3A8DDE"/><rect x="31" y="45" width="7" height="1.2" fill="#9ff6f8"/></g>`;
-  if(w==='kunai') wFront=`<g><rect x="${hipR+1.4}" y="58" width="3" height="5" rx="1" fill="#2b3036"/><path d="M${hipR+2.9} 63 l-1.3 4 h2.6z" fill="#c9d1d9"/></g>`;
+  const look=(WEAPONS[c.weapon||'none']||WEAPONS.none).look,hx=R+.4;
+  const longGun=(body,acc)=>`<g transform="rotate(-30 20 46)">${body}</g>${acc||''}`;
+  if(look==='katana') wBack='<g transform="rotate(-38 20 40)"><rect x="19" y="20" width="2.2" height="36" rx="1" fill="#c9d1d9"/><rect x="18.4" y="17" width="3.4" height="1.4" fill="#FFC845"/><rect x="18.8" y="9" width="2.6" height="8" rx="1" fill="#2b2238"/></g>';
+  if(look==='bow') wBack='<path d="M9 20 Q1 40 10 62" stroke="#8a5a32" stroke-width="1.8" fill="none"/><path d="M9 20 L10 62" stroke="#e8e2d4" stroke-width=".5"/><rect x="27" y="22" width="4" height="16" rx="1.4" fill="#5a3a26" transform="rotate(20 29 30)"/><path d="M30 20 l1.4 -3 1.4 3z M33 21 l1.4 -3 1.4 3z" fill="#FF4D5E"/>';
+  if(look==='staff') wFront=`<rect x="${R+1.6}" y="14" width="1.8" height="80" rx=".9" fill="#8a5a32"/>`;
+  if(look==='sling') wFront=`<path d="M${hx} 60 V55 M${hx} 55 l-2.6 -4.4 M${hx} 55 l2.6 -4.4" stroke="#8a5a32" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M${hx-2.4} 51 Q${hx} 54 ${hx+2.4} 51" stroke="#FF4D5E" stroke-width=".6" fill="none"/>`;
+  if(look==='bb') wFront=`<g><rect x="${hx-1}" y="54" width="11" height="2" rx=".8" fill="#8a5a32"/><rect x="${hx+8}" y="54.4" width="5" height="1.2" fill="#2b3036"/></g>`;
+  if(look==='pistol') wFront=`<g><rect x="${hx-1}" y="53" width="7.4" height="3" rx="1" fill="#2b3036"/><rect x="${hx+5}" y="53.6" width="2.6" height="1.4" fill="#2EC4C9"/><rect x="${hx}" y="55.6" width="2" height="3" fill="#2b3036"/></g>`;
+  if(look==='rifle') wFront=longGun('<rect x="4" y="44" width="12" height="3.6" rx="1.2" fill="#8a5a32"/><rect x="14" y="44.4" width="26" height="2.2" fill="#2b3036"/><rect x="20" y="42" width="8" height="2" rx="1" fill="#2b3036"/>');
+  if(look==='assault') wFront=longGun('<rect x="5" y="44" width="8" height="3.4" fill="#2b3036"/><rect x="12" y="43.4" width="20" height="4.4" rx="1" fill="#3a4149"/><rect x="31" y="44.4" width="8" height="2" fill="#2b3036"/><rect x="20" y="47.6" width="3" height="5" fill="#2b3036"/>');
+  if(look==='mg') wFront=longGun('<rect x="5" y="43" width="30" height="5" rx="1.4" fill="#2b3036"/><rect x="34" y="44.4" width="8" height="2.2" fill="#2b3036"/><path d="M30 48 l-3 6 M30 48 l3 6" stroke="#2b3036" stroke-width="1.2"/>','<path d="M14 54 q-3 6 2 9" stroke="#FFC845" stroke-width="1.6" fill="none" stroke-dasharray="1.6 .8"/>');
+  if(look==='laser') wFront=longGun('<rect x="6" y="44" width="30" height="3.4" rx="1.2" fill="#c9d1d9"/><rect x="30" y="44.6" width="9" height="2.2" fill="#3A8DDE"/><rect x="12" y="45" width="14" height="1.2" fill="#7FF0F3"/>');
+  if(look==='plasma') wFront=longGun('<rect x="6" y="42.6" width="26" height="6.4" rx="2.6" fill="#3a3f55"/><circle cx="34" cy="45.8" r="3.6" fill="#ff5fd2"/><circle cx="34" cy="45.8" r="1.6" fill="#ffd1f2"/>');
+  if(look==='rail') wFront=longGun('<rect x="5" y="43.4" width="8" height="5" fill="#2b3036"/><rect x="12" y="42.8" width="30" height="1.6" fill="#8a939e"/><rect x="12" y="47.2" width="30" height="1.6" fill="#8a939e"/><rect x="13" y="45.2" width="29" height="1" fill="#9fb8ff"/>');
+  if(look==='kunai') wFront=`<g><rect x="${hipR+1.4}" y="58" width="3" height="5" rx="1" fill="#2b3036"/><path d="M${hipR+2.9} 63 l-1.3 4 h2.6z" fill="#c9d1d9"/></g>`;
   const feet=c.clone
     ?`<g fill="#5BE36B" stroke="#2c8c3c" stroke-width=".6"><ellipse cx="${hipL-.6}" cy="93" rx="${P.leg*.8+.6}" ry="2.4"/><ellipse cx="${hipR+.6}" cy="93" rx="${P.leg*.8+.6}" ry="2.4"/><circle cx="${hipL-3}" cy="92" r="1.1"/><circle cx="${hipL-1}" cy="91.4" r="1.1"/><circle cx="${hipR+3}" cy="92" r="1.1"/><circle cx="${hipR+1}" cy="91.4" r="1.1"/></g>`
     :`<g fill="#1e2227"><path d="M${hipL-P.leg*.7-1.4} 94.6 Q${hipL-P.leg*.7-1.4} 90 ${hipL} 89.6 Q${hipL+P.leg*.6} 90 ${hipL+P.leg*.6} 94.6 Z"/><path d="M${hipR+P.leg*.7+1.4} 94.6 Q${hipR+P.leg*.7+1.4} 90 ${hipR} 89.6 Q${hipR-P.leg*.6} 90 ${hipR-P.leg*.6} 94.6 Z"/></g>`;
@@ -632,7 +815,15 @@ function personSVG(c,vb){
   if(o==='labcoat') torso=`<path d="M${L} 29.5 Q20 26.5 ${R} 29.5 L${wr+2.6} 74 L${wl-2.6} 74 Z" fill="#eef2f5"/><path d="M20 27.4 Q${R-1} 27.6 ${R} 29.5 L${wr+2.6} 74 L20 74 Z" fill="rgba(0,0,0,.08)"/><path d="M17 28.4 L20 40 L23 28.4" fill="${c.shirt}"/><path d="M20 40 L20 74" stroke="#c9d1d9" stroke-width=".8"/><rect x="${R-4.6}" y="36" width="3" height="3.6" fill="none" stroke="#c9d1d9" stroke-width=".6"/><rect x="${R-3.6}" y="34.4" width=".8" height="3" fill="#3A8DDE"/>`;
   if(o==='armor') torso+=`<path d="M${L+1.4} 31 Q20 29.4 ${R-1.4} 31 L${wr-.6} 44 Q20 46 ${wl+.6} 44 Z" fill="#6a7480"/><path d="M${L+2} 38 L${R-2} 38" stroke="#2EC4C9" stroke-width=".9"/><ellipse cx="${L+.4}" cy="30.4" rx="3.2" ry="2.2" fill="#6a7480"/><ellipse cx="${R-.4}" cy="30.4" rx="3.2" ry="2.2" fill="#6a7480"/>`;
   if(o==='cmd') torso=`<path d="M${L} 29.5 Q20 26.5 ${R} 29.5 L${wr+3} 76 L${wl-3} 76 Z" fill="#262b31"/><path d="M20 27.4 Q${R-1} 27.6 ${R} 29.5 L${wr+3} 76 L20 76 Z" fill="rgba(0,0,0,.2)"/><path d="M${L+.6} 29.6 L20 38 L${R-.6} 29.6" fill="none" stroke="${trim}" stroke-width="1.6"/><path d="M20 38 L20 76" stroke="${trim}" stroke-width="1"/><rect x="${L-1.6}" y="28" width="5" height="2.2" rx="1" fill="#FFC845"/><rect x="${R-3.4}" y="28" width="5" height="2.2" rx="1" fill="#FFC845"/><path d="M${L+3.6} 34.4 l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="#FFC845"/>`;
-  const belt=(o==='labcoat'||o==='cmd'||o==='gi')?'':`<rect x="${wl-.3}" y="50.6" width="${2*P.wa+.6}" height="2.6" fill="#1e2227"/><rect x="18.8" y="50.4" width="2.4" height="3" fill="#c9d1d9"/>`;
+  if(o==='suit') torso+=`<path d="M17 28.4 L20 40 L23 28.4" fill="#f4f7fa"/><path d="M20 30 L19.2 38 L20 40.6 L20.8 38Z" fill="#FFC845"/><path d="M${L+1} 29.6 L19 40 M${R-1} 29.6 L21 40" stroke="#3a4149" stroke-width="1.2"/>`;
+  if(physOf(c)>=1&&(o==='jumpsuit'||o==='gi'||o==='armor')) torso+=`<path d="M${20-P.sh*.62} 35 Q${20-P.sh*.3} 38 20 36.4 Q${20+P.sh*.3} 38 ${20+P.sh*.62} 35" stroke="rgba(0,0,0,.22)" fill="none" stroke-width=".8"/>`+(physOf(c)===2?'<path d="M20 38 V49 M17.6 42 H22.4 M17.8 45.6 H22.2" stroke="rgba(0,0,0,.16)" stroke-width=".7"/>':'');
+  const ar=c.armor||'none';let armorSVG='';
+  if(ar==='padded') armorSVG=`<path d="M${L+1.4} 30.4 Q20 28.6 ${R-1.4} 30.4 L${wr-.2} 50 L${wl+.2} 50 Z" fill="#6b7a4a"/><path d="M${L+2} 36 H${R-2} M${L+2.6} 41 H${R-2.6} M${wl+.6} 46 H${wr-.6}" stroke="#4a5530" stroke-width=".7"/>`;
+  if(ar==='kevlar') armorSVG=`<path d="M${L+1.4} 30.4 Q20 28.6 ${R-1.4} 30.4 L${wr-.2} 50 L${wl+.2} 50 Z" fill="#1e2227"/><rect x="${wl+.6}" y="43" width="3.4" height="4" fill="#3a4149"/><rect x="18.3" y="43" width="3.4" height="4" fill="#3a4149"/><rect x="${wr-4}" y="43" width="3.4" height="4" fill="#3a4149"/>`;
+  if(ar==='plate') armorSVG=`<path d="M${L+1} 30.6 Q20 28.6 ${R-1} 30.6 L${wr} 50 L${wl} 50 Z" fill="#3a4149"/><path d="M${L+1.6} 35 H${R-1.6} M${L+2.2} 39.6 H${R-2.2} M${wl+.4} 44.4 H${wr-.4}" stroke="#5a636d" stroke-width="1.1"/><ellipse cx="${L+.4}" cy="30.6" rx="3.4" ry="2.4" fill="#3a4149"/><ellipse cx="${R-.4}" cy="30.6" rx="3.4" ry="2.4" fill="#3a4149"/>`;
+  if(ar==='power') armorSVG=`<path d="M${L-.6} 30 Q20 27.4 ${R+.6} 30 L${wr+1} 51 L${wl-1} 51 Z" fill="#8a939e" stroke="#4a525c" stroke-width=".6"/><ellipse cx="${L-.4}" cy="30.6" rx="4.4" ry="3.2" fill="#6a7480"/><ellipse cx="${R+.4}" cy="30.6" rx="4.4" ry="3.2" fill="#6a7480"/><circle cx="20" cy="37" r="2.6" fill="#7FF0F3"/><circle cx="20" cy="37" r="1.2" fill="#fff"/><path d="M${wl} 46 H${wr}" stroke="#4a525c"/>`;
+  if(ar==='nano') armorSVG=`<path d="M${L+.4} 29.8 Q20 27.4 ${R-.4} 29.8 L${wr+.2} 52 L${wl-.2} 52 Z" fill="#12161a"/><path d="M${L+2} 31 L20 38 L${R-2} 31 M20 38 V51 M${wl+1} 45 H${wr-1}" stroke="#2EC4C9" stroke-width=".7" fill="none"/>`;
+  const belt=(o==='labcoat'||o==='cmd'||o==='gi'||o==='suit')?'':`<rect x="${wl-.3}" y="50.6" width="${2*P.wa+.6}" height="2.6" fill="#1e2227"/><rect x="18.8" y="50.4" width="2.4" height="3" fill="#c9d1d9"/>`;
   const eyes=c.hurt>0
     ?'<g stroke="#2b2238" stroke-width="1" fill="none" stroke-linecap="round"><path d="M14.8 15.4 Q16.6 14 18.4 15.4"/><path d="M21.6 15.4 Q23.4 14 25.2 15.4"/></g>'
     :`<g><path d="M14.4 14.1 Q16.6 12.6 18.8 13.9" stroke="#1a1520" stroke-width="1.1" fill="none" stroke-linecap="round"/><path d="M25.6 14.1 Q23.4 12.6 21.2 13.9" stroke="#1a1520" stroke-width="1.1" fill="none" stroke-linecap="round"/>
@@ -650,7 +841,7 @@ function personSVG(c,vb){
     <g fill="${c.hair}">${HAIR[hs].b}</g>
     ${legs}${feet}
     ${arm(L+1,-1)}
-    ${torso}${belt}
+    ${torso}${belt}${armorSVG}
     ${arm(R-1,1)}
     ${wFront}
     <rect x="18.4" y="22.5" width="3.2" height="6" fill="var(--skin)"/><path d="M18.4 26 L21.6 26 L21.6 28.5 L18.4 28.5 Z" fill="rgba(0,0,0,.15)"/>
@@ -813,7 +1004,7 @@ function roomHTML(k){
   let inner=`${decorSVG(r.type,w,h,lv)}<span class="shade"></span><span class="rh">${esc(w>1?def.name:def.short)}${lv>1?`<span class="stars">${'★'.repeat(lv-1)}</span>`:''}<span class="rb" data-badge="${k}"></span></span>`;
   if(r.type==='hangar'){
     let start=0;for(const hk of roomsOf('hangar')){if(hk===k) break;start+=vehRoom(hk)}
-    const vs=S.vehicles.slice(start,start+vehRoom(k)).map(id=>{const v=VEH.find(x=>x.id===id);return v?`<span style="${v.f?'filter:'+v.f:''}">${v.e}</span>`:''}).join('');
+    const vs=S.vehicles.slice(start,start+vehRoom(k)).map(id=>{const v=VEH.find(x=>x.id===id);return v?vehArt(v.id):''}).join('');
     inner+=`<span class="park">${vs}</span>`;
   }
   inner+=crewIn(k).map(c=>personHTML(c)).join('');
@@ -844,11 +1035,39 @@ function crownSVG(key){
   }[key];
   return `<svg class="crown" viewBox="0 0 300 74" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${c}</svg>`;
 }
-function turretHTML(i){
-  const t=S.turrets[i],x=PAD_X[i]*100;
-  if(!t) return `<button class="tpad empty" data-pad="${i}" style="left:${x}%" aria-label="Build turret"></button>`;
-  const a=i<2?'195deg':'-15deg';
-  return `<button class="tpad tur ${t.type}" data-pad="${i}" style="left:${x}%;--a:${a}" aria-label="${TURRETS[t.type].name}"><i class="barrel"></i><i class="dome"></i><i class="base"></i><span class="stars">${'★'.repeat(t.lvl)}</span></button>`;
+const ERA_PAL={brutal:{wall:'#8f8e89',wall2:'#6e6e6a',trim:'#5e5d59',glass:'#2b3a44',acc:'#FF4D5E'},futur:{wall:'#eef3f6',wall2:'#c9d4dc',trim:'#2EC4C9',glass:'#7fd8e0',acc:'#2EC4C9'},vintage:{wall:'#8a4a32',wall2:'#6a3a26',trim:'#c9a36a',glass:'#f4d58a',acc:'#ff6fae'},antique:{wall:'#e8dcc0',wall2:'#c9b894',trim:'#b08a3a',glass:'#5f9e8a',acc:'#d4af37'},modern:{wall:'#2a5a6e',wall2:'#173040',trim:'#7FF0F3',glass:'#9ff6f8',acc:'#7FF0F3'},luxe:{wall:'#faf7f0',wall2:'#e6e0d2',trim:'#d4af37',glass:'#bfe9f2',acc:'#d4af37'},billion:{wall:'#5a5a57',wall2:'#3e3e3c',trim:'#d4af37',glass:'#ffe9a8',acc:'#d4af37'}};
+// ground floor lobby: starts as a half buried bunker and grows into a mega building
+function lobbySVG(t,W){
+  const B=LOBBY[t],P=ERA_PAL[eraOf(level()).key],w=Math.round(W*B.w),h=B.h,cx=w/2;
+  const win=(x,y,ww,hh,n,m)=>{let o='';const gw=ww/n,gh=hh/m;for(let i=0;i<n;i++)for(let j=0;j<m;j++)o+=`<rect x="${(x+i*gw+gw*.16).toFixed(1)}" y="${(y+j*gh+gh*.18).toFixed(1)}" width="${(gw*.68).toFixed(1)}" height="${(gh*.62).toFixed(1)}" rx="1.4" fill="${P.glass}" opacity=".92"/>`;return o};
+  const glassWall=(x,y,ww,hh)=>`<rect x="${x}" y="${y}" width="${ww}" height="${hh}" fill="${P.glass}" opacity=".85"/>${Array.from({length:Math.max(2,Math.round(ww/14))},(_,i)=>`<path d="M${(x+(i+1)*ww/(Math.round(ww/14)+1)).toFixed(1)} ${y}V${y+hh}" stroke="${P.wall2}" stroke-width="1.6"/>`).join('')}<path d="M${x} ${y+hh*.5}H${x+ww}" stroke="${P.wall2}" stroke-width="1.2"/><path d="M${x+4} ${y+hh-6} L${x+ww*.35} ${y+4}" stroke="#fff" opacity=".35" stroke-width="2"/>`;
+  let s='';
+  if(t<=1){
+    s+=`<path d="M0 ${h} Q0 ${h*.16} ${cx} ${h*.08} Q${w} ${h*.16} ${w} ${h} Z" fill="${P.wall}" stroke="${P.wall2}" stroke-width="2"/><path d="M${w*.1} ${h} Q${w*.12} ${h*.36} ${cx} ${h*.3} Q${w*.88} ${h*.36} ${w*.9} ${h}" fill="none" stroke="${P.wall2}" stroke-width="2.4"/>`;
+    s+=[.2,.8].map(f=>`<rect x="${w*f-6}" y="${h*.5}" width="12" height="3" rx="1" fill="#1e2227"/>`).join('');
+    s+=`<rect x="${cx-2}" y="${h*.02}" width="4" height="${h*.12}" fill="${P.wall2}"/><circle cx="${cx}" cy="${h*.02}" r="2.4" fill="${P.acc}" class="pulse"/>`;
+    if(t===1){const bag=(x,y)=>`<rect x="${x}" y="${y}" width="12" height="6" rx="3" fill="#c9b48a" stroke="#8a7a5a" stroke-width=".8"/>`;
+      for(let r=0;r<3;r++) for(let i=0;i<2;i++){s+=bag(2+i*11+(r%2)*5,h-6-r*6);s+=bag(w-26+i*11-(r%2)*5,h-6-r*6)}}
+  } else if(t===2){
+    s+=`<rect x="0" y="${h*.16}" width="${w}" height="${h*.84}" fill="${P.wall}"/><rect x="-2" y="${h*.08}" width="${w+4}" height="${h*.1}" fill="${P.trim}"/>`+win(w*.04,h*.32,w*.3,h*.42,3,1)+win(w*.66,h*.32,w*.3,h*.42,3,1)+`<rect x="${w*.06}" y="${h-4}" width="${w*.88}" height="4" fill="${P.wall2}"/>`;
+  } else if(t===3){
+    s+=`<rect x="0" y="0" width="${w}" height="${h}" fill="${P.wall}"/><rect x="-2" y="-2" width="${w+4}" height="6" fill="${P.trim}"/><path d="M0 ${h*.5}H${w}" stroke="${P.trim}" stroke-width="2.4"/>`+win(w*.03,h*.08,w*.94,h*.36,8,1)+win(w*.03,h*.56,w*.3,h*.32,3,1)+win(w*.67,h*.56,w*.3,h*.32,3,1)+`<path d="M${cx-40} ${h*.52} H${cx+40} L${cx+34} ${h*.6} H${cx-34}Z" fill="${P.trim}"/>`+[.05,.95].map(f=>`<rect x="${w*f-1}" y="${-26}" width="2" height="26" fill="#8a939e"/><path d="M${w*f+1} -26 h12 l-3 4 3 4 h-12z" fill="${P.acc}"/>`).join('');
+  } else {
+    const wingH=t===6?h*.55:h*.6,cw=t===6?w*.3:w*.36,tw=t===6?w*.14:w*.12,th=t===6?h*.85:h;
+    s+=`<rect x="0" y="${h-wingH}" width="${w}" height="${wingH}" fill="${P.wall}"/><rect x="-2" y="${h-wingH-4}" width="${w+4}" height="5" fill="${P.trim}"/>`+win(w*.02,h-wingH+6,w*.3,wingH-12,4,2)+win(w*.68,h-wingH+6,w*.3,wingH-12,4,2);
+    if(t>=5) s+=[0,w-tw].map(x=>`<rect x="${x}" y="${h-th}" width="${tw}" height="${th}" fill="${P.wall2}"/><rect x="${x-2}" y="${h-th-4}" width="${tw+4}" height="5" fill="${P.trim}"/>`+win(x+2,h-th+6,tw-4,th-14,2,t===6?6:5)).join('');
+    s+=`<rect x="${cx-cw/2-3}" y="0" width="${cw+6}" height="${h}" fill="${P.wall2}"/>`+glassWall(cx-cw/2,4,cw,h-4)+`<rect x="${cx-cw/2-5}" y="-4" width="${cw+10}" height="6" fill="${P.trim}"/>`;
+    if(t>=5) s+=`<path d="M${cx-cw*.3} 10 h${cw*.6} v${h*.3} l-${cw*.3} 8 l-${cw*.3} -8z" fill="${P.acc}" opacity=".9"/><text x="${cx}" y="${10+h*.17}" text-anchor="middle" font-size="9" font-weight="700" fill="#fff" font-family="Orbitron,Arial">B</text>`;
+    if(t===6) s+=[.16,.84].map(f=>`<path d="M${w*f} ${h*.3} l-10 -40 M${w*f} ${h*.3} l10 -40" stroke="#FFE27A" stroke-width="5" opacity=".18"/>`).join('')+[-1,1].map(d=>`<rect x="${cx+d*w*.16-9}" y="${h*.3}" width="18" height="3" fill="${P.trim}"/>`).join('');
+    s+=`<path d="M${cx-34} ${h-58} H${cx+34} L${cx+30} ${h-52} H${cx-30}Z" fill="${P.trim}"/>`+[-1,1].map(d=>`<rect x="${cx+d*30-2}" y="${h-52}" width="4" height="52" fill="${P.trim}"/>`).join('');
+  }
+  return `<svg viewBox="-14 -30 ${w+28} ${h+30}" width="${w+28}" height="${h+30}" aria-hidden="true">${s}</svg>`;
+}
+function turretHTML(i,pos,open){
+  const t=S.turrets[i],x=pos[0]*100,y=24+pos[1],mount=pos[1]>0?' mount':'';
+  if(!open) return '';
+  if(!t) return `<button class="tpad empty${mount}" data-pad="${i}" style="left:${x}%;bottom:${y}px" aria-label="Build turret"></button>`;
+  return `<button class="tpad tur ${t.type}${mount}" data-pad="${i}" style="left:${x}%;bottom:${y}px" aria-label="${TURRETS[t.type].name}"><i class="barrel"></i><i class="dome"></i><i class="base"></i><span class="stars">${t.lvl}</span></button>`;
 }
 function expandCost(){return 50000+25000*Math.max(0,S.up+S.down-3)}
 function renderWorld(){
@@ -857,10 +1076,12 @@ function renderWorld(){
   h+=S.up<maxFloors()?`<div class="expand"><button data-expand="up">▲ BUILD UP · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
   h+=crownSVG(eraOf(level()).key)+'<div class="tower">';
   for(let f=S.up;f>=1;f--) h+=floorHTML(f);
-  h+=`</div></div><div class="layer surface" id="surface">
-    <div class="sign">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door"></div>
+  const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=Math.max(156,LB.h+104),small=lt<=1;
+  h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
+    <div class="lobbyart" style="width:${Math.round(LB.w*100)}%">${lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
+    <div class="sign" style="bottom:${lt>=3?94:24+LB.h+10}px">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
     <div class="lobby">${S.crew.filter(c=>!c.room).map(c=>personHTML(c)).join('')}</div>
-    ${[0,1,2,3].map(turretHTML).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
+    ${pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x"><div class="bunker">`;
   for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
   h+='</div>';
@@ -957,7 +1178,7 @@ function sayLine(c){
 function moodWord(m){return m>66?'Happy':m>35?'Okay':'Grumpy'}
 function physHTML(c){
   const p=physOf(c),next=[4.5,7,10][p],prev=[0,4.5,7][p],pct=p===2?100:clamp((c.str-prev)/(next-prev)*100,0,100);
-  return `<div><div class="label" style="display:flex;justify-content:space-between"><span>🥷 Physique · ${PHYS[p]}</span><span>${p===2?'Max':'Next: '+PHYS[p+1]}</span></div>
+  return `<div><div class="label" style="display:flex;justify-content:space-between"><span>${icon('ninja')} Physique · ${PHYS[p]}</span><span>${p===2?'Max':'Next: '+PHYS[p+1]}</span></div>
     <div class="phys">${[0,1,2].map(i=>`<i class="${i<=p?'on':''}" style="${i===p+1?`background:linear-gradient(90deg,var(--warn) ${pct}%,rgba(255,255,255,.1) ${pct}%)`:''}"></i>`).join('')}</div></div>`;
 }
 function crewCard(id,lineOverride){
@@ -975,7 +1196,7 @@ function crewCard(id,lineOverride){
       <div class="stat"><span class="label">Aim</span>${st('aim')}</div>
       <div class="stat"><span class="label">Smarts</span>${st('smarts')}</div>
     </div>
-    <div class="muted" style="font-size:12px">${icon('shirt')} ${esc(OUTFITS[c.outfit||'jumpsuit'].name)} · ⚔️ ${esc(WEAPONS[c.weapon||'none'].name)}</div>
+    <div class="muted" style="font-size:12px">${icon('shirt')} ${esc(OUTFITS[curGear(c,'outfit')].name)} · ${icon('swords')} ${esc(WEAPONS[curGear(c,'weapon')].name)} · ${icon('lock')} ${esc(ARMOR[curGear(c,'armor')].name)}</div>
     <div><div class="label">Mood · ${moodWord(c.mood)}</div><div class="bar" style="height:6px"><i style="width:${c.mood}%" class="${c.mood<35?'bad':c.mood<66?'warn':''}"></i></div></div>
     <div class="row">
       <button class="btn" data-act="talk" data-id="${c.id}">TALK</button>
@@ -983,19 +1204,35 @@ function crewCard(id,lineOverride){
       <button class="btn" data-act="gear" data-id="${c.id}">GEAR</button>
       <button class="btn" data-act="rename" data-id="${c.id}">RENAME</button>
     </div>
-    ${c.isCmd?'':`<button class="btn danger" data-act="identify" data-id="${c.id}">🔍 IDENTIFY CLONE</button>
+    ${c.isCmd?'':`<button class="btn danger" data-act="identify" data-id="${c.id}">${icon('eye')} IDENTIFY CLONE</button>
     <div class="muted" style="font-size:12px">Clone clues: a trench coat flash when they arrive, green bare feet, and one stretched out word when they talk.</div>`}
   `);
 }
+function gearItem(c,kind,key,back){
+  const d=GEAR[kind][key],on=curGear(c,kind)===key,lv=level(),lock=d.level&&lv<d.level,poor=S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech);
+  return `<button class="opt ${on?'on':''}" data-act="equip" data-kind="${kind}" data-key="${key}" data-id="${c.id}" data-back="${back||''}" ${on||lock||poor?'disabled':''} style="${on?'opacity:1':''}"><span class="thumb icon">${gearArt(kind,key)}</span><b>${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${on?'EQUIPPED':lock?'Needs Level '+d.level:d.cost?money(d.cost)+(d.tech?' + '+d.tech+' tech':''):'Free'}</span></button>`;
+}
 function gearSheet(id){
-  const c=S.crew.find(x=>x.id===id),lv=level();
-  const item=(kind,key,d)=>{const on=(kind==='outfit'?(c.outfit||'jumpsuit'):(c.weapon||'none'))===key;const lock=d.level&&lv<d.level;const poor=S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech);
-    return `<button class="opt ${on?'on':''}" data-act="equip" data-kind="${kind}" data-key="${key}" data-id="${id}" ${on||lock||poor?'disabled':''} style="${on?'opacity:1':''}"><b>${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${on?'EQUIPPED':lock?'Needs Level '+d.level:d.cost?money(d.cost)+(d.tech?' + '+d.tech+' tech':''):'Free'}</span></button>`};
+  const c=S.crew.find(x=>x.id===id);
   openSheet('Gear · '+esc(c.name),`
-    <div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="muted" style="flex:1;font-size:12px">Buy an outfit and a weapon for each crew member. Outfits boost stats. Weapons hit harder when they defend the base in the Barracks. Swapping gear costs the new item's price.</div></div>
-    <div class="label">Outfit</div><div class="grid2">${Object.keys(OUTFITS).map(k=>item('outfit',k,OUTFITS[k])).join('')}</div>
-    <div class="label">Weapon</div><div class="grid2">${Object.keys(WEAPONS).map(k=>item('weapon',k,WEAPONS[k])).join('')}</div>
+    <div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="muted" style="flex:1;font-size:12px">Everyone gets one weapon, one armor, and one outfit. Weapons hit harder when they defend the base from the Barracks. Armor keeps them standing and adds to the base shield. Outfits boost stats. Swapping costs the new item's price.</div></div>
+    <div class="label">Weapon</div><div class="grid2">${Object.keys(WEAPONS).map(k=>gearItem(c,'weapon',k)).join('')}</div>
+    <div class="label">Armor</div><div class="grid2">${Object.keys(ARMOR).map(k=>gearItem(c,'armor',k)).join('')}</div>
+    <div class="label">Outfit</div><div class="grid2">${Object.keys(OUTFITS).map(k=>gearItem(c,'outfit',k)).join('')}</div>
     <button class="btn" data-act="card" data-id="${id}">BACK</button>`);
+}
+let storeTab='weapon';
+function storeSheet(){
+  const cat=GEAR[storeTab],lv=level();
+  const items=Object.keys(cat).filter(k=>cat[k].cost>0).map(k=>{const d=cat[k],lock=d.level&&lv<d.level,who=S.crew.filter(c=>curGear(c,storeTab)===k).length;
+    return `<button class="li" data-act="sitem" data-key="${k}" ${lock?'disabled':''}><span class="thumb icon">${gearArt(storeTab,k)}</span><span class="grow"><b>${esc(d.name)}</b><span>${esc(d.desc)}${who?' · '+who+' equipped':''}</span></span><span class="tag ${lock?'dim':'gold'}">${lock?'LV '+d.level:money(d.cost)+(d.tech?' +'+d.tech+'T':'')}</span></button>`}).join('');
+  openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Buy gear for any crew member. All weapons fire stun shots, so raiders get knocked out, never hurt. Vehicle weapons, engines and armor are in the Hangar.</div>
+    <div class="tabs">${['weapon','armor','outfit'].map(t=>`<button data-act="stab" data-t="${t}" class="${storeTab===t?'on':''}">${{weapon:'WEAPONS',armor:'ARMOR',outfit:'OUTFITS'}[t]}</button>`).join('')}</div><div class="list">${items}</div>`);
+}
+function storePick(key){
+  const d=GEAR[storeTab][key];
+  const list=S.crew.map(c=>`<button class="li" data-act="equip" data-kind="${storeTab}" data-key="${key}" data-id="${c.id}" data-back="store" ${curGear(c,storeTab)===key||S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech)?'disabled':''}><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>Now: ${esc(GEAR[storeTab][curGear(c,storeTab)].name)}</span></span>${curGear(c,storeTab)===key?'<span class="tag ok">HAS IT</span>':''}</button>`).join('');
+  openSheet('Who gets the '+esc(d.name)+'?',`<div class="row" style="align-items:center"><span class="thumb icon">${gearArt(storeTab,key)}</span><span class="muted">${esc(d.desc)} Costs ${money(d.cost)}${d.tech?' + '+d.tech+' tech':''}.</span></div><div class="list">${list}</div><button class="btn" data-act="store">BACK TO STORE</button>`);
 }
 function renameSheet(id){
   const c=S.crew.find(x=>x.id===id);
@@ -1008,16 +1245,16 @@ function assignSheet(id){
   const keys=Object.keys(S.rooms).filter(k=>k!==c.room).sort((a,b)=>(+b.split(':')[0])-(+a.split(':')[0]));
   const items=keys.map(k=>{
     const def=ROOMS[S.rooms[k].type],n=crewIn(k).length,full=n>=roomCap(k);
-    return `<button class="li" data-act="assign-to" data-id="${id}" data-k="${k}" ${full?'disabled':''}><span style="font-size:22px">${def.icon}</span>
+    return `<button class="li" data-act="assign-to" data-id="${id}" data-k="${k}" ${full?'disabled':''}>${roomThumb(S.rooms[k].type)}
       <span class="grow"><b>${esc(def.name)} · ${floorName(+k.split(':')[0])}</b><span>${n}/${roomCap(k)} crew · makes them a ${esc(def.cls)}</span></span>${full?'<span class="tag bad">FULL</span>':''}</button>`}).join('');
-  openSheet('Assign '+esc(c.name),`<div class="list">${items}${c.room?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span style="font-size:22px">🚪</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
+  openSheet('Assign '+esc(c.name),`<div class="list">${items}${c.room?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span class="thumb icon">${icon('door')}</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
 }
 function crewList(){
   const items=S.crew.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span>
-    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span><span style="display:block">🥷 ${PHYS[physOf(c)]}</span></span>
+    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span><span style="display:block">${icon('ninja')} ${PHYS[physOf(c)]} · ${esc(WEAPONS[curGear(c,'weapon')].name)}</span></span>
     <span class="tag ${c.mood<35?'bad':''}">${moodWord(c.mood)}</span></button>`).join('');
   const jail=S.jail.length?`<div class="label">In the Holding Cell</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Caught clone · tap to talk</span></span></button>`).join('')}</div>`:'';
-  openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}. Train crew in the Dojo to grow from Novice to Advanced physique.</div><div class="list">${items}</div>${jail}`);
+  openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<button class="btn primary" data-act="recruit">${icon('plus')} RECRUIT SOMEONE NEW · $2,500</button><div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}. Train crew in the Dojo to grow from Novice to Advanced physique.</div><div class="list">${items}</div>${jail}`);
 }
 
 // ---------- identify + clone choices ----------
@@ -1041,10 +1278,10 @@ function cloneChoice(c){
     <div class="bubble" style="flex:1">${esc(garble('Hmm. You found me, Commander.'))}</div></div>
     <div class="muted">"${esc(c.name)}" was a clone the whole time. What should we do?</div>
     <div class="grid2">
-      <button class="opt" data-act="clone" data-how="exile" data-id="${c.id}"><b>🚪 Exile</b><span>Send them out of the base.</span></button>
-      <button class="opt" data-act="clone" data-how="jail" data-id="${c.id}" ${hasCell?'':'disabled'}><b>🔒 Jail</b><span>${hasCell?'Lock them in the Holding Cell.':'Needs a Holding Cell with space (Level 2).'}</span></button>
-      <button class="opt" data-act="clone" data-how="cure" data-id="${c.id}" ${hasLab&&tech?'':'disabled'}><b>🧬 Cure</b><span>${hasLab?(tech?'Use 30 tech of antidote.':'Needs 30 tech.'):'Needs a Clone Lab (Level 3).'}</span></button>
-      <button class="opt" data-act="clone" data-how="talk" data-id="${c.id}"><b>💬 Recruit</b><span>Talk them into joining. Might not work!</span></button>
+      <button class="opt" data-act="clone" data-how="exile" data-id="${c.id}"><b>${icon('door')} Exile</b><span>Send them out of the base.</span></button>
+      <button class="opt" data-act="clone" data-how="jail" data-id="${c.id}" ${hasCell?'':'disabled'}><b>${icon('lock')} Jail</b><span>${hasCell?'Lock them in the Holding Cell.':'Needs a Holding Cell with space (Level 4).'}</span></button>
+      <button class="opt" data-act="clone" data-how="cure" data-id="${c.id}" ${hasLab&&tech?'':'disabled'}><b>${icon('dna')} Cure</b><span>${hasLab?(tech?'Use 30 tech of antidote.':'Needs 30 tech.'):'Needs a Clone Lab (Level 6).'}</span></button>
+      <button class="opt" data-act="clone" data-how="talk" data-id="${c.id}"><b>${icon('chat')} Recruit</b><span>Talk them into joining. Might not work!</span></button>
     </div>`,true);
 }
 const TALK=[
@@ -1081,7 +1318,7 @@ function buildSheet(k){
   const lv=level();
   const items=Object.keys(ROOMS).filter(t=>t!=='hq').map(t=>{
     const d=ROOMS[t],lock=d.level&&lv<d.level,poor=S.res.credits<d.cost;
-    return `<button class="opt" data-act="build" data-k="${k}" data-t="${t}" ${lock||poor?'disabled':''}><b>${d.icon} ${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${lock?'Needs Level '+d.level:money(d.cost)}</span></button>`}).join('');
+    return `<button class="opt" data-act="build" data-k="${k}" data-t="${t}" ${lock||poor?'disabled':''}>${roomThumb(t).replace('class="thumb"','class="thumb" style="width:100%;height:46px"')}<b>${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${lock?'Needs Level '+d.level:money(d.cost)}</span></button>`}).join('');
   openSheet('Build a room · '+floorName(+k.split(':')[0]),`<div class="grid2">${items}</div>`);
 }
 function roomSheet(k){
@@ -1097,7 +1334,7 @@ function roomSheet(k){
     <div class="muted" style="font-size:12px">Tap the floor number on the left to raise the ceiling (double height at Level 3, triple at Level 10).</div>`;
   if(r.type==='hangar') extra=`<button class="btn primary" data-act="hangar">${icon('plane')} OPEN HANGAR · LAUNCH MISSIONS</button>`;
   if(r.type==='cell'&&S.jail.length) extra=`<div class="label">Prisoners</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Tap to talk</span></span></button>`).join('')}</div>`;
-  openSheet(def.icon+' '+esc(def.name),`<div class="muted">${esc(def.desc)}</div>
+  openSheet(esc(def.name),`<div class="muted">${esc(def.desc)}</div>
     <div class="label">Crew ${people.length}/${roomCap(k)}</div><div class="list">${list}</div>
     ${people.length<roomCap(k)&&free.length?`<div class="label">Add someone</div><div class="list">${free.slice(0,8).map(c=>`<button class="li" data-act="assign-to" data-id="${c.id}" data-k="${k}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${c.room?'Now in '+esc(ROOMS[S.rooms[c.room].type].name):'In the lobby'}</span></span></button>`).join('')}</div>`:''}
     ${upHTML}${extra}`);
@@ -1109,19 +1346,21 @@ function floorSheet(f){
   openSheet('Floor '+floorName(f),`<div class="muted">Ceiling height: ${h===1?'standard':h+' stories'}.</div><div class="grid2">${items}</div>`);
 }
 function turretSheet(i){
-  const t=S.turrets[i],lv=level();
+  const t=S.turrets[i],lv=level(),pos=slotPositions()[i];
   if(!t){
     const items=Object.keys(TURRETS).map(tp=>{const d=TURRETS[tp],lock=d.level&&lv<d.level,poor=S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech);
-      return `<button class="opt" data-act="turret" data-i="${i}" data-t="${tp}" ${lock||poor?'disabled':''}><b>${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${lock?'Needs Level '+d.level:money(d.cost)+(d.tech?' + '+d.tech+' tech':'')}</span></button>`}).join('');
-    openSheet('Build a defense',`<div class="muted">Turrets protect the base door from raiders and monsters.</div><div class="grid2">${items}</div>`);
+      return `<button class="opt" data-act="turret" data-i="${i}" data-t="${tp}" ${lock||poor?'disabled':''}><b>${esc(d.name)}</b><span>${esc(d.desc)} Dmg ${d.dmg} · Range ${d.range}</span><span class="cost">${lock?'Needs Level '+d.level:money(d.cost)+(d.tech?' + '+d.tech+' tech':'')}</span></button>`}).join('');
+    openSheet('Build a defense',`<div class="muted">${pos&&pos[1]>0?'This mount is up on the building, so it shoots 20% farther.':'Ground pads protect the front door.'} You have ${slotCount()} of 16 turret spots${nextSlotLv()?`. The next one opens at base Level ${nextSlotLv()}`:''}.</div><div class="grid2">${items}</div>`);
     return;
   }
-  const d=TURRETS[t.type],cost=d.cost*t.lvl;
-  openSheet(esc(d.name)+' '+'★'.repeat(t.lvl),`<div class="muted">${esc(d.desc)}</div>
-    <div class="stats"><div class="stat"><span class="label">Damage</span><b>${(d.dmg*(1+.5*(t.lvl-1))).toFixed(0)}</b></div><div class="stat"><span class="label">Range</span><b>${d.range}</b></div><div class="stat"><span class="label">Level</span><b>${t.lvl}/3</b></div></div>
-    <button class="btn primary" data-act="upgrade" data-i="${i}" ${t.lvl>=3||S.res.credits<cost?'disabled':''}>${t.lvl>=3?'MAX LEVEL':'UPGRADE · '+money(cost)}</button>`);
+  const d=TURRETS[t.type],cost=turUpCost(t);
+  openSheet(esc(d.name),`<div class="muted">${esc(d.desc)}</div>
+    <div class="upbar">${Array.from({length:TUR_MAX},(_,k)=>`<i class="${k<t.lvl?'on':''}"></i>`).join('')}</div>
+    <div class="stats"><div class="stat"><span class="label">Damage</span><b>${turDmg(t).toFixed(0)}</b></div><div class="stat"><span class="label">Range</span><b>${Math.round(d.range*(pos&&pos[1]>0?1.2:1))}</b></div><div class="stat"><span class="label">Level</span><b>${t.lvl}/${TUR_MAX}</b></div></div>
+    <button class="btn primary" data-act="upgrade" data-i="${i}" ${t.lvl>=TUR_MAX||S.res.credits<cost?'disabled':''}>${t.lvl>=TUR_MAX?'MAX LEVEL':'UPGRADE TO LEVEL '+(t.lvl+1)+' · '+money(cost)}</button>
+    <div class="muted" style="font-size:12px">Looks change at levels 3, 5, 8 and 10: armor plates, a sensor mast, glow strips and gold trim.</div>
+    <button class="btn" data-act="tsell" data-i="${i}">SWAP FOR A DIFFERENT TURRET</button>`);
 }
-
 // ---------- hangar + 3D showroom ----------
 let hangarTab='air';
 const CAT_NAME={air:'Aircraft',ground:'Ground',sea:'Boats'};
@@ -1135,7 +1374,7 @@ function hangarSheet(){
     else if(v.level&&lv<v.level) right=`<span class="tag dim">LV ${v.level}</span>`;
     else right=`<span class="tag gold">${money(v.cost)}</span>`;
     const era=v.era==='future'?'<span class="tag">FUTURISTIC</span>':'<span class="tag dim">CLASSIC</span>';
-    return `<button class="li" data-act="show" data-v="${v.id}"><span class="veh" style="${v.f?'filter:'+v.f:''}">${v.e}</span><span class="grow"><b>${esc(v.name)}</b><span>${esc(v.kind)}${v.spd?' · Speed '+v.spd+' · Armor '+v.arm:''}${isArmed(v)?' · Zapper':''}</span><span style="display:block;margin-top:3px">${era}</span></span>${right}</button>`}).join('');
+    return `<button class="li" data-act="show" data-v="${v.id}"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${esc(v.name)}</b><span>${esc(v.kind)}${v.spd?' · Speed '+v.spd+' · Armor '+v.arm:''}${isArmed(v)?' · '+esc(VWEAPONS[vUp(v).wpn].name):''}</span><span style="display:block;margin-top:3px">${era}</span></span>${right}</button>`}).join('');
   const tab=c=>`<button data-act="htab" data-t="${c}" class="${hangarTab===c?'on':''}">${CAT_NAME[c].toUpperCase()} · ${S.vehicles.filter(id=>{const v=VEH.find(x=>x.id===id);return v&&v.cat===c}).length}</button>`;
   openSheet(`${icon('plane')} Hangar · ${S.vehicles.length} of ${VEH.length}`,`
     <div class="muted" style="font-size:12px">Parking: ${S.vehicles.length}/${vehCap()} spots (4 per Hangar room). Prices are close to real life, so jets are a long term goal. Winning battles can also bring home vehicles the raiders left behind. Tap any vehicle to see it in 3D.</div>
@@ -1146,16 +1385,20 @@ function showroomSheet(vid){
   const v=VEH.find(x=>x.id===vid),own=S.vehicles.includes(v.id),lv=level();
   let actions='';
   if(own){
-    actions=`<button class="btn primary" data-act="launch" data-v="${v.id}" style="font-family:var(--font-display)">${icon('rocket')} LAUNCH MISSION</button>`;
-    if(v.upg&&!S.upg[v.id]) actions+=`<button class="btn" data-act="upg" data-v="${v.id}" ${S.res.credits<v.upg.cost?'disabled':''}>${icon('target')} ADD ${esc(v.upg.name.toUpperCase())} · ${money(v.upg.cost)}</button>`;
+    const u=vUp(v),nw=u.wpn<v.wcap?VWEAPONS[u.wpn+1]:null,wl=nw&&nw.level&&lv<nw.level;
+    const up=(k,name,desc)=>{const c=vUpCost(v,u[k]);return `<button class="opt" data-act="vup" data-v="${v.id}" data-k="${k}" ${u[k]>=5||S.res.credits<c?'disabled':''}><b>${name}</b><div class="upbar">${[1,2,3,4,5].map(n=>`<i class="${n<=u[k]?'on':''}"></i>`).join('')}</div><span>${desc}</span><span class="cost">${u[k]>=5?'MAX':money(c)}</span></button>`};
+    actions=`<button class="btn primary" data-act="launch" data-v="${v.id}" style="font-family:var(--font-display)">${icon('rocket')} LAUNCH MISSION</button>
+      <div class="label">Upgrades</div><div class="grid2">${up('spd','Engine','+15% top speed per level.')}${up('arm','Armor','Takes 25% less damage per level.')}</div>
+      <div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Weapon: ${esc(VWEAPONS[u.wpn].name)}</b><span>${u.wpn?`Hits for ${VWEAPONS[u.wpn].dmg} per shot.`:'Unarmed vehicles fly recon or race rallies.'} Max for this vehicle: ${esc(VWEAPONS[v.wcap].name)}.</span></span></div>
+      ${nw?`<button class="btn" data-act="vwpn" data-v="${v.id}" ${wl||S.res.credits<nw.cost||(nw.tech&&S.res.tech<nw.tech)?'disabled':''}>${icon('target')} ${wl?'NEXT WEAPON AT LEVEL '+nw.level:'INSTALL '+esc(nw.name.toUpperCase())+' · '+money(nw.cost)+(nw.tech?' + '+nw.tech+' tech':'')}</button>`:'<div class="muted" style="font-size:12px">Best weapon this vehicle can carry is installed.</div>'}`;
   } else if(v.locked) actions=`<div class="muted">${esc(v.locked)}.</div>`;
   else if(v.level&&lv<v.level) actions=`<div class="muted">Reach base Level ${v.level} to buy this one.</div>`;
   else {const can=S.res.credits>=v.cost&&(!v.tech||S.res.tech>=v.tech)&&S.vehicles.length<vehCap();
-    actions=`<button class="btn primary" data-act="buy" data-v="${v.id}" ${can?'':'disabled'}>BUY · ${money(v.cost)}${v.tech?' + '+v.tech+' tech':''}</button>${S.vehicles.length>=vehCap()?'<div class="muted" style="font-size:12px">Hangar is full. Build another Hangar room.</div>':S.res.credits<v.cost?`<div class="muted" style="font-size:12px">You need ${money(v.cost-S.res.credits)} more.</div>`:''}`}
-  openSheet(`${v.e} ${esc(v.name)}`,`
+    actions=`<button class="btn primary" data-act="buy" data-v="${v.id}" ${can?'':'disabled'}>BUY · ${money(v.cost)}${v.tech?' + '+v.tech+' tech':''}</button>${S.vehicles.length>=vehCap()?'<div class="muted" style="font-size:12px">Hangar is full. Build or expand a Hangar room.</div>':S.res.credits<v.cost?`<div class="muted" style="font-size:12px">You need ${money(v.cost-S.res.credits)} more.</div>`:''}`}
+  openSheet(esc(v.name),`
     <canvas class="show3d" id="show3d"></canvas>
-    <div class="row" style="align-items:center">${v.era==='future'?'<span class="tag">FUTURISTIC</span>':'<span class="tag dim">CLASSIC</span>'}<span class="tag dim">${esc(CAT_NAME[v.cat].toUpperCase())}</span>${isArmed(v)?'<span class="tag bad">ZAPPER</span>':''}<span class="muted" style="font-size:12px">Drag to spin</span></div>
-    ${v.spd?`<div class="stats"><div class="stat"><span class="label">Speed</span><b>${v.spd}</b></div><div class="stat"><span class="label">Armor</span><b>${v.arm}</b></div><div class="stat"><span class="label">Price</span><b style="font-size:13px">${money(v.cost)}</b></div></div>`:''}
+    <div class="row" style="align-items:center">${v.era==='future'?'<span class="tag">FUTURISTIC</span>':'<span class="tag dim">CLASSIC</span>'}<span class="tag dim">${esc(CAT_NAME[v.cat].toUpperCase())}</span>${isArmed(v)?`<span class="tag bad">${esc(VWEAPONS[vUp(v).wpn].name.toUpperCase())}</span>`:''}<span class="muted" style="font-size:12px">Drag to spin</span></div>
+    ${v.spd?`<div class="stats"><div class="stat"><span class="label">Speed</span><b>${v.spd}</b>${own&&vUp(v).spd>1?`<small>+${(vUp(v).spd-1)*15}%</small>`:''}</div><div class="stat"><span class="label">Armor</span><b>${v.arm}</b>${own&&vUp(v).arm>1?`<small>Lv ${vUp(v).arm}</small>`:''}</div><div class="stat"><span class="label">Price</span><b style="font-size:13px">${money(v.cost)}</b></div></div>`:''}
     ${actions}
     <button class="btn" data-act="hangar">BACK TO HANGAR</button>`);
   if(!v.locked) startShowroom(v);
@@ -1202,13 +1445,13 @@ function missionSheet(vid){
   const title={strike:'Strike Run',recon:'Recon Flight',rally:'Road Rally'}[type]+(v.cat==='sea'?' on the Lake':'');
   const what={
     strike:v.cat==='air'?'Shoot the Badlands Gang radar dishes and supply balloons at each stop, then knock out the radar at their secret outpost.':'Blast the road blocks the Badlands Gang left at each stop, then knock out the radar at their secret outpost.',
-    recon:'You have no weapons, so this is a spy job. Fly close to each Badlands Gang camp, line it up inside the camera frame, and tap PHOTO. Finish by photographing their secret outpost.',
+    recon:'You have no weapons, so this is a spy job. Fly close to each Badlands Gang camp, line it up inside the camera frame, and tap PHOTO. Snap their drones too for extra intel. Finish by photographing their secret outpost.',
     rally:'Race through every glowing ring. The last ring leads to the Badlands Gang outpost.'}[type];
   const done=S.found&&S.found[mk+':'+v.cat];
-  openSheet(`${v.e} ${title}`,`
+  openSheet(title,`
     <div class="muted">${what}</div>
     <div class="route">${route.map((n,i)=>`<div class="${i===route.length-1?'fin':''}"><i></i>${esc(n)}${i===route.length-1?' · secret outpost':''}</div>`).join('')}</div>
-    <div class="muted" style="font-size:12px">Badlands drones will chase you. ${isArmed(v)?'Zap them for a bonus.':'Outrun them!'} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    <div class="muted" style="font-size:12px">Badlands drones will chase you. ${isArmed(v)?'Shoot them with your '+esc(VWEAPONS[vUp(v).wpn].name)+' for a bonus.':v.cat==='air'?'Photograph them for an intel bonus, or outrun them.':'Outrun them!'} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
     <div class="muted" style="font-size:11px">Map: real elevation data from the open Terrain Tiles dataset (Mapzen and USGS, hosted by AWS). Mountains are stretched taller to look dramatic.</div>`);
@@ -1226,18 +1469,19 @@ function battlePreview(){
   if(S.res.ap<1){toast('No Adventure Points left. They refill over time, or catch a clone!','warn');return}
   const wave=makeWave();
   openSheet('Battle Ready',`<div class="muted">Spend 1 Adventure Point to call out a random enemy group from the Badlands. Win cash, XP, and maybe a vehicle they leave behind.</div>
-    <div class="big-emoji">${wave.map(e=>e.e).join(' ')}</div>
+    <div class="wave">${wave.map(e=>`<span class="wv">${enemyArt(e.art)}</span>`).join('')}</div>
     <div class="muted" style="text-align:center">${[...new Set(wave.map(e=>e.name))].map(esc).join(', ')}</div>
-    <div class="muted" style="font-size:12px">Nobody gets hurt for real. Knocked out raiders drive home, and your crew can always heal.</div>
+    <div class="muted" style="font-size:12px">Nobody gets hurt for real. Stun hits knock raiders out and they drive home, and your crew can always heal.</div>
     <button class="btn danger" data-act="fight" style="font-family:var(--font-display)">FIGHT!</button>`);
   pendingWave=wave;
 }
+const defenders=()=>S.crew.filter(c=>c.room&&S.rooms[c.room]&&S.rooms[c.room].type==='barracks'&&!c.hurt);
 function startBattle(wave,paid){
   if(B||M) return;
   if(paid){ if(S.res.ap<1) return; S.res.ap--; }
   closeSheet(); scrollToSurface(true);
-  const W=$('#surface').clientWidth,lv=level();
-  B={W,shield:100,enemies:[],tracers:[],last:performance.now(),cds:[0,0,0,0],dcd:0,over:false};
+  const W=$('#surface').clientWidth,lv=level(),sh=100+defenders().reduce((a,c)=>a+armorDef(c)*6,0);
+  B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,over:false};
   wave.forEach((d,i)=>{
     const left=i%2===0;
     B.enemies.push({d,hp:d.hp*(1+.06*(lv-1)),max:d.hp*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
@@ -1248,7 +1492,8 @@ function startBattle(wave,paid){
 }
 function renderShield(){
   const box=$('#shieldbox'); if(!box) return;
-  box.innerHTML=B?`<div class="shield"><div class="label">Base shield</div><div class="bar"><i style="width:${B.shield}%" class="${B.shield<25?'bad':B.shield<50?'warn':''}"></i></div></div>`:'';
+  const pc=B?clamp(B.shield/B.max*100,0,100):0;
+  box.innerHTML=B?`<div class="shield"><div class="label">Base shield</div><div class="bar"><i style="width:${pc}%" class="${pc<25?'bad':pc<50?'warn':''}"></i></div></div>`:'';
 }
 function battleLoop(now){
   if(!B||B.over) return;
@@ -1256,9 +1501,9 @@ function battleLoop(now){
   const surf=$('#surface'); if(!surf){requestAnimationFrame(battleLoop);return}
   const W=surf.clientWidth,H=surf.clientHeight,door=W/2; B.W=W;
   const box=$('#enemies');
-  const powF=S.res.power>0?1:.5;
+  const powF=S.res.power>0?1:.5,pos=slotPositions();
   for(const e of B.enemies){
-    if(e.state==='wait'){ if(B.time>=e.spawn){e.state='go';e.el=document.createElement('div');e.el.className='enemy'+(e.dir>0?' flip':'')+(e.d.big?' big':'');e.el.innerHTML=`<span class="em">${e.d.e}</span><span class="hpb"><i></i></span>`;box.appendChild(e.el)} else continue; }
+    if(e.state==='wait'){ if(B.time>=e.spawn){e.state='go';e.el=document.createElement('div');e.el.className='enemy'+(e.dir<0?' flip':'')+(e.d.big?' big':'');e.el.innerHTML=`<span class="em">${enemyArt(e.d.art)}</span><span class="hpb"><i></i></span>`;box.appendChild(e.el)} else continue; }
     if(e.state==='go'){
       const sp=e.d.speed*(e.slow>0?.4:1); e.slow=Math.max(0,e.slow-dt);
       if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=e.d.dmg*dt; }
@@ -1267,27 +1512,28 @@ function battleLoop(now){
     if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
   }
   const targets=B.enemies.filter(e=>e.state==='go');
-  const hit=(e,dmg,from,color)=>{ e.hp-=dmg; B.tracers.push({x1:from.x,y1:from.y,x2:e.x,y2:H-38,t:.12,c:color}); if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;e.el.classList.add('ko')} };
+  const ko=e=>{if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;e.el.classList.add('ko')}};
+  const hit=(e,dmg,from,color,wide)=>{ e.hp-=dmg; B.tracers.push({x1:from.x,y1:from.y,x2:e.x,y2:H-38,t:.12,c:color,w:wide?5:2.5}); ko(e) };
   S.turrets.forEach((t,i)=>{
-    if(!t) return; const d=TURRETS[t.type],px=PAD_X[i]*W,py=H-24-20;
+    if(!t||i>=slotCount()||!pos[i]) return; const d=TURRETS[t.type],px=pos[i][0]*W,py=H-24-pos[i][1]-18,range=d.range*(pos[i][1]>0?1.2:1);
     B.cds[i]-=dt*powF; if(B.cds[i]>0) return;
-    let best=null,bd=1e9; for(const e of targets){const dist=Math.abs(e.x-px); if(dist<=d.range&&dist<bd&&e.hp>0){bd=dist;best=e}}
+    let best=null,bd=1e9; for(const e of targets){const dist=Math.abs(e.x-px); if(dist<=range&&dist<bd&&e.hp>0){bd=dist;best=e}}
     if(!best) return;
-    B.cds[i]=d.rate; hit(best,d.dmg*(1+.5*(t.lvl-1)),{x:px,y:py},t.type==='net'?'#2EC4C9':t.type==='laser'?'#3A8DDE':'#FFC845');
+    B.cds[i]=d.rate; hit(best,turDmg(t),{x:px,y:py},d.col,d.splash);
+    if(d.splash) targets.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(t)*.5;ko(o)}});
     if(d.slow) best.slow=1.6;
-    const el=document.querySelector(`.tpad[data-pad="${i}"]`); if(el){const a=Math.atan2((H-38)-py,best.x-px)*180/Math.PI; el.style.setProperty('--a',a+'deg')}
     tur3dFire(i,best.x,33);
   });
-  const defs=S.crew.filter(c=>c.room&&S.rooms[c.room].type==='barracks'&&!c.hurt);
+  const defs=defenders();
   B.dcd-=dt;
   if(defs.length&&B.dcd<=0){
     const near=targets.filter(e=>Math.abs(e.x-door)<110&&e.hp>0).sort((a,b)=>Math.abs(a.x-door)-Math.abs(b.x-door))[0];
-    if(near){B.dcd=1.1;const dmg=defs.reduce((s,c)=>s+2+eff(c,'aim')*.6+(WEAPONS[c.weapon||'none'].dmg||0),0);hit(near,dmg,{x:door,y:H-60},'#3DDC97')}
+    if(near){B.dcd=1.1;const dmg=defs.reduce((s,c)=>s+2+eff(c,'aim')*.6+(WEAPONS[curGear(c,'weapon')].dmg||0),0);hit(near,dmg,{x:door,y:H-60},'#3DDC97')}
   }
-  const cv=$('#fx'); if(cv){const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+  const cv=$('#fx'); if(cv){const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
     const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
-    B.tracers=B.tracers.filter(tr=>(tr.t-=dt)>0); g.lineWidth=2.5; g.lineCap='round';
-    for(const tr of B.tracers){g.strokeStyle=tr.c;g.globalAlpha=clamp(tr.t/.12,0,1);g.beginPath();g.moveTo(tr.x1,tr.y1);g.lineTo(tr.x2,tr.y2);g.stroke()}
+    B.tracers=B.tracers.filter(tr=>(tr.t-=dt)>0); g.lineCap='round';
+    for(const tr of B.tracers){g.lineWidth=tr.w||2.5;g.strokeStyle=tr.c;g.globalAlpha=clamp(tr.t/.12,0,1);g.beginPath();g.moveTo(tr.x1,tr.y1);g.lineTo(tr.x2,tr.y2);g.stroke()}
     g.globalAlpha=1;}
   B.shield=Math.max(0,B.shield); renderShield();
   if(B.shield<=0) return endBattle(false);
@@ -1306,17 +1552,17 @@ function endBattle(won){
     let veh='';
     if(Math.random()<.3&&S.vehicles.length<vehCap()){
       const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&(!v.level||level()>=v.level));
-      if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh" style="${v.f?'filter:'+v.f:''}">${v.e}</span><span class="grow"><b>New vehicle: ${esc(v.name)}</b><span>The raiders left it behind. Worth about ${money(v.cost)}!</span></span></div>`}
+      if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>New vehicle: ${esc(v.name)}</b><span>The raiders left it behind. Worth about ${money(v.cost)}!</span></span></div>`}
     }
-    body=`<div class="big-emoji">🏆</div><div class="muted" style="text-align:center">The raiders got knocked silly and drove home.</div>
+    body=`${badge('trophy')}<div class="muted" style="text-align:center">The raiders got knocked silly and drove home.</div>
       <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div><div class="stat"><span class="label">Base XP</span><b>+50</b></div><div class="stat"><span class="label">Crew XP</span><b>+20</b></div></div>${veh}`;
   } else {
     const lostC=Math.floor(S.res.credits*.1),lostF=Math.floor(S.res.food*.25); S.res.credits-=lostC; S.res.food-=lostF;
-    const pool=S.crew.filter(c=>!c.isCmd); const hurt=[];
-    for(let i=0;i<Math.min(2,pool.length);i++){const c=pool.splice(ri(0,pool.length-1),1)[0];c.hurt=60;hurt.push(c.name)}
-    body=`<div class="big-emoji">😵</div><div class="muted" style="text-align:center">The raiders got in and grabbed some loot. Everyone is okay, they just need some rest.</div>
+    const pool=S.crew.filter(c=>!c.isCmd&&armorDef(c)<3); const hurt=[];
+    for(let i=0;i<Math.min(2,pool.length);i++){const c=pool.splice(ri(0,pool.length-1),1)[0];c.hurt=Math.round(60/(1+armorDef(c)*.4));hurt.push(c.name)}
+    body=`${badge('dizzy')}<div class="muted" style="text-align:center">The raiders got in and grabbed some loot. Everyone is okay, they just need some rest.</div>
       <div class="stats"><div class="stat"><span class="label">Cash</span><b>-${money(lostC)}</b></div><div class="stat"><span class="label">Food</span><b>-${lostF}</b></div><div class="stat"><span class="label">Knocked out</span><b>${hurt.length}</b></div></div>
-      <div class="muted" style="font-size:12px">Tip: more turrets, Net Turrets to slow them down, and Barracks defenders with weapons. Build a Med Bay to heal faster.</div>`;
+      <div class="muted" style="font-size:12px">Tip: more turrets, upgrades, and Barracks defenders with weapons and armor. Armor adds to the base shield.</div>`;
   }
   openSheet(won?'Victory!':'Base raided',body+`<button class="btn primary" data-close>OKAY</button>`);
   renderWorld(); save();
@@ -1564,7 +1810,7 @@ function buildMission(v,mk,route,pilot){
       <div class="stick-zone" id="m-stick"><div class="stick-base" id="m-sbase" hidden><div class="stick-knob" id="m-knob"></div></div></div>
       <div class="stick-hint" id="m-hint">${v.cat==='air'?'Drag here to steer. Up climbs, down dives.':'Drag here. Up is gas, down is brake, sideways steers.'}</div>
       ${v.cat==='air'?'<div class="thr" id="m-thr"><span>THROTTLE</span><i id="m-thri" style="height:60%"></i></div>':''}
-      ${armed?`<button class="fire ${v.cat==='air'?'':'solo'}" id="m-fire">${icon('target')}ZAP</button>`:type==='recon'?`<button class="fire photo" id="m-fire">${icon('camera')}PHOTO</button>`:''}
+      ${armed?`<button class="fire ${v.cat==='air'?'':'solo'}" id="m-fire">${icon('target')}FIRE</button>`:type==='recon'?`<button class="fire photo" id="m-fire">${icon('camera')}PHOTO</button>`:''}
     </div>`;
 
   const renderer=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:type==='recon'});
@@ -1659,12 +1905,13 @@ function buildMission(v,mk,route,pilot){
   const droneMat=toonMat(T,0xd9773f),rotorMat=toonMat(T,0x333333),eyeMat=new T.MeshBasicMaterial({color:0xff4d5e});
   const makeDrone=(x,y,z)=>{const g=new T.Group();g.add(new T.Mesh(droneGeo,droneMat));const r=new T.Mesh(rotorGeo,rotorMat);r.rotation.x=Math.PI/2;r.position.y=2.4;g.add(r);
     const eye=new T.Mesh(eyeGeo,eyeMat);eye.position.set(0,.4,-2.6);g.add(eye);g.position.set(x,y,z);scene.add(g);return {g,rotor:r,state:'chase',vy:0}};
-  const maxS=v.cat==='air'?40+v.spd*16:v.cat==='sea'?28+v.spd*9:20+v.spd*10;
+  const VU=vUp(v),VW=VWEAPONS[VU.wpn];
+  const maxS=(v.cat==='air'?40+v.spd*16:v.cat==='sea'?28+v.spd*9:20+v.spd*10)*(1+.15*(VU.spd-1));
   const first=stops[0];
   const P={x:home.x,z:home.z,y:0,yaw:Math.atan2(-(first.x-home.x),-(first.z-home.z)),pitch:0,roll:0,speed:v.cat==='air'?maxS*.6:0,hull:100,thr:.6,bob:0};
   P.y=v.cat==='air'?heightAt(P.x,P.z)+90:heightAt(P.x,P.z);
   M={v,mk,type,armed,renderer,scene,camera,stops,idx:0,P,drones:[],shots:[],bits:[],ko:0,hits:0,photos:0,cam:'cockpit',input:{x:0,y:0,fire:false},keys:{},t:0,last:performance.now(),done:false,spawned:false,fireCd:0,raf:0,
-    maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,makeDrone,shotGeo:new T.SphereGeometry(1.1,8,6),shotMat:new T.MeshBasicMaterial({color:0xffe27a}),bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min};
+    maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,makeDrone,shotGeo:new T.SphereGeometry(VW.rocket?1.9:1.1,8,6),shotMat:new T.MeshBasicMaterial({color:VW.color}),wpn:VW,armMul:1/(1+.25*(VU.arm-1)),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min};
   {const mm=$('#minimap'),g=mm.getContext('2d'),img=g.createImageData(160,160);
     for(let y=0;y<160;y++)for(let x=0;x<160;x++){const gi=Math.min(n-1,Math.round(y*(n-1)/159))*n+Math.min(n-1,Math.round(x*(n-1)/159));
       const c=water[gi]?hex(mk==='tahoe'?0x2f8fd0:0x4f9a8a):groundColor(mk,elev[gi],nor.getY(gi),false,.5);
@@ -1705,9 +1952,12 @@ function takePhoto(){
   if(!M||M.done||M.paused||M.type!=='recon') return;
   const st=M.stops[M.idx],T=window.THREE,tg=st.targets[0];
   const fl=$('#m-flash');fl.style.transition='none';fl.style.opacity=.85;requestAnimationFrame(()=>{fl.style.transition='opacity .35s';fl.style.opacity=0});
-  const p=tg.pos.clone().project(M.camera),d=tg.pos.distanceTo(new T.Vector3(M.P.x,M.P.y,M.P.z));
-  if(p.z>=1||Math.abs(p.x)>.5||Math.abs(p.y)>.5){warn('LINE IT UP IN THE FRAME!');return}
-  if(d>320){warn('GET CLOSER! '+(d/100).toFixed(1)+' KM');return}
+  const me=new T.Vector3(M.P.x,M.P.y,M.P.z);let snapped=0;
+  for(const dr of M.drones){if(dr.state!=='chase') continue;const q=dr.g.position.clone().project(M.camera);if(q.z<1&&Math.abs(q.x)<.5&&Math.abs(q.y)<.5&&dr.g.position.distanceTo(me)<320){dr.state='gone';M.scene.remove(dr.g);snapped++}}
+  if(snapped){M.intel+=snapped;M.renderer.render(M.scene,M.camera);const c=document.createElement('canvas');c.width=128;c.height=88;c.getContext('2d').drawImage(M.renderer.domElement,0,0,c.width,c.height);const box=$('#m-photos');box.appendChild(c);while(box.children.length>4) box.firstChild.remove();toast(`Drone photographed! Enemy intel +$${(2000*snapped).toLocaleString()}. It flew home scared.`,'ok')}
+  const p=tg.pos.clone().project(M.camera),d=tg.pos.distanceTo(me);
+  if(p.z>=1||Math.abs(p.x)>.5||Math.abs(p.y)>.5){if(!snapped) warn('LINE IT UP IN THE FRAME!');return}
+  if(d>320){if(!snapped) warn('GET CLOSER! '+(d/100).toFixed(1)+' KM');return}
   M.renderer.render(M.scene,M.camera);
   const c=document.createElement('canvas');c.width=128;c.height=88;c.getContext('2d').drawImage(M.renderer.domElement,0,0,c.width,c.height);
   const box=$('#m-photos');box.appendChild(c);while(box.children.length>4) box.firstChild.remove();
@@ -1741,7 +1991,7 @@ function missionLoop(now){
     P.x+=-Math.sin(P.yaw)*cp*P.speed*dt;P.z+=-Math.cos(P.yaw)*cp*P.speed*dt;P.y+=Math.sin(P.pitch)*P.speed*dt;
     P.y=Math.min(P.y,950);
     const gh=M.heightAt(P.x,P.z)+(M.waterAt(P.x,P.z)?.6:0);
-    if(P.y<gh+4){P.y=gh+14;P.pitch=.45;if(M.t-M.lastBonk>1){M.lastBonk=M.t;P.hull-=18;warn('BONK! PULL UP!')}}
+    if(P.y<gh+4){P.y=gh+14;P.pitch=.45;if(M.t-M.lastBonk>1){M.lastBonk=M.t;P.hull-=18*M.armMul;warn('BONK! PULL UP!')}}
     else if(P.y<gh+22) warn('TOO LOW!',.3);
   } else {
     const heavy=v.id==='mech'||v.id==='tank';
@@ -1786,7 +2036,7 @@ function missionLoop(now){
       g.position.x+=tx/dd*sp*dt;g.position.y+=ty/dd*sp*dt;g.position.z+=tz/dd*sp*dt;
       const floor=M.heightAt(g.position.x,g.position.z)+8;if(g.position.y<floor) g.position.y=floor;
       d.rotor.rotation.z+=dt*20;g.lookAt(P.x,P.y,P.z);
-      if(dd<28){P.hull-=7*dt;warn('DRONE BUZZING YOU!',.3)}
+      if(dd<28){P.hull-=7*dt*M.armMul;warn('DRONE BUZZING YOU!',.3)}
       if(dd>1100){d.state='gone';M.scene.remove(g);toast('You lost a drone!','ok')}
     } else if(d.state==='ko'){d.vy=Math.max(d.vy-12*dt,-14);g.position.y+=d.vy*dt;g.rotation.z+=dt*3;if(g.position.y<M.heightAt(g.position.x,g.position.z)){d.state='gone';M.scene.remove(g)}}
   }
@@ -1797,9 +2047,9 @@ function missionLoop(now){
   let lock=false;
   M.fireCd-=dt;
   if(M.armed&&M.input.fire&&M.fireCd<=0){
-    M.fireCd=.14;const s=new T.Mesh(M.shotGeo,M.shotMat);
+    M.fireCd=M.wpn.rate;const s=new T.Mesh(M.shotGeo,M.shotMat);
     s.position.set(P.x+fwd.x*6,P.y+fwd.y*6-1,P.z+fwd.z*6);M.scene.add(s);
-    M.shots.push({m:s,v:fwd.clone().multiplyScalar(Math.max(P.speed,0)+280),life:2.2});
+    M.shots.push({m:s,v:fwd.clone().multiplyScalar(Math.max(P.speed,0)+(M.wpn.rocket?190:300)),life:2.4});
   }
   for(const s of M.shots){
     s.life-=dt;
@@ -1812,7 +2062,7 @@ function missionLoop(now){
       if(a.p.distanceTo(s.m.position)<a.r){
         s.life=0;
         if(a.d&&a.d.state==='chase'){a.d.state='ko';a.d.vy=4;M.ko++;toast('Drone knocked out! It floats down safely.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko}
-        else if(a.t&&a.t.alive){a.t.hp-=10;if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;boom(a.t.pos);M.hits++;toast(`${a.t.label} destroyed!`,'ok')}}
+        else if(a.t&&a.t.alive){a.t.hp-=M.wpn.dmg;if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;boom(a.t.pos);M.hits++;toast(`${a.t.label} destroyed!`,'ok')}}
       }
     }
     if(s.life<=0) M.scene.remove(s.m);
@@ -1830,7 +2080,7 @@ function spawnDrones(){
   const P=M.P,n=M.v.cat==='air'?4:3;
   for(let i=0;i<n;i++){const a=Math.random()*6.28,r=350+Math.random()*200;const x=P.x+Math.cos(a)*r,z=P.z+Math.sin(a)*r;
     const y=Math.max(M.heightAt(x,z)+25,P.y+rnd(-20,30));M.drones.push(M.makeDrone(x,y,z))}
-  toast(M.armed?'Badlands Gang drones incoming! Tap ZAP!':'Badlands Gang drones! No weapons, so outrun them!','bad');
+  toast(M.armed?'Badlands Gang drones incoming! Tap FIRE!':'Badlands Gang drones! No weapons, so outrun them!','bad');
 }
 function warn(msg,dur){const w=$('#m-warn');if(!w) return;w.textContent=msg;w.hidden=false;clearTimeout(warn.t);warn.t=setTimeout(()=>{w.hidden=true},(dur||1.2)*1000)}
 function hudMission(st,dist){
@@ -1860,23 +2110,23 @@ function hudMission(st,dist){
 }
 function finishMission(won){
   if(!M||M.done) return; M.done=true;
-  const v=M.v,mk=M.mk,ko=M.ko,stops=M.idx+(won?1:0),type=M.type,hits=M.hits,photos=M.photos;
+  const v=M.v,mk=M.mk,ko=M.ko,stops=M.idx+(won?1:0),type=M.type,hits=M.hits,photos=M.photos,intel=M.intel||0;
   warn(won?'OUTPOST FOUND!':'MAYDAY!',2);
   setTimeout(()=>{
     closeMission();
     if(won){
       const key=mk+':'+v.cat;S.found=S.found||{};const firstTime=!S.found[key];S.found[key]=true;
       const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*stops;
-      const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0);S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
+      const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0)+2000*intel;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
       const detail=type==='strike'?`<div class="stat"><span class="label">Targets</span><b>${hits}</b></div>`:type==='recon'?`<div class="stat"><span class="label">Photos</span><b>${photos}</b></div>`:`<div class="stat"><span class="label">Rings</span><b>${stops}</b></div>`;
-      openSheet('Mission complete!',`<div class="big-emoji">${firstTime?'🗺️':'🏁'}</div>
+      openSheet('Mission complete!',`${badge(firstTime?'map':'flag')}
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost at '+esc(ROUTES[mk][v.cat].slice(-1)[0])+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
-        <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div>${detail}<div class="stat"><span class="label">Drones KO</span><b>${ko}</b></div></div>
+        <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div>${detail}<div class="stat"><span class="label">${type==='recon'?'Drone intel':'Drones KO'}</span><b>${type==='recon'?intel:ko}</b></div></div>
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
         <button class="btn primary" data-close>BACK TO BASE</button>`);
     } else {
-      openSheet('Mayday!',`<div class="big-emoji">🪂</div><div class="muted" style="text-align:center">Your pilot parachuted out safely and the ${esc(v.name)} got towed home. Try again any time.</div><button class="btn primary" data-close>BACK TO BASE</button>`);
+      openSheet('Mayday!',`${badge('chute')}<div class="muted" style="text-align:center">Your pilot parachuted out safely and the ${esc(v.name)} got towed home. Try again any time.</div><button class="btn primary" data-close>BACK TO BASE</button>`);
     }
     renderWorld();save();
   },won?900:600);
@@ -1894,42 +2144,32 @@ function closeMission(){
 let T3=null;
 function eraLadder(){const L=level(),cur=eraOf(L),nx=ERAS.find(e=>e.min>L);
   return `<div class="label">Base style · Level ${L} of 100</div><div class="era-list">${ERAS.map(e=>`<div class="${e===cur?'on':e===nx?'next':''}"><span>${esc(e.name)}</span><span>Lv ${e.min}+</span></div>`).join('')}</div>`}
+function bevBox(T,w,h,d,r){const sh=new T.Shape(),x=-w/2+r,y=-h/2+r,W=w-2*r,H=h-2*r;sh.moveTo(x,y);sh.lineTo(x+W,y);sh.lineTo(x+W,y+H);sh.lineTo(x,y+H);sh.lineTo(x,y);const g=new T.ExtrudeGeometry(sh,{depth:Math.max(.1,d-2*r),bevelEnabled:true,bevelThickness:r,bevelSize:r,bevelSegments:2});g.translate(0,0,-Math.max(.1,d-2*r)/2);return g}
 function buildTurret(T,type,lvl){
   const G=new T.Group(),m=c=>toonMat(T,c),add=(par,g,mm,x,y,z)=>{const o=new T.Mesh(g,mm);o.position.set(x||0,y||0,z||0);par.add(o);return o};
-  const glow=new T.MeshBasicMaterial({color:type==='laser'?0x3a8dde:type==='net'?0x2ec4c9:0xffc845,transparent:true,opacity:.9});
-  G.rotation.x=.3;
-  add(G,new T.CylinderGeometry(15,18,7,6),m(0x3a4149),0,3.5,0);
-  add(G,new T.CylinderGeometry(12,14,5,6),m(0x6a7480),0,9,0);
-  const ring=add(G,new T.TorusGeometry(12.5,1,6,24),glow,0,11.6,0);ring.rotation.x=Math.PI/2;
-  add(G,new T.CylinderGeometry(4.5,6,8,12),m(0x8a939e),0,15,0);
-  const head=new T.Group();head.position.y=22;G.add(head);
-  const pitch=new T.Group();head.add(pitch);
+  const GM=0x4a525c,DK=0x2b3036,ST=0x8a939e,OL=0x6b7a4a;
+  const glow=new T.MeshBasicMaterial({color:{mg:0xffc845,auto:0xffc845,gatling:0xffc845,net:0x2ec4c9,missile:0xff7f50,laser:0x3a8dde,rail:0x7f9cff,plasma:0xff5fd2}[type]||0xffc845,transparent:true,opacity:.9});
+  G.rotation.x=.28;
+  add(G,bevBox(T,32,5,24,1),m(DK),0,2.5,0);
+  const ring=add(G,new T.BoxGeometry(26,1.2,1.2),glow,0,4.2,12.4);
+  add(G,bevBox(T,16,6,16,1.2),m(GM),0,8,0);
+  const head=new T.Group();head.position.y=17;G.add(head);const pitch=new T.Group();head.add(pitch);
   const U={head,pitch,ring};
-  const barrel=(len,r,x,y,z,mm)=>{const b=add(pitch,new T.CylinderGeometry(r,r*1.1,len,10),mm||m(0x2b3036),x+len/2,y,z);b.rotation.z=-Math.PI/2;return b};
+  const bar=(len,r,x,y,z,col)=>{const b=add(pitch,new T.CylinderGeometry(r,r,len,8),m(col||DK),x+len/2,y,z);b.rotation.z=-Math.PI/2;return b};
   let tip=20;
-  if(type==='auto'){
-    const h=add(pitch,new T.SphereGeometry(9,18,12),m(0xc9d1d9));h.scale.set(1.25,.85,1);
-    add(pitch,new T.BoxGeometry(6,1.6,17),glow,4,1.5,0);
-    if(lvl===1){barrel(14,1.5,8,0,3.2);barrel(14,1.5,8,0,-3.2);tip=23}
-    else{const sp=new T.Group();sp.position.x=10;pitch.add(sp);
-      for(let a=0;a<6;a++){const b=new T.Mesh(new T.CylinderGeometry(1.1,1.1,16,8),m(0x2b3036));b.rotation.z=-Math.PI/2;b.position.set(8,Math.cos(a)*2.8,Math.sin(a)*2.8);sp.add(b)}
-      add(sp,new T.CylinderGeometry(4,4,2,12).rotateZ(Math.PI/2),m(0x8a939e),16,0,0);U.spin=sp;tip=28}
-    if(lvl>=3){[-1,1].forEach(sd=>add(pitch,new T.BoxGeometry(12,10,1.6),m(0x4a525c),-1,0,sd*9.4));add(pitch,new T.BoxGeometry(4,3,4),m(0x2b3036),-2,8,0);add(pitch,new T.SphereGeometry(1.2,8,6),new T.MeshBasicMaterial({color:0xff4d5e}),-2,10,0)}
-  } else if(type==='net'){
-    add(pitch,new T.BoxGeometry(10,8,10),m(0x3a4149),-5,0,0);
-    barrel(10,2.2,0,0,0,m(0x4a525c));
-    const d=add(pitch,new T.SphereGeometry(11,20,10,0,Math.PI*2,0,Math.PI/2.6),m(0x8a939e),4,0,0);d.rotation.z=-Math.PI/2;
-    add(pitch,new T.SphereGeometry(3.2,12,10),glow,6,0,0);
-    if(lvl>=2){[-1,1].forEach(sd=>{const pr=add(pitch,new T.CylinderGeometry(.6,.6,12,6),m(0x2b3036),10,sd*5,0);pr.rotation.z=-Math.PI/2})}
-    if(lvl>=3){const r2=add(pitch,new T.TorusGeometry(9,.8,6,24),glow,9,0,0);r2.rotation.y=Math.PI/2}
-    tip=16;
-  } else {
-    add(pitch,new T.BoxGeometry(10,9,11),m(0x3a4149),-5,0,0);
-    const body=add(pitch,new T.CylinderGeometry(4.5,5.5,20,6),m(0xe6edf1),6,0,0);body.rotation.z=-Math.PI/2;
-    for(let i=0;i<lvl+1;i++){const c=add(pitch,new T.TorusGeometry(5.6,.9,6,18),glow,2+i*5,0,0);c.rotation.y=Math.PI/2}
-    U.crystal=add(pitch,new T.OctahedronGeometry(4.2,0),new T.MeshBasicMaterial({color:0x9ff6f8}),19,0,0);tip=24;
-  }
-  const fl=add(pitch,new T.SphereGeometry(type==='laser'?5:4,10,8),new T.MeshBasicMaterial({color:type==='laser'?0x9ff6f8:type==='net'?0x7ff0f3:0xffe27a,transparent:true,opacity:.9}),tip,0,0);fl.visible=false;U.flash=fl;
+  if(type==='mg'){add(pitch,bevBox(T,14,9,11,1.2),m(OL));bar(16,1.1,6,1,0);add(pitch,new T.BoxGeometry(5,5,4),m(0x5a4a2a),-2,-1,7);add(pitch,new T.BoxGeometry(1.6,12,15),m(GM),6,1,0);tip=23}
+  else if(type==='auto'){add(pitch,bevBox(T,18,11,14,1.5),m(GM));bar(18,1.6,8,1,3.4);bar(18,1.6,8,1,-3.4);add(pitch,new T.BoxGeometry(3,3,3),m(DK),26,1,3.4);add(pitch,new T.BoxGeometry(3,3,3),m(DK),26,1,-3.4);tip=28}
+  else if(type==='gatling'){add(pitch,bevBox(T,16,11,13,1.5),m(GM));add(pitch,new T.BoxGeometry(8,8,8),m(DK),11,0,0);const sp=new T.Group();sp.position.x=14;pitch.add(sp);for(let a=0;a<6;a++){const b=new T.Mesh(new T.CylinderGeometry(.9,.9,14,6),m(DK));b.rotation.z=-Math.PI/2;b.position.set(7,Math.cos(a)*2.4,Math.sin(a)*2.4);sp.add(b)}U.spin=sp;add(pitch,new T.BoxGeometry(6,6,5),m(0x5a4a2a),-4,-1,8);tip=29}
+  else if(type==='net'){add(pitch,bevBox(T,14,12,14,1.5),m(GM));[[-2.6,-2.6],[2.6,-2.6],[-2.6,2.6],[2.6,2.6]].forEach(([y,z])=>{add(pitch,new T.BoxGeometry(14,4.4,4.4),m(ST),10,y,z);add(pitch,new T.BoxGeometry(.4,3,3),glow,17.2,y,z)});tip=18}
+  else if(type==='missile'){add(pitch,bevBox(T,16,14,16,1.5),m(GM));for(let r=0;r<2;r++)for(let c=0;c<3;c++){add(pitch,new T.CylinderGeometry(1.6,1.6,1,10).rotateZ(Math.PI/2),m(DK),8.3,-3+r*6,-5+c*5);add(pitch,new T.SphereGeometry(1.1,8,6),new T.MeshBasicMaterial({color:0xff4d5e}),8.6,-3+r*6,-5+c*5)}tip=10}
+  else if(type==='laser'){add(pitch,bevBox(T,16,10,12,1.5),m(0xe6edf1));add(pitch,new T.BoxGeometry(14,5,5),m(0xc9d1d9),13,0,0);for(let i=0;i<3+Math.min(3,lvl>>1);i++) add(pitch,new T.BoxGeometry(1,7,7),m(DK),8+i*2.6,0,0);U.crystal=add(pitch,new T.BoxGeometry(2,4,4),new T.MeshBasicMaterial({color:0x9ff6f8}),21,0,0);tip=23}
+  else if(type==='rail'){add(pitch,bevBox(T,14,10,12,1.5),m(DK));[-2.4,2.4].forEach(z=>add(pitch,new T.BoxGeometry(28,1.6,1.8),m(ST),18,0,z));U.crystal=add(pitch,new T.BoxGeometry(26,.8,.8),new T.MeshBasicMaterial({color:0x7f9cff}),18,0,0);tip=33}
+  else {add(pitch,bevBox(T,20,14,16,2),m(0x3a3f55));add(pitch,new T.CylinderGeometry(4,5,10,10).rotateZ(-Math.PI/2),m(GM),13,0,0);U.crystal=add(pitch,new T.SphereGeometry(3.4,12,10),new T.MeshBasicMaterial({color:0xff5fd2}),19,0,0);[-8.2,8.2].forEach(z=>add(pitch,new T.BoxGeometry(10,2,.6),glow,-2,2,z));tip=23}
+  if(lvl>=3) [-1,1].forEach(sd=>add(pitch,new T.BoxGeometry(12,9,1.2),m(GM),-1,0,sd*9));
+  if(lvl>=5){add(pitch,new T.BoxGeometry(1,8,1),m(DK),-4,9,0);add(pitch,new T.SphereGeometry(1.1,8,6),new T.MeshBasicMaterial({color:0xff4d5e}),-4,13.5,0)}
+  if(lvl>=8) add(pitch,new T.BoxGeometry(10,.8,13),glow,0,6.4,0);
+  if(lvl>=10) add(G,new T.BoxGeometry(33,1.2,25),m(0xd4af37),0,5.6,0);
+  const fl=add(pitch,new T.SphereGeometry(type==='laser'||type==='plasma'?5:4,10,8),new T.MeshBasicMaterial({color:type==='plasma'?0xffb3ee:type==='laser'||type==='rail'?0x9ff6f8:type==='net'?0x7ff0f3:0xffe27a,transparent:true,opacity:.9}),tip,0,0);fl.visible=false;U.flash=fl;
   G.userData=U;return G;
 }
 function initTur3D(){
@@ -1939,7 +2179,7 @@ function initTur3D(){
     const renderer=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
     const scene=new T.Scene();scene.add(new T.HemisphereLight(0xe6f4ff,0x5a4a3a,.8));const d=new T.DirectionalLight(0xfff1d6,.9);d.position.set(-.4,1,1);scene.add(d);
     const cam=new T.OrthographicCamera(0,100,100,0,-400,400);cam.position.z=200;
-    T3={T,cv,renderer,scene,cam,units:[null,null,null,null],W:0,H:0,last:performance.now(),acc:0};
+    T3={T,cv,renderer,scene,cam,units:new Array(16).fill(null),W:0,H:0,last:performance.now(),acc:0};
     attachTur3D();requestAnimationFrame(tur3dLoop);
   }).catch(()=>{});
 }
@@ -1948,22 +2188,22 @@ function attachTur3D(){
   if(T3.cv.parentNode!==s) s.appendChild(T3.cv);s.classList.add('t3on');syncTur3D();
 }
 function syncTur3D(){
-  const s=$('#surface');if(!s) return;const W=s.clientWidth,H=s.clientHeight;
+  const s=$('#surface');if(!s) return;const W=s.clientWidth,H=s.clientHeight,pos=slotPositions(),nOpen=slotCount();
   if(W!==T3.W||H!==T3.H){T3.W=W;T3.H=H;T3.renderer.setSize(W,H,false);Object.assign(T3.cam,{left:0,right:W,top:H,bottom:0});T3.cam.updateProjectionMatrix()}
-  S.turrets.forEach((t,i)=>{
-    const key=t?t.type+t.lvl:'',u=T3.units[i];
-    if(u&&u.key===key){u.g.position.x=PAD_X[i]*W;return}
+  for(let i=0;i<16;i++){
+    const t=i<nOpen?S.turrets[i]:null,p=pos[i]||[.5,0],key=t?t.type+t.lvl:'',u=T3.units[i];
+    if(u&&u.key===key){u.g.position.set(p[0]*W,24+p[1],0);u.face=p[0]<.5?Math.PI:0;continue}
     if(u){T3.scene.remove(u.g);u.g.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
-    T3.units[i]=null;if(!t) return;
-    const g=buildTurret(T3.T,t.type,t.lvl);g.position.set(PAD_X[i]*W,24,0);g.scale.setScalar(.95);T3.scene.add(g);
-    const face=i<2?Math.PI:0;
+    T3.units[i]=null;if(!t) continue;
+    const g=buildTurret(T3.T,t.type,t.lvl);g.position.set(p[0]*W,24+p[1],0);g.scale.setScalar(.95);T3.scene.add(g);
+    const face=p[0]<.5?Math.PI:0;
     T3.units[i]={key,g,face,yaw:face,aimYaw:face,pitch:.15,aimPitch:.15,flash:0,lastFire:-99,recoil:0};
-  });
+  }
 }
 function tur3dFire(i,tx,ty){
   const u=T3&&T3.units[i];if(!u) return;
-  const dx=tx-PAD_X[i]*T3.W;
-  u.aimYaw=dx>=0?-.35:Math.PI+.35;u.aimPitch=clamp(Math.atan2(ty-46,Math.abs(dx)||1),-.4,.8);
+  const dx=tx-u.g.position.x;
+  u.aimYaw=dx>=0?-.35:Math.PI+.35;u.aimPitch=clamp(Math.atan2(ty-u.g.position.y-22,Math.abs(dx)||1),-.6,.8);
   u.flash=.07;u.lastFire=performance.now()/1000;u.recoil=1;
 }
 function tur3dLoop(now){
@@ -2013,7 +2253,7 @@ function tick(){
     for(const c of crewIn(k)){
       if(c.hurt) continue;
       c.xp+=.5;
-      if(def.train){const before=physOf(c);c[def.train]=Math.min(10,c[def.train]+.03);if(physOf(c)>before){grew=true;toast(`🥷 ${c.name} reached ${PHYS[physOf(c)]} physique!`,'ok')}}
+      if(def.train){const before=physOf(c);c[def.train]=Math.min(10,c[def.train]+.03);if(physOf(c)>before){grew=true;toast(`${c.name} reached ${PHYS[physOf(c)]} physique!`,'ok')}}
     }
   }
   if(grew&&!M) renderWorldSoon();
@@ -2067,7 +2307,7 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='talk') crewCard(id);
   else if(a==='assign') assignSheet(id);
   else if(a==='gear') gearSheet(id);
-  else if(a==='equip'){const c=S.crew.find(x=>x.id===id),d=(b.dataset.kind==='outfit'?OUTFITS:WEAPONS)[b.dataset.key];if(S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech))return;S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;c[b.dataset.kind]=b.dataset.key;renderWorld();save();toast(`${c.name} equipped the ${d.name}!`,'ok');gearSheet(id)}
+  else if(a==='equip'){const c=S.crew.find(x=>x.id===id),d=GEAR[b.dataset.kind][b.dataset.key];if(S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech))return;S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;c[b.dataset.kind]=b.dataset.key;renderWorld();save();toast(`${c.name} equipped the ${d.name}!`,'ok');if(b.dataset.back==='store') storeSheet(); else gearSheet(id)}
   else if(a==='rename') renameSheet(id);
   else if(a==='rename-save'){const c=S.crew.find(x=>x.id===id);const v=$('#rn').value.trim();if(v){c.name=v.slice(0,18);if(c.isCmd)S.cmd.name=c.name}renderWorld();save();crewCard(id,'Nice. I like my new name!')}
   else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=roomCap(k))return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
@@ -2077,7 +2317,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='prisoner'){const p=S.jail.find(x=>x.id===id);if(p) talkStep(p,0,0,true)}
   else if(a==='build'){const t=b.dataset.t,d=ROOMS[t];if(S.res.credits<d.cost)return;S.res.credits-=d.cost;S.rooms[b.dataset.k]={type:t,w:1,lvl:1};S.xp+=10;closeSheet();renderWorld();save();toast(`${d.name} built! Tap it to add crew.`,'ok')}
   else if(a==='turret'){const d=TURRETS[b.dataset.t];S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;S.turrets[+b.dataset.i]={type:b.dataset.t,lvl:1};closeSheet();renderWorld();save();toast(d.name+' ready!','ok')}
-  else if(a==='upgrade'){const t=S.turrets[+b.dataset.i],cost=TURRETS[t.type].cost*t.lvl;if(S.res.credits<cost)return;S.res.credits-=cost;t.lvl++;renderWorld();save();turretSheet(+b.dataset.i)}
+  else if(a==='upgrade'){const t=S.turrets[+b.dataset.i],cost=turUpCost(t);if(S.res.credits<cost||t.lvl>=TUR_MAX)return;S.res.credits-=cost;t.lvl++;S.xp+=8;renderWorld();save();turretSheet(+b.dataset.i)}
+  else if(a==='tsell'){S.turrets[+b.dataset.i]=null;renderWorld();save();turretSheet(+b.dataset.i)}
   else if(a==='raise'){const f=+b.dataset.f,cost=+b.dataset.cost;if(S.res.credits<cost)return;S.res.credits-=cost;S.floorH[f]=+b.dataset.h;S.xp+=20;renderWorld();save();toast(`Floor ${floorName(f)} is now ${b.dataset.h} stories tall!`,'ok');floorSheet(f)}
   else if(a==='rlvl'){const k=b.dataset.k,r=S.rooms[k],cost=Math.round((ROOMS[r.type].cost||50000)*rL(k)*.8);if(S.res.credits<cost)return;S.res.credits-=cost;r.lvl=rL(k)+1;S.xp+=15;renderWorld();save();toast(`${ROOMS[r.type].name} upgraded to Level ${r.lvl}!`,'ok');roomSheet(k)}
   else if(a==='rwide'){let k=b.dataset.k;const r=S.rooms[k],cost=Math.round((ROOMS[r.type].cost||60000)*.75);if(S.res.credits<cost)return;S.res.credits-=cost;r.w=rW(k)+1;
@@ -2087,7 +2328,12 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='htab'){hangarTab=b.dataset.t;hangarSheet()}
   else if(a==='show') showroomSheet(b.dataset.v);
   else if(a==='buy'){const v=VEH.find(x=>x.id===b.dataset.v);if(S.res.credits<v.cost)return;S.res.credits-=v.cost;if(v.tech)S.res.tech-=v.tech;S.vehicles.push(v.id);renderWorld();save();toast(v.name+' added to your Hangar!','ok');showroomSheet(v.id)}
-  else if(a==='upg'){const v=VEH.find(x=>x.id===b.dataset.v);if(S.res.credits<v.upg.cost)return;S.res.credits-=v.upg.cost;S.upg[v.id]=true;save();updateHUD();toast(`${v.upg.name} installed on the ${v.name}! Strike missions unlocked.`,'ok');showroomSheet(v.id)}
+  else if(a==='vup'){const v=VEH.find(x=>x.id===b.dataset.v),u=vUp(v),k=b.dataset.k,cost=vUpCost(v,u[k]);if(u[k]>=5||S.res.credits<cost)return;S.res.credits-=cost;u[k]++;S.xp+=10;save();updateHUD();toast(`${v.name}: ${k==='spd'?'Engine':'Armor'} upgraded to level ${u[k]}!`,'ok');showroomSheet(v.id)}
+  else if(a==='vwpn'){const v=VEH.find(x=>x.id===b.dataset.v),u=vUp(v),w=VWEAPONS[u.wpn+1];if(!w||u.wpn>=v.wcap||S.res.credits<w.cost||(w.tech&&S.res.tech<w.tech))return;S.res.credits-=w.cost;if(w.tech)S.res.tech-=w.tech;u.wpn++;S.xp+=10;save();updateHUD();toast(`${v.name} now has a ${w.name}!`,'ok');showroomSheet(v.id)}
+  else if(a==='sitem') storePick(b.dataset.key);
+  else if(a==='stab'){storeTab=b.dataset.t;storeSheet()}
+  else if(a==='store') storeSheet();
+  else if(a==='recruit') recruit();
   else if(a==='launch') missionSheet(b.dataset.v);
   else if(a==='go') startMission(b.dataset.v);
   else if(a==='m-resume'){closeSheet();if(M){M.paused=false;M.last=performance.now()}}
@@ -2099,7 +2345,8 @@ $('#panel').addEventListener('click',e=>{
 $('#b-crew').onclick=crewList;
 $('#b-hangar').onclick=hangarSheet;
 $('#b-battle').onclick=battlePreview;
-$('#b-recruit').onclick=()=>{ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; arrival(false) };
+function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
+$('#b-store').onclick=()=>storeSheet();
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
   ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.4. Your game saves on this device automatically.</div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
@@ -2111,7 +2358,7 @@ function renderSetup(){
   sw('#sw-skin',SKINS,'skin'); sw('#sw-hair',HAIRS,'hair'); sw('#sw-suit',SUITS,'suit');
   $('#sw-hs').innerHTML=['Spiky','Ponytail','Swept','Messy'].map((n,i)=>`<button class="btn ${setupCfg.hs===i?'primary':''}" style="padding:6px 10px;font-size:12px" data-hs="${i}">${n}</button>`).join('');
   $('#cmd-preview').innerHTML=personHTML({id:-1,skin:setupCfg.skin,hair:setupCfg.hair,shirt:'#262b31',trim:setupCfg.suit,hs:setupCfg.hs,eye:EYES[0],isCmd:true,str:5,weapon:'katana'});
-  $('#factions').innerHTML=Object.keys(FACTIONS).map(k=>{const f=FACTIONS[k];return `<button class="fac ${setupCfg.faction===k?'on':''} ${f.locked?'locked':''}" data-f="${k}" ${f.locked?'aria-disabled="true"':''}><span class="biome">${f.icon}</span><b>${esc(f.name)}</b><span>${esc(f.place)}</span><span>${esc(f.blurb)}</span></button>`}).join('');
+  $('#factions').innerHTML=Object.keys(FACTIONS).map(k=>{const f=FACTIONS[k];return `<button class="fac ${setupCfg.faction===k?'on':''} ${f.locked?'locked':''}" data-f="${k}" ${f.locked?'aria-disabled="true"':''}><span class="biome">${factionArt(f.biome)}</span><b>${esc(f.name)}</b><span>${esc(f.place)}</span><span>${esc(f.blurb)}</span></button>`}).join('');
 }
 $('#setup').addEventListener('click',e=>{
   const s=e.target.closest('.sw'); if(s){setupCfg[s.dataset.k]=s.dataset.c;renderSetup();return}
@@ -2133,7 +2380,7 @@ function startGame(fresh){
 }
 
 const saved=load();
-if(saved&&(saved.v===1||saved.v===2)){S=migrate(saved); startGame(false)}
+if(saved&&saved.v>=1&&saved.v<=3){S=migrate(saved); startGame(false)}
 else { $('#setup').hidden=false; renderSetup(); }
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) save() });
 })();
