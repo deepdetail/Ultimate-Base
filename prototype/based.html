@@ -266,6 +266,34 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .fire.solo{right:max(18px,env(safe-area-inset-right,0px))}
 .m-load{position:absolute;inset:0;display:grid;place-items:center;z-index:9;background:rgba(23,26,30,.85);font-family:var(--font-display);letter-spacing:.12em;text-align:center;padding:20px}
 .m-load small{display:block;font-family:var(--font-body);letter-spacing:0;color:var(--muted);margin-top:8px}
+/* expanded rooms, taller floors, room levels */
+.floor{--fh:1}
+.floor .slot{height:calc(var(--fh) * 100px + (var(--fh) - 1) * 10px)}
+button.shaft{border:none;padding:0;gap:4px}
+.shaft i{writing-mode:horizontal-tb;font-style:normal;font-size:8px;letter-spacing:0;color:var(--warn)}
+.room .stars{color:var(--warn);font-size:9px;letter-spacing:1px;margin-left:4px}
+.room.tall .park{font-size:30px;top:auto;bottom:24px}
+/* era styles: the outside of the base changes as the base levels up */
+.crown{display:block;width:100%;height:74px;margin-bottom:-1px}
+#world[data-era="brutal"] .tower{background:repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 2px,transparent 2px 22px),linear-gradient(90deg,#6e6e6a,#8f8e89 35%,#7c7b76 70%,#5e5d59);border-radius:3px 3px 0 0}
+#world[data-era="futur"] .tower{background:linear-gradient(90deg,#c9d4dc,#eef3f6 35%,#dde6ec 70%,#b8c4cc);box-shadow:inset 0 0 0 2px rgba(46,196,201,.6),0 8px 24px rgba(0,0,0,.35);border-radius:22px 22px 0 0}
+#world[data-era="vintage"] .tower{background:repeating-linear-gradient(0deg,#c9b8a0 0 2px,transparent 2px 12px),repeating-linear-gradient(90deg,#8a4a32 0 30px,#7a3e2a 30px 32px);box-shadow:inset 0 3px 0 #c9a36a,0 8px 24px rgba(0,0,0,.35);border-radius:4px 4px 0 0}
+#world[data-era="antique"] .tower{background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 3px,transparent 3px 40px),linear-gradient(90deg,#c9b894,#e8dcc0 40%,#d8cbb0 70%,#b8a684);box-shadow:inset 0 4px 0 #b08a3a,0 8px 24px rgba(0,0,0,.35);border-radius:6px 6px 0 0}
+#world[data-era="modern"] .tower{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.18) 40%,transparent 50%),linear-gradient(90deg,#173040,#2a5a6e 40%,#1f4656 70%,#12262f);box-shadow:inset 0 0 0 1px rgba(127,240,243,.5),0 8px 24px rgba(0,0,0,.4);border-radius:30px 30px 0 0}
+#world[data-era="luxe"] .tower{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.5) 42%,transparent 54%),linear-gradient(90deg,#e6e0d2,#faf7f0 40%,#efe9dc 70%,#d8d0bc);box-shadow:inset 0 0 0 2px #d4af37,0 8px 28px rgba(212,175,55,.35);border-radius:26px 26px 0 0}
+#world[data-era="billion"] .tower{background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 3px,transparent 3px 34px),linear-gradient(90deg,#3e3e3c,#5a5a57 35%,#4a4a47 70%,#2e2e2c);box-shadow:inset 0 0 0 2px #d4af37,0 10px 30px rgba(0,0,0,.5);border-radius:2px 2px 0 0}
+#world[data-era="futur"] .door,#world[data-era="modern"] .door{border-color:#7FF0F3}
+#world[data-era="vintage"] .door{border-color:#c9a36a;background:linear-gradient(90deg,#6a3e24 0 49%,#3a2414 49% 51%,#6a3e24 51%)}
+#world[data-era="antique"] .door{border-color:#b08a3a;background:linear-gradient(90deg,#4a6a5a 0 49%,#2a3a32 49% 51%,#4a6a5a 51%)}
+#world[data-era="luxe"] .door,#world[data-era="billion"] .door{border-color:#d4af37;box-shadow:0 0 22px rgba(212,175,55,.55)}
+#world[data-era="luxe"] .sign,#world[data-era="billion"] .sign{border-color:#d4af37;color:#ffe9a8}
+#world[data-era="vintage"] .sign{border-color:#ff6fae;color:#ffd1e6;text-shadow:0 0 6px #ff6fae}
+#tur3d{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+.surface.t3on .tur .base,.surface.t3on .tur .dome,.surface.t3on .tur .barrel{display:none}
+.era-list{display:flex;flex-direction:column;gap:6px}
+.era-list div{display:flex;justify-content:space-between;padding:6px 10px;border-radius:9px;background:rgba(10,12,15,.5);font-size:12px}
+.era-list div.on{background:var(--teal-dim);color:var(--teal);font-weight:700}
+.era-list div.next{outline:1px dashed var(--teal)}
 @media (prefers-reduced-motion:reduce){.person,.person svg,.pulse,.bub{animation:none}.panel,.toast{animation:none}}
 </style>
 
@@ -389,8 +417,8 @@ const ROOMS={
   barracks:{short:'Barracks',name:'Barracks',icon:'🛡️',cost:35000,cap:2,train:'aim',cls:'Defender',desc:'Trains Aim. Defenders here fight in every battle.'},
   med:{short:'Med Bay',name:'Med Bay',icon:'🩹',cost:45000,cap:2,heal:true,cls:'Medic',desc:'Knocked out crew heal 4 times faster.'},
   hangar:{short:'Hangar',name:'Hangar',icon:'🛩️',cost:120000,cap:2,vslots:4,train:'aim',cls:'Pilot',desc:'Parks 4 vehicles. Crew here fly and drive the missions.'},
-  cell:{short:'Cell',name:'Holding Cell',icon:'🔒',cost:50000,cap:1,level:2,jail:2,cls:'Defender',desc:'Jail for 2 caught clones. You can talk to them later.'},
-  clonelab:{short:'Clone Lab',name:'Clone Lab',icon:'🧬',cost:150000,cap:1,level:3,cls:'Scientist',desc:'Lets you cure clones with antidote (30 tech).'}
+  cell:{short:'Cell',name:'Holding Cell',icon:'🔒',cost:50000,cap:1,level:4,jail:2,cls:'Defender',desc:'Jail for 2 caught clones. You can talk to them later.'},
+  clonelab:{short:'Clone Lab',name:'Clone Lab',icon:'🧬',cost:150000,cap:1,level:6,cls:'Scientist',desc:'Lets you cure clones with antidote (30 tech).'}
 };
 const TIERS={
   Pilot:['Prop Pilot','Jet Pilot','Fighter Ace','Test Pilot'],
@@ -418,14 +446,14 @@ const WEAPONS={
   staff:{name:'Bo Staff',cost:2500,dmg:2,desc:'+2 battle damage.'},
   blaster:{name:'Stun Blaster',cost:6000,dmg:3,desc:'+3 battle damage.'},
   katana:{name:'Katana',cost:8000,dmg:4,desc:'+4 battle damage.'},
-  laser:{name:'Laser Rifle',cost:25000,tech:20,dmg:7,level:2,desc:'+7 battle damage.'}
+  laser:{name:'Laser Rifle',cost:25000,tech:20,dmg:7,level:5,desc:'+7 battle damage.'}
 };
 const gearBonus=(c,s)=>((OUTFITS[c.outfit||'jumpsuit']||{}).bonus||{})[s]||0;
 const eff=(c,s)=>c[s]+gearBonus(c,s);
 const TURRETS={
   auto:{name:'Auto Turret',cost:25000,dmg:6,rate:.8,range:150,desc:'Fast shots. Good all around.'},
   net:{name:'Net Turret',cost:18000,dmg:2,rate:1.1,range:130,slow:true,desc:'Sticky nets slow enemies way down.'},
-  laser:{name:'Laser Turret',cost:80000,tech:40,dmg:16,rate:1.6,range:190,level:2,desc:'Big zap. Needs 40 tech.'}
+  laser:{name:'Laser Turret',cost:80000,tech:40,dmg:16,rate:1.6,range:190,level:5,desc:'Big zap. Needs 40 tech.'}
 };
 const PAD_X=[.08,.24,.76,.92];
 // prices are rough real world values (new or used); cat: air, ground or sea; gun: can shoot on missions
@@ -433,18 +461,18 @@ const VEH=[
   {id:'cessna',name:'Cessna 182',e:'🛩️',era:'classic',cat:'air',kind:'Prop plane',cost:450000,spd:2,arm:2,col:0xf4f4f4},
   {id:'l39',name:'Aero L-39 Albatros',e:'✈️',era:'classic',cat:'air',kind:'Trainer jet',cost:380000,spd:4,arm:2,gun:1,col:0xc9d1d9,f:'hue-rotate(40deg)'},
   {id:'huey',name:'Huey Helicopter',e:'🚁',era:'classic',cat:'air',kind:'Helicopter',cost:1200000,spd:2,arm:4,col:0x6b7a4a},
-  {id:'f16',name:'F-16 Fighting Falcon',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:28000000,spd:5,arm:3,gun:1,level:2,col:0x9aa6b2},
-  {id:'mig',name:'MiG-29',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:22000000,spd:5,arm:3,gun:1,level:2,f:'hue-rotate(90deg)',col:0x8a9a7a},
-  {id:'f18',name:'F/A-18 Hornet',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:65000000,spd:5,arm:4,gun:1,level:2,f:'hue-rotate(170deg)',col:0x7f8c99},
-  {id:'f22',name:'F-22 Raptor',e:'✈️',era:'classic',cat:'air',kind:'Stealth jet',cost:150000000,spd:6,arm:4,gun:1,level:3,f:'grayscale(1) brightness(.8)',col:0x5f6670},
-  {id:'hover',name:'Hover Saucer',e:'🛸',era:'future',cat:'air',kind:'Hover craft',cost:90000000,tech:40,spd:5,arm:3,gun:1,level:2,col:0x2ec4c9},
-  {id:'rocket',name:'Star Hopper',e:'🚀',era:'future',cat:'air',kind:'Rocket plane',cost:250000000,tech:100,spd:7,arm:3,gun:1,level:3,col:0xe8e8f0},
+  {id:'f16',name:'F-16 Fighting Falcon',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:28000000,spd:5,arm:3,gun:1,level:8,col:0x9aa6b2},
+  {id:'mig',name:'MiG-29',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:22000000,spd:5,arm:3,gun:1,level:8,f:'hue-rotate(90deg)',col:0x8a9a7a},
+  {id:'f18',name:'F/A-18 Hornet',e:'✈️',era:'classic',cat:'air',kind:'Jet fighter',cost:65000000,spd:5,arm:4,gun:1,level:10,f:'hue-rotate(170deg)',col:0x7f8c99},
+  {id:'f22',name:'F-22 Raptor',e:'✈️',era:'classic',cat:'air',kind:'Stealth jet',cost:150000000,spd:6,arm:4,gun:1,level:15,f:'grayscale(1) brightness(.8)',col:0x5f6670},
+  {id:'hover',name:'Hover Saucer',e:'🛸',era:'future',cat:'air',kind:'Hover craft',cost:90000000,tech:40,spd:5,arm:3,gun:1,level:10,col:0x2ec4c9},
+  {id:'rocket',name:'Star Hopper',e:'🚀',era:'future',cat:'air',kind:'Rocket plane',cost:250000000,tech:100,spd:7,arm:3,gun:1,level:20,col:0xe8e8f0},
   {id:'airship',name:'Sky Vegas Airship',e:'🎈',era:'future',cat:'air',kind:'Airship',cost:0,locked:'Unlocks with Sky Vegas'},
   {id:'mustang',name:'Ford Mustang',e:'🚗',era:'classic',cat:'ground',kind:'Muscle car',cost:42000,spd:4,arm:2,col:0xd23a3a},
   {id:'cyber',name:'Cybertruck',e:'🛻',era:'classic',cat:'ground',kind:'Truck',cost:80000,spd:3,arm:5,col:0xb8bec6,upg:{name:'Roof Zapper',cost:15000}},
   {id:'ferrari',name:'Ferrari',e:'🏎️',era:'classic',cat:'ground',kind:'Supercar',cost:320000,spd:6,arm:1,col:0xe8221c},
-  {id:'tank',name:'Battle Tank',e:'🛡️',era:'classic',cat:'ground',kind:'Tank',cost:8000000,spd:2,arm:7,gun:1,level:2,col:0x6b7a4a},
-  {id:'mech',name:'Titan Mech',e:'🤖',era:'future',cat:'ground',kind:'Mech',cost:40000000,tech:60,spd:2,arm:6,gun:1,level:2,col:0x2ec4c9},
+  {id:'tank',name:'Battle Tank',e:'🛡️',era:'classic',cat:'ground',kind:'Tank',cost:8000000,spd:2,arm:7,gun:1,level:6,col:0x6b7a4a},
+  {id:'mech',name:'Titan Mech',e:'🤖',era:'future',cat:'ground',kind:'Mech',cost:40000000,tech:60,spd:2,arm:6,gun:1,level:10,col:0x2ec4c9},
   {id:'speedboat',name:'Speedboat',e:'🚤',era:'classic',cat:'sea',kind:'Boat',cost:65000,spd:5,arm:2,col:0xf4f4f4},
   {id:'sub',name:'Atlantis Deep Sub',e:'🐋',era:'future',cat:'sea',kind:'Submarine',cost:0,locked:'Unlocks with Atlantis'}
 ];
@@ -454,13 +482,13 @@ const ENEMIES={
   desert:[
     {name:'Badlands Gang Buggy',e:'🚙',hp:30,speed:38,dmg:6},
     {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:62,dmg:4},
-    {name:'Canyon Scorpion',e:'🦂',hp:95,speed:18,dmg:12,min:2,big:true},
+    {name:'Canyon Scorpion',e:'🦂',hp:95,speed:18,dmg:12,min:4,big:true},
     {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
   ],
   mountain:[
     {name:'Badlands Gang Snow Buggy',e:'🚙',hp:30,speed:36,dmg:6},
     {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:58,dmg:4},
-    {name:'Snow Beast',e:'🦣',hp:105,speed:16,dmg:13,min:2,big:true},
+    {name:'Snow Beast',e:'🦣',hp:105,speed:16,dmg:13,min:4,big:true},
     {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
   ]
 };
@@ -514,7 +542,7 @@ function newGame(cfg){
     res:{credits:150000,food:80,power:80,tech:0,ap:3},xp:0,up:1,down:2,
     rooms:{'1:0':{type:'hq'},'1:1':{type:'quarters'},'-1:0':{type:'food'},'-1:1':{type:'power'},'-2:0':{type:'hangar'}},
     turrets:[null,{type:'auto',lvl:1},{type:'auto',lvl:1},null],
-    crew:[],vehicles:['cessna','cyber'],upg:{},jail:[],caught:0,t:0,uid:1,nextArrival:18,arrivals:0,nextRaid:210,wins:0,found:{}};
+    crew:[],vehicles:['cessna','cyber'],upg:{},floorH:{},jail:[],caught:0,t:0,uid:1,nextArrival:18,arrivals:0,nextRaid:210,wins:0,found:{}};
   S.crew.push({id:0,name:cfg.name,skin:cfg.skin,hair:cfg.hair,shirt:'#262b31',trim:cfg.suit,hs:cfg.hs,eye:EYES[0],isCmd:true,clone:false,str:5,aim:5,smarts:6,xp:0,mood:95,hurt:0,room:'1:0',joined:0,outfit:'jumpsuit',weapon:'katana'});
   S.crew.push(makeCrew({room:'-1:0'}));
   S.crew.push(makeCrew({room:'-1:1'}));
@@ -530,14 +558,25 @@ function migrate(s){
 // ---------- derived ----------
 const biome=()=>FACTIONS[S.faction].biome;
 const mapKey=()=>FACTIONS[S.faction].map;
-const level=()=>Math.min(5,1+Math.floor(S.xp/150));
+const xpNeed=L=>30+5*L;
+function levelInfo(){let L=1,x=S.xp;while(L<100&&x>=xpNeed(L)){x-=xpNeed(L);L++}return {L,into:x,need:xpNeed(L)}}
+const level=()=>levelInfo().L;
+// the outside of the base goes back and forth between classic and futuristic luxury as it levels up
+const ERAS=[{min:1,key:'brutal',name:'Minimalist Brutalist'},{min:10,key:'futur',name:'Standard Futuristic'},{min:20,key:'vintage',name:'Vintage Mid-Century'},{min:35,key:'antique',name:'Antique Grand'},{min:50,key:'modern',name:'Ultra Modern'},{min:70,key:'luxe',name:'Luxury Futuristic'},{min:85,key:'billion',name:'Brutalist Billionaire'}];
+const eraOf=L=>ERAS.filter(e=>L>=e.min).pop();
+const maxFloors=()=>Math.min(10,5+Math.floor(level()/10));
 const roomsOf=t=>Object.keys(S.rooms).filter(k=>S.rooms[k].type===t);
 const crewIn=k=>S.crew.filter(c=>c.room===k);
-const crewCap=()=>2+4*roomsOf('quarters').length;
-const vehCap=()=>4*roomsOf('hangar').length;
-const jailCap=()=>2*roomsOf('cell').length;
-const foodMax=()=>100+100*roomsOf('food').length;
-const powMax=()=>100+100*roomsOf('power').length;
+// rooms can be 1 to 3 slots wide, floors 1 to 3 times taller, rooms level 1 to 5
+const rW=k=>S.rooms[k].w||1,rH=k=>(S.floorH&&S.floorH[k.split(':')[0]])||1,rL=k=>S.rooms[k].lvl||1;
+const sumOf=(t,f)=>roomsOf(t).reduce((s,k)=>s+f(k),0);
+const roomCap=k=>ROOMS[S.rooms[k].type].cap*rW(k)+(rH(k)-1);
+const vehRoom=k=>4*rW(k)+2*(rH(k)-1);
+const crewCap=()=>2+sumOf('quarters',k=>4*rW(k)+2*(rH(k)-1));
+const vehCap=()=>sumOf('hangar',vehRoom);
+const jailCap=()=>sumOf('cell',k=>2*rW(k));
+const foodMax=()=>100+sumOf('food',k=>100*rW(k));
+const powMax=()=>100+sumOf('power',k=>100*rW(k));
 const floorName=f=>f>0?'F'+f:'B'+(-f);
 const clsOf=c=>c.isCmd?'Commander':(c.room?ROOMS[S.rooms[c.room].type].cls:'Crew');
 function titleOf(c){
@@ -548,7 +587,7 @@ function titleOf(c){
 function roomRate(k){
   const def=ROOMS[S.rooms[k].type]; if(!def.prod) return 0;
   const powOk=def.prod==='power'||S.res.power>0;
-  return crewIn(k).filter(c=>!c.hurt).reduce((s,c)=>s+def.rate*(1+eff(c,def.stat)/10)*(.5+c.mood/200)*(c.clone?.5:1)*(powOk?1:.5),0);
+  return crewIn(k).filter(c=>!c.hurt).reduce((s,c)=>s+def.rate*(1+eff(c,def.stat)/10)*(.5+c.mood/200)*(c.clone?.5:1)*(powOk?1:.5),0)*(1+.25*(rL(k)-1))*(1+.2*(rH(k)-1));
 }
 
 // ---------- people: slim anime ninja crew ----------
@@ -754,28 +793,56 @@ function paintWorld(){
 }
 
 // ---------- world rendering ----------
+function owner(f,s){for(let s0=0;s0<=s;s0++){const k=f+':'+s0,r=S.rooms[k];if(r&&s0+(r.w||1)-1>=s) return k}return null}
+// upper wall of a double or triple height room: tall windows, a catwalk and a hanging lamp
+const TALL_UP=(x,hh)=>`<g transform="translate(${x} 0)"><rect x="16" y="12" width="30" height="${hh-28}" rx="3" fill="#9fd6e8" opacity=".55" stroke="rgba(255,255,255,.45)" stroke-width="2"/><rect x="74" y="12" width="30" height="${hh-28}" rx="3" fill="#9fd6e8" opacity=".55" stroke="rgba(255,255,255,.45)" stroke-width="2"/><path d="M31 12V${hh-16}M89 12V${hh-16}" stroke="rgba(255,255,255,.4)"/><path d="M0 ${hh-4}H120" stroke="#8A939E" stroke-width="3"/><path d="M0 ${hh-14}H120" stroke="#8A939E" stroke-width="1.4"/><g stroke="#8A939E" stroke-width="1.2">${[10,30,50,70,90,110].map(px=>`<path d="M${px} ${hh-4}V${hh-14}"/>`).join('')}</g><path d="M60 0V8" stroke="#4a525c"/><circle cx="60" cy="10" r="3.4" fill="#FFE7B0" class="pulse"/></g>`;
+// decor that gets added as a room levels up: plant and poster, neon trim, gold frame and rug, hologram crest
+const LVL_UP=lv=>(lv>=2?'<g><rect x="5" y="66" width="9" height="14" rx="2" fill="#8a5a32"/><path d="M9.5 66 q-8 -10 -3 -18 q3 6 3 18 q1 -14 8 -16 q-2 10 -8 16" fill="#4f9a5c"/><rect x="20" y="20" width="16" height="20" rx="1" fill="#f4f7fa" stroke="#4a525c"/><path d="M22 36 l5-8 4 5 3-3 2 6z" fill="#3A8DDE"/></g>':'')
+  +(lv>=3?'<path d="M2 3H118" stroke="#2EC4C9" stroke-width="2.4" class="pulse"/><path d="M11 80H109" stroke="#2EC4C9" stroke-width="1.4" opacity=".8"/>':'')
+  +(lv>=4?'<rect x="1.5" y="1.5" width="117" height="97" fill="none" stroke="#d4af37" stroke-width="2"/><ellipse cx="60" cy="90" rx="38" ry="6" fill="#8a2a3a" opacity=".75"/>':'')
+  +(lv>=5?'<g class="pulse"><path d="M60 6 l6 8 -6 8 -6 -8z" fill="#7FF0F3" opacity=".9"/><circle cx="48" cy="10" r="1.2" fill="#fff"/><circle cx="73" cy="18" r="1.4" fill="#fff"/></g>':'');
+function decorSVG(type,w,h,lv){
+  const base=DECOR[type]||'',wall=(base.match(/fill="(#[0-9a-fA-F]{6})"/)||[])[1]||'#3a4149',W=120*w,Hh=100*h,up=100*(h-1);
+  let s='';
+  if(h>1){s+=`<rect width="${W}" height="${Hh}" fill="${wall}"/><rect width="${W}" height="${up}" fill="rgba(0,0,0,.12)"/>`;for(let i=0;i<w;i++) s+=TALL_UP(i*120,up)}
+  for(let i=0;i<w;i++) s+=`<g transform="translate(${i*120} ${up})">${base}${LVL_UP(lv)}</g>`;
+  return `<svg class="decor" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${s}</svg>`;
+}
 function roomHTML(k){
-  const r=S.rooms[k],def=ROOMS[r.type];
-  let inner=`<svg class="decor" viewBox="0 0 120 100" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${DECOR[r.type]||''}</svg><span class="shade"></span><span class="rh">${esc(def.short)}<span class="rb" data-badge="${k}"></span></span>`;
+  const r=S.rooms[k],def=ROOMS[r.type],w=rW(k),h=rH(k),lv=rL(k),sl=+k.split(':')[1];
+  let inner=`${decorSVG(r.type,w,h,lv)}<span class="shade"></span><span class="rh">${esc(w>1?def.name:def.short)}${lv>1?`<span class="stars">${'★'.repeat(lv-1)}</span>`:''}<span class="rb" data-badge="${k}"></span></span>`;
   if(r.type==='hangar'){
-    const idx=roomsOf('hangar').indexOf(k);
-    const vs=S.vehicles.slice(idx*4,idx*4+4).map(id=>{const v=VEH.find(x=>x.id===id);return v?`<span style="${v.f?'filter:'+v.f:''}">${v.e}</span>`:''}).join('');
+    let start=0;for(const hk of roomsOf('hangar')){if(hk===k) break;start+=vehRoom(hk)}
+    const vs=S.vehicles.slice(start,start+vehRoom(k)).map(id=>{const v=VEH.find(x=>x.id===id);return v?`<span style="${v.f?'filter:'+v.f:''}">${v.e}</span>`:''}).join('');
     inner+=`<span class="park">${vs}</span>`;
   }
   inner+=crewIn(k).map(c=>personHTML(c)).join('');
   if(r.type==='cell'){
-    const idx=roomsOf('cell').indexOf(k);
-    inner+=S.jail.slice(idx*2,idx*2+2).map(p=>personHTML(p,'jailed')).join('')+'<span class="bars"></span>';
+    let start=0;for(const ck of roomsOf('cell')){if(ck===k) break;start+=2*rW(ck)}
+    inner+=S.jail.slice(start,start+2*w).map(p=>personHTML(p,'jailed')).join('')+'<span class="bars"></span>';
   }
-  return `<button class="slot room ${r.type}" data-room="${k}" aria-label="${esc(def.name)}">${inner}</button>`;
+  return `<button class="slot room ${r.type} ${h>1?'tall':''}" data-room="${k}" style="grid-column:${sl+2} / span ${w}" aria-label="${esc(def.name)}">${inner}</button>`;
 }
 function floorHTML(f){
-  let h=`<div class="floor"><div class="shaft">${floorName(f)}</div>`;
-  for(let s=0;s<3;s++){
-    const k=f+':'+s;
-    h+=S.rooms[k]?roomHTML(k):`<button class="slot slot-empty" data-empty="${k}">${icon('build')}BUILD</button>`;
-  }
-  return h+'</div>';
+  const h=(S.floorH&&S.floorH[f])||1;
+  let out=`<div class="floor" style="--fh:${h}"><button class="shaft" data-floor="${f}" aria-label="Floor ${floorName(f)}">${floorName(f)}${h>1?`<i>${h}X</i>`:''}</button>`;
+  for(let sl=0;sl<3;sl++){const k=f+':'+sl,own=owner(f,sl);
+    if(own&&own!==k) continue;
+    out+=S.rooms[k]?roomHTML(k):`<button class="slot slot-empty" data-empty="${k}" style="grid-column:${sl+2}">${icon('build')}BUILD</button>`}
+  return out+'</div>';
+}
+// rooftop crown for each base style
+function crownSVG(key){
+  const c={
+    brutal:'<rect x="20" y="40" width="260" height="34" fill="#7c7b76"/><rect x="40" y="52" width="220" height="5" fill="#2b2b2a"/><rect x="200" y="14" width="4" height="26" fill="#5e5d59"/><circle cx="202" cy="12" r="3" fill="#FF4D5E" class="pulse"/>',
+    futur:'<path d="M20 74 V50 Q150 10 280 50 V74 Z" fill="#e6edf1"/><path d="M40 56 Q150 24 260 56" stroke="#2EC4C9" stroke-width="3" fill="none" class="pulse"/><g transform="translate(220 24)"><path d="M-12 0 a12 8 0 0 0 24 0z" fill="#c9d1d9"/><rect x="-1.5" y="0" width="3" height="14" fill="#8A939E"/></g>',
+    vintage:'<rect x="20" y="46" width="260" height="28" fill="#8a4a32"/><rect x="16" y="42" width="268" height="6" fill="#c9a36a"/><g transform="translate(60 4)"><rect x="0" y="10" width="34" height="24" rx="4" fill="#6a4a32"/><path d="M-4 10 H38 L17 0Z" fill="#5a3a26"/><rect x="4" y="34" width="3" height="5" fill="#4a3326"/><rect x="27" y="34" width="3" height="5" fill="#4a3326"/></g><text x="168" y="36" font-family="Georgia,serif" font-style="italic" font-weight="700" font-size="24" fill="#ff6fae" style="filter:drop-shadow(0 0 4px #ff6fae)">Based</text>',
+    antique:'<rect x="30" y="54" width="240" height="20" fill="#d8cbb0"/><path d="M24 54 H276 L270 48 H30Z" fill="#b08a3a"/><path d="M96 48 Q150 -8 204 48Z" fill="#5f9e8a"/><path d="M108 48 Q150 4 192 48" stroke="#8fc9b4" fill="none" stroke-width="2"/><rect x="146" y="2" width="8" height="12" fill="#b08a3a"/><circle cx="150" cy="3" r="3" fill="#d4af37"/>',
+    modern:'<path d="M20 74 V60 Q60 20 150 18 Q240 20 280 60 V74Z" fill="#1f4656"/><path d="M40 62 Q80 30 150 28 Q220 30 260 62" stroke="#7FF0F3" fill="none" stroke-width="1.6"/><ellipse cx="150" cy="12" rx="40" ry="6" fill="none" stroke="#7FF0F3" stroke-width="2" class="pulse"/><path d="M150 12 V18" stroke="#7FF0F3"/>',
+    luxe:'<rect x="24" y="52" width="252" height="22" rx="10" fill="#faf7f0"/><rect x="24" y="52" width="252" height="3" fill="#d4af37"/><rect x="62" y="44" width="176" height="8" rx="4" fill="#3fb4dc"/><path d="M66 46 H234" stroke="#fff" opacity=".6"/><rect x="38" y="38" width="3" height="14" fill="#6a4a32"/><circle cx="40" cy="36" r="10" fill="#4f9a5c"/><rect x="260" y="36" width="3" height="16" fill="#6a4a32"/><circle cx="262" cy="34" r="12" fill="#4f9a5c"/><path d="M120 44 L128 24 L150 34 L172 24 L180 44Z" fill="#d4af37"/>',
+    billion:'<rect x="0" y="46" width="300" height="28" fill="#4a4a47"/><rect x="0" y="46" width="300" height="3" fill="#d4af37"/><rect x="90" y="22" width="120" height="24" fill="#3e3e3c"/><ellipse cx="150" cy="20" rx="46" ry="7" fill="#2e2e2c"/><circle cx="150" cy="20" r="11" fill="none" stroke="#FFC845" stroke-width="1.4"/><text x="145.5" y="24.5" font-size="12" font-weight="700" fill="#FFC845">H</text><rect x="250" y="8" width="3" height="38" fill="#d4af37"/><circle cx="251.5" cy="6" r="3" fill="#FF4D5E" class="pulse"/>'
+  }[key];
+  return `<svg class="crown" viewBox="0 0 300 74" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${c}</svg>`;
 }
 function turretHTML(i){
   const t=S.turrets[i],x=PAD_X[i]*100;
@@ -787,8 +854,8 @@ function expandCost(){return 50000+25000*Math.max(0,S.up+S.down-3)}
 function renderWorld(){
   const w=$('#world');
   let h=`<canvas id="bg"></canvas><div class="layer sky pad-x">`;
-  h+=S.up<5?`<div class="expand"><button data-expand="up">▲ BUILD UP · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
-  h+='<div class="tower">';
+  h+=S.up<maxFloors()?`<div class="expand"><button data-expand="up">▲ BUILD UP · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
+  h+=crownSVG(eraOf(level()).key)+'<div class="tower">';
   for(let f=S.up;f>=1;f--) h+=floorHTML(f);
   h+=`</div></div><div class="layer surface" id="surface">
     <div class="sign">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door"></div>
@@ -797,16 +864,16 @@ function renderWorld(){
   h+=`<div class="layer under pad-x"><div class="bunker">`;
   for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
   h+='</div>';
-  h+=S.down<5?`<div class="expand"><button data-expand="down">▼ DIG DOWN · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
+  h+=S.down<maxFloors()?`<div class="expand"><button data-expand="down">▼ DIG DOWN · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
   h+='</div>';
-  w.innerHTML=h;
+  w.innerHTML=h;w.dataset.era=eraOf(level()).key;attachTur3D();
   if(B){const box=$('#enemies');B.enemies.forEach(e=>{if(e.el)box.appendChild(e.el)});renderShield()}
   S.crew.forEach(c=>{if(c.flashUntil&&c.flashUntil>Date.now()) flashCoat(c.id)});
   paintWorld();
   updateHUD(true);
 }
 let lastW=0;
-window.addEventListener('resize',()=>{const w=$('#world');if(S&&w&&w.clientWidth!==lastW){lastW=w.clientWidth;paintWorld()}});
+window.addEventListener('resize',()=>{const w=$('#world');if(S&&w&&w.clientWidth!==lastW){lastW=w.clientWidth;paintWorld();if(T3&&$('#surface')) syncTur3D()}});
 function scrollToSurface(smooth){
   const s=$('#surface'),wrap=$('#wrap'); if(!s) return;
   wrap.scrollTo({top:s.offsetTop-wrap.clientHeight/2+s.offsetHeight/2,behavior:smooth?'smooth':'auto'});
@@ -820,8 +887,8 @@ function updateHUD(full){
   if(full&&cmd) $('#h-avatar').innerHTML=personSVG(cmd,'9 1 22 24');
   $('#h-lv').textContent='LV '+level();
   $('#h-name').textContent=S.cmd.name;
-  $('#h-place').textContent=FACTIONS[S.faction].name+' · '+FACTIONS[S.faction].place;
-  $('#h-xp').style.width=(level()>=5?100:(S.xp%150)/150*100)+'%';
+  $('#h-place').textContent=eraOf(level()).name+' · '+FACTIONS[S.faction].place;
+  const li=levelInfo();$('#h-xp').style.width=(li.L>=100?100:li.into/li.need*100)+'%';
   $('#h-cr').textContent=money(S.res.credits);
   $('#h-food').textContent=fmt(S.res.food); setBar('#hb-food',S.res.food,foodMax());
   $('#h-pow').textContent=fmt(S.res.power); setBar('#hb-pow',S.res.power,powMax());
@@ -940,9 +1007,9 @@ function assignSheet(id){
   const c=S.crew.find(x=>x.id===id);
   const keys=Object.keys(S.rooms).filter(k=>k!==c.room).sort((a,b)=>(+b.split(':')[0])-(+a.split(':')[0]));
   const items=keys.map(k=>{
-    const def=ROOMS[S.rooms[k].type],n=crewIn(k).length,full=n>=def.cap;
+    const def=ROOMS[S.rooms[k].type],n=crewIn(k).length,full=n>=roomCap(k);
     return `<button class="li" data-act="assign-to" data-id="${id}" data-k="${k}" ${full?'disabled':''}><span style="font-size:22px">${def.icon}</span>
-      <span class="grow"><b>${esc(def.name)} · ${floorName(+k.split(':')[0])}</b><span>${n}/${def.cap} crew · makes them a ${esc(def.cls)}</span></span>${full?'<span class="tag bad">FULL</span>':''}</button>`}).join('');
+      <span class="grow"><b>${esc(def.name)} · ${floorName(+k.split(':')[0])}</b><span>${n}/${roomCap(k)} crew · makes them a ${esc(def.cls)}</span></span>${full?'<span class="tag bad">FULL</span>':''}</button>`}).join('');
   openSheet('Assign '+esc(c.name),`<div class="list">${items}${c.room?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span style="font-size:22px">🚪</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
 }
 function crewList(){
@@ -1022,12 +1089,24 @@ function roomSheet(k){
   const list=people.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))}</span></span></button>`).join('')||'<div class="muted">Nobody works here yet.</div>';
   const free=S.crew.filter(c=>!c.isCmd&&c.room!==k);
   let extra='';
+  const lv=rL(k),upCost=Math.round((def.cost||50000)*lv*.8),lock=level()<lv*3;
+  const [fl,sl]=k.split(':').map(Number),w=rW(k),canR=sl+w<=2&&!owner(fl,sl+w),canL=sl>0&&!owner(fl,sl-1),expCost=Math.round((def.cost||60000)*.75);
+  const upHTML=`<div class="label">Room upgrades</div><div class="grid2">
+    <button class="opt" data-act="rlvl" data-k="${k}" ${lv>=5||lock||S.res.credits<upCost?'disabled':''}><b>★ Upgrade to Level ${Math.min(5,lv+1)}</b><span>+25% output and fancier decor.</span><span class="cost">${lv>=5?'MAX LEVEL':lock?'Needs base Level '+(lv*3):money(upCost)}</span></button>
+    <button class="opt" data-act="rwide" data-k="${k}" data-dir="${canR?'r':'l'}" ${w>=3||!(canR||canL)||S.res.credits<expCost?'disabled':''}><b>↔ Expand to ${Math.min(3,w+1)} wide</b><span>${w>=3?'As wide as it gets.':(canR||canL)?'Knock down the wall to the empty spot next door. More crew and storage.':'Needs an empty spot right next to it.'}</span><span class="cost">${w>=3?'MAX':money(expCost)}</span></button></div>
+    <div class="muted" style="font-size:12px">Tap the floor number on the left to raise the ceiling (double height at Level 3, triple at Level 10).</div>`;
   if(r.type==='hangar') extra=`<button class="btn primary" data-act="hangar">${icon('plane')} OPEN HANGAR · LAUNCH MISSIONS</button>`;
   if(r.type==='cell'&&S.jail.length) extra=`<div class="label">Prisoners</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Tap to talk</span></span></button>`).join('')}</div>`;
   openSheet(def.icon+' '+esc(def.name),`<div class="muted">${esc(def.desc)}</div>
-    <div class="label">Crew ${people.length}/${def.cap}</div><div class="list">${list}</div>
-    ${people.length<def.cap&&free.length?`<div class="label">Add someone</div><div class="list">${free.slice(0,8).map(c=>`<button class="li" data-act="assign-to" data-id="${c.id}" data-k="${k}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${c.room?'Now in '+esc(ROOMS[S.rooms[c.room].type].name):'In the lobby'}</span></span></button>`).join('')}</div>`:''}
-    ${extra}`);
+    <div class="label">Crew ${people.length}/${roomCap(k)}</div><div class="list">${list}</div>
+    ${people.length<roomCap(k)&&free.length?`<div class="label">Add someone</div><div class="list">${free.slice(0,8).map(c=>`<button class="li" data-act="assign-to" data-id="${c.id}" data-k="${k}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${c.room?'Now in '+esc(ROOMS[S.rooms[c.room].type].name):'In the lobby'}</span></span></button>`).join('')}</div>`:''}
+    ${upHTML}${extra}`);
+}
+function floorSheet(f){
+  const h=(S.floorH[f])||1,lv=level();
+  const opts=[[2,3,75000,'Double height ceiling'],[3,10,300000,'Triple height mega floor']];
+  const items=opts.map(([nh,need,cost,name])=>{const done=h>=nh,lock=lv<need,poor=S.res.credits<cost;return `<button class="opt ${done?'on':''}" data-act="raise" data-f="${f}" data-h="${nh}" data-cost="${cost}" ${done||lock||poor||h!==nh-1?'disabled':''}><b>${name}</b><span>Every room on this floor gets ${nh} times taller. +20% output per extra story, plus more crew and parking.</span><span class="cost">${done?'BUILT':lock?'Needs base Level '+need:money(cost)}</span></button>`}).join('');
+  openSheet('Floor '+floorName(f),`<div class="muted">Ceiling height: ${h===1?'standard':h+' stories'}.</div><div class="grid2">${items}</div>`);
 }
 function turretSheet(i){
   const t=S.turrets[i],lv=level();
@@ -1138,7 +1217,7 @@ function missionSheet(vid){
 // ---------- battle ----------
 function makeWave(){
   const lv=level(),pool=ENEMIES[biome()].filter(e=>!e.min||lv>=e.min);
-  const n=3+lv+ri(0,1);
+  const n=3+Math.min(7,Math.floor(lv/4))+ri(0,1);
   return Array.from({length:n},()=>pick(pool));
 }
 let pendingWave=null;
@@ -1161,7 +1240,7 @@ function startBattle(wave,paid){
   B={W,shield:100,enemies:[],tracers:[],last:performance.now(),cds:[0,0,0,0],dcd:0,over:false};
   wave.forEach((d,i)=>{
     const left=i%2===0;
-    B.enemies.push({d,hp:d.hp*(1+.25*(lv-1)),max:d.hp*(1+.25*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
+    B.enemies.push({d,hp:d.hp*(1+.06*(lv-1)),max:d.hp*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
   });
   renderShield();
   requestAnimationFrame(battleLoop);
@@ -1197,6 +1276,7 @@ function battleLoop(now){
     B.cds[i]=d.rate; hit(best,d.dmg*(1+.5*(t.lvl-1)),{x:px,y:py},t.type==='net'?'#2EC4C9':t.type==='laser'?'#3A8DDE':'#FFC845');
     if(d.slow) best.slow=1.6;
     const el=document.querySelector(`.tpad[data-pad="${i}"]`); if(el){const a=Math.atan2((H-38)-py,best.x-px)*180/Math.PI; el.style.setProperty('--a',a+'deg')}
+    tur3dFire(i,best.x,33);
   });
   const defs=S.crew.filter(c=>c.room&&S.rooms[c.room].type==='barracks'&&!c.hurt);
   B.dcd-=dt;
@@ -1221,7 +1301,7 @@ function endBattle(won){
   S.nextRaid=S.t+ri(200,280);
   let body;
   if(won){
-    const cr=8000+4000*level()+ri(0,3000); S.res.credits+=cr; S.xp+=50; S.wins++;
+    const cr=8000+1500*level()+ri(0,3000); S.res.credits+=cr; S.xp+=50; S.wins++;
     S.crew.forEach(c=>c.xp+=20);
     let veh='';
     if(Math.random()<.3&&S.vehicles.length<vehCap()){
@@ -1787,7 +1867,7 @@ function finishMission(won){
     if(won){
       const key=mk+':'+v.cat;S.found=S.found||{};const firstTime=!S.found[key];S.found[key]=true;
       const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*stops;
-      const cr=base+1500*ko+(firstTime?25000:0);S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
+      const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0);S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
       const detail=type==='strike'?`<div class="stat"><span class="label">Targets</span><b>${hits}</b></div>`:type==='recon'?`<div class="stat"><span class="label">Photos</span><b>${photos}</b></div>`:`<div class="stat"><span class="label">Rings</span><b>${stops}</b></div>`;
       openSheet('Mission complete!',`<div class="big-emoji">${firstTime?'🗺️':'🏁'}</div>
@@ -1810,6 +1890,101 @@ function closeMission(){
   const r=$('#mission');r.hidden=true;r.innerHTML='';document.body.classList.remove('in-mission');
 }
 
+// ---------- 3D turrets on the surface ----------
+let T3=null;
+function eraLadder(){const L=level(),cur=eraOf(L),nx=ERAS.find(e=>e.min>L);
+  return `<div class="label">Base style · Level ${L} of 100</div><div class="era-list">${ERAS.map(e=>`<div class="${e===cur?'on':e===nx?'next':''}"><span>${esc(e.name)}</span><span>Lv ${e.min}+</span></div>`).join('')}</div>`}
+function buildTurret(T,type,lvl){
+  const G=new T.Group(),m=c=>toonMat(T,c),add=(par,g,mm,x,y,z)=>{const o=new T.Mesh(g,mm);o.position.set(x||0,y||0,z||0);par.add(o);return o};
+  const glow=new T.MeshBasicMaterial({color:type==='laser'?0x3a8dde:type==='net'?0x2ec4c9:0xffc845,transparent:true,opacity:.9});
+  G.rotation.x=.3;
+  add(G,new T.CylinderGeometry(15,18,7,6),m(0x3a4149),0,3.5,0);
+  add(G,new T.CylinderGeometry(12,14,5,6),m(0x6a7480),0,9,0);
+  const ring=add(G,new T.TorusGeometry(12.5,1,6,24),glow,0,11.6,0);ring.rotation.x=Math.PI/2;
+  add(G,new T.CylinderGeometry(4.5,6,8,12),m(0x8a939e),0,15,0);
+  const head=new T.Group();head.position.y=22;G.add(head);
+  const pitch=new T.Group();head.add(pitch);
+  const U={head,pitch,ring};
+  const barrel=(len,r,x,y,z,mm)=>{const b=add(pitch,new T.CylinderGeometry(r,r*1.1,len,10),mm||m(0x2b3036),x+len/2,y,z);b.rotation.z=-Math.PI/2;return b};
+  let tip=20;
+  if(type==='auto'){
+    const h=add(pitch,new T.SphereGeometry(9,18,12),m(0xc9d1d9));h.scale.set(1.25,.85,1);
+    add(pitch,new T.BoxGeometry(6,1.6,17),glow,4,1.5,0);
+    if(lvl===1){barrel(14,1.5,8,0,3.2);barrel(14,1.5,8,0,-3.2);tip=23}
+    else{const sp=new T.Group();sp.position.x=10;pitch.add(sp);
+      for(let a=0;a<6;a++){const b=new T.Mesh(new T.CylinderGeometry(1.1,1.1,16,8),m(0x2b3036));b.rotation.z=-Math.PI/2;b.position.set(8,Math.cos(a)*2.8,Math.sin(a)*2.8);sp.add(b)}
+      add(sp,new T.CylinderGeometry(4,4,2,12).rotateZ(Math.PI/2),m(0x8a939e),16,0,0);U.spin=sp;tip=28}
+    if(lvl>=3){[-1,1].forEach(sd=>add(pitch,new T.BoxGeometry(12,10,1.6),m(0x4a525c),-1,0,sd*9.4));add(pitch,new T.BoxGeometry(4,3,4),m(0x2b3036),-2,8,0);add(pitch,new T.SphereGeometry(1.2,8,6),new T.MeshBasicMaterial({color:0xff4d5e}),-2,10,0)}
+  } else if(type==='net'){
+    add(pitch,new T.BoxGeometry(10,8,10),m(0x3a4149),-5,0,0);
+    barrel(10,2.2,0,0,0,m(0x4a525c));
+    const d=add(pitch,new T.SphereGeometry(11,20,10,0,Math.PI*2,0,Math.PI/2.6),m(0x8a939e),4,0,0);d.rotation.z=-Math.PI/2;
+    add(pitch,new T.SphereGeometry(3.2,12,10),glow,6,0,0);
+    if(lvl>=2){[-1,1].forEach(sd=>{const pr=add(pitch,new T.CylinderGeometry(.6,.6,12,6),m(0x2b3036),10,sd*5,0);pr.rotation.z=-Math.PI/2})}
+    if(lvl>=3){const r2=add(pitch,new T.TorusGeometry(9,.8,6,24),glow,9,0,0);r2.rotation.y=Math.PI/2}
+    tip=16;
+  } else {
+    add(pitch,new T.BoxGeometry(10,9,11),m(0x3a4149),-5,0,0);
+    const body=add(pitch,new T.CylinderGeometry(4.5,5.5,20,6),m(0xe6edf1),6,0,0);body.rotation.z=-Math.PI/2;
+    for(let i=0;i<lvl+1;i++){const c=add(pitch,new T.TorusGeometry(5.6,.9,6,18),glow,2+i*5,0,0);c.rotation.y=Math.PI/2}
+    U.crystal=add(pitch,new T.OctahedronGeometry(4.2,0),new T.MeshBasicMaterial({color:0x9ff6f8}),19,0,0);tip=24;
+  }
+  const fl=add(pitch,new T.SphereGeometry(type==='laser'?5:4,10,8),new T.MeshBasicMaterial({color:type==='laser'?0x9ff6f8:type==='net'?0x7ff0f3:0xffe27a,transparent:true,opacity:.9}),tip,0,0);fl.visible=false;U.flash=fl;
+  G.userData=U;return G;
+}
+function initTur3D(){
+  loadThree().then(()=>{
+    if(T3) return;const T=window.THREE;
+    const cv=document.createElement('canvas');cv.id='tur3d';
+    const renderer=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+    const scene=new T.Scene();scene.add(new T.HemisphereLight(0xe6f4ff,0x5a4a3a,.8));const d=new T.DirectionalLight(0xfff1d6,.9);d.position.set(-.4,1,1);scene.add(d);
+    const cam=new T.OrthographicCamera(0,100,100,0,-400,400);cam.position.z=200;
+    T3={T,cv,renderer,scene,cam,units:[null,null,null,null],W:0,H:0,last:performance.now(),acc:0};
+    attachTur3D();requestAnimationFrame(tur3dLoop);
+  }).catch(()=>{});
+}
+function attachTur3D(){
+  if(!T3) return;const s=$('#surface');if(!s) return;
+  if(T3.cv.parentNode!==s) s.appendChild(T3.cv);s.classList.add('t3on');syncTur3D();
+}
+function syncTur3D(){
+  const s=$('#surface');if(!s) return;const W=s.clientWidth,H=s.clientHeight;
+  if(W!==T3.W||H!==T3.H){T3.W=W;T3.H=H;T3.renderer.setSize(W,H,false);Object.assign(T3.cam,{left:0,right:W,top:H,bottom:0});T3.cam.updateProjectionMatrix()}
+  S.turrets.forEach((t,i)=>{
+    const key=t?t.type+t.lvl:'',u=T3.units[i];
+    if(u&&u.key===key){u.g.position.x=PAD_X[i]*W;return}
+    if(u){T3.scene.remove(u.g);u.g.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+    T3.units[i]=null;if(!t) return;
+    const g=buildTurret(T3.T,t.type,t.lvl);g.position.set(PAD_X[i]*W,24,0);g.scale.setScalar(.95);T3.scene.add(g);
+    const face=i<2?Math.PI:0;
+    T3.units[i]={key,g,face,yaw:face,aimYaw:face,pitch:.15,aimPitch:.15,flash:0,lastFire:-99,recoil:0};
+  });
+}
+function tur3dFire(i,tx,ty){
+  const u=T3&&T3.units[i];if(!u) return;
+  const dx=tx-PAD_X[i]*T3.W;
+  u.aimYaw=dx>=0?-.35:Math.PI+.35;u.aimPitch=clamp(Math.atan2(ty-46,Math.abs(dx)||1),-.4,.8);
+  u.flash=.07;u.lastFire=performance.now()/1000;u.recoil=1;
+}
+function tur3dLoop(now){
+  if(!T3) return;requestAnimationFrame(tur3dLoop);
+  const dt=Math.min(.1,(now-T3.last)/1000);T3.last=now;T3.acc+=dt;
+  if(M||document.hidden||!T3.cv.isConnected||T3.acc<1/30) return;
+  const step=T3.acc;T3.acc=0;
+  T3.units.forEach((u,i)=>{if(!u) return;const U=u.g.userData;
+    const firing=now/1000-u.lastFire<1.2;
+    if(!firing){u.aimYaw=(u.face===0?-.35:Math.PI+.35)+Math.sin(now/1400+i)*.35;u.aimPitch=.12+Math.sin(now/900+i)*.06}
+    u.yaw+=(u.aimYaw-u.yaw)*Math.min(1,step*8);u.pitch+=(u.aimPitch-u.pitch)*Math.min(1,step*8);
+    U.head.rotation.y=u.yaw;U.pitch.rotation.z=u.pitch;
+    u.recoil=Math.max(0,u.recoil-step*8);U.pitch.position.x=-u.recoil*2;
+    if(U.spin) U.spin.rotation.x+=step*(firing?28:2);
+    if(U.crystal){U.crystal.rotation.x+=step*2;U.crystal.scale.setScalar(1+Math.sin(now/200)*.12)}
+    u.flash-=step;U.flash.visible=u.flash>0;
+    U.ring.material.opacity=.55+Math.sin(now/400+i)*.3;
+  });
+  T3.renderer.render(T3.scene,T3.cam);
+}
+
 // ---------- arrivals + clock ----------
 function arrival(forceClone){
   if(S.crew.length>=crewCap()){ advise('beds','A recruit wanted to join but there are no bunks. Build Sleeping Quarters!'); return false }
@@ -1826,6 +2001,12 @@ function tick(){
   S.t++;
   const r=S.res;
   let grew=false;
+  S.xp+=.25;
+  {const L=level();if(S.lastLv===undefined) S.lastLv=L;
+    if(L>S.lastLv){const oe=eraOf(S.lastLv),ne=eraOf(L);S.lastLv=L;
+      toast(`Base Level ${L}!`+(L===3?' Double height ceilings unlocked: tap a floor number.':L===10?' Triple height mega floors unlocked!':''),'ok');
+      if(ne!==oe) setTimeout(()=>toast(`New base style unlocked: ${ne.name}!`,'ok'),900);
+      if((ne!==oe||L%10===0)&&!M) renderWorldSoon()}}
   for(const k of Object.keys(S.rooms)){
     const def=ROOMS[S.rooms[k].type];
     if(def.prod) r[def.prod]+=roomRate(k);
@@ -1868,6 +2049,7 @@ let rwTimer=null; function renderWorldSoon(){ clearTimeout(rwTimer); rwTimer=set
 
 // ---------- input ----------
 $('#world').addEventListener('click',e=>{
+  const fb=e.target.closest('[data-floor]'); if(fb){floorSheet(+fb.dataset.floor);return}
   const p=e.target.closest('.person'); if(p&&!p.classList.contains('jailed')){crewCard(+p.dataset.cid);return}
   const room=e.target.closest('[data-room]'); if(room){roomSheet(room.dataset.room);return}
   const emp=e.target.closest('[data-empty]'); if(emp){buildSheet(emp.dataset.empty);return}
@@ -1888,14 +2070,19 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='equip'){const c=S.crew.find(x=>x.id===id),d=(b.dataset.kind==='outfit'?OUTFITS:WEAPONS)[b.dataset.key];if(S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech))return;S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;c[b.dataset.kind]=b.dataset.key;renderWorld();save();toast(`${c.name} equipped the ${d.name}!`,'ok');gearSheet(id)}
   else if(a==='rename') renameSheet(id);
   else if(a==='rename-save'){const c=S.crew.find(x=>x.id===id);const v=$('#rn').value.trim();if(v){c.name=v.slice(0,18);if(c.isCmd)S.cmd.name=c.name}renderWorld();save();crewCard(id,'Nice. I like my new name!')}
-  else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=ROOMS[S.rooms[k].type].cap)return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
+  else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=roomCap(k))return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
   else if(a==='identify') identify(id);
   else if(a==='clone') resolveClone(id,b.dataset.how);
   else if(a==='talk-ans'){const fromJail=b.dataset.jail==='1';const c=fromJail?S.jail.find(x=>x.id===id):S.crew.find(x=>x.id===id);talkStep(c,+b.dataset.step+1,+b.dataset.score,fromJail)}
   else if(a==='prisoner'){const p=S.jail.find(x=>x.id===id);if(p) talkStep(p,0,0,true)}
-  else if(a==='build'){const t=b.dataset.t,d=ROOMS[t];if(S.res.credits<d.cost)return;S.res.credits-=d.cost;S.rooms[b.dataset.k]={type:t};S.xp+=10;closeSheet();renderWorld();save();toast(`${d.name} built! Tap it to add crew.`,'ok')}
+  else if(a==='build'){const t=b.dataset.t,d=ROOMS[t];if(S.res.credits<d.cost)return;S.res.credits-=d.cost;S.rooms[b.dataset.k]={type:t,w:1,lvl:1};S.xp+=10;closeSheet();renderWorld();save();toast(`${d.name} built! Tap it to add crew.`,'ok')}
   else if(a==='turret'){const d=TURRETS[b.dataset.t];S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;S.turrets[+b.dataset.i]={type:b.dataset.t,lvl:1};closeSheet();renderWorld();save();toast(d.name+' ready!','ok')}
   else if(a==='upgrade'){const t=S.turrets[+b.dataset.i],cost=TURRETS[t.type].cost*t.lvl;if(S.res.credits<cost)return;S.res.credits-=cost;t.lvl++;renderWorld();save();turretSheet(+b.dataset.i)}
+  else if(a==='raise'){const f=+b.dataset.f,cost=+b.dataset.cost;if(S.res.credits<cost)return;S.res.credits-=cost;S.floorH[f]=+b.dataset.h;S.xp+=20;renderWorld();save();toast(`Floor ${floorName(f)} is now ${b.dataset.h} stories tall!`,'ok');floorSheet(f)}
+  else if(a==='rlvl'){const k=b.dataset.k,r=S.rooms[k],cost=Math.round((ROOMS[r.type].cost||50000)*rL(k)*.8);if(S.res.credits<cost)return;S.res.credits-=cost;r.lvl=rL(k)+1;S.xp+=15;renderWorld();save();toast(`${ROOMS[r.type].name} upgraded to Level ${r.lvl}!`,'ok');roomSheet(k)}
+  else if(a==='rwide'){let k=b.dataset.k;const r=S.rooms[k],cost=Math.round((ROOMS[r.type].cost||60000)*.75);if(S.res.credits<cost)return;S.res.credits-=cost;r.w=rW(k)+1;
+    if(b.dataset.dir==='l'){const [f,sl]=k.split(':').map(Number),nk=f+':'+(sl-1);S.rooms[nk]=r;delete S.rooms[k];S.crew.forEach(c=>{if(c.room===k)c.room=nk});k=nk}
+    S.xp+=15;renderWorld();save();toast(`${ROOMS[r.type].name} expanded to ${r.w} wide!`,'ok');roomSheet(k)}
   else if(a==='hangar') hangarSheet();
   else if(a==='htab'){hangarTab=b.dataset.t;hangarSheet()}
   else if(a==='show') showroomSheet(b.dataset.v);
@@ -1914,7 +2101,7 @@ $('#b-hangar').onclick=hangarSheet;
 $('#b-battle').onclick=battlePreview;
 $('#b-recruit').onclick=()=>{ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; arrival(false) };
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  <div class="muted" style="font-size:12px">BASED prototype v0.3. Your game saves on this device automatically.</div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.4. Your game saves on this device automatically.</div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
@@ -1938,10 +2125,11 @@ $('#found').onclick=()=>{
 
 function startGame(fresh){
   $('#setup').hidden=true; $('#game').hidden=false;
-  S.found=S.found||{};S.upg=S.upg||{};
+  S.found=S.found||{};S.upg=S.upg||{};S.floorH=S.floorH||{};
   renderWorld(); lastW=$('#world').clientWidth; requestAnimationFrame(()=>{paintWorld();scrollToSurface(false)});
   if(fresh){ toast(`Welcome, ${S.cmd.name}! Tap rooms, crew, and the build spots.`,'ok'); setTimeout(()=>toast('Open the Hangar, tap a vehicle to see it in 3D, then launch a mission!'),4000) }
   setInterval(tick,1000);
+  initTur3D();
 }
 
 const saved=load();

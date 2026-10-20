@@ -217,3 +217,11 @@ Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.
 4. **Realistic money:** prices close to real life (Mustang $42K, Cybertruck $80K, Cessna 182 $450K, L-39 trainer jet $380K, F-16 $28M, F-22 $150M). Earnings in the thousands to tens of thousands. Battles can drop vehicles the raiders leave behind.
 5. **Mission types:** armed vehicles fly or drive Strike Runs (shoot road blocks, radar dishes, supply balloons). Unarmed aircraft like the Cessna fly Recon (line up camps in the camera frame and snap photos). The Cybertruck can buy a Roof Zapper upgrade to unlock Strike Runs.
 6. **3D upgrades:** procedural 3D models for every vehicle with a spinning showroom in the Hangar, smoother 2x terrain, layered pine trees and juniper clumps, cockpit gauges.
+
+## 20. Prototype v0.4 (built)
+
+1. **3D turrets:** a live 3D layer over the surface. Auto Turret (twin cannon, then spinning gatling, then armored with sensor), Net Turret (dish launcher with prongs and a glow ring), Laser Turret (white emitter with glowing coils and a spinning crystal). Barrels track raiders, recoil, and flash.
+2. **Levels 1 to 100:** quick early levels (about 35 XP for level 2), passive XP over time, plus XP from building, upgrading, battles, missions and clones. Unlocks spread out (Holding Cell 4, Clone Lab 6, Laser Turret 5, jets 8 to 20).
+3. **Base styles:** Minimalist Brutalist (1), Standard Futuristic (10), Vintage Mid-Century (20), Antique Grand (35), Ultra Modern (50), Luxury Futuristic (70), Brutalist Billionaire (85). Each changes the tower walls, rooftop crown, door and sign.
+4. **Bigger rooms:** expand any room to 2 or 3 slots wide. Raise a floor's ceiling to double height at level 3 and triple height mega floors at level 10 (tap the floor number). Tall rooms get windows, catwalks and lamps.
+5. **Room levels 1 to 5:** +25% output each; decor grows from plant and poster, to neon trim, to gold frame and rug, to a floating hologram crest.
