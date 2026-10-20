@@ -14,7 +14,7 @@ BASED is a kid-friendly (age 9+) mobile base builder, side view like Fallout She
 - Side view facing RIGHT for characters, enemies and vehicles (the game flips them when needed).
 
 ## 3. Do this first: one style sheet
-Before the full list, generate ONE character style sheet (the Commander, three poses) and approve it. Then reuse that image as the reference for every later prompt so the whole set looks like one artist made it. Consistency is the hardest part, so lock it early.
+Before the full list, generate ONE character style sheet (the Commander, three poses) and approve it. Approved: `art/reference/style_sheet_teal_m.png` is the male Commander and `art/reference/style_sheet_orange_f.png` is the female Commander. Then reuse that image as the reference for every later prompt so the whole set looks like one artist made it. Consistency is the hardest part, so lock it early.
 
 ## 4. Asset list
 

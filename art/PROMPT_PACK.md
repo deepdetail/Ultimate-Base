@@ -5,11 +5,11 @@ How to use: open ONE ChatGPT chat for all characters. Upload both approved style
 ## STYLE LOCK (paste first, once)
 > These two character sheets are the approved art style for my kids' mobile game BASED. Keep this exact style for everything I ask next: realistic anime, adult proportions, detailed cel shading, gunmetal black and white clothing with one accent color, light from the upper left. Rules for every image: one character only, single full body pose, standing in a relaxed ready stance, body turned three quarters toward the RIGHT, empty hands (no weapon, weapons are added by the game), full body visible from hair to boots with a little space around it, plain solid pure green background (#00FF00) with no shadow on the ground, no checkerboard, no text, no logos, no borders, no panels. Portrait images: head and shoulders only, same green background. Kid-friendly: no blood, no scars that look like injuries, no real-world military insignia.
 
-## 1. Convert the two approved sheets into game sprites
-- `char_tactical_teal_01.png`: "Draw the teal character from sheet 1 as a single game sprite following the rules. Tactical Gear outfit, teal accents."
-- `portrait_tactical_teal_01.png`: "Head and shoulders portrait of that same teal character, looking slightly right, confident."
-- `char_tactical_orange_01.png`: "Draw the orange character from sheet 2 as a single game sprite following the rules. Tactical Gear outfit, orange accents."
-- `portrait_tactical_orange_01.png`: "Head and shoulders portrait of that same orange character."
+## 1. Commander (male and female): convert the two approved sheets into game sprites
+- `char_commander_m_01.png`: "Draw the teal character from sheet 1 as a single game sprite following the rules. Tactical Gear outfit, teal accents."
+- `portrait_commander_m_01.png`: "Head and shoulders portrait of that same teal character, looking slightly right, confident."
+- `char_commander_f_01.png`: "Draw the orange character from sheet 2 as a single game sprite following the rules. Tactical Gear outfit, orange accents."
+- `portrait_commander_f_01.png`: "Head and shoulders portrait of that same orange character."
 
 ## 2. New crew, one per outfit (mixed physiques, mixed backgrounds)
 For each, ask for the sprite, then: "Now the head and shoulders portrait of the same character." Save as `portrait_...` with the matching name.
@@ -21,9 +21,9 @@ For each, ask for the sprite, then: "Now the head and shoulders portrait of the 
 - `char_gi_intermediate_02.png`: "A young woman with a high white ponytail and light olive skin, wearing a white and black ninja gi with teal sash. Intermediate physique."
 
 ## 3. Physique ladder (same person, three builds)
-Use the teal character so the game can show training progress:
-- `char_tactical_teal_novice.png`: "Same teal character, but a Novice physique: noticeably slimmer arms and shoulders, same outfit."
-- `char_tactical_teal_advanced.png`: "Same teal character, but an Advanced physique: bigger shoulders, chest and arms, same outfit."
+Use the male Commander (teal) so the game can show training progress:
+- `char_commander_m_novice.png`: "Same teal character, but a Novice physique: noticeably slimmer arms and shoulders, same outfit."
+- `char_commander_m_advanced.png`: "Same teal character, but an Advanced physique: bigger shoulders, chest and arms, same outfit."
 (The sheet you already have counts as Intermediate.)
 
 ## 4. Clones (shapeshifter bad guys)
