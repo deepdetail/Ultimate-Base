@@ -396,7 +396,9 @@ function money(n){n=Math.floor(n);const a=Math.abs(n);
   if(a>=1e5) return '$'+Math.round(n/1e3)+'K';
   return '$'+n.toLocaleString()}
 const seeded=s=>()=>((s=(s*16807)%2147483647)-1)/2147483646;
-const KEY='based-save-v1';
+let SANDBOX=false;try{SANDBOX=location.hash==='#sandbox'||localStorage.getItem('based-mode')==='sandbox'}catch(e){SANDBOX=location.hash==='#sandbox'}
+const KEY=SANDBOX?'based-sandbox-v1':'based-save-v1';
+const CHEAT='UNLIMITED';
 const ICONS={
   cash:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/>',
   food:'<path d="M3.5 11h17a8.5 8.5 0 0 1-17 0z"/><path d="M8 7.5c0-2 2-2 2-4M13 7.5c0-2 2-2 2-4"/>',
@@ -747,7 +749,7 @@ const sumOf=(t,f)=>roomsOf(t).reduce((s,k)=>s+f(k),0);
 const roomCap=k=>ROOMS[S.rooms[k].type].cap*rW(k)+(rH(k)-1);
 const vehRoom=k=>4*rW(k)+2*(rH(k)-1);
 const crewCap=()=>2+sumOf('quarters',k=>4*rW(k)+2*(rH(k)-1));
-const vehCap=()=>sumOf('hangar',vehRoom);
+const vehCap=()=>SANDBOX?99:sumOf('hangar',vehRoom);
 const jailCap=()=>sumOf('cell',k=>2*rW(k));
 const foodMax=()=>100+sumOf('food',k=>100*rW(k));
 const powMax=()=>100+sumOf('power',k=>100*rW(k));
@@ -1110,10 +1112,10 @@ function updateHUD(full){
   $('#h-name').textContent=S.cmd.name;
   $('#h-place').textContent=eraOf(level()).name+' · '+FACTIONS[S.faction].place;
   const li=levelInfo();$('#h-xp').style.width=(li.L>=100?100:li.into/li.need*100)+'%';
-  $('#h-cr').textContent=money(S.res.credits);
+  $('#h-cr').textContent=SANDBOX?'∞ TEST':money(S.res.credits);
   $('#h-food').textContent=fmt(S.res.food); setBar('#hb-food',S.res.food,foodMax());
   $('#h-pow').textContent=fmt(S.res.power); setBar('#hb-pow',S.res.power,powMax());
-  $('#h-tech').textContent=fmt(S.res.tech);
+  $('#h-tech').textContent=SANDBOX?'∞':fmt(S.res.tech);
   $('#h-ap').innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<S.res.ap?'on':''}"></i>`).join('');
   $('#n-crew').textContent=S.crew.length+'/'+crewCap();
   $('#n-veh').textContent=S.vehicles.length+' of '+VEH.length;
@@ -2225,6 +2227,20 @@ function tur3dLoop(now){
   T3.renderer.render(T3.scene,T3.cam);
 }
 
+// ---------- sandbox (test mode) ----------
+function sandboxFill(){const r=S.res;r.credits=1e12;r.tech=Math.max(r.tech,1e6);r.ap=5;r.food=foodMax();r.power=powMax()}
+function sandboxPanel(){
+  if(!SANDBOX) return `<div class="label">Cheat code</div><div class="row"><input type="text" id="cheat" maxlength="20" placeholder="Enter code" style="flex:1 1 140px"><button class="btn" data-act="cheat">UNLOCK</button></div><div class="muted" style="font-size:11px">Codes open a separate test save, so your real base stays safe.</div>`;
+  const L=level();
+  return `<div class="label">Sandbox tools</div><div class="muted" style="font-size:12px">Unlimited cash, tech, food, power and Adventure Points. This is a separate save from your real base. Level ${L} now.</div>
+    <div class="row">${[-10,-1,1,10].map(d=>`<button class="btn" data-act="sb-lv" data-l="${L+d}">${d>0?'+':''}${d} LV</button>`).join('')}</div>
+    <div class="row">${[1,10,20,35,50,70,85,100].map(l=>`<button class="btn" style="flex:1 1 60px;padding:8px 4px" data-act="sb-lv" data-l="${l}">LV ${l}</button>`).join('')}</div>
+    <div class="row"><button class="btn" data-act="sb-veh">ALL VEHICLES</button><button class="btn" data-act="sb-max">MAX EVERYTHING</button></div>
+    <div class="row"><button class="btn" data-act="sb-gear">BEST GEAR FOR ALL</button><button class="btn" data-act="sb-clone">SEND A CLONE</button></div>
+    <div class="row"><button class="btn danger" data-act="sb-raid">START A RAID NOW</button><button class="btn" data-act="sb-wipe">RESET SANDBOX</button></div>
+    <button class="btn primary" data-act="sb-exit">BACK TO MY REAL GAME</button>`;
+}
+
 // ---------- arrivals + clock ----------
 function arrival(forceClone){
   if(S.crew.length>=crewCap()){ advise('beds','A recruit wanted to join but there are no bunks. Build Sleeping Quarters!'); return false }
@@ -2239,6 +2255,7 @@ function arrival(forceClone){
 function tick(){
   if(!S) return;
   S.t++;
+  if(SANDBOX) sandboxFill();
   const r=S.res;
   let grew=false;
   S.xp+=.25;
@@ -2339,6 +2356,17 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='m-resume'){closeSheet();if(M){M.paused=false;M.last=performance.now()}}
   else if(a==='m-quit'){closeSheet();closeMission();renderWorld()}
   else if(a==='fight'&&pendingWave){startBattle(pendingWave,true);pendingWave=null}
+  else if(a==='cheat'){const v=($('#cheat').value||'').trim().toUpperCase();if(v!==CHEAT){toast('That code does not work. Try again!','warn');return}
+    try{if(!localStorage.getItem('based-sandbox-v1')&&S){const c=JSON.parse(JSON.stringify(S));c.sandbox=true;localStorage.setItem('based-sandbox-v1',JSON.stringify(c))}localStorage.setItem('based-mode','sandbox')}catch(err){}
+    save();location.hash='sandbox';location.reload()}
+  else if(a==='sb-exit'){try{localStorage.setItem('based-mode','real')}catch(err){}save();location.hash='';location.reload()}
+  else if(a==='sb-lv'){const L=clamp(+b.dataset.l,1,100);let x=0;for(let l=1;l<L;l++)x+=xpNeed(l);S.xp=x+1;S.lastLv=L;renderWorld();save();toast(`Base set to Level ${L}.`,'ok');$('#b-gear').click()}
+  else if(a==='sb-veh'){VEH.forEach(v=>{if(!v.locked&&!S.vehicles.includes(v.id)) S.vehicles.push(v.id)});renderWorld();save();toast('Every vehicle is in your Hangar!','ok')}
+  else if(a==='sb-max'){VEH.forEach(v=>{if(v.locked) return;const u=vUp(v);u.spd=5;u.arm=5;u.wpn=v.wcap||0});S.turrets.forEach(t=>{if(t) t.lvl=TUR_MAX});Object.values(S.rooms).forEach(r=>r.lvl=5);renderWorld();save();toast('Maxed every turret, room and vehicle.','ok')}
+  else if(a==='sb-gear'){S.crew.forEach(c=>{c.weapon='rail';c.armor='nano';c.str=8});renderWorld();save();toast('Whole crew got Rail Guns and Nano Suits!','ok')}
+  else if(a==='sb-clone'){closeSheet();S.arrivals=Math.max(S.arrivals,3);S.uid++;arrival(true)}
+  else if(a==='sb-raid'){closeSheet();startBattle(makeWave(),false)}
+  else if(a==='sb-wipe'){try{localStorage.removeItem('based-sandbox-v1')}catch(err){}location.reload()}
   else if(a==='reset-yes'){try{localStorage.removeItem(KEY)}catch(err){} location.reload()}
   else if(a==='reset'){openSheet('Start over?',`<div class="muted">This erases your base, crew and hangar on this device.</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
 });
@@ -2348,7 +2376,7 @@ $('#b-battle').onclick=battlePreview;
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.4. Your game saves on this device automatically.</div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.5${SANDBOX?' · SANDBOX MODE (separate test save)':''}. Your game saves on this device automatically.</div>${sandboxPanel()}<button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
@@ -2372,7 +2400,7 @@ $('#found').onclick=()=>{
 
 function startGame(fresh){
   $('#setup').hidden=true; $('#game').hidden=false;
-  S.found=S.found||{};S.upg=S.upg||{};S.floorH=S.floorH||{};
+  S.found=S.found||{};S.upg=S.upg||{};S.floorH=S.floorH||{};if(SANDBOX){S.sandbox=true;sandboxFill()}
   renderWorld(); lastW=$('#world').clientWidth; requestAnimationFrame(()=>{paintWorld();scrollToSurface(false)});
   if(fresh){ toast(`Welcome, ${S.cmd.name}! Tap rooms, crew, and the build spots.`,'ok'); setTimeout(()=>toast('Open the Hangar, tap a vehicle to see it in 3D, then launch a mission!'),4000) }
   setInterval(tick,1000);
