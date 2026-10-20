@@ -20,7 +20,7 @@ AI images cannot produce pixel-aligned layers, so a hair overlay on a shared bod
 
 Each one also gets a `portrait_...` version. That's 6 sprites and 6 portraits, all listed in `art/CHROME_RUN.md`.
 
-`hs` changes from four values to three: `0 = Buzz`, `1 = Messy/Natural`, `2 = Ponytail`. Add a `sex` field (`m` or `f`) to the Commander so the right column is picked.
+`hs` changes from four values to three: `0 = Buzz`, `1 = Messy/Natural`, `2 = Ponytail`. The Commander's existing `c.art` field (`m` or `f`, see `CMD_ART` in `prototype/based.html`) picks the right column, so no separate field is needed.
 
 ### 2. Skin tone and hair color: runtime tint masks
 Every Commander sprite and portrait ships with a mask PNG of the same size:
