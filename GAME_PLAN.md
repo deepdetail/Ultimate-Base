@@ -185,12 +185,19 @@ Each level gets its own accent on top of the gunmetal look: rust red rock (Deser
 | 4. More levels | Months 2 to 3 | Ocean (Bahamas) and Sky (New Las Vegas), more factions |
 | 5. Store release | Months 3 to 6+ | Unity or Godot build, testing, App Store and Google Play |
 
-## 16. Open questions (round 2)
+## 16. Decisions from round 2
 
-1. Faction homes: is New United States in Moab and Independent California Republic in Tahoe and Truckee?
-2. "Sky Vegas" is the Sky faction name? (The voice note may have said "Sky Vegan.")
-3. If you IDENTIFY someone who is not a clone, what happens? (Small penalty, like they get grumpy?)
-4. What does the clone's garbled word sound like? Make up five examples.
-5. Name the first roaming faction in the Utah Badlands.
-6. Which vehicle should be the first one in the hangar on day one?
-7. The Commander: do you design your own character, and what is their name?
+1. Faction homes confirmed: New United States in Moab, Independent California Republic in Tahoe and Truckee.
+2. Wrong IDENTIFY: the innocent crew member answers with a short, mood based comeback (Warcraft 3 "yes, my lord" and SimCity advisor energy) and their mood drops.
+3. Clone garble: take a normal sentence and stretch the first or last word with extra vowels ("Nice base! Is there a job for maaeee?").
+4. First roaming faction: the Badlands Gang.
+5. Players design their own Commander (name, skin, hair, uniform).
+6. Day one vehicle: not decided yet. The prototype starts with a Cessna 182.
+
+## 17. Prototype v0.1 (built)
+
+File: `prototype/based.html`. Playable in a phone browser.
+
+Included: Commander creator, Moab or Tahoe start, cutaway base (build up, dig down), 10 room types, named crew with jobs and class tiers, food, power, credits, tech, Adventure Points, 4 turret pads (Auto, Net, Laser) with upgrades, Battle Ready plus random Badlands Gang raids (non lethal, knocked out raiders drive home), clones with all three tells, IDENTIFY, and the Exile, Jail, Cure, Recruit choices, Hangar collection (Classic and Futuristic tabs), save on device.
+
+Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.

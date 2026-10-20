@@ -1,0 +1,941 @@
+<title>BASED Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Chakra+Petch:wght@400;600;700&display=swap">
+<style>
+/* Layout: one-screen phone game. Fixed HUD on top, scrolling cutaway base in the middle (tower above, surface with turrets, bunker below), nav bar at the bottom. */
+:root{
+  --gm-950:#171A1E; --gm-900:#1E2227; --gm-800:#2B3036; --gm-700:#3A4149; --gm-600:#4A525C;
+  --steel:#8A939E; --steel-hi:#C9D1D9;
+  --teal:#2EC4C9; --teal-dim:rgba(46,196,201,.16);
+  --text:#F4F7FA; --muted:#A9B3BE;
+  --blue:#3A8DDE; --ok:#3DDC97; --warn:#FFC845; --bad:#FF4D5E; --clone:#5BE36B;
+  --coat:#A88A5C; --coat-dk:#6E5937;
+  --font-display:'Orbitron','Arial Black',system-ui,sans-serif;
+  --font-body:'Chakra Petch','Segoe UI',system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--gm-950);color:var(--text);font-family:var(--font-body);font-size:14px;overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.metal{background:linear-gradient(135deg,var(--gm-600) 0%,var(--gm-700) 42%,var(--gm-800) 100%);position:relative;overflow:hidden}
+.metal::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(201,209,217,.16) 44%,transparent 58%);pointer-events:none}
+.btn{border:1px solid rgba(201,209,217,.22);border-radius:8px;padding:10px 14px;font-weight:700;letter-spacing:.04em;background:linear-gradient(180deg,var(--gm-600),var(--gm-800))}
+.btn.primary{background:linear-gradient(180deg,#3fd6db,#1f9ea3);color:#06282a;border-color:#7ff0f3}
+.btn.danger{background:linear-gradient(180deg,#ff6b79,#c93241);color:#fff;border-color:#ff9aa4}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
+
+/* ---------- Setup screen ---------- */
+#setup{height:100%;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;background:radial-gradient(120% 60% at 50% 0%,#2a3b44 0%,var(--gm-950) 70%)}
+.setup-inner{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.logo{font-family:var(--font-display);font-weight:800;font-size:56px;letter-spacing:.14em;text-align:center;background:linear-gradient(180deg,#fff 0%,var(--steel-hi) 45%,var(--steel) 55%,#e6edf3 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(46,196,201,.45));line-height:1}
+.tagline{text-align:center;color:var(--teal);letter-spacing:.3em;font-size:12px;text-transform:uppercase;margin-top:-8px}
+.card{border-radius:12px;border:1px solid rgba(201,209,217,.14);padding:14px;display:flex;flex-direction:column;gap:10px}
+.cmd-row{display:flex;gap:14px;align-items:center}
+.portrait{width:60px;height:112px;flex:none;position:relative;border-radius:10px;background:radial-gradient(circle at 50% 70%,var(--teal-dim),transparent 70%)}
+.portrait .person{position:absolute;left:6px;top:0;bottom:auto;transform:scale(3);transform-origin:top left;animation:none;pointer-events:none}
+input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw.on{border-color:var(--teal);box-shadow:0 0 0 2px var(--gm-900),0 0 10px var(--teal)}
+.factions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fac{text-align:left;border-radius:10px;border:1px solid rgba(201,209,217,.16);padding:10px;display:flex;flex-direction:column;gap:4px;min-height:112px;background:var(--gm-800)}
+.fac b{font-family:var(--font-display);font-size:11px;letter-spacing:.06em}
+.fac span{font-size:12px;color:var(--muted)}
+.fac.on{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal),0 0 16px rgba(46,196,201,.25)}
+.fac.locked{opacity:.45;cursor:not-allowed}
+.fac .biome{font-size:22px}
+
+/* ---------- Game shell ---------- */
+#game{height:100%;display:flex;flex-direction:column}
+#hud{flex:none;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-block:8px;border-bottom:1px solid rgba(201,209,217,.14);z-index:20}
+.hud-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.hud-top .who{display:flex;align-items:baseline;gap:8px;min-width:0}
+.hud-top .who h3{font-size:16px;letter-spacing:.12em}
+#h-place{min-width:0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv{flex:none;font-family:var(--font-display);font-size:11px;color:#06282a;background:var(--teal);border-radius:4px;padding:2px 6px}
+.gear{background:none;border:1px solid rgba(201,209,217,.2);border-radius:6px;width:32px;height:28px;font-size:15px}
+.res{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chip{background:var(--gm-950);border:1px solid rgba(201,209,217,.12);border-radius:6px;padding:4px 6px;min-width:0}
+.chip .k{font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.chip .v{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:2px;transition:width .4s}
+.bar i.warn{background:var(--warn)} .bar i.bad{background:var(--bad)}
+.pips{display:flex;gap:3px;margin-top:3px}
+.pips i{width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.12)}
+.pips i.on{background:var(--teal);box-shadow:0 0 6px var(--teal)}
+
+#wrap{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch}
+#world{max-width:520px;margin:0 auto;position:relative;min-height:100%;display:flex;flex-direction:column}
+#world .under{flex:1}
+#world.desert{--sky1:#2c3e5c;--sky2:#d98a5a;--ground:#9c4f2c;--ground-hi:#c8693a;--rock1:#5a2f1d;--rock2:#3b1f14;--back:#b85a33;--back2:#8a3f22}
+#world.mountain{--sky1:#1d3557;--sky2:#8fb3cf;--ground:#e8eef3;--ground-hi:#ffffff;--rock1:#3c4652;--rock2:#232a32;--back:#4d5c6b;--back2:#2f3a46}
+.sky{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 100%)}
+.under{background:repeating-linear-gradient(160deg,rgba(0,0,0,.08) 0 6px,transparent 6px 22px),linear-gradient(180deg,var(--rock1),var(--rock2))}
+.pad-x{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.expand{display:flex;justify-content:center;padding-block:12px}
+.expand button{background:rgba(23,26,30,.55);border:1.5px dashed var(--teal);color:var(--teal);border-radius:8px;padding:8px 14px;font-weight:700;letter-spacing:.06em}
+.floor{display:grid;grid-template-columns:22px repeat(3,minmax(0,1fr));gap:4px;padding-block:3px}
+.shaft{background:linear-gradient(90deg,#1b1f24,#2b3036,#1b1f24);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:9px;color:var(--teal);writing-mode:vertical-rl;letter-spacing:.1em}
+.slot{height:92px;border-radius:7px;min-width:0}
+.slot-empty{border:1.5px dashed rgba(46,196,201,.55);background:rgba(23,26,30,.45);color:var(--teal);font-weight:700;font-size:12px;letter-spacing:.06em;width:100%}
+.room{border:1px solid rgba(201,209,217,.16);text-align:left;padding:0;width:100%}
+.room .rh{position:absolute;left:6px;top:5px;right:6px;display:flex;gap:4px;align-items:center;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden}
+.room .rh .ic{font-size:13px}
+.room .rb{position:absolute;left:6px;top:22px;font-size:10px;color:var(--teal);font-variant-numeric:tabular-nums}
+.room .rb.low{color:var(--warn)}
+.room .floorline{position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,var(--gm-950),var(--gm-700),var(--gm-950))}
+.room .park{position:absolute;right:5px;top:20px;display:flex;gap:1px;font-size:16px}
+.room.hq{box-shadow:inset 0 0 0 1px rgba(46,196,201,.45)}
+.room .bars{position:absolute;inset:18px 0 4px 0;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(201,209,217,.5) 9px 11px);pointer-events:none;z-index:3}
+
+/* surface */
+.surface{position:relative;height:150px;overflow:hidden;background:linear-gradient(180deg,var(--sky2),color-mix(in srgb,var(--sky2) 70%,#fff))}
+.surface svg.back{position:absolute;left:0;bottom:26px;width:100%;height:110px}
+.surface .groundband{position:absolute;left:0;right:0;bottom:0;height:26px;background:linear-gradient(180deg,var(--ground-hi),var(--ground))}
+.surface canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+.door{position:absolute;left:50%;bottom:26px;width:48px;height:58px;transform:translateX(-50%);border-radius:24px 24px 0 0;border:2px solid var(--steel-hi);background:linear-gradient(90deg,var(--gm-700) 0 49%,var(--gm-950) 49% 51%,var(--gm-700) 51%);box-shadow:0 0 18px rgba(46,196,201,.35)}
+.door::after{content:"";position:absolute;left:50%;top:8px;width:10px;height:4px;transform:translateX(-50%);background:var(--teal);border-radius:2px;box-shadow:0 0 8px var(--teal)}
+.sign{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);font-family:var(--font-display);font-size:10px;letter-spacing:.2em;color:var(--text);background:rgba(23,26,30,.7);padding:2px 8px;border-radius:4px;border:1px solid var(--teal);white-space:nowrap}
+.lobby{position:absolute;left:30%;right:30%;bottom:22px;height:40px}
+.tpad{position:absolute;bottom:26px;width:38px;height:40px;transform:translateX(-50%);border:none;background:none;padding:0;z-index:4}
+.tpad.empty::before{content:"+";position:absolute;inset:6px 2px 0;border:1.5px dashed var(--teal);border-radius:6px;color:var(--teal);display:grid;place-items:center;font-size:18px;background:rgba(23,26,30,.4)}
+.tur .base{position:absolute;bottom:0;left:5px;width:28px;height:12px;background:linear-gradient(180deg,var(--steel),var(--gm-600));clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
+.tur .dome{position:absolute;bottom:10px;left:10px;width:18px;height:15px;border-radius:9px 9px 2px 2px;background:linear-gradient(135deg,var(--steel-hi),var(--gm-600));z-index:2}
+.tur .barrel{position:absolute;bottom:18px;left:18px;width:20px;height:4px;border-radius:2px;background:var(--steel-hi);transform-origin:1px 2px;transform:rotate(var(--a,-15deg));transition:transform .12s}
+.tur.net .barrel{background:var(--teal);height:6px}
+.tur.laser .barrel{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.tur .stars{position:absolute;bottom:-1px;left:0;right:0;text-align:center;font-size:8px;color:var(--warn);z-index:3}
+.enemy{position:absolute;bottom:22px;transform:translateX(-50%);z-index:5;font-size:26px;line-height:1;pointer-events:none}
+.enemy .em{display:block}
+.enemy.flip .em{transform:scaleX(-1)}
+.enemy.big{font-size:36px}
+.enemy .hpb{position:absolute;left:4px;right:4px;top:-6px;height:4px;background:rgba(0,0,0,.5);border-radius:2px;overflow:hidden}
+.enemy .hpb i{display:block;height:100%;background:var(--bad)}
+.enemy.ko .hpb{display:none}
+.enemy.ko::after{content:"💫";position:absolute;left:50%;top:-18px;transform:translateX(-50%);font-size:16px}
+.enemy.ko{opacity:.85}
+.shield{position:absolute;left:50%;top:8px;transform:translateX(-50%);width:62%;z-index:7;text-align:center}
+.shield .bar{height:7px;border:1px solid rgba(255,255,255,.3)}
+.shield .label{color:var(--text);font-size:10px}
+
+/* people */
+.person{position:absolute;bottom:5px;left:var(--x,40%);width:16px;height:36px;animation:pace var(--d,4s) ease-in-out infinite alternate;z-index:2;cursor:pointer}
+.person::after{content:"";position:absolute;inset:-10px -8px -4px}
+@keyframes pace{from{transform:translateX(calc(var(--r,14px) * -1))}to{transform:translateX(var(--r,14px))}}
+.person .hr{position:absolute;left:2px;top:0;width:12px;height:6px;border-radius:6px 6px 2px 2px;background:var(--hair);z-index:2}
+.person .hd{position:absolute;left:3px;top:2px;width:10px;height:10px;border-radius:50%;background:var(--skin)}
+.person .bd{position:absolute;left:2px;top:12px;width:12px;height:12px;border-radius:4px 4px 2px 2px;background:var(--shirt)}
+.person .lg{position:absolute;top:24px;width:4px;height:8px;background:#2a2f36}
+.person .lg.a{left:3px} .person .lg.b{left:9px}
+.person .ft{position:absolute;top:32px;width:6px;height:3px;background:#101317;border-radius:2px 3px 1px 1px}
+.person .ft.a{left:1px} .person .ft.b{left:9px}
+.person.clone .ft{background:var(--clone);height:4px;width:7px;border-radius:3px 4px 2px 2px;box-shadow:0 0 4px var(--clone)}
+.person.cmd .bd::after{content:"★";position:absolute;left:3px;top:-1px;font-size:7px;color:var(--warn)}
+.person .ct,.person .ht{display:none}
+.person.coat .ct{display:block;position:absolute;left:0;top:11px;width:16px;height:22px;background:linear-gradient(90deg,var(--coat-dk),var(--coat) 40%,var(--coat-dk));border-radius:4px 4px 2px 2px;z-index:3}
+.person.coat .ht{display:block;position:absolute;left:-3px;top:-2px;width:22px;height:6px;z-index:4;background:linear-gradient(180deg,var(--coat-dk) 0 60%,#4a3b22 60%);border-radius:6px 6px 1px 1px}
+.person.hurt{animation:none;opacity:.75}
+.person.hurt .hd::after{content:"";position:absolute;left:-1px;right:-1px;top:3px;height:3px;background:#fff}
+.person.hurt::before{content:"💤";position:absolute;left:12px;top:-12px;font-size:10px}
+.person.jailed{animation:none}
+
+/* nav */
+#nav{flex:none;display:grid;grid-template-columns:1fr 1fr 1.6fr 1fr;gap:6px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-block:8px;border-top:1px solid rgba(201,209,217,.14);z-index:20}
+#nav .btn{padding:8px 4px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:1px}
+#nav .btn small{font-size:9px;font-weight:600;opacity:.8;letter-spacing:.04em}
+#nav .battle{background:linear-gradient(180deg,#ff6b79,#b82a38);border-color:#ff9aa4;font-family:var(--font-display);font-size:11px}
+
+/* sheet + toasts */
+#sheet{position:fixed;inset:0;z-index:50;background:rgba(10,12,14,.6);display:flex;align-items:flex-end;justify-content:center}
+.panel{width:100%;max-width:520px;max-height:82%;overflow-y:auto;border-radius:16px 16px 0 0;border:1px solid rgba(201,209,217,.2);border-bottom:none;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+.panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.panel-h h2{font-size:17px;letter-spacing:.06em}
+.x{background:none;border:1px solid rgba(201,209,217,.25);border-radius:6px;width:32px;height:32px;font-size:16px}
+.muted{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{text-align:left;border:1px solid rgba(201,209,217,.16);border-radius:10px;padding:10px;background:var(--gm-800);display:flex;flex-direction:column;gap:3px;min-width:0}
+.opt b{font-size:13px}
+.opt span{font-size:11.5px;color:var(--muted)}
+.opt .cost{color:var(--teal);font-weight:700}
+.opt:disabled{opacity:.4}
+.bubble{position:relative;background:var(--text);color:var(--gm-900);border-radius:12px;padding:10px 12px;font-weight:600;font-size:14px;line-height:1.35}
+.bubble::before{content:"";position:absolute;left:-7px;top:16px;border:7px solid transparent;border-right-color:var(--text);border-left:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.stat{background:var(--gm-950);border-radius:6px;padding:6px;text-align:center}
+.stat b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>.btn{flex:1 1 120px}
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:var(--gm-800);border:1px solid rgba(201,209,217,.1);text-align:left;width:100%}
+.li .grow{flex:1;min-width:0}
+.li .grow b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .grow span{font-size:11.5px;color:var(--muted)}
+.mini{width:20px;height:40px;position:relative;flex:none}
+.mini .person{animation:none;left:2px;bottom:2px;pointer-events:none}
+.tabs{display:flex;gap:6px}
+.tabs button{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(201,209,217,.18);background:var(--gm-800);font-weight:700}
+.tabs button.on{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+.veh{font-size:30px;width:44px;text-align:center;flex:none}
+.tag{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--teal-dim);color:var(--teal);font-weight:700;letter-spacing:.06em}
+.tag.bad{background:rgba(255,77,94,.15);color:var(--bad)}
+.tag.ok{background:rgba(61,220,151,.15);color:var(--ok)}
+.big-emoji{font-size:44px;text-align:center}
+#toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 96px);z-index:60;display:flex;flex-direction:column;gap:6px;width:min(92%,480px);pointer-events:none}
+.toast{background:rgba(23,26,30,.94);border:1px solid var(--teal);border-left:4px solid var(--teal);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600;animation:up .2s ease-out}
+.toast.warn{border-color:var(--warn)} .toast.bad{border-color:var(--bad)} .toast.ok{border-color:var(--ok)}
+@media (prefers-reduced-motion:reduce){.person{animation:none}.panel,.toast{animation:none}}
+</style>
+
+<div id="setup" hidden>
+  <div class="setup-inner">
+    <div class="logo">BASED</div>
+    <div class="tagline">North America · Year 2526</div>
+    <div class="card metal">
+      <div class="label">1 · Design your Commander</div>
+      <div class="cmd-row">
+        <div class="portrait" id="cmd-preview"></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+          <label class="label" for="cmd-name">Commander name</label>
+          <input type="text" id="cmd-name" maxlength="18" placeholder="Commander Ace" value="Commander Ace">
+        </div>
+      </div>
+      <div class="label">Skin</div><div class="swatches" id="sw-skin"></div>
+      <div class="label">Hair</div><div class="swatches" id="sw-hair"></div>
+      <div class="label">Uniform</div><div class="swatches" id="sw-suit"></div>
+    </div>
+    <div class="card metal">
+      <div class="label">2 · Pick your faction and home</div>
+      <div class="factions" id="factions"></div>
+    </div>
+    <button class="btn primary" id="found" style="font-family:var(--font-display);font-size:15px;padding:14px">FOUND MY BASE</button>
+  </div>
+</div>
+
+<div id="game" hidden>
+  <div id="hud" class="metal">
+    <div class="hud-top">
+      <div class="who"><h3>BASED</h3><span class="lv" id="h-lv">LV 1</span><span id="h-place"></span></div>
+      <button class="gear" id="b-gear" aria-label="Settings">⚙</button>
+    </div>
+    <div class="res">
+      <div class="chip"><div class="k">Credits</div><div class="v" id="h-cr">0</div></div>
+      <div class="chip"><div class="k">Food</div><div class="v" id="h-food">0</div><div class="bar"><i id="hb-food"></i></div></div>
+      <div class="chip"><div class="k">Power</div><div class="v" id="h-pow">0</div><div class="bar"><i id="hb-pow"></i></div></div>
+      <div class="chip"><div class="k">Tech</div><div class="v" id="h-tech">0</div></div>
+      <div class="chip"><div class="k">Adv Pts</div><div class="pips" id="h-ap"></div></div>
+    </div>
+  </div>
+  <div id="wrap"><div id="world"></div></div>
+  <div id="nav" class="metal">
+    <button class="btn" id="b-crew">CREW<small id="n-crew">0/0</small></button>
+    <button class="btn" id="b-hangar">HANGAR<small id="n-veh">0</small></button>
+    <button class="btn battle" id="b-battle">BATTLE READY<small>costs 1 Adv Pt</small></button>
+    <button class="btn" id="b-recruit">RECRUIT<small>60 credits</small></button>
+  </div>
+</div>
+
+<div id="sheet" hidden><div class="panel metal" id="panel"></div></div>
+<div id="toasts"></div>
+
+<script>
+(function(){
+'use strict';
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=n=>Math.floor(n).toLocaleString();
+const KEY='based-save-v1';
+
+// ---------- game data ----------
+const SKINS=['#F3D2B3','#E0AC85','#C68A5E','#8D5A3B','#5C3A26'];
+const HAIRS=['#1F1A17','#6B4226','#D9A441','#B5462F','#E8E4DC','#3B5BA8'];
+const SUITS=['#2EC4C9','#3A8DDE','#C9D1D9','#3DDC97','#4A525C'];
+const SHIRTS=['#5B6B7C','#3A8DDE','#6E7F8F','#2E8C90','#7A8796','#45607A','#8A939E'];
+const FIRST=['Zip','Nova','Rex','Juno','Kai','Luna','Bolt','Mira','Dex','Sky','Ripley','Tex','Pip','Rocket','Echo','Sage','Finn','Ivy','Max','Wren','Jax','Remy','Blaze','Orbit'];
+const LAST=['Stone','Vega','Ridge','Canyon','Steel','Sparks','Mesa','Rivers','Flint','Hawk','Cruz','Arches','Quartz','Dune','Pike','Frost'];
+
+const FACTIONS={
+  nus:{name:'New United States',place:'Moab, Utah',biome:'desert',icon:'🏜️',blurb:'Red rock canyons and giant stone arches.'},
+  icr:{name:'Independent California Republic',place:'Lake Tahoe and Truckee',biome:'mountain',icon:'🏔️',blurb:'Snowy peaks above a deep blue lake.'},
+  atl:{name:'Atlantis',place:'The Bahamas, underwater',biome:'ocean',icon:'🌊',blurb:'Unlocks later.',locked:true},
+  sky:{name:'Sky Vegas',place:'New Las Vegas, in the clouds',biome:'sky',icon:'☁️',blurb:'Unlocks later.',locked:true}
+};
+
+const ROOMS={
+  hq:{short:'HQ',name:'Headquarters',icon:'🎖️',cost:0,cap:2,prod:'credits',rate:1.2,stat:'smarts',cls:'Crew',desc:'The Commander\'s office. Makes credits.'},
+  quarters:{short:'Quarters',name:'Sleeping Quarters',icon:'🛏️',cost:100,cap:2,beds:4,cls:'Crew',desc:'Beds for 4 more crew members.'},
+  food:{short:'Food Hall',name:'Food Hall',icon:'🍔',cost:120,cap:2,prod:'food',rate:1.0,stat:'smarts',cls:'Cook',desc:'Makes food. Hungry crew get grumpy.'},
+  power:{short:'Power Core',name:'Power Core',icon:'⚡',cost:120,cap:2,prod:'power',rate:1.0,stat:'str',cls:'Engineer',desc:'Makes power. Low power slows turrets.'},
+  tech:{short:'Tech Lab',name:'Tech Center',icon:'🧪',cost:200,cap:2,prod:'tech',rate:0.35,stat:'smarts',cls:'Scientist',desc:'Makes tech points for lasers, mechs and the antidote.'},
+  fitness:{short:'Fitness',name:'Fitness Center',icon:'🏋️',cost:150,cap:2,train:'str',cls:'Athlete',desc:'Trains Strength. Strong crew run the Power Core better.'},
+  barracks:{short:'Barracks',name:'Barracks',icon:'🛡️',cost:180,cap:2,train:'aim',cls:'Defender',desc:'Trains Aim. Defenders here help in every battle.'},
+  med:{short:'Med Bay',name:'Med Bay',icon:'🩹',cost:160,cap:2,heal:true,cls:'Medic',desc:'Knocked out crew heal 4 times faster.'},
+  hangar:{short:'Hangar',name:'Hangar',icon:'🛩️',cost:250,cap:2,vslots:4,train:'aim',cls:'Pilot',desc:'Parks 4 vehicles. Pilots train here.'},
+  cell:{short:'Cell',name:'Holding Cell',icon:'🔒',cost:200,cap:1,level:2,jail:2,cls:'Defender',desc:'Jail for 2 caught clones. You can talk to them later.'},
+  clonelab:{short:'Clone Lab',name:'Clone Lab',icon:'🧬',cost:300,cap:1,level:3,cls:'Scientist',desc:'Lets you cure clones with antidote (30 tech).'}
+};
+const TIERS={
+  Pilot:['Prop Pilot','Jet Pilot','Fighter Ace','Test Pilot'],
+  Engineer:['Mechanic','Builder','Mech Engineer','Chief Engineer'],
+  Defender:['Guard','Turret Operator','Squad Leader','Base Marshal'],
+  Scientist:['Lab Tech','Researcher','Geneticist','Chief Scientist'],
+  Medic:['First Aid','Medic','Doctor','Chief of Medicine'],
+  Cook:['Cook','Chef','Head Chef','Master Chef'],
+  Athlete:['Rookie','Athlete','Champion','Legend'],
+  Crew:['Recruit','Crew','Senior Crew','Veteran']
+};
+const TURRETS={
+  auto:{name:'Auto Turret',cost:150,dmg:6,rate:.8,range:150,desc:'Fast shots. Good all around.'},
+  net:{name:'Net Turret',cost:120,dmg:2,rate:1.1,range:130,slow:true,desc:'Sticky nets slow enemies way down.'},
+  laser:{name:'Laser Turret',cost:250,tech:40,dmg:16,rate:1.6,range:190,level:2,desc:'Big zap. Needs 40 tech.'}
+};
+const PAD_X=[.08,.24,.76,.92];
+const VEH=[
+  {id:'cessna',name:'Cessna 182',e:'🛩️',era:'classic',kind:'Prop plane',cost:0,spd:2,arm:1},
+  {id:'mustang',name:'Ford Mustang',e:'🚗',era:'classic',kind:'Muscle car',cost:350,spd:3,arm:2},
+  {id:'speedboat',name:'Speedboat',e:'🚤',era:'classic',kind:'Boat',cost:450,spd:4,arm:1},
+  {id:'cyber',name:'Cybertruck',e:'🛻',era:'classic',kind:'Truck',cost:700,spd:3,arm:4},
+  {id:'ferrari',name:'Ferrari',e:'🏎️',era:'classic',kind:'Supercar',cost:800,spd:5,arm:1},
+  {id:'huey',name:'Huey Helicopter',e:'🚁',era:'classic',kind:'Helicopter',cost:900,spd:3,arm:3},
+  {id:'f16',name:'F-16 Fighting Falcon',e:'✈️',era:'classic',kind:'Jet fighter',cost:1400,spd:5,arm:3,level:2},
+  {id:'mig',name:'MiG-29',e:'✈️',era:'classic',kind:'Jet fighter',cost:1500,spd:5,arm:3,level:2,f:'hue-rotate(90deg)'},
+  {id:'f18',name:'F/A-18 Hornet',e:'✈️',era:'classic',kind:'Jet fighter',cost:1600,spd:5,arm:4,level:2,f:'hue-rotate(170deg)'},
+  {id:'f22',name:'F-22 Raptor',e:'✈️',era:'classic',kind:'Stealth jet',cost:2500,spd:6,arm:4,level:3,f:'grayscale(1) brightness(.8)'},
+  {id:'hover',name:'Hover Saucer',e:'🛸',era:'future',kind:'Hover craft',cost:1800,tech:40,spd:5,arm:3,level:2},
+  {id:'mech',name:'Titan Mech',e:'🤖',era:'future',kind:'Mech',cost:2000,tech:60,spd:2,arm:6,level:2},
+  {id:'rocket',name:'Star Hopper',e:'🚀',era:'future',kind:'Rocket',cost:3000,tech:100,spd:7,arm:3,level:3},
+  {id:'sub',name:'Atlantis Deep Sub',e:'🐋',era:'future',kind:'Submarine',cost:0,locked:'Unlocks with Atlantis'},
+  {id:'airship',name:'Sky Vegas Airship',e:'🎈',era:'future',kind:'Airship',cost:0,locked:'Unlocks with Sky Vegas'}
+];
+const ENEMIES={
+  desert:[
+    {name:'Badlands Gang Buggy',e:'🚙',hp:30,speed:38,dmg:6},
+    {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:62,dmg:4},
+    {name:'Canyon Scorpion',e:'🦂',hp:95,speed:18,dmg:12,min:2,big:true},
+    {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
+  ],
+  mountain:[
+    {name:'Badlands Gang Snow Buggy',e:'🚙',hp:30,speed:36,dmg:6},
+    {name:'Badlands Gang Biker',e:'🏍️',hp:18,speed:58,dmg:4},
+    {name:'Snow Beast',e:'🦣',hp:105,speed:16,dmg:13,min:2,big:true},
+    {name:'Junk Drone',e:'🛸',hp:26,speed:46,dmg:5,min:2}
+  ]
+};
+const LINES={
+  happy:['Ready for action, Commander!','Yes, Commander?','Reporting for duty!','Best base in the whole West.','Happy to help, boss!','Whatever you need, Commander.','I love working here!'],
+  ok:['What do you need?','Another day, another credit.','I could really use a snack.','Is it lunch yet?','Just doing my job here.','Hmm? Oh, hi.'],
+  sad:['We need more food, Commander!','I am so tired today.','The lights keep flickering...','Can somebody fix the power please?','Nobody listens to me around here.'],
+  poke:['Okay, okay, stop poking me!','Hey! That tickles!','I am working, I promise!','Do you need something or not?','Poke me one more time...'],
+  lobby:['Hi! I am new here. Where do I work?','Nice base! Is there a job for me?','Put me anywhere, Commander!'],
+  hurt:['Ouch. I need the Med Bay.','I am okay, just seeing stars.'],
+  room:{
+    food:['Who ordered the space tacos?','The soup today is extra purple.'],
+    power:['The core hums when it is happy.','Do not touch the glowing part.'],
+    tech:['I just invented a better toaster.','Science is magic with notes.'],
+    fitness:['One more rep, Commander!','Feel the burn!'],
+    barracks:['Targets ready!','Nobody gets past me.'],
+    hangar:['That plane flies like a dream.','Can I take a jet out? Please?'],
+    med:['Say ahh.','Everyone gets patched up here.'],
+    hq:['Paperwork. So much paperwork.'],
+    quarters:['Five more minutes...'],
+    cell:['The prisoner is very quiet today.'],
+    clonelab:['The antidote smells like mint.']
+  }
+};
+const INNOCENT=['Hey! I am NOT a clone. These are just new shoes!','Excuse me?! I have worked here since Tuesday!','A clone? Rude. Very rude.','Scan me all you want. One hundred percent human.','Wow. I am telling the whole Food Hall about this.'];
+
+// ---------- state ----------
+let S=null;      // saved game
+let B=null;      // live battle
+const pokes={};  // crewId -> tap count
+const advisor={};// throttle for advisor tips
+let setupCfg={skin:SKINS[1],hair:HAIRS[0],suit:SUITS[0],faction:'nus'};
+
+function save(){ if(!S) return; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
+function load(){ try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null} }
+
+function makeCrew(o){
+  return Object.assign({id:S.uid++,name:pick(FIRST)+' '+pick(LAST),skin:pick(SKINS),hair:pick(HAIRS),shirt:pick(SHIRTS),
+    clone:false,str:ri(2,6),aim:ri(2,6),smarts:ri(2,6),xp:0,mood:75,hurt:0,room:null,joined:S.t,lastSab:S.t},o||{});
+}
+function newGame(cfg){
+  S={v:1,cmd:{name:cfg.name,skin:cfg.skin,hair:cfg.hair,suit:cfg.suit},faction:cfg.faction,
+    res:{credits:400,food:80,power:80,tech:0,ap:3},xp:0,up:1,down:2,
+    rooms:{'1:0':{type:'hq'},'1:1':{type:'quarters'},'-1:0':{type:'food'},'-1:1':{type:'power'},'-2:0':{type:'hangar'}},
+    turrets:[null,{type:'auto',lvl:1},{type:'auto',lvl:1},null],
+    crew:[],vehicles:['cessna'],jail:[],caught:0,t:0,uid:1,nextArrival:18,arrivals:0,nextRaid:210,wins:0};
+  S.crew.push({id:0,name:cfg.name,skin:cfg.skin,hair:cfg.hair,shirt:cfg.suit,isCmd:true,clone:false,str:5,aim:5,smarts:6,xp:0,mood:95,hurt:0,room:'1:0',joined:0});
+  S.crew.push(makeCrew({room:'-1:0'}));
+  S.crew.push(makeCrew({room:'-1:1'}));
+  S.crew.push(makeCrew({room:'-2:0'}));
+}
+
+// ---------- derived ----------
+const biome=()=>FACTIONS[S.faction].biome;
+const level=()=>Math.min(5,1+Math.floor(S.xp/150));
+const roomsOf=t=>Object.keys(S.rooms).filter(k=>S.rooms[k].type===t);
+const crewIn=k=>S.crew.filter(c=>c.room===k);
+const crewCap=()=>2+4*roomsOf('quarters').length;
+const vehCap=()=>4*roomsOf('hangar').length;
+const jailCap=()=>2*roomsOf('cell').length;
+const foodMax=()=>100+100*roomsOf('food').length;
+const powMax=()=>100+100*roomsOf('power').length;
+const floorName=f=>f>0?'F'+f:'B'+(-f);
+const clsOf=c=>c.isCmd?'Commander':(c.room?ROOMS[S.rooms[c.room].type].cls:'Crew');
+function titleOf(c){
+  if(c.isCmd) return 'Base Commander';
+  const tier=Math.min(3,Math.floor(c.xp/90));
+  return TIERS[clsOf(c)][tier]+' · Tier '+(tier+1);
+}
+function roomRate(k){
+  const def=ROOMS[S.rooms[k].type]; if(!def.prod) return 0;
+  const powOk=def.prod==='power'||S.res.power>0;
+  return crewIn(k).filter(c=>!c.hurt).reduce((s,c)=>s+def.rate*(1+c[def.stat]/10)*(.5+c.mood/200)*(c.clone?.5:1)*(powOk?1:.5),0);
+}
+
+// ---------- people ----------
+function personHTML(c,extra){
+  const cls=['person',c.clone?'clone':'',c.isCmd?'cmd':'',c.hurt>0?'hurt':'',extra||''].join(' ');
+  const st=`--skin:${c.skin};--hair:${c.hair};--shirt:${c.shirt};--x:${ri(18,70)}%;--d:${rnd(2.6,5.5).toFixed(2)}s;--r:${ri(8,20)}px;animation-delay:-${rnd(0,4).toFixed(2)}s`;
+  return `<div class="${cls}" data-cid="${c.id}" style="${st}"><i class="ht"></i><i class="hr"></i><i class="hd"></i><i class="bd"></i><i class="lg a"></i><i class="lg b"></i><i class="ft a"></i><i class="ft b"></i><i class="ct"></i></div>`;
+}
+function flashCoat(id){
+  document.querySelectorAll(`.person[data-cid="${id}"]`).forEach(el=>{el.classList.add('coat');setTimeout(()=>el.classList.remove('coat'),550)});
+}
+
+// ---------- world rendering ----------
+function backSVG(){
+  if(biome()==='desert') return `<svg class="back" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M10 110 V55 Q10 20 60 20 Q110 20 110 55 V110 H90 V60 Q90 40 60 40 Q30 40 30 60 V110Z" fill="var(--back)"/>
+    <rect x="250" y="35" width="70" height="75" rx="6" fill="var(--back2)"/><rect x="330" y="60" width="60" height="50" rx="5" fill="var(--back)"/>
+    <rect x="130" y="70" width="40" height="40" rx="4" fill="var(--back2)"/></svg>`;
+  return `<svg class="back" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
+    <polygon points="0,110 70,20 140,110" fill="var(--back)"/><polygon points="50,46 70,20 90,46 78,42 70,48 62,42" fill="#fff"/>
+    <polygon points="230,110 320,10 400,110" fill="var(--back2)"/><polygon points="296,38 320,10 344,38 330,34 320,42 310,34" fill="#fff"/>
+    <polygon points="120,110 170,55 220,110" fill="var(--back2)"/>
+    <polygon points="360,110 372,80 384,110" fill="#2f5a3a"/><polygon points="20,110 30,86 40,110" fill="#2f5a3a"/></svg>`;
+}
+function roomHTML(k){
+  const r=S.rooms[k],def=ROOMS[r.type];
+  let inner=`<span class="rh"><span class="ic">${def.icon}</span>${esc(def.short)}</span><span class="rb" data-badge="${k}"></span>`;
+  if(r.type==='hangar'){
+    const idx=roomsOf('hangar').indexOf(k);
+    const vs=S.vehicles.slice(idx*4,idx*4+4).map(id=>{const v=VEH.find(x=>x.id===id);return `<span style="${v.f?'filter:'+v.f:''}">${v.e}</span>`}).join('');
+    inner+=`<span class="park">${vs}</span>`;
+  }
+  inner+=crewIn(k).map(c=>personHTML(c)).join('');
+  if(r.type==='cell'){
+    const idx=roomsOf('cell').indexOf(k);
+    inner+=S.jail.slice(idx*2,idx*2+2).map(p=>personHTML(p,'jailed')).join('')+'<span class="bars"></span>';
+  }
+  inner+='<span class="floorline"></span>';
+  return `<button class="slot room metal ${r.type}" data-room="${k}" aria-label="${esc(def.name)}">${inner}</button>`;
+}
+function floorHTML(f){
+  let h=`<div class="floor"><div class="shaft">${floorName(f)}</div>`;
+  for(let s=0;s<3;s++){
+    const k=f+':'+s;
+    h+=S.rooms[k]?roomHTML(k):`<button class="slot slot-empty" data-empty="${k}">+ BUILD</button>`;
+  }
+  return h+'</div>';
+}
+function turretHTML(i){
+  const t=S.turrets[i],x=PAD_X[i]*100;
+  if(!t) return `<button class="tpad empty" data-pad="${i}" style="left:${x}%" aria-label="Build turret"></button>`;
+  const a=i<2?'195deg':'-15deg';
+  return `<button class="tpad tur ${t.type}" data-pad="${i}" style="left:${x}%;--a:${a}" aria-label="${TURRETS[t.type].name}"><i class="barrel"></i><i class="dome"></i><i class="base"></i><span class="stars">${'★'.repeat(t.lvl)}</span></button>`;
+}
+function expandCost(){return 150+100*Math.max(0,S.up+S.down-3)}
+function renderWorld(){
+  const w=$('#world'); w.className=biome();
+  let h=`<div class="sky pad-x">`;
+  h+=S.up<5?`<div class="expand"><button data-expand="up">▲ BUILD UP · ${expandCost()} credits</button></div>`:'<div style="height:16px"></div>';
+  for(let f=S.up;f>=1;f--) h+=floorHTML(f);
+  h+=`</div><div class="surface" id="surface">${backSVG()}<div class="groundband"></div>
+    <div class="sign">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door"></div>
+    <div class="lobby">${S.crew.filter(c=>!c.room).map(c=>personHTML(c)).join('')}</div>
+    ${[0,1,2,3].map(turretHTML).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
+  h+=`<div class="under pad-x">`;
+  for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
+  h+=S.down<5?`<div class="expand"><button data-expand="down">▼ DIG DOWN · ${expandCost()} credits</button></div>`:'<div style="height:16px"></div>';
+  h+='</div>';
+  w.innerHTML=h;
+  // re-attach live battle enemies
+  if(B){const box=$('#enemies');B.enemies.forEach(e=>{if(e.el)box.appendChild(e.el)});renderShield()}
+  S.crew.forEach(c=>{if(c.flashUntil&&c.flashUntil>Date.now()) flashCoat(c.id)});
+  updateHUD();
+}
+function scrollToSurface(smooth){
+  const s=$('#surface'),wrap=$('#wrap'); if(!s) return;
+  wrap.scrollTo({top:s.offsetTop-wrap.clientHeight/2+s.offsetHeight/2,behavior:smooth?'smooth':'auto'});
+}
+
+// ---------- HUD ----------
+function setBar(id,v,max){const el=$(id);const p=clamp(v/max,0,1);el.style.width=(p*100)+'%';el.className=p<.15?'bad':p<.35?'warn':''}
+function updateHUD(){
+  if(!S) return;
+  $('#h-lv').textContent='LV '+level();
+  $('#h-place').textContent=S.cmd.name+' · '+FACTIONS[S.faction].place;
+  $('#h-cr').textContent=fmt(S.res.credits);
+  $('#h-food').textContent=fmt(S.res.food); setBar('#hb-food',S.res.food,foodMax());
+  $('#h-pow').textContent=fmt(S.res.power); setBar('#hb-pow',S.res.power,powMax());
+  $('#h-tech').textContent=fmt(S.res.tech);
+  $('#h-ap').innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<S.res.ap?'on':''}"></i>`).join('');
+  $('#n-crew').textContent=S.crew.length+'/'+crewCap();
+  $('#n-veh').textContent=S.vehicles.length+' of '+VEH.length;
+  $('#b-battle').disabled=!!B;
+  document.querySelectorAll('[data-badge]').forEach(el=>{
+    const k=el.dataset.badge,r=S.rooms[k]; if(!r) return; const def=ROOMS[r.type],n=crewIn(k).length;
+    let t='';
+    if(def.prod){const rate=roomRate(k);t=n?`+${rate.toFixed(1)} ${def.prod}/s`:'no crew';el.classList.toggle('low',!n||(def.prod!=='power'&&S.res.power<=0))}
+    else if(def.train) t=n?`training ${def.train==='str'?'Strength':'Aim'}`:'no crew';
+    else if(def.beds) t=`${def.beds} beds`;
+    else if(def.heal) t=n?'healing':'no medic';
+    else if(def.jail!==undefined) t='prisoners';
+    else if(r.type==='clonelab') t='antidote ready';
+    el.textContent=t;
+  });
+}
+
+// ---------- toasts ----------
+function toast(msg,kind){
+  const box=$('#toasts');const d=document.createElement('div');d.className='toast '+(kind||'');d.textContent=msg;box.appendChild(d);
+  while(box.children.length>3) box.firstChild.remove();
+  setTimeout(()=>d.remove(),3800);
+}
+function advise(key,msg,kind){ if(S.t-(advisor[key]||-99)<40) return; advisor[key]=S.t; toast('Advisor: '+msg,kind||'warn') }
+
+// ---------- sheet ----------
+let sheetLocked=false;
+function openSheet(title,body,locked){
+  sheetLocked=!!locked;
+  $('#panel').innerHTML=`<div class="panel-h"><h2>${title}</h2>${locked?'':'<button class="x" data-close aria-label="Close">✕</button>'}</div>${body}`;
+  $('#sheet').hidden=false;
+}
+function closeSheet(){ $('#sheet').hidden=true; sheetLocked=false; }
+$('#sheet').addEventListener('click',e=>{ if(e.target.id==='sheet'&&!sheetLocked) closeSheet(); if(e.target.closest('[data-close]')) closeSheet(); });
+
+// ---------- speech ----------
+function stretch(word){
+  const m=word.match(/^([^A-Za-z]*)([A-Za-z']+)([^A-Za-z]*)$/); if(!m) return word+'ooo';
+  let w=m[2].replace(/[aeiouAEIOU]/g,v=>v+v.toLowerCase().repeat(ri(1,2)));
+  if(w===m[2]) w=w+'aaa';
+  w=w.replace(/^([^aeiouAEIOU]+)/,(s)=>s+pick(['oo','ee','aa','uu']));
+  return m[1]+w+m[3];
+}
+function garble(line){
+  const ws=line.split(' '); const i=Math.random()<.5?0:ws.length-1; ws[i]=stretch(ws[i]); return ws.join(' ');
+}
+function sayLine(c){
+  pokes[c.id]=(pokes[c.id]||0)+1;
+  let line;
+  if(c.hurt>0) line=pick(LINES.hurt);
+  else if(pokes[c.id]>=4&&!c.isCmd){line=pick(LINES.poke);pokes[c.id]=0;c.mood=clamp(c.mood-3,0,100)}
+  else if(!c.room) line=pick(LINES.lobby);
+  else if(Math.random()<.35) line=pick(LINES.room[S.rooms[c.room].type]||LINES.ok);
+  else line=pick(c.mood>66?LINES.happy:c.mood>35?LINES.ok:LINES.sad);
+  return c.clone?garble(line):line;
+}
+
+// ---------- crew card ----------
+function moodWord(m){return m>66?'Happy':m>35?'Okay':'Grumpy'}
+function crewCard(id,lineOverride){
+  const c=S.crew.find(x=>x.id===id); if(!c) return;
+  const line=lineOverride||sayLine(c);
+  const where=c.room?`${ROOMS[S.rooms[c.room].type].name} (${floorName(+c.room.split(':')[0])})`:'Lobby, no job yet';
+  const tags=(c.exClone?'<span class="tag ok">EX-CLONE</span> ':'')+(c.hurt>0?'<span class="tag bad">KNOCKED OUT</span>':'');
+  openSheet(esc(c.name),`
+    <div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="bubble" style="flex:1">${esc(line)}</div></div>
+    <div class="row" style="align-items:center"><span class="tag">${esc(titleOf(c))}</span>${tags}<span class="muted" style="font-size:12px">${esc(where)}</span></div>
+    <div class="stats">
+      <div class="stat"><span class="label">Strength</span><b>${Math.floor(c.str)}</b></div>
+      <div class="stat"><span class="label">Aim</span><b>${Math.floor(c.aim)}</b></div>
+      <div class="stat"><span class="label">Smarts</span><b>${Math.floor(c.smarts)}</b></div>
+    </div>
+    <div><div class="label">Mood · ${moodWord(c.mood)}</div><div class="bar" style="height:6px"><i style="width:${c.mood}%" class="${c.mood<35?'bad':c.mood<66?'warn':''}"></i></div></div>
+    <div class="row">
+      <button class="btn" data-act="talk" data-id="${c.id}">TALK</button>
+      ${c.isCmd?'':`<button class="btn" data-act="assign" data-id="${c.id}">ASSIGN JOB</button>`}
+      <button class="btn" data-act="rename" data-id="${c.id}">RENAME</button>
+    </div>
+    ${c.isCmd?'':`<button class="btn danger" data-act="identify" data-id="${c.id}">🔍 IDENTIFY CLONE</button>
+    <div class="muted" style="font-size:12px">Clone clues: a trench coat flash when they arrive, green bare feet, and one stretched out word when they talk.</div>`}
+  `);
+}
+function renameSheet(id){
+  const c=S.crew.find(x=>x.id===id);
+  openSheet('Rename',`<label class="label" for="rn">New name</label><input type="text" id="rn" maxlength="18" value="${esc(c.name)}">
+    <button class="btn primary" data-act="rename-save" data-id="${id}">SAVE NAME</button>`);
+  setTimeout(()=>{const i=$('#rn');i&&i.focus()},50);
+}
+function assignSheet(id){
+  const c=S.crew.find(x=>x.id===id);
+  const keys=Object.keys(S.rooms).filter(k=>k!==c.room).sort((a,b)=>(+b.split(':')[0])-(+a.split(':')[0]));
+  const items=keys.map(k=>{
+    const def=ROOMS[S.rooms[k].type],n=crewIn(k).length,full=n>=def.cap;
+    return `<button class="li" data-act="assign-to" data-id="${id}" data-k="${k}" ${full?'disabled':''}><span style="font-size:22px">${def.icon}</span>
+      <span class="grow"><b>${esc(def.name)} · ${floorName(+k.split(':')[0])}</b><span>${n}/${def.cap} crew · makes them a ${esc(def.cls)}</span></span>${full?'<span class="tag bad">FULL</span>':''}</button>`}).join('');
+  openSheet('Assign '+esc(c.name),`<div class="list">${items}${c.room?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span style="font-size:22px">🚪</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
+}
+function crewList(){
+  const items=S.crew.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span>
+    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span></span>
+    <span class="tag ${c.mood<35?'bad':''}">${moodWord(c.mood)}</span></button>`).join('');
+  const jail=S.jail.length?`<div class="label">In the Holding Cell</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Caught clone · tap to talk</span></span></button>`).join('')}</div>`:'';
+  openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}</div><div class="list">${items}</div>${jail}`);
+}
+
+// ---------- identify + clone choices ----------
+function identify(id){
+  const c=S.crew.find(x=>x.id===id); if(!c) return;
+  if(!c.clone){
+    c.mood=clamp(c.mood-15,0,100);
+    crewCard(id,pick(INNOCENT));
+    toast(c.name+' is not a clone. Their mood went down.','warn');
+    return;
+  }
+  S.caught++; S.res.credits+=120; S.res.ap=Math.min(5,S.res.ap+1); S.xp+=30;
+  flashCoat(c.id);
+  toast('Clone caught! +120 credits, +1 Adventure Point','ok');
+  cloneChoice(c);
+}
+function cloneChoice(c){
+  const hasCell=S.jail.length<jailCap(),hasLab=roomsOf('clonelab').length>0,tech=S.res.tech>=30;
+  openSheet('Clone caught!',`
+    <div class="cmd-row"><div class="portrait">${personHTML(Object.assign({},c,{hurt:0}),'coat')}</div>
+    <div class="bubble" style="flex:1">${esc(garble('Hmm. You found me, Commander.'))}</div></div>
+    <div class="muted">"${esc(c.name)}" was a clone the whole time. What should we do?</div>
+    <div class="grid2">
+      <button class="opt" data-act="clone" data-how="exile" data-id="${c.id}"><b>🚪 Exile</b><span>Send them out of the base.</span></button>
+      <button class="opt" data-act="clone" data-how="jail" data-id="${c.id}" ${hasCell?'':'disabled'}><b>🔒 Jail</b><span>${hasCell?'Lock them in the Holding Cell.':'Needs a Holding Cell with space (Level 2).'}</span></button>
+      <button class="opt" data-act="clone" data-how="cure" data-id="${c.id}" ${hasLab&&tech?'':'disabled'}><b>🧬 Cure</b><span>${hasLab?(tech?'Use 30 tech of antidote.':'Needs 30 tech.'):'Needs a Clone Lab (Level 3).'}</span></button>
+      <button class="opt" data-act="clone" data-how="talk" data-id="${c.id}"><b>💬 Recruit</b><span>Talk them into joining. Might not work!</span></button>
+    </div>`,true);
+}
+const TALK=[
+  {q:'Whyyy should I staaay heeere?',a:[['We have the best food in the West.',1],['Because I said so!',0],['Here you could be anything. Even a pilot.',2]]},
+  {q:'Yooou would truuust me?',a:[['Everyone deserves a second chance.',2],['Not really, but let\'s try.',1],['Nope.',0]]}
+];
+function talkStep(c,step,score,fromJail){
+  if(step>=TALK.length){
+    const ok=score>=3;
+    if(fromJail){
+      if(ok){S.jail=S.jail.filter(p=>p.id!==c.id);c.clone=false;c.exClone=true;c.smarts+=2;c.room=null;c.mood=80;c.joined=S.t;S.crew.push(c);toast(c.name+' joined your crew!','ok')}
+      else toast(c.name+' does not trust you yet. Try again later.','warn');
+    } else {
+      if(ok){c.clone=false;c.exClone=true;c.smarts+=2;c.mood=80;toast(c.name+' joined your crew for real! +2 Smarts','ok')}
+      else {S.crew=S.crew.filter(x=>x.id!==c.id);toast(c.name+' said no and ran out the door.','warn')}
+    }
+    closeSheet(); renderWorld(); save(); return;
+  }
+  const t=TALK[step];
+  openSheet('Talking to '+esc(c.name),`<div class="cmd-row"><div class="portrait">${personHTML(Object.assign({},c,{hurt:0}))}</div><div class="bubble" style="flex:1">${esc(t.q)}</div></div>
+    <div class="list">${t.a.map(([txt,pts])=>`<button class="li" data-act="talk-ans" data-id="${c.id}" data-step="${step}" data-score="${score+pts}" data-jail="${fromJail?1:0}"><span class="grow"><b>${esc(txt)}</b></span></button>`).join('')}</div>`,!fromJail);
+}
+function resolveClone(id,how){
+  const c=S.crew.find(x=>x.id===id); if(!c) return;
+  if(how==='exile'){S.crew=S.crew.filter(x=>x.id!==id);toast(c.name+' was exiled. Bye!','ok')}
+  else if(how==='jail'){S.crew=S.crew.filter(x=>x.id!==id);c.room=null;S.jail.push(c);toast(c.name+' is in the Holding Cell.','ok')}
+  else if(how==='cure'){S.res.tech-=30;c.clone=false;c.exClone=true;c.mood=85;toast('The antidote worked! '+c.name+' is a real crew member now.','ok')}
+  else if(how==='talk'){talkStep(c,0,0,false);return}
+  closeSheet(); renderWorld(); save();
+}
+
+// ---------- building ----------
+function buildSheet(k){
+  const lv=level();
+  const items=Object.keys(ROOMS).filter(t=>t!=='hq').map(t=>{
+    const d=ROOMS[t],lock=d.level&&lv<d.level,poor=S.res.credits<d.cost;
+    return `<button class="opt" data-act="build" data-k="${k}" data-t="${t}" ${lock||poor?'disabled':''}><b>${d.icon} ${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${lock?'Needs Level '+d.level:d.cost+' credits'}</span></button>`}).join('');
+  openSheet('Build a room · '+floorName(+k.split(':')[0]),`<div class="grid2">${items}</div>`);
+}
+function roomSheet(k){
+  const r=S.rooms[k],def=ROOMS[r.type],people=crewIn(k);
+  const list=people.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))}</span></span></button>`).join('')||'<div class="muted">Nobody works here yet.</div>';
+  const free=S.crew.filter(c=>!c.isCmd&&c.room!==k);
+  let extra='';
+  if(r.type==='hangar') extra=`<button class="btn" data-act="hangar">OPEN HANGAR COLLECTION</button>`;
+  if(r.type==='cell'&&S.jail.length) extra=`<div class="label">Prisoners</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Tap to talk</span></span></button>`).join('')}</div>`;
+  openSheet(def.icon+' '+esc(def.name),`<div class="muted">${esc(def.desc)}</div>
+    <div class="label">Crew ${people.length}/${def.cap}</div><div class="list">${list}</div>
+    ${people.length<def.cap&&free.length?`<div class="label">Add someone</div><div class="list">${free.slice(0,8).map(c=>`<button class="li" data-act="assign-to" data-id="${c.id}" data-k="${k}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${c.room?'Now in '+esc(ROOMS[S.rooms[c.room].type].name):'In the lobby'}</span></span></button>`).join('')}</div>`:''}
+    ${extra}`);
+}
+function turretSheet(i){
+  const t=S.turrets[i],lv=level();
+  if(!t){
+    const items=Object.keys(TURRETS).map(tp=>{const d=TURRETS[tp],lock=d.level&&lv<d.level,poor=S.res.credits<d.cost||(d.tech&&S.res.tech<d.tech);
+      return `<button class="opt" data-act="turret" data-i="${i}" data-t="${tp}" ${lock||poor?'disabled':''}><b>${esc(d.name)}</b><span>${esc(d.desc)}</span><span class="cost">${lock?'Needs Level '+d.level:d.cost+' credits'+(d.tech?' + '+d.tech+' tech':'')}</span></button>`}).join('');
+    openSheet('Build a defense',`<div class="muted">Turrets protect the base door from raiders and monsters.</div><div class="grid2">${items}</div>`);
+    return;
+  }
+  const d=TURRETS[t.type],cost=d.cost*t.lvl;
+  openSheet(esc(d.name)+' '+'★'.repeat(t.lvl),`<div class="muted">${esc(d.desc)}</div>
+    <div class="stats"><div class="stat"><span class="label">Damage</span><b>${(d.dmg*(1+.5*(t.lvl-1))).toFixed(0)}</b></div><div class="stat"><span class="label">Range</span><b>${d.range}</b></div><div class="stat"><span class="label">Level</span><b>${t.lvl}/3</b></div></div>
+    <button class="btn primary" data-act="upgrade" data-i="${i}" ${t.lvl>=3||S.res.credits<cost?'disabled':''}>${t.lvl>=3?'MAX LEVEL':'UPGRADE · '+cost+' credits'}</button>`);
+}
+
+// ---------- hangar ----------
+let hangarTab='classic';
+function hangarSheet(){
+  const lv=level(),full=S.vehicles.length>=vehCap()+(S.vehicles.length?0:0);
+  const items=VEH.filter(v=>v.era===hangarTab).map(v=>{
+    const own=S.vehicles.includes(v.id);
+    let right;
+    if(own) right='<span class="tag ok">OWNED</span>';
+    else if(v.locked) right=`<span class="tag">${esc(v.locked)}</span>`;
+    else if(v.level&&lv<v.level) right=`<span class="tag">LEVEL ${v.level}</span>`;
+    else{const can=S.res.credits>=v.cost&&(!v.tech||S.res.tech>=v.tech)&&S.vehicles.length<vehCap();
+      right=`<button class="btn primary" style="padding:6px 10px;font-size:12px" data-act="buy" data-v="${v.id}" ${can?'':'disabled'}>${v.cost}${v.tech?' +'+v.tech+'T':''}</button>`}
+    return `<div class="li"><span class="veh" style="${v.f?'filter:'+v.f:''}">${v.e}</span><span class="grow"><b>${esc(v.name)}</b><span>${esc(v.kind)}${v.spd?' · Speed '+v.spd+' · Armor '+v.arm:''}</span></span>${right}</div>`}).join('');
+  openSheet(`Hangar · ${S.vehicles.length} of ${VEH.length}`,`
+    <div class="muted" style="font-size:12px">Parking: ${S.vehicles.length}/${vehCap()} spots. Each Hangar room holds 4. Win battles for a chance at free vehicles.</div>
+    <div class="tabs"><button data-act="htab" data-t="classic" class="${hangarTab==='classic'?'on':''}">CLASSIC</button><button data-act="htab" data-t="future" class="${hangarTab==='future'?'on':''}">FUTURISTIC</button></div>
+    <div class="list">${items}</div>
+    <button class="btn" disabled>✈️ FLY A MISSION · coming soon</button>`);
+}
+
+// ---------- battle ----------
+function makeWave(){
+  const lv=level(),pool=ENEMIES[biome()].filter(e=>!e.min||lv>=e.min);
+  const n=3+lv+ri(0,1);
+  return Array.from({length:n},()=>pick(pool));
+}
+function battlePreview(){
+  if(B) return;
+  if(S.res.ap<1){toast('No Adventure Points left. They refill over time, or catch a clone!','warn');return}
+  const wave=makeWave();
+  openSheet('Battle Ready',`<div class="muted">Spend 1 Adventure Point to call out a random enemy group from the Badlands. Win for credits, XP, and maybe a new vehicle.</div>
+    <div class="big-emoji">${wave.map(e=>e.e).join(' ')}</div>
+    <div class="muted" style="text-align:center">${[...new Set(wave.map(e=>e.name))].map(esc).join(', ')}</div>
+    <div class="muted" style="font-size:12px">Nobody gets hurt for real. Knocked out raiders drive home, and your crew can always heal.</div>
+    <button class="btn danger" data-act="fight" style="font-family:var(--font-display)">FIGHT!</button>`);
+  pendingWave=wave;
+}
+let pendingWave=null;
+function startBattle(wave,paid){
+  if(B) return;
+  if(paid){ if(S.res.ap<1) return; S.res.ap--; }
+  closeSheet(); scrollToSurface(true);
+  const W=$('#surface').clientWidth,lv=level();
+  B={W,shield:100,enemies:[],tracers:[],last:performance.now(),cds:[0,0,0,0],dcd:0,over:false};
+  wave.forEach((d,i)=>{
+    const left=i%2===0;
+    B.enemies.push({d,hp:d.hp*(1+.25*(lv-1)),max:d.hp*(1+.25*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:i*1.1,slow:0,state:'wait',el:null});
+  });
+  renderShield();
+  requestAnimationFrame(battleLoop);
+  updateHUD();
+}
+function renderShield(){
+  const box=$('#shieldbox'); if(!box) return;
+  box.innerHTML=B?`<div class="shield"><div class="label">Base shield</div><div class="bar"><i style="width:${B.shield}%" class="${B.shield<25?'bad':B.shield<50?'warn':''}"></i></div></div>`:'';
+}
+function battleLoop(now){
+  if(!B||B.over) return;
+  const dt=Math.min(.05,(now-B.last)/1000); B.last=now; B.time=(B.time||0)+dt;
+  const surf=$('#surface'); if(!surf){requestAnimationFrame(battleLoop);return}
+  const W=surf.clientWidth,H=surf.clientHeight,door=W/2; B.W=W;
+  const box=$('#enemies');
+  const powF=S.res.power>0?1:.5;
+  // enemies
+  for(const e of B.enemies){
+    if(e.state==='wait'){ if(B.time>=e.spawn){e.state='go';e.el=document.createElement('div');e.el.className='enemy'+(e.dir>0?' flip':'')+(e.d.big?' big':'');e.el.innerHTML=`<span class="em">${e.d.e}</span><span class="hpb"><i></i></span>`;box.appendChild(e.el)} else continue; }
+    if(e.state==='go'){
+      const sp=e.d.speed*(e.slow>0?.4:1); e.slow=Math.max(0,e.slow-dt);
+      if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=e.d.dmg*dt; }
+    } else if(e.state==='ko'){ e.koT-=dt; if(e.koT<=0){e.state='flee';e.el.classList.toggle('flip')} }
+    else if(e.state==='flee'){ e.x-=e.dir*140*dt; if(e.x<-60||e.x>W+60){e.state='gone';e.el.remove()} }
+    if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
+  }
+  const targets=B.enemies.filter(e=>e.state==='go');
+  const hit=(e,dmg,from,color)=>{ e.hp-=dmg; B.tracers.push({x1:from.x,y1:from.y,x2:e.x,y2:H-40,t:.12,c:color}); if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;e.el.classList.add('ko')} };
+  // turrets
+  S.turrets.forEach((t,i)=>{
+    if(!t) return; const d=TURRETS[t.type],px=PAD_X[i]*W,py=H-26-20;
+    B.cds[i]-=dt*powF; if(B.cds[i]>0) return;
+    let best=null,bd=1e9; for(const e of targets){const dist=Math.abs(e.x-px); if(dist<=d.range&&dist<bd&&e.hp>0){bd=dist;best=e}}
+    if(!best) return;
+    B.cds[i]=d.rate; hit(best,d.dmg*(1+.5*(t.lvl-1)),{x:px,y:py},t.type==='net'?'#2EC4C9':t.type==='laser'?'#3A8DDE':'#FFC845');
+    if(d.slow) best.slow=1.6;
+    const el=document.querySelector(`.tpad[data-pad="${i}"]`); if(el){const a=Math.atan2((H-40)-py,best.x-px)*180/Math.PI; el.style.setProperty('--a',a+'deg')}
+  });
+  // defenders from barracks shoot from the door
+  const defs=S.crew.filter(c=>c.room&&S.rooms[c.room].type==='barracks'&&!c.hurt);
+  B.dcd-=dt;
+  if(defs.length&&B.dcd<=0){
+    const near=targets.filter(e=>Math.abs(e.x-door)<110&&e.hp>0).sort((a,b)=>Math.abs(a.x-door)-Math.abs(b.x-door))[0];
+    if(near){B.dcd=1.1;const dmg=defs.reduce((s,c)=>s+2+c.aim*.6,0);hit(near,dmg,{x:door,y:H-60},'#3DDC97')}
+  }
+  // fx
+  const cv=$('#fx'); if(cv){const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+    const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+    B.tracers=B.tracers.filter(tr=>(tr.t-=dt)>0); g.lineWidth=2.5; g.lineCap='round';
+    for(const tr of B.tracers){g.strokeStyle=tr.c;g.globalAlpha=clamp(tr.t/.12,0,1);g.beginPath();g.moveTo(tr.x1,tr.y1);g.lineTo(tr.x2,tr.y2);g.stroke()}
+    g.globalAlpha=1;}
+  B.shield=Math.max(0,B.shield); renderShield();
+  if(B.shield<=0) return endBattle(false);
+  if(B.enemies.every(e=>e.state==='gone'||e.state==='flee')&&B.enemies.every(e=>e.state!=='wait')) return endBattle(true);
+  requestAnimationFrame(battleLoop);
+}
+function endBattle(won){
+  B.over=true;
+  setTimeout(()=>{ B.enemies.forEach(e=>e.el&&e.el.remove()); B=null; renderShield(); const cv=$('#fx'); if(cv) cv.getContext('2d').clearRect(0,0,cv.width,cv.height); updateHUD(); },won?1200:200);
+  S.nextRaid=S.t+ri(200,280);
+  let body;
+  if(won){
+    const cr=80+40*level()+ri(0,40); S.res.credits+=cr; S.xp+=50; S.wins++;
+    S.crew.forEach(c=>c.xp+=20);
+    let veh='';
+    if(Math.random()<.35&&S.vehicles.length<vehCap()){
+      const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&v.cost<=1600&&(!v.level||level()>=v.level));
+      if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh" style="${v.f?'filter:'+v.f:''}">${v.e}</span><span class="grow"><b>New vehicle: ${esc(v.name)}</b><span>The raiders left it behind. It's in your Hangar now.</span></span></div>`}
+    }
+    body=`<div class="big-emoji">🏆</div><div class="muted" style="text-align:center">The raiders got knocked silly and drove home.</div>
+      <div class="stats"><div class="stat"><span class="label">Credits</span><b>+${cr}</b></div><div class="stat"><span class="label">Base XP</span><b>+50</b></div><div class="stat"><span class="label">Crew XP</span><b>+20</b></div></div>${veh}`;
+  } else {
+    const lostC=Math.floor(S.res.credits*.2),lostF=Math.floor(S.res.food*.25); S.res.credits-=lostC; S.res.food-=lostF;
+    const pool=S.crew.filter(c=>!c.isCmd); const hurt=[];
+    for(let i=0;i<Math.min(2,pool.length);i++){const c=pool.splice(ri(0,pool.length-1),1)[0];c.hurt=60;hurt.push(c.name)}
+    body=`<div class="big-emoji">😵</div><div class="muted" style="text-align:center">The raiders got in and grabbed some loot. Everyone is okay, they just need some rest.</div>
+      <div class="stats"><div class="stat"><span class="label">Credits</span><b>-${lostC}</b></div><div class="stat"><span class="label">Food</span><b>-${lostF}</b></div><div class="stat"><span class="label">Knocked out</span><b>${hurt.length}</b></div></div>
+      <div class="muted" style="font-size:12px">Tip: more turrets, Net Turrets to slow them down, and a Barracks with defenders. Build a Med Bay to heal faster.</div>`;
+  }
+  openSheet(won?'Victory!':'Base raided',body+`<button class="btn primary" data-close>OKAY</button>`);
+  renderWorld(); save();
+}
+
+// ---------- arrivals + clock ----------
+function arrival(forceClone){
+  if(S.crew.length>=crewCap()){ advise('beds','A recruit wanted to join but there are no beds. Build Sleeping Quarters!'); return false }
+  S.arrivals++;
+  const clone=forceClone||(S.arrivals>2&&Math.random()<.3);
+  const c=makeCrew({clone,flashUntil:Date.now()+600});
+  S.crew.push(c); renderWorld();
+  toast(`New recruit at the door: ${c.name}. Tap them to say hi!`);
+  if(S.arrivals===1) setTimeout(()=>toast('Tip: clones flash a trench coat when they walk in. Watch the door!'),4200);
+  return true;
+}
+function tick(){
+  if(!S) return;
+  S.t++;
+  const r=S.res;
+  for(const k of Object.keys(S.rooms)){
+    const def=ROOMS[S.rooms[k].type];
+    if(def.prod) r[def.prod]+=roomRate(k);
+    for(const c of crewIn(k)){
+      if(c.hurt) continue;
+      c.xp+=.5;
+      if(def.train) c[def.train]=Math.min(10,c[def.train]+.03);
+    }
+  }
+  r.food-=.12*S.crew.length; r.power-=.08*Object.keys(S.rooms).length;
+  r.food=clamp(r.food,0,foodMax()); r.power=clamp(r.power,0,powMax());
+  const medOn=roomsOf('med').some(k=>crewIn(k).some(c=>!c.hurt));
+  for(const c of S.crew){
+    const target=r.food<=0?20:r.power<=0?45:(c.room?78:60);
+    c.mood+=(target-c.mood)*.02;
+    if(c.hurt>0){c.hurt=Math.max(0,c.hurt-(medOn?4:1)); if(!c.hurt&&!document.hidden) renderWorldSoon()}
+  }
+  if(S.t%30===0&&r.ap<5) r.ap++;
+  if(r.food<=0) advise('food','The crew is hungry! Put someone in the Food Hall.','bad');
+  else if(r.food<foodMax()*.15) advise('foodlow','Food is getting low.');
+  if(r.power<=0) advise('pow','Power is out! Turrets are slow and rooms work at half speed.','bad');
+  // clone sabotage
+  for(const c of S.crew){
+    if(!c.clone||S.t-c.joined<25||S.t-(c.lastSab||0)<30) continue;
+    c.lastSab=S.t; if(Math.random()<.5) continue;
+    const where=c.room?ROOMS[S.rooms[c.room].type].name:'the lobby';
+    const kind=ri(0,2);
+    if(kind===0){const n=Math.min(60,Math.floor(r.credits*.1));r.credits-=n;toast(`Hmm... ${n} credits went missing near ${where}.`,'warn')}
+    else if(kind===1){r.food=Math.max(0,r.food-15);toast(`Somebody licked all the food in ${where}. Gross. And suspicious.`,'warn')}
+    else {r.power=Math.max(0,r.power-15);toast(`The power flickered near ${where}. Weird...`,'warn')}
+  }
+  if(S.t>=S.nextArrival){ arrival(S.arrivals===1); S.nextArrival=S.t+ri(40,65) }
+  if(S.t>=S.nextRaid&&!B){ S.nextRaid=S.t+999; toast('Radar: the Badlands Gang is coming! Battle in 5 seconds.','bad'); setTimeout(()=>{if(!B) startBattle(makeWave(),false)},5000) }
+  updateHUD();
+  if(S.t%5===0) save();
+}
+let rwTimer=null; function renderWorldSoon(){ clearTimeout(rwTimer); rwTimer=setTimeout(renderWorld,50) }
+
+// ---------- input ----------
+$('#world').addEventListener('click',e=>{
+  const p=e.target.closest('.person'); if(p&&!p.classList.contains('jailed')){crewCard(+p.dataset.cid);return}
+  const room=e.target.closest('[data-room]'); if(room){roomSheet(room.dataset.room);return}
+  const emp=e.target.closest('[data-empty]'); if(emp){buildSheet(emp.dataset.empty);return}
+  const pad=e.target.closest('[data-pad]'); if(pad){if(B) return; turretSheet(+pad.dataset.pad);return}
+  const ex=e.target.closest('[data-expand]'); if(ex){
+    const cost=expandCost(); if(S.res.credits<cost){toast(`You need ${cost} credits to expand.`,'warn');return}
+    S.res.credits-=cost; if(ex.dataset.expand==='up') S.up++; else S.down++; S.xp+=10; renderWorld(); save();
+    toast(ex.dataset.expand==='up'?'New floor built up into the sky!':'Dug a new floor deeper underground!','ok');
+  }
+});
+$('#panel').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
+  const a=b.dataset.act,id=+b.dataset.id;
+  if(a==='card') crewCard(id);
+  else if(a==='talk') crewCard(id);
+  else if(a==='assign') assignSheet(id);
+  else if(a==='rename') renameSheet(id);
+  else if(a==='rename-save'){const c=S.crew.find(x=>x.id===id);const v=$('#rn').value.trim();if(v){c.name=v.slice(0,18);if(c.isCmd)S.cmd.name=c.name}renderWorld();save();crewCard(id,'Nice. I like my new name!')}
+  else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=ROOMS[S.rooms[k].type].cap)return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
+  else if(a==='identify') identify(id);
+  else if(a==='clone') resolveClone(id,b.dataset.how);
+  else if(a==='talk-ans'){const fromJail=b.dataset.jail==='1';const c=fromJail?S.jail.find(x=>x.id===id):S.crew.find(x=>x.id===id);talkStep(c,+b.dataset.step+1,+b.dataset.score,fromJail)}
+  else if(a==='prisoner'){const p=S.jail.find(x=>x.id===id);if(p) talkStep(p,0,0,true)}
+  else if(a==='build'){const t=b.dataset.t,d=ROOMS[t];if(S.res.credits<d.cost)return;S.res.credits-=d.cost;S.rooms[b.dataset.k]={type:t};S.xp+=10;closeSheet();renderWorld();save();toast(`${d.name} built! Tap it to add crew.`,'ok')}
+  else if(a==='turret'){const d=TURRETS[b.dataset.t];S.res.credits-=d.cost;if(d.tech)S.res.tech-=d.tech;S.turrets[+b.dataset.i]={type:b.dataset.t,lvl:1};closeSheet();renderWorld();save();toast(d.name+' ready!','ok')}
+  else if(a==='upgrade'){const t=S.turrets[+b.dataset.i],cost=TURRETS[t.type].cost*t.lvl;if(S.res.credits<cost)return;S.res.credits-=cost;t.lvl++;renderWorld();save();turretSheet(+b.dataset.i)}
+  else if(a==='hangar') hangarSheet();
+  else if(a==='htab'){hangarTab=b.dataset.t;hangarSheet()}
+  else if(a==='buy'){const v=VEH.find(x=>x.id===b.dataset.v);S.res.credits-=v.cost;if(v.tech)S.res.tech-=v.tech;S.vehicles.push(v.id);renderWorld();save();toast(v.name+' added to your Hangar!','ok');hangarSheet()}
+  else if(a==='fight'&&pendingWave){startBattle(pendingWave,true);pendingWave=null}
+  else if(a==='reset-yes'){try{localStorage.removeItem(KEY)}catch(err){} location.reload()}
+  else if(a==='reset'){openSheet('Start over?',`<div class="muted">This erases your base, crew and hangar on this device.</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
+});
+$('#b-crew').onclick=crewList;
+$('#b-hangar').onclick=hangarSheet;
+$('#b-battle').onclick=battlePreview;
+$('#b-recruit').onclick=()=>{ if(S.res.credits<60){toast('Recruiting costs 60 credits.','warn');return} if(S.crew.length>=crewCap()){toast('No beds left! Build Sleeping Quarters first.','warn');return} S.res.credits-=60; arrival(false) };
+$('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught}</div>
+  <div class="muted" style="font-size:12px">BASED prototype v0.1. Your game saves on this device automatically.</div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+
+// ---------- setup screen ----------
+function renderSetup(){
+  const sw=(id,list,key)=>{$(id).innerHTML=list.map(c=>`<button class="sw ${setupCfg[key]===c?'on':''}" style="background:${c}" data-k="${key}" data-c="${c}" aria-label="${key} ${c}"></button>`).join('')};
+  sw('#sw-skin',SKINS,'skin'); sw('#sw-hair',HAIRS,'hair'); sw('#sw-suit',SUITS,'suit');
+  $('#cmd-preview').innerHTML=personHTML({id:-1,skin:setupCfg.skin,hair:setupCfg.hair,shirt:setupCfg.suit,isCmd:true});
+  $('#factions').innerHTML=Object.keys(FACTIONS).map(k=>{const f=FACTIONS[k];return `<button class="fac ${setupCfg.faction===k?'on':''} ${f.locked?'locked':''}" data-f="${k}" ${f.locked?'aria-disabled="true"':''}><span class="biome">${f.icon}</span><b>${esc(f.name)}</b><span>${esc(f.place)}</span><span>${esc(f.blurb)}</span></button>`}).join('');
+}
+$('#setup').addEventListener('click',e=>{
+  const s=e.target.closest('.sw'); if(s){setupCfg[s.dataset.k]=s.dataset.c;renderSetup();return}
+  const f=e.target.closest('.fac'); if(f){ if(FACTIONS[f.dataset.f].locked){toast(FACTIONS[f.dataset.f].name+' unlocks later in the game!');return} setupCfg.faction=f.dataset.f;renderSetup() }
+});
+$('#found').onclick=()=>{
+  const name=($('#cmd-name').value.trim()||'Commander Ace').slice(0,18);
+  newGame(Object.assign({name},setupCfg)); save(); startGame(true);
+};
+
+function startGame(fresh){
+  $('#setup').hidden=true; $('#game').hidden=false;
+  renderWorld(); requestAnimationFrame(()=>scrollToSurface(false));
+  if(fresh){ toast(`Welcome, ${S.cmd.name}! Tap rooms, crew, and the + spots to build.`,'ok'); setTimeout(()=>toast('Tap a turret pad on the ground to build defenses.'),4000) }
+  setInterval(tick,1000);
+}
+
+const saved=load();
+if(saved&&saved.v===1){S=saved; startGame(false)}
+else { $('#setup').hidden=false; renderSetup(); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) save() });
+})();
+</script>
