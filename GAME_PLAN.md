@@ -201,3 +201,10 @@ File: `prototype/based.html`. Playable in a phone browser.
 Included: Commander creator, Moab or Tahoe start, cutaway base (build up, dig down), 10 room types, named crew with jobs and class tiers, food, power, credits, tech, Adventure Points, 4 turret pads (Auto, Net, Laser) with upgrades, Battle Ready plus random Badlands Gang raids (non lethal, knocked out raiders drive home), clones with all three tells, IDENTIFY, and the Exile, Jail, Cure, Recruit choices, Hangar collection (Classic and Futuristic tabs), save on device.
 
 Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.
+
+## 18. Prototype v0.2 (built)
+
+1. **Anime look:** hand painted style backdrop (cumulus clouds, layered mountains, pine forests and a lake glimpse for Tahoe; red mesas and an arch for Moab), chibi crew drawn in SVG with big eyes, hair styles and blush, rooms shown as little 3D dioramas with ceiling lamps and perspective floors.
+2. **Hangar split:** Aircraft, Ground, and Boats tabs, each vehicle tagged Classic or Futuristic. Added a Battle Tank.
+3. **3D missions:** first person cockpit view (plus a chase view) over real elevation data for Lake Tahoe and Moab, cel shaded. Fly or drive through rings at real landmarks (Tahoe City, Emerald Bay, Delicate Arch, and others) to discover a Badlands Gang outpost. Drones chase you; armed vehicles can zap them out of the sky (they float down safely). Boats run on the real Lake Tahoe.
+4. **Data:** `prototype/terrain.json` holds two 160 by 160 heightmaps built from the open AWS Terrain Tiles dataset (Mapzen, USGS and others), with vertical exaggeration for drama.
