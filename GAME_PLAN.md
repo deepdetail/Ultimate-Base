@@ -1,123 +1,196 @@
-# Ultimate Base: Preliminary Game Plan
+# BASED (working title: Ultimate Base)
 
-Working title: **Ultimate Base** (placeholder, open to a better name).
+Version 0.2 of the plan. Updated with the first round of answers from the design team (you and your son).
 
 ## 1. The one sentence pitch
 
-A side view, tower style base builder for phones (think SimTower and Fallout Shelter) set in a bright, high tech near future, where you dig down and build up, defend the outside with turrets you place yourself, train a named crew, and fill a giant hangar with every kind of vehicle you can collect.
+Five hundred years in the future, North America has split into new city nations. You are a Commander who picks a faction, claims a real place on the map, and builds a base that goes down into the ground and up into the sky. You defend it with turrets, train a named crew, unmask clone infiltrators, and fill a giant hangar with every vehicle from a Cessna to an F-22 to a mech, then fly and drive them on missions.
 
-## 2. Core pillars (what makes it ours)
+## 2. Core pillars
 
 | Pillar | What it means in play | Different from Fallout Shelter because |
 |---|---|---|
-| Build down AND up | Cutaway grid that grows underground and as a tower above ground | Fallout Shelter only digs down |
-| Defend the outside | Place auto turrets, walls, shield pylons on the surface around the base | Fallout Shelter has no exterior defenses |
-| The Hangar | A huge room where collected planes, cars, boats, mechs, and drones are parked and shown off | Inspired by the Metal Storm hangar, minus the PvP |
-| Named crew | Recruit, name, train, and assign crew to rooms | Same spirit, with clearer jobs and training paths |
-| Shapeshifter aliens | Infiltrators flash a trench coat for half a second on arrival, then look human except for one tell (alien feet) | A spot the imposter mini game that is unique to us |
+| Build down AND up | Cutaway grid that grows underground (or below the clouds) and up as a tower | Fallout Shelter only digs down |
+| Defend the outside | Auto turrets, walls, shield pylons around the base | Fallout Shelter has no exterior defenses |
+| The Hangar | Huge room that shows off your collected vehicles | Metal Storm hangar feel, without PvP |
+| Named crew with class trees | Recruit, name, train, promote through faction flavored tiers | Deeper jobs and promotions |
+| Spot the clone | Infiltrators have three tells; identify them, then cure, jail, exile, or recruit | A detective mini game with choices |
+| Missions in vehicles | Fly a jet or drive a mech or car on side missions; discover other bases | Phase 2 or 3 feature |
+| Kid friendly conflict | Nobody dies. People get knocked out and healed. Vehicles and stuff get damaged. | Losing means lost loot and repairs, not death |
 
-## 3. Rooms (first pass)
+## 3. The world: 500 years from now
 
-| Room | Job | Produces / Unlocks |
+Real places, shown as stylized maps (our own artwork based on the real geography, not copied map images).
+
+| Level | Real place | Twist | Builds | Ruling faction | Unlock |
+|---|---|---|---|---|---|
+| Desert | Moab and Arches, Utah | Red rock canyons, base built into the arches | Down into rock, up the cliff face | New United States (proposed) | Start option |
+| Mountain | Lake Tahoe and Truckee | Snowy peaks, base carved into the mountain | Down into the mountain, up the peak | Independent California Republic (proposed) | Start option |
+| Ocean | The Bahamas | Sea levels rose; the whole area is underwater. Atlantis legends are real-ish | Down to the sea floor, up toward the surface | Atlantis | Unlock later |
+| Sky | New Las Vegas | Airships, floating buildings, ultra tall towers above old Vegas | Down means below the clouds, up means space | Sky Vegas | Unlock later |
+
+Each level also has one or two **roaming factions** from the Badlands and the non federated regions (raiders, scavengers, salvage gangs). Later the story can fork so you can switch factions.
+
+## 4. Factions
+
+| Faction | Home | Flavor | Signature vehicles |
+|---|---|---|---|
+| New United States | Moab, Utah (proposed) | Classic military, eagles, stars | Tanks, F-16, F-22, Mustangs |
+| Independent California Republic | Tahoe and Truckee (proposed) | High tech, eco, bear flag look | Electric trucks, drones, mountain mechs |
+| Atlantis | The Bahamas | Ocean tech, glowing coral, domes | Subs, speedboats, hover skimmers |
+| Sky Vegas | New Las Vegas | Neon, airships, showbiz | Airships, sky yachts, jet packs |
+| Roaming factions (several) | Badlands | Patched together, junk tech | Dune buggies, junk jets |
+| The Clones (enemy) | Unknown | Look like aliens at first; story reveals they are cloned humans | Stealth tech |
+
+## 5. Crew classes and tiers
+
+Every crew member has a class with four tiers. Some classes change name by faction.
+
+| Class | Tier 1 | Tier 2 | Tier 3 | Tier 4 |
+|---|---|---|---|---|
+| Pilot (land and sky) | Prop Pilot (Cessna) | Jet Pilot | Fighter Ace | Test Pilot |
+| Pilot (Atlantis) | Boat Captain | Sub Pilot | Deep Sea Commander | Fleet Admiral |
+| Pilot (Sky Vegas) | Drone Flyer | Airship Captain | Sky Ace | Orbital Pilot |
+| Engineer | Mechanic | Builder | Mech Engineer | Chief Engineer |
+| Defender | Guard | Turret Operator | Squad Leader | Base Marshal |
+| Scientist | Lab Tech | Researcher | Geneticist (makes the antidote) | Chief Scientist |
+| Medic | First Aid | Medic | Doctor | Chief of Medicine |
+
+Medic is new: it fits the "nobody dies, everyone heals" rule.
+
+## 6. Rooms
+
+| Room | Job | Produces or unlocks |
 |---|---|---|
-| Headquarters (Commander's Office) | The player's office, base level, unlocks new rooms | Base level, missions |
-| Sleeping Quarters | Crew housing, raises max crew | Crew capacity, morale |
+| Headquarters (Commander's Office) | Base level, story, unlocks rooms | Missions, faction choices |
+| Sleeping Quarters | Crew housing | Max crew, morale |
 | Food Hall | Feeds the crew | Food |
 | Power Core | Runs everything | Power |
-| Fitness Center | Trains strength and stamina | Crew HP, carry capacity |
-| Barracks | Trains defenders | Combat skill, guards |
+| Fitness Center | Trains strength and stamina | Crew HP |
+| Barracks | Trains Defenders | Defense skill |
 | Tech Center | Research and upgrades | Tech points, turret upgrades |
-| Hangar | Stores and repairs vehicles | Vehicle slots, expeditions |
-| Elevator / Stairwell | Connects floors | Movement |
+| Med Bay | Heals knocked out crew | Healing speed |
+| Clone Lab (unlock) | Researches the antidote | Cure clones |
+| Holding Cell (unlock) | Keeps caught clones | Jail option |
+| Hangar | Stores and repairs vehicles | Vehicle slots, missions |
+| Elevator | Connects floors | Movement |
 
-Exterior (surface layer): auto turrets, laser turrets, walls, shield pylon, radar dish, landing pad.
+Outside: auto turrets, net turrets (non lethal), walls, shield pylon, radar dish, landing pad, dock (ocean), mooring tower (sky).
 
-## 4. Threats
+## 7. The clone infiltrator mechanic
 
-1. **Roaming factions**: raider crews in dune buggies that attack the surface defenses.
-2. **Monsters**: big creatures that roam in from the wilds, slow but tanky.
-3. **Shapeshifter aliens**: arrive as a "new recruit." Trench coat flash for about 0.5 seconds, then a normal looking person with one wrong detail (alien feet first, later other tells like glowing eyes or an extra finger). Tap to unmask and you get a reward. Miss them and they quietly sabotage a room.
+**How they arrive:** a new "recruit" walks in wearing a trench coat for about half a second (the Fallout Shelter wink), then looks like a normal person.
 
-## 5. Core game loop
+**The three tells:**
+1. The trench coat flash on arrival (easy to miss).
+2. Green bare feet, no shoes.
+3. Tap any crew member to see what they say. A clone's sentence has a garbled word at the start or the end, like "Zxkrrbl, I love working in the food hall."
 
-1. Rooms produce resources over time (food, power, tech, credits).
-2. Spend resources to build and upgrade rooms and turrets.
-3. Assign crew to rooms that match their best stat.
-4. Threat waves arrive. Turrets and guards fight. Damaged rooms need repairs.
-5. Send vehicles on expeditions to find parts, new vehicles, and new crew.
-6. Base level goes up, unlocking bigger rooms and better vehicles.
+**How to catch one:** tap the person, read their sentence, then press the **IDENTIFY** button.
 
-## 6. Visual direction
+**After you catch them, a choice:**
+
+| Choice | Needs | Result |
+|---|---|---|
+| Exile | Nothing | Gone from the base, small reward |
+| Jail | Holding Cell | Kept, can be talked to later |
+| Cure | Antidote from the Clone Lab | Becomes a normal crew member |
+| Recruit | Win a short conversation (decision tree) | Joins with special skills |
+
+**Reward:** a bonus for each catch (credits plus a rare item), like Fallout Shelter's Mysterious Stranger.
+
+**If you miss one:** it quietly sabotages a room (lowers output or steals loot) until caught.
+
+## 8. Battles (kid friendly)
+
+1. **Random attacks** can happen at any time of day.
+2. **Battle Ready button:** spend Adventure Points to start an attack on purpose. The enemy is randomized but matched to your level and difficulty. Winning gives XP and loot.
+3. **Nobody dies.** Crew get knocked out and recover in the Med Bay. Turrets and vehicles can be damaged and repaired.
+4. **Losing** ends the battle: you lose some loot and pay for repairs.
+
+## 9. Vehicles and the Hangar
+
+Two big collections.
+
+**Vintage (20th and early 21st century):** Cessna 182, Ford Mustang, Ferrari, Cybertruck, classic tanks, F-16, F-18, MiG fighters, small jets and prop planes.
+
+**Futuristic and military (500 years ahead):** F-22 and its descendants, mechs, hover tanks, submarines, airships, stealth drones.
+
+Hangar shows a collection counter ("12 of 60"), each vehicle with stats (speed, armor, cargo, weapons or no weapons).
+
+## 10. Missions (Phase 2 or 3)
+
+A simple arcade mode, not a real flight simulator.
+
+1. **Flying:** top down or side view jet flight. Fly to a point on the stylized map, dodge or out run enemies, maybe use weapons that disable instead of destroy.
+2. **Driving:** car, tank, or mech on a simple route.
+3. **Discovery:** missions reveal other bases and new map regions.
+4. **Rewards:** parts, new vehicles, new crew.
+
+## 11. Visual direction
 
 | Token | Color | Use |
 |---|---|---|
-| Gunmetal base | `#2B3036` to `#4A525C` gradient | Room walls, panels, UI frames |
-| Metal highlight | `#8A939E` to `#C9D1D9` thin diagonal gradient | Brushed metal sheen on panels |
+| Gunmetal base | `#2B3036` to `#4A525C` gradient | Room walls, panels, frames |
+| Metal highlight | `#8A939E` to `#C9D1D9` thin diagonal gradient | Brushed metal sheen |
 | Turquoise accent | `#2EC4C9` | Buttons, selection glow, holograms |
 | Text | `#F4F7FA` | All text |
-| Support blue | `#3A8DDE` | Secondary UI, water, info |
-| Support green | `#3DDC97` | Healthy, ready, success |
+| Support blue | `#3A8DDE` | Secondary UI, water |
+| Support green | `#3DDC97` | Healthy, ready |
 | Cue yellow | `#FFC845` | Warning, low resource |
 | Cue red | `#FF4D5E` | Danger, damage, enemy |
 
-Rule: red, yellow, and green are reserved for status meaning (HP, alerts), never decoration.
+Rule: red, yellow, and green are only for status (HP, alerts). The clone's green feet are a deliberate exception: they break the rule on purpose, so they stand out.
 
-Style: clean sci fi, rounded panels, soft glow on accents, friendly chunky characters (kid readable, not gritty).
+Each level gets its own accent on top of the gunmetal look: rust red rock (Desert), snow white and pine (Mountain), deep teal (Ocean), neon violet (Sky).
 
-## 7. Storyboard: first screens to mock
+## 12. Storyboard: screens to mock
 
-1. **Title screen**: base silhouette at dusk, turquoise logo, PLAY button.
-2. **Main base view**: cutaway of the base, surface with turrets on top, floors above and below, resource bar along the top.
-3. **Build menu**: bottom sheet with room cards (cost, size, what it does).
-4. **Crew card**: name, portrait, stats (Strength, Smarts, Speed, Aim), assign button, rename.
-5. **Hangar view**: big wide room, vehicles parked on pads, collection counter ("12 of 40").
-6. **Defense mode**: zoom out to the surface, raiders approaching, turret range circles.
-7. **Alien arrival moment**: new recruit at the door, trench coat flash, then the "something is off" close up on the feet.
-8. **Expedition map**: send a vehicle out, timer, loot result.
+1. **Title screen:** BASED logo, turquoise glow.
+2. **Faction and location pick:** stylized map of the West, Moab and Tahoe lit up, Bahamas and New Las Vegas locked.
+3. **Main base view:** cutaway, surface turrets, floors above and below, resource bar.
+4. **Build menu:** bottom sheet of room cards.
+5. **Crew card:** name, portrait, class and tier, stats, assign, rename.
+6. **Clone moment:** trench coat flash, then a speech bubble with a garbled word and the IDENTIFY button.
+7. **Clone decision:** Exile, Jail, Cure, Recruit.
+8. **Hangar:** vehicles on pads, collection counter, Vintage and Futuristic tabs.
+9. **Battle Ready:** spend Adventure Points, enemy preview, fight on the surface.
+10. **Mission map:** fly a jet across the stylized map.
 
-## 8. Technology recommendation
+## 13. Technology
 
-**Prototype (today to one week):** a mobile web game (HTML5, using the Phaser game library or plain canvas). It runs in any phone browser, can be added to the home screen like an app, needs no app store approval, and can be shared with a link.
+**Prototype:** mobile web game (HTML5, Phaser or plain canvas), playable in a phone browser, can be added to the home screen.
 
-**About Glide:** from memory (not verified in this session), Glide is a no code builder for data driven apps backed by spreadsheets or tables. It is excellent for lists, forms, and catalogs, but it is not a game engine and is not built for animated, real time, side view gameplay. Good uses for it here: a companion "Vehicle Collection Encyclopedia" or "Crew Roster" app, or a design notebook where your son logs ideas. The core game should live in a game tool.
+**Glide:** from memory (not verified), a no code app builder for data driven apps. Best used later as a companion app (Vehicle Encyclopedia, Crew Roster), not the game engine.
 
-**Real release (later):** Unity or Godot for proper iOS and Android store builds. The prototype's design and art carry straight over.
+**Store release:** Unity or Godot.
 
-## 9. Main considerations
+## 14. Main considerations
 
-1. **Scope control.** The fastest way to kill a fun game is to build everything at once. Prototype one floor of rooms, one turret type, one enemy, one alien, three vehicles.
-2. **Original IP.** Fallout Shelter, Vault Boy, and Metal Storm are owned by other companies. The trench coat wink is fine as an homage, but all names, characters, and art must be our own.
-3. **Kid safety if it ever ships publicly.** No chat, no ads, no data collection by default. Apps aimed at children under 13 fall under rules like COPPA in the US (verify specifics before any public launch).
-4. **Monetization.** Not needed for a family project. If it ever matters, avoid loot box style mechanics in a kids' game.
-5. **Art pipeline.** Start with simple shapes and emoji style placeholders. Later: AI assisted concept art, then a consistent sprite set.
-6. **Save system.** The prototype saves to the phone's browser storage. Cloud saves come much later.
+1. **Scope control.** Missions, four levels, and four factions are a lot. Prototype one level (Desert or Mountain), one faction, and the base plus clones plus hangar first.
+2. **Real brand names.** Ferrari, Ford Mustang, Tesla Cybertruck, Cessna, F-22 (Lockheed Martin), and others are trademarks. For a private family prototype that's fine. For a public release, games usually license them or use made up lookalikes ("Stallion GT," "Raptor X"). This is from memory and worth checking before any launch.
+3. **Real places.** Using real place names is common in games. Base the maps on the real geography but draw them ourselves. If we ever use open map data (like OpenStreetMap), it needs attribution (from memory, verify).
+4. **Original IP.** The trench coat is an homage. Names, characters, and art stay our own.
+5. **Kid safety if it ever ships publicly.** No chat, no ads, no data collection. US rules like COPPA apply to apps aimed at kids under 13 (verify before launch).
+6. **Non lethal design.** Good for kids and also simpler: no death animations, just knockout stars and a Med Bay.
 
-## 10. Time frame
+## 15. Time frame
 
 | Phase | When | Result |
 |---|---|---|
-| 0. Questions and plan | Today | This document plus answers to the questions below |
-| 1. Silly playable prototype | Today | Tap to build rooms, named crew, resources ticking, one turret, one raider wave, one alien with the trench coat flash, a hangar with 3 vehicles |
-| 2. Fun pass | This week | Better art, sounds, saving, 6 to 8 rooms, 2 to 3 enemy types, expeditions, 10 vehicles |
-| 3. Vertical slice | 1 to 2 months | Real art style, tutorial, progression, balanced economy |
-| 4. Store release | 3 to 6+ months | Native build in Unity or Godot, testing, App Store and Google Play |
+| 0. Plan | Done | This document |
+| 1. Silly prototype | Today | Pick Desert or Mountain, build rooms, named crew, resources, a turret, Battle Ready button, clones with all three tells and IDENTIFY, hangar with a few vehicles |
+| 2. Fun pass | This week | Better art, saving, sounds, clone choices (exile, jail, cure, recruit), class tiers, 10 vehicles |
+| 3. Missions | Weeks 2 to 6 | Simple arcade jet flight mission, discover another base |
+| 4. More levels | Months 2 to 3 | Ocean (Bahamas) and Sky (New Las Vegas), more factions |
+| 5. Store release | Months 3 to 6+ | Unity or Godot build, testing, App Store and Google Play |
 
-## 11. Ideation questions for you and your son
+## 16. Open questions (round 2)
 
-**Story**
-1. Where is the base? (Desert, ocean floor, a mountain, the Moon, a floating city?)
-2. Who is the Commander, and why are they building this base?
-3. What do the aliens actually want? Are any of them friendly?
-4. Who are the roaming factions, and do they have a name and a look?
-
-**Gameplay**
-5. Should the player ever leave the base, like driving a vehicle on a mission, or is it all base view?
-6. What is the coolest vehicle in the hangar, the one you would save for?
-7. What happens when an alien is caught? Jail cell, kicked out, or can they be turned into a crew member?
-8. Should crew level up into classes (Pilot, Engineer, Soldier, Scientist)?
-
-**Visual and fun**
-9. What are three other alien tells besides the feet? (Tail, glowing eyes, antenna under a hat?)
-10. Should crew have funny animations, like dancing in the fitness center?
-11. Day and night cycle, with attacks mostly at night?
-12. What is the game called?
+1. Faction homes: is New United States in Moab and Independent California Republic in Tahoe and Truckee?
+2. "Sky Vegas" is the Sky faction name? (The voice note may have said "Sky Vegan.")
+3. If you IDENTIFY someone who is not a clone, what happens? (Small penalty, like they get grumpy?)
+4. What does the clone's garbled word sound like? Make up five examples.
+5. Name the first roaming faction in the Utah Badlands.
+6. Which vehicle should be the first one in the hangar on day one?
+7. The Commander: do you design your own character, and what is their name?
