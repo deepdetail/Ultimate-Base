@@ -208,3 +208,12 @@ Not yet: missions, Atlantis and Sky Vegas, sound, real art, tutorial.
 2. **Hangar split:** Aircraft, Ground, and Boats tabs, each vehicle tagged Classic or Futuristic. Added a Battle Tank.
 3. **3D missions:** first person cockpit view (plus a chase view) over real elevation data for Lake Tahoe and Moab, cel shaded. Fly or drive through rings at real landmarks (Tahoe City, Emerald Bay, Delicate Arch, and others) to discover a Badlands Gang outpost. Drones chase you; armed vehicles can zap them out of the sky (they float down safely). Boats run on the real Lake Tahoe.
 4. **Data:** `prototype/terrain.json` holds two 160 by 160 heightmaps built from the open AWS Terrain Tiles dataset (Mapzen, USGS and others), with vertical exaggeration for drama.
+
+## 19. Prototype v0.3 (built)
+
+1. **Anime ninja crew:** slim characters with sharp anime eyes, spiky hair styles, a ninja headband, and a body that grows with Strength: Novice, Intermediate, Advanced physique (trained in the new Fitness Dojo).
+2. **Gear, Fallout style:** each crew member can buy an outfit (Jumpsuit, Ninja Gi, Flight Jacket, Lab Coat, Combat Armor) and a weapon (Kunai, Bo Staff, Stun Blaster, Katana, Laser Rifle). Outfits add stats; weapons add damage for Barracks defenders. The Commander wears a long coat.
+3. **Rooms with their own look:** HQ map screen and desk, bunk beds, tiled kitchen, glowing reactor, lab monitors, dojo with punching bag, barracks target, med bay heart monitor, hangar hazard stripes, clone tanks with bubbles.
+4. **Realistic money:** prices close to real life (Mustang $42K, Cybertruck $80K, Cessna 182 $450K, L-39 trainer jet $380K, F-16 $28M, F-22 $150M). Earnings in the thousands to tens of thousands. Battles can drop vehicles the raiders leave behind.
+5. **Mission types:** armed vehicles fly or drive Strike Runs (shoot road blocks, radar dishes, supply balloons). Unarmed aircraft like the Cessna fly Recon (line up camps in the camera frame and snap photos). The Cybertruck can buy a Roof Zapper upgrade to unlock Strike Runs.
+6. **3D upgrades:** procedural 3D models for every vehicle with a spinning showroom in the Hangar, smoother 2x terrain, layered pine trees and juniper clumps, cockpit gauges.
