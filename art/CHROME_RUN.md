@@ -44,5 +44,14 @@ PROMPTS (target file name: prompt)
 18. char_commander_m_advanced.png: Same teal character from sheet 1, but an Advanced physique: bigger shoulders, chest and arms, same outfit.
 19. clone_01.png: A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules.
 20. clone_02.png: Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly.
+21. char_commander_m_buzz_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but with a short buzz cut.
+22. portrait_commander_m_buzz_01.png: Now the head and shoulders portrait of the same character.
+23. char_commander_m_ponytail_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but his hair pulled back into a short ponytail with a few loose strands at the front.
+24. portrait_commander_m_ponytail_01.png: Now the head and shoulders portrait of the same character.
+(fresh chat)
+25. char_commander_f_buzz_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but with a short buzz cut.
+26. portrait_commander_f_buzz_01.png: Now the head and shoulders portrait of the same character.
+27. char_commander_f_natural_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but her hair down, natural and slightly messy, falling to her shoulders.
+28. portrait_commander_f_natural_01.png: Now the head and shoulders portrait of the same character.
 
-STOP after 20, or sooner if ChatGPT hits a usage limit (report the last number done). Finish with a table: number, target file name, downloaded file name, PASS or FAIL, and what to redo.
+STOP after 28, or sooner if ChatGPT hits a usage limit (report the last number done). Finish with a table: number, target file name, downloaded file name, PASS or FAIL, and what to redo.
