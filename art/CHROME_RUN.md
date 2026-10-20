@@ -42,8 +42,8 @@ PROMPTS (target file name: prompt)
 (fresh chat)
 17. char_commander_m_novice.png: Same teal character from sheet 1, but a Novice physique: noticeably slimmer arms and shoulders, same outfit. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 18. char_commander_m_advanced.png: Same teal character from sheet 1, but an Advanced physique: bigger shoulders, chest and arms, same outfit. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
-19. clone_01.png: A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules, but use a solid magenta #FF00FF background instead of green so the green feet stay visible.
-20. clone_02.png: Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly. Solid magenta #FF00FF background instead of green.
+19. clone_01.png: SKIP (the game makes clones from crew sprites).
+20. clone_02.png: SKIP (the game makes clones from crew sprites).
 21. char_commander_m_buzz_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but with a short buzz cut. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 22. portrait_commander_m_buzz_01.png: Now the head and shoulders portrait of the same character.
 23. char_commander_m_ponytail_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but his hair pulled back into a short ponytail with a few loose strands at the front. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
