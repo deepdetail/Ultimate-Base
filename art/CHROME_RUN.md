@@ -14,7 +14,7 @@ These two character sheets are the approved art style for my kids' mobile game B
 RUN: send the prompts below in order, one per message, and wait for each image. Start a fresh chat (repeat SETUP) after images 8 and 16.
 
 CHECK each image: one character, a single pose facing right, empty hands, a solid green background with no checkerboard, no text or panels. If it fails, send the matching fix line ONCE, then move on and note the failure:
-- Checkerboard or gray background: "Redo it on a solid pure green #00FF00 background, no checkerboard."
+- Checkerboard or gray background: "Redo it on a solid pure green #00FF00 background, no checkerboard." (For the two clones, say magenta #FF00FF instead.)
 - Multiple poses or panels: "Only one character, one pose, no panels."
 - Style drift: "Match the attached style sheets more closely: same line weight, shading and face style."
 - Holding a gun: "Same image but with empty hands."
@@ -42,8 +42,8 @@ PROMPTS (target file name: prompt)
 (fresh chat)
 17. char_commander_m_novice.png: Same teal character from sheet 1, but a Novice physique: noticeably slimmer arms and shoulders, same outfit.
 18. char_commander_m_advanced.png: Same teal character from sheet 1, but an Advanced physique: bigger shoulders, chest and arms, same outfit.
-19. clone_01.png: A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules.
-20. clone_02.png: Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly.
+19. clone_01.png: A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules, but use a solid magenta #FF00FF background instead of green so the green feet stay visible.
+20. clone_02.png: Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly. Solid magenta #FF00FF background instead of green.
 21. char_commander_m_buzz_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but with a short buzz cut.
 22. portrait_commander_m_buzz_01.png: Now the head and shoulders portrait of the same character.
 23. char_commander_m_ponytail_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but his hair pulled back into a short ponytail with a few loose strands at the front.

@@ -27,8 +27,8 @@ Use the male Commander (teal) so the game can show training progress:
 (The sheet you already have counts as Intermediate.)
 
 ## 4. Clones (shapeshifter bad guys)
-- `clone_01.png`: "A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules."
-- `clone_02.png`: "Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly."
+- `clone_01.png`: "A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules, but use a solid magenta #FF00FF background instead of green so the green feet stay visible."
+- `clone_02.png`: "Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly. Solid magenta #FF00FF background instead of green."
 
 ## 5. If something comes out wrong
 - Checkerboard or gray background again: "Redo it on a solid pure green #00FF00 background, no checkerboard."
