@@ -22,10 +22,10 @@ CHECK each image: one character, a single pose facing right, empty hands, a soli
 SAVE: download each accepted image. Tell me the downloaded file name next to the name it should get (below), so I can rename them.
 
 PROMPTS (target file name: prompt)
-1. char_commander_m_01.png: Draw the teal character from sheet 1 as a single game sprite following the rules. Tactical Gear outfit, teal accents.
-2. portrait_commander_m_01.png: Head and shoulders portrait of that same teal character, looking slightly right, confident.
-3. char_commander_f_01.png: Draw the orange character from sheet 2 as a single game sprite following the rules. Tactical Gear outfit, orange accents.
-4. portrait_commander_f_01.png: Head and shoulders portrait of that same orange character.
+1. char_commander_m_01.png: SKIP (already cut from the approved sheet and in the game).
+2. portrait_commander_m_01.png: SKIP (already cut from the approved sheet and in the game).
+3. char_commander_f_01.png: SKIP (already cut from the approved sheet and in the game).
+4. portrait_commander_f_01.png: SKIP (already cut from the approved sheet and in the game).
 5. char_gi_advanced_01.png: A muscular young man with a buzz cut and deep brown skin, wearing a modern black and teal ninja gi with wrapped forearms and split toe tabi boots. Advanced physique (strong, broad shoulders).
 6. portrait_gi_advanced_01.png: Now the head and shoulders portrait of the same character.
 7. char_flight_intermediate_01.png: An athletic young woman with a short silver bob and East Asian features, wearing a white and teal futuristic flight suit with a harness and a helmet clipped to her hip. Intermediate physique.
@@ -40,18 +40,18 @@ PROMPTS (target file name: prompt)
 15. char_gi_intermediate_02.png: A young woman with a high white ponytail and light olive skin, wearing a white and black ninja gi with teal sash. Intermediate physique.
 16. portrait_gi_intermediate_02.png: Now the head and shoulders portrait of the same character.
 (fresh chat)
-17. char_commander_m_novice.png: Same teal character from sheet 1, but a Novice physique: noticeably slimmer arms and shoulders, same outfit.
-18. char_commander_m_advanced.png: Same teal character from sheet 1, but an Advanced physique: bigger shoulders, chest and arms, same outfit.
+17. char_commander_m_novice.png: Same teal character from sheet 1, but a Novice physique: noticeably slimmer arms and shoulders, same outfit. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
+18. char_commander_m_advanced.png: Same teal character from sheet 1, but an Advanced physique: bigger shoulders, chest and arms, same outfit. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 19. clone_01.png: A clone disguised as a normal crew member: a long tan trench coat over a gray jumpsuit, a slightly too-perfect blank smile, and BARE GREEN FEET (this is the giveaway). Same style and rules, but use a solid magenta #FF00FF background instead of green so the green feet stay visible.
 20. clone_02.png: Another clone, a woman this time, same tan trench coat and bare green feet, trying to look friendly. Solid magenta #FF00FF background instead of green.
-21. char_commander_m_buzz_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but with a short buzz cut.
+21. char_commander_m_buzz_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but with a short buzz cut. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 22. portrait_commander_m_buzz_01.png: Now the head and shoulders portrait of the same character.
-23. char_commander_m_ponytail_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but his hair pulled back into a short ponytail with a few loose strands at the front.
+23. char_commander_m_ponytail_01.png: Same male Commander from sheet 1, same face, same outfit, same rules, but his hair pulled back into a short ponytail with a few loose strands at the front. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 24. portrait_commander_m_ponytail_01.png: Now the head and shoulders portrait of the same character.
 (fresh chat)
-25. char_commander_f_buzz_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but with a short buzz cut.
+25. char_commander_f_buzz_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but with a short buzz cut. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 26. portrait_commander_f_buzz_01.png: Now the head and shoulders portrait of the same character.
-27. char_commander_f_natural_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but her hair down, natural and slightly messy, falling to her shoulders.
+27. char_commander_f_natural_01.png: Same female Commander from sheet 2, same face, same outfit, same rules, but her hair down, natural and slightly messy, falling to her shoulders. Copy the exact standing pose of the left full-body figure on the sheet; for this image that pose overrides the facing-right rule.
 28. portrait_commander_f_natural_01.png: Now the head and shoulders portrait of the same character.
 
 STOP after 28, or sooner if ChatGPT hits a usage limit (report the last number done). Finish with a table: number, target file name, downloaded file name, PASS or FAIL, and what to redo.
