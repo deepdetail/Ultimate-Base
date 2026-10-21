@@ -6,7 +6,7 @@ Same list as the main build session's Google Doc (file names match what the game
 
 Message 1: attach both style sheets, then paste:
 ```
-These two character sheets are the approved art style for my kids' mobile game BASED (year 2526, real places: Lake Tahoe and Moab, age 9+). Keep this style for everything I ask next: realistic anime, detailed cel shading, light from the upper left, gunmetal gray, white and teal (#2FD4D9) accents. Rules for every image: no people, no text, no lettering, no logos, no watermarks, no borders, no panels, one subject per image, kid-friendly. I'll send one image request per message. Reply with just the image.
+These two character sheets are the approved art style for my kids' mobile game BASED (year 2526, real places: the Sierras, California and Moab, Utah, age 9+). Keep this style for everything I ask next: realistic anime, detailed cel shading, light from the upper left, gunmetal gray, white and teal (#2FD4D9) accents. Rules for every image: no people, no text, no lettering, no logos, no watermarks, no borders, no panels, one subject per image, kid-friendly. I'll send one image request per message. Reply with just the image.
 ```
 
 Then one message per image. Save each with the name shown.
@@ -15,7 +15,7 @@ Then one message per image. Save each with the name shown.
 
 1. `room_hq_l1.png`
 ```
-Basic headquarters in a concrete bunker: folding desk, one glowing screen, paper map of Lake Tahoe on the wall, desk lamp. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
+Basic headquarters in a concrete bunker: folding desk, one glowing screen, paper map of the Sierras, California on the wall, desk lamp. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 ```
 
 2. `room_hq_l5.png`
@@ -30,7 +30,7 @@ Basic sleeping quarters: metal bunk beds, gray blankets, dented lockers, one bar
 
 4. `room_quarters_l5.png`
 ```
-Luxury future sleeping quarters: glowing sleep pods, soft teal light, potted plants, window screen of Lake Tahoe at night. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
+Luxury future sleeping quarters: glowing sleep pods, soft teal light, potted plants, window screen of a Sierra mountain lake at night. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 ```
 
 5. `room_food_l1.png`
@@ -220,7 +220,7 @@ Drive ChatGPT (chatgpt.com) in a NEW tab to generate art for my kids' mobile gam
 
 SETUP (at the start of each chat): start a new ChatGPT chat, ask me to attach style_sheet_teal_m.png and style_sheet_orange_f.png and wait until I say they are attached, then send this as the first message with the sheets:
 
-These two character sheets are the approved art style for my kids' mobile game BASED (year 2526, real places: Lake Tahoe and Moab, age 9+). Keep this style for everything I ask next: realistic anime, detailed cel shading, light from the upper left, gunmetal gray, white and teal (#2FD4D9) accents. Rules for every image: no people, no text, no lettering, no logos, no watermarks, no borders, no panels, one subject per image, kid-friendly. I'll send one image request per message. Reply with just the image.
+These two character sheets are the approved art style for my kids' mobile game BASED (year 2526, real places: the Sierras, California and Moab, Utah, age 9+). Keep this style for everything I ask next: realistic anime, detailed cel shading, light from the upper left, gunmetal gray, white and teal (#2FD4D9) accents. Rules for every image: no people, no text, no lettering, no logos, no watermarks, no borders, no panels, one subject per image, kid-friendly. I'll send one image request per message. Reply with just the image.
 
 RUN: send the prompts below in order, one per message, and wait for each image. Start a fresh chat (repeat SETUP) where it says (fresh chat).
 
@@ -236,10 +236,10 @@ PROMPTS (target file name: prompt)
 
 Rooms (basic l1 and fully upgraded l5)
 
-1. room_hq_l1.png: Basic headquarters in a concrete bunker: folding desk, one glowing screen, paper map of Lake Tahoe on the wall, desk lamp. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
+1. room_hq_l1.png: Basic headquarters in a concrete bunker: folding desk, one glowing screen, paper map of the Sierras, California on the wall, desk lamp. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 2. room_hq_l5.png: Luxury future headquarters: teal holographic war table, wall of curved screens, leather command chair, polished dark floor. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 3. room_quarters_l1.png: Basic sleeping quarters: metal bunk beds, gray blankets, dented lockers, one bare bulb. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
-4. room_quarters_l5.png: Luxury future sleeping quarters: glowing sleep pods, soft teal light, potted plants, window screen of Lake Tahoe at night. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
+4. room_quarters_l5.png: Luxury future sleeping quarters: glowing sleep pods, soft teal light, potted plants, window screen of a Sierra mountain lake at night. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 5. room_food_l1.png: Basic food hall: camp stove, crates of canned food, long metal table and benches. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 6. room_food_l5.png: Luxury future kitchen and dining hall: chef's kitchen, hydroponic herb wall, long wooden table, warm pendant lights. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
 7. room_power_l1.png: Basic power room: chunky diesel generator, cables, fuel drums, warning stripes on the floor. Full scene painted to all four edges, wide 3:2 landscape. A straight-on dollhouse cutaway room with the back wall, side walls angled in slightly, floor and ceiling visible. Keep the bottom third mostly clear floor for characters to stand on. No people.
