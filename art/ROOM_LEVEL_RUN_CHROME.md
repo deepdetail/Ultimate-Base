@@ -129,76 +129,76 @@ Rows of glowing glass tubes, sleek control console. This is the L5 version: full
 
 23. `lobby_brutal.png`
 ```
-Low concrete bunker dome with one round door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Low concrete bunker dome with one round door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 24. `lobby_futur.png`
 ```
-White panels with teal light strips, sliding glass door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+White panels with teal light strips, sliding glass door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 25. `lobby_vintage.png`
 ```
-Chrome trim, pastel paint, empty neon sign frame (no letters), diner-style door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Chrome trim, pastel paint, empty neon sign frame (no letters), diner-style door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 26. `lobby_antique.png`
 ```
-Stone columns, brass details, tall arched windows, heavy wooden door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Stone columns, brass details, tall arched windows, heavy wooden door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 27. `lobby_modern.png`
 ```
-Base of a glass tower, steel fins, tall glass entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Base of a glass tower, steel fins, tall glass entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 **Start a new chat here.** Attach the same images and paste Message 1 again.
 
 28. `lobby_luxe.png`
 ```
-Floating glass levels, rooftop gardens, gold trim, grand entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Floating glass levels, rooftop gardens, gold trim, grand entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 29. `lobby_billion.png`
 ```
-Massive concrete and gold, waterfall wall beside the door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+Massive concrete and gold, waterfall wall beside the door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 ```
 
 ### Rooftop caps
 
 30. `roof_brutal.png`
 ```
-Flat concrete parapet with a radio antenna. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Flat concrete parapet with a radio antenna. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 31. `roof_futur.png`
 ```
-Smooth white curved roof with a teal light line. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Smooth white curved roof with a teal light line. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 32. `roof_vintage.png`
 ```
-Brick parapet with chrome trim and an empty sign frame. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Brick parapet with chrome trim and an empty sign frame. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 33. `roof_antique.png`
 ```
-Green copper dome with brass trim. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Green copper dome with brass trim. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 34. `roof_modern.png`
 ```
-Dark glass crown with a teal glowing edge. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Dark glass crown with a teal glowing edge. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 35. `roof_luxe.png`
 ```
-Rooftop garden terrace with gold railings. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Rooftop garden terrace with gold railings. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 36. `roof_billion.png`
 ```
-Helipad with a gold H marking (no letters other than the H). Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+Helipad with a gold H marking (no letters other than the H). Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 ```
 
 Fix lines (send once, then move on):
@@ -256,21 +256,21 @@ PROMPTS (target file name: prompt)
 20. room_jail_l5.png: Glowing teal force-field cells, a cure lab bench with green bubbling vials. This is the L5 version: fully upgraded luxury future tech. Landscape 4:3, full scene painted to all edges. A straight-on dollhouse cutaway of one room, seen from the front at standing eye level: back wall, side walls angled in slightly, ceiling and floor visible. Keep the lower third mostly open floor so the characters can stand there at the size they are on the sheets (about half the room height). Furniture goes along the back and side walls.
 21. room_clonelab_l1.png: One glass tube with green liquid, cluttered lab bench. This is the L1 version: just built, scrappy but cozy. Landscape 4:3, full scene painted to all edges. A straight-on dollhouse cutaway of one room, seen from the front at standing eye level: back wall, side walls angled in slightly, ceiling and floor visible. Keep the lower third mostly open floor so the characters can stand there at the size they are on the sheets (about half the room height). Furniture goes along the back and side walls.
 22. room_clonelab_l5.png: Rows of glowing glass tubes, sleek control console. This is the L5 version: fully upgraded luxury future tech. Landscape 4:3, full scene painted to all edges. A straight-on dollhouse cutaway of one room, seen from the front at standing eye level: back wall, side walls angled in slightly, ceiling and floor visible. Keep the lower third mostly open floor so the characters can stand there at the size they are on the sheets (about half the room height). Furniture goes along the back and side walls.
-23. lobby_brutal.png: Low concrete bunker dome with one round door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-24. lobby_futur.png: White panels with teal light strips, sliding glass door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-25. lobby_vintage.png: Chrome trim, pastel paint, empty neon sign frame (no letters), diner-style door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-26. lobby_antique.png: Stone columns, brass details, tall arched windows, heavy wooden door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-27. lobby_modern.png: Base of a glass tower, steel fins, tall glass entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+23. lobby_brutal.png: Low concrete bunker dome with one round door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+24. lobby_futur.png: White panels with teal light strips, sliding glass door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+25. lobby_vintage.png: Chrome trim, pastel paint, empty neon sign frame (no letters), diner-style door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+26. lobby_antique.png: Stone columns, brass details, tall arched windows, heavy wooden door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+27. lobby_modern.png: Base of a glass tower, steel fins, tall glass entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
 (fresh chat)
-28. lobby_luxe.png: Floating glass levels, rooftop gardens, gold trim, grand entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-29. lobby_billion.png: Massive concrete and gold, waterfall wall beside the door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. . The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
-30. roof_brutal.png: Flat concrete parapet with a radio antenna. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-31. roof_futur.png: Smooth white curved roof with a teal light line. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-32. roof_vintage.png: Brick parapet with chrome trim and an empty sign frame. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-33. roof_antique.png: Green copper dome with brass trim. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-34. roof_modern.png: Dark glass crown with a teal glowing edge. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-35. roof_luxe.png: Rooftop garden terrace with gold railings. Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
-36. roof_billion.png: Helipad with a gold H marking (no letters other than the H). Wide 4:1, solid magenta #FF00FF around it. . The top edge of the building only, as seen from the front. No water towers.
+28. lobby_luxe.png: Floating glass levels, rooftop gardens, gold trim, grand entrance. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+29. lobby_billion.png: Massive concrete and gold, waterfall wall beside the door. Wide 2:1, solid magenta #FF00FF everywhere around the building, no sky, no ground shadow. The ground-floor front of the base, centered, with a big entrance door in the middle, standing on a thin strip of ground.
+30. roof_brutal.png: Flat concrete parapet with a radio antenna. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+31. roof_futur.png: Smooth white curved roof with a teal light line. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+32. roof_vintage.png: Brick parapet with chrome trim and an empty sign frame. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+33. roof_antique.png: Green copper dome with brass trim. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+34. roof_modern.png: Dark glass crown with a teal glowing edge. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+35. roof_luxe.png: Rooftop garden terrace with gold railings. Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
+36. roof_billion.png: Helipad with a gold H marking (no letters other than the H). Wide 4:1, solid magenta #FF00FF around it. The top edge of the building only, as seen from the front. No water towers.
 
 STOP after 36, or sooner if ChatGPT hits a usage limit (report the last number done). Finish with a table: number, target file name, downloaded file name, PASS or FAIL, and what to redo.
 
