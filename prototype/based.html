@@ -43,6 +43,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 .portrait .person{position:absolute;left:5px;top:0;bottom:auto;width:60px;height:150px;animation:none;pointer-events:none}
 input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
+.gear-img{width:100%;height:100%;object-fit:contain;display:block}
 .looks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .lookb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border-radius:12px;border:2px solid var(--line,rgba(255,255,255,.12));background:rgba(0,0,0,.2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
 .lookb.on{border-color:var(--teal);box-shadow:0 0 10px rgba(46,196,201,.35)}
@@ -500,7 +501,10 @@ const FART={
   sky:'<rect width="34" height="24" rx="4" fill="#c7b2ff"/><rect x="8" y="6" width="5" height="12" fill="#4a525c"/><rect x="15" y="3" width="6" height="15" fill="#3a4149"/><rect x="23" y="8" width="4" height="10" fill="#4a525c"/><ellipse cx="17" cy="19" rx="14" ry="4" fill="#fff"/>'
 };
 const factionArt=b=>`<svg viewBox="0 0 34 24" aria-hidden="true">${FART[b]||''}</svg>`;
+// painted gear icons (art/gear), keyed by kind:key; falls back to the drawn SVG
+const GSPR={};
 function gearArt(kind,key){
+  const P=GSPR[kind+':'+key];if(P) return `<img class="gear-img" src="${P}" alt="" aria-hidden="true">`;
   let g='';
   if(kind==='weapon'){
     const L=(WEAPONS[key]||{}).look;
