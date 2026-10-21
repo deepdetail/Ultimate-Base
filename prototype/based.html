@@ -211,7 +211,7 @@ input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-6
 .route div{display:flex;gap:8px;align-items:center;font-size:13px}
 .route i{width:10px;height:10px;border-radius:50%;border:2px solid var(--teal);flex:none}
 .route .fin i{background:var(--bad);border-color:var(--bad)}
-.show3d{width:100%;height:230px;border-radius:14px;background:radial-gradient(circle at 50% 40%,#3e5866,#141a20 75%);border:1px solid var(--glass-line);display:block;touch-action:none}
+.show3d{width:100%;height:300px;border-radius:14px;background:radial-gradient(circle at 50% 40%,#3e5866,#141a20 75%);border:1px solid var(--glass-line);display:block;touch-action:none}
 .phys{display:flex;gap:4px;align-items:center}
 .phys i{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.1)}
 .phys i.on{background:linear-gradient(90deg,var(--warn),#ff9f43)}
@@ -1529,37 +1529,68 @@ function showroomSheet(vid){
     <button class="btn" data-act="hangar">BACK TO HANGAR</button>`);
   if(!v.locked) startShowroom(v);
 }
+// showroom add-ons from the same three.js release (orbit camera, mirror floor); the Hangar still works without them
+function loadShowroomExtras(){
+  if(loadShowroomExtras.p) return loadShowroomExtras.p;
+  const base='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/';
+  const one=f=>new Promise(res=>{const s=document.createElement('script');s.src=base+f;s.onload=res;s.onerror=res;document.head.appendChild(s)});
+  return (loadShowroomExtras.p=one('controls/OrbitControls.js').then(()=>one('objects/Reflector.js')));
+}
+// car studio for the Hangar: dark room, long softboxes overhead and on the sides, so paint picks up crisp light stripes
+function studioEnv(T,renderer){
+  const sc=new T.Scene();
+  const room=new T.Mesh(new T.SphereGeometry(40,32,16),new T.MeshBasicMaterial({color:0x14181d,side:T.BackSide}));sc.add(room);
+  const flo=new T.Mesh(new T.PlaneGeometry(80,80),new T.MeshBasicMaterial({color:0x0c0e11}));flo.rotation.x=-Math.PI/2;flo.position.y=-2;sc.add(flo);
+  const panel=(w,h,x,y,z,ry,rx,c,k)=>{const m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(k),side:T.DoubleSide}));m.position.set(x,y,z);m.rotation.set(rx||0,ry||0,0);sc.add(m)};
+  panel(30,6,0,16,0,0,Math.PI/2,0xffffff,3.2);panel(30,2,0,15,-7,0,Math.PI/2,0xffffff,2);panel(30,2,0,15,7,0,Math.PI/2,0xffffff,2);
+  panel(16,5,-20,6,0,Math.PI/2,0,0xe8f3ff,1.6);panel(16,5,20,6,0,-Math.PI/2,0,0xfff3e0,1.4);panel(20,3,0,5,-22,0,0,0x7ff0f3,.7);
+  const pm=new T.PMREMGenerator(renderer),tex=pm.fromScene(sc,.02).texture;pm.dispose();
+  sc.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose()});
+  return tex;
+}
 function startShowroom(v){
-  loadThree().then(()=>{
+  Promise.all([loadThree(),loadThree().then(loadShowroomExtras)]).then(()=>{
     const cv=$('#show3d'); if(!cv||SR) return;
     const T=window.THREE;
     const renderer=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
     renderer.setPixelRatio(Math.min(2.5,window.devicePixelRatio||1));renderer.setSize(cv.clientWidth,cv.clientHeight,false);
-    const scene=new T.Scene();const cam=new T.PerspectiveCamera(34,cv.clientWidth/cv.clientHeight,.1,200);const env=vehEnv(T,renderer);
-    scene.add(new T.HemisphereLight(0xdff2ff,0x3a3a44,.75));const d=new T.DirectionalLight(0xfff1d6,.9);d.position.set(5,8,6);scene.add(d);
-    const rim=new T.DirectionalLight(0x2ec4c9,.5);rim.position.set(-6,3,-6);scene.add(rim);
-    const model=buildVehicle(T,v,isArmed(v),{env,gear:true});
+    renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+    renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
+    const scene=new T.Scene();const cam=new T.PerspectiveCamera(34,cv.clientWidth/cv.clientHeight,.1,200);const env=studioEnv(T,renderer);
+    {const bc=document.createElement('canvas');bc.width=bc.height=256;const x=bc.getContext('2d'),gr=x.createRadialGradient(128,96,8,128,128,190);gr.addColorStop(0,'#3e5866');gr.addColorStop(1,'#0c1014');x.fillStyle=gr;x.fillRect(0,0,256,256);
+     const bt=new T.CanvasTexture(bc);bt.encoding=T.sRGBEncoding;scene.background=bt}
+    scene.add(new T.HemisphereLight(0xdfe9f5,0x202428,.35));
+    const key=new T.DirectionalLight(0xffffff,1.6);key.position.set(4,11,6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+    Object.assign(key.shadow.camera,{left:-9,right:9,top:9,bottom:-9,near:1,far:40});key.shadow.bias=-.0004;key.shadow.radius=4;scene.add(key);
+    const rim=new T.DirectionalLight(0x7ff0f3,.55);rim.position.set(-7,4,-7);scene.add(rim);
+    const model=buildVehicle(T,v,isArmed(v),{env,gear:true,hd:true});
     const box=new T.Box3().setFromObject(model),sz=box.getSize(new T.Vector3()),ctr=box.getCenter(new T.Vector3());
     const s=9/Math.max(sz.x,sz.z,sz.y*1.6);model.scale.setScalar(s);model.position.set(-ctr.x*s,-box.min.y*s,-ctr.z*s);
     const turn=new T.Group();turn.add(model);scene.add(turn);
-    const disc=new T.Mesh(new T.CircleGeometry(7,96),new T.MeshStandardMaterial({color:0x23272c,metalness:.2,roughness:.6,envMap:env}));disc.rotation.x=-Math.PI/2;scene.add(disc);
-    {const sc=document.createElement('canvas');sc.width=sc.height=128;const x=sc.getContext('2d'),gr=x.createRadialGradient(64,64,4,64,64,64);gr.addColorStop(0,'rgba(0,0,0,.6)');gr.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
-     const sh=new T.Mesh(new T.PlaneGeometry(Math.max(sz.x,sz.z)*s*1.15,Math.max(sz.x,sz.z)*s*1.15),new T.MeshBasicMaterial({map:new T.CanvasTexture(sc),transparent:true,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.position.y=.02;scene.add(sh)}
-    const ring=new T.Mesh(new T.RingGeometry(6.8,7.1,64),new T.MeshBasicMaterial({color:0x2ec4c9}));ring.rotation.x=-Math.PI/2;ring.position.y=.01;scene.add(ring);
-    const mh=sz.y*s;cam.position.set(9,Math.max(4.6,mh*.8),10+Math.max(0,mh-4));cam.lookAt(0,Math.max(1.2,mh*.42),0);
-    let drag=null,vel=.5;
-    cv.addEventListener('pointerdown',e=>{drag=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(err){}});
-    cv.addEventListener('pointermove',e=>{if(drag!==null){turn.rotation.y+=(e.clientX-drag)*.012;drag=e.clientX;vel=0}});
-    cv.addEventListener('pointerup',()=>{drag=null;vel=.5});
+    // glossy turntable: a soft mirror under a tinted, slightly rough top coat
+    if(T.Reflector){const mir=new T.Reflector(new T.CircleGeometry(7,96),{textureWidth:1024,textureHeight:1024,color:0x3a3e44,clipBias:.003});mir.rotation.x=-Math.PI/2;scene.add(mir)}
+    const disc=new T.Mesh(new T.CircleGeometry(7,96),new T.MeshLambertMaterial({color:0x0b0d10,transparent:!!T.Reflector,opacity:T.Reflector?.72:1}));disc.rotation.x=-Math.PI/2;disc.position.y=.005;disc.receiveShadow=true;scene.add(disc);
+    const shp=new T.Mesh(new T.CircleGeometry(7,64),new T.ShadowMaterial({opacity:.45}));shp.rotation.x=-Math.PI/2;shp.position.y=.012;shp.receiveShadow=true;scene.add(shp);
+    const ring=new T.Mesh(new T.RingGeometry(6.85,7.05,96),new T.MeshBasicMaterial({color:0x2ec4c9}));ring.rotation.x=-Math.PI/2;ring.position.y=.016;scene.add(ring);
+    const mh=sz.y*s;cam.position.set(10.5,Math.max(4,mh*.8),12+Math.max(0,mh-4));
+    const tgt=new T.Vector3(0,Math.max(1.1,mh*.4),0);cam.lookAt(tgt);
+    let ctl=null,drag=null,vel=.5;
+    if(T.OrbitControls){ctl=new T.OrbitControls(cam,cv);ctl.target.copy(tgt);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.enablePan=false;ctl.minDistance=6;ctl.maxDistance=24;ctl.maxPolarAngle=Math.PI*.48;ctl.autoRotate=true;ctl.autoRotateSpeed=1.4;
+      ctl.addEventListener('start',()=>{ctl.autoRotate=false});ctl.update()}
+    else{
+      cv.addEventListener('pointerdown',e=>{drag=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(err){}});
+      cv.addEventListener('pointermove',e=>{if(drag!==null){turn.rotation.y+=(e.clientX-drag)*.012;drag=e.clientX;vel=0}});
+      cv.addEventListener('pointerup',()=>{drag=null;vel=.5});
+    }
     let last=performance.now();
-    const loop=now=>{if(!SR) return;SR.raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;turn.rotation.y+=vel*dt;spinParts(model,dt);renderer.render(scene,cam)};
-    SR={renderer,scene,raf:requestAnimationFrame(loop)};
+    const loop=now=>{if(!SR) return;SR.raf=requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;if(ctl) ctl.update();else turn.rotation.y+=vel*dt;spinParts(model,dt);renderer.render(scene,cam)};
+    SR={renderer,scene,ctl,raf:requestAnimationFrame(loop)};
   }).catch(()=>{const cv=$('#show3d');if(cv) cv.replaceWith(Object.assign(document.createElement('div'),{className:'muted',textContent:'The 3D view needs an internet connection.'}))});
 }
 function stopShowroom(){
   if(!SR) return;cancelAnimationFrame(SR.raf);
   SR.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{m.map&&m.map.dispose();m.dispose()})}});
-  SR.renderer.dispose();SR=null;
+  if(SR.ctl) SR.ctl.dispose();SR.renderer.dispose();SR=null;
 }
 function pilotFor(){
   for(const k of roomsOf('hangar')){const c=crewIn(k).find(c=>!c.hurt);if(c) return c}
@@ -1869,7 +1900,9 @@ function buildVehicle(T,v,armed,opt){
   opt=opt||{};
   const G=new T.Group();G.userData.spin=[];
   const c=v.col||0xdddddd,air=v.cat==='air',mil=['f16','f18','f22','mig','tank','huey'].includes(v.id);
-  const paint=(x,o)=>new T.MeshStandardMaterial(Object.assign({color:x,metalness:mil?.35:.55,roughness:mil?.5:.28,envMap:opt.env||null},air?{bumpMap:panelTex(T),bumpScale:.015}:{},o||{}));
+  const paint=(x,o)=>opt.hd
+    ?new T.MeshPhysicalMaterial(Object.assign({color:x,metalness:mil?.3:.45,roughness:mil?.48:.32,clearcoat:mil?.25:1,clearcoatRoughness:mil?.3:.04,envMap:opt.env||null,envMapIntensity:1.1},air?{bumpMap:panelTex(T),bumpScale:.015}:{},o||{}))
+    :new T.MeshStandardMaterial(Object.assign({color:x,metalness:mil?.35:.55,roughness:mil?.5:.28,envMap:opt.env||null},air?{bumpMap:panelTex(T),bumpScale:.015}:{},o||{}));
   const mat=x=>paint(x);
   const metal=new T.MeshStandardMaterial({color:0xb9c1c9,metalness:.95,roughness:.22,envMap:opt.env||null});
   const dark=new T.MeshStandardMaterial({color:0x1d2026,metalness:.45,roughness:.55,envMap:opt.env||null});
@@ -1995,6 +2028,7 @@ function buildVehicle(T,v,armed,opt){
     if(v.id==='mustang') add(new T.BoxGeometry(.5,.04,L*.96),paint(0xf4f7fa,{metalness:.3,roughness:.3}),0,1.62,0);
     if(armed){add(new T.CylinderGeometry(.5,.6,.5,20),dark,0,2.75,.8);const g=add(new T.CylinderGeometry(.12,.12,2.4,12),glow(0x2ec4c9),0,2.85,-.4);g.rotation.x=Math.PI/2}
   }
+  if(opt.hd){const seen=new Set();G.traverse(o=>{if(!o.isMesh) return;o.castShadow=true;o.receiveShadow=true;const m=o.material;if(m&&!seen.has(m)&&m.color){seen.add(m);m.color.convertSRGBToLinear()}})}
   return G;
 }
 // merge parts into one vertex colored geometry (used for instanced trees)
