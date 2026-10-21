@@ -1,0 +1,2087 @@
+{
+  "version": 1,
+  "about": {
+    "format": "Each pool is a list of variant lines. A reply's next names a pool (or a special token). The engine picks ONE variant from that pool for the current speaker.",
+    "pick_rule": [
+      "Keep variants whose who matches the speaker (crew or clone) or is either.",
+      "Crew only ever use tell none.",
+      "Each clone is given one tell when it spawns (garble, dance, or hat). Prefer variants with that tell. About 1 time in 6, a clone uses the slip variant instead, if the pool has one.",
+      "Prefer the mood that matches the speaker: mood over 66 is calm or silly, 35 to 66 is calm, under 35 is nervous. If nothing matches, ignore mood.",
+      "If a reply has a score, add it to a running total (used by convert_result)."
+    ],
+    "tells": {
+      "garble": "One word at the start or end of the line is stretched with extra vowels (matches garble() in based.html).",
+      "dance": "The line has a little dance in *stars*, and the clone often covers it up.",
+      "hat": "The clone wears or fusses with a hat indoors and gets weird about it.",
+      "none": "No tell. All crew lines, plus slips (where the clone gives itself away with words instead)."
+    },
+    "red_herrings": "Nervous and silly crew lines are suspicious on purpose but never use a tell. The rule for the player: weird is not the same as clone. Look for the tell.",
+    "entry_points": {
+      "greet_entrance": "A visitor at the front door.",
+      "greet_base": "Tapping someone inside the base.",
+      "npc_question": "Optional: the visitor asks you something first."
+    },
+    "special_next": {
+      "end": "Close the conversation.",
+      "identify": "Run IDENTIFY on the speaker. Clone goes to pool caught, crew goes to pool wrong_identify (and their mood drops).",
+      "admit": "Let the visitor into the lobby (clone or not).",
+      "turn_away": "Send the visitor away. If they were a clone, small bonus; if crew, they leave a little sad.",
+      "exile": "Same as the Exile button in cloneChoice().",
+      "jail": "Same as the Jail button (needs a Holding Cell).",
+      "cure": "Same as the Cure button (needs a Clone Lab and 30 tech).",
+      "convert_result": "Add up reply scores from convert_1 to convert_3. 3 or more goes to convert_yes, else convert_no."
+    }
+  },
+  "pools": {
+    "greet_entrance": [
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Hi Commander! I saw your sign out front. Are you hiring?",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Um, hi. Is this the base? I brought my own lunch, just in case.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Knock knock! Oh wait, this is a real door. Hi Commander!",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "either",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Hello. Long walk from Truckee. Got any water?",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Hiii Commaaander, nice... weather... inside?",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*does a tiny tap dance on the doormat* Hello! I am a normal person who walks normally.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "*holds a giant hat down with both hands* Greetings! Please do not look at my hat.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Come on in. Welcome to the base!",
+            "next": "admit"
+          },
+          {
+            "text": "Sorry, not today.",
+            "next": "turn_away"
+          }
+        ]
+      }
+    ],
+    "greet_base": [
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Morning, Commander. The power core is humming nicely.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Oh! You scared me. I was just counting tacos.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Commander! Did you know a jet is just a really angry paper airplane?",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "either",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Hey Commander. Busy day, huh?",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Gooood morning, Commander. Lovely base you have.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "nervous",
+        "text": "I am just doing my job here, Commaaander.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*shuffles feet side to side* Oh, this? Just stretching. Normal stretching.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "greeting",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "calm",
+        "text": "*adjusts a hat indoors* Hello Commander. I always wear my hat inside. Everyone does.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Just checking in. Carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_hometown": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Tahoe City. I learned to swim in the lake. It was freezing!",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Moab, near the arches. Why? Did I fill out the form wrong?",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "In a house. With a roof. Pretty fancy, right?",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "I grew up in a normal town called Taaahoeee.",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*wiggles hips* I grew up where everyone dances all day! I mean, nowhere. A normal place.",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "*taps hat* My hat and I grew up in the same place. A, um, hat store.",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "I grew up in a big glass tube. I mean a big glass HOUSE. With bubbles. Normal bubbles.",
+        "replies": [
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_food": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Space tacos from the Food Hall. Extra purple sauce.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Pizza? Is that the right answer? I like pizza a normal amount.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Cereal. For breakfast, lunch, and second lunch.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "I like food. I eat it with my mooouth.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*does a happy snack dance* Socks! Wait. Snacks. I said snacks.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "Hat soup. Everyone loves hat soup. *pats hat*",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Green goo from the cloning vat. I mean, green jello. From the store.",
+        "replies": [
+          {
+            "text": "What job do you want here?",
+            "next": "q_job"
+          },
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_job": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Put me in the Hangar. I can fly anything with wings.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Anything but the reactor. Glowing stuff makes me jumpy.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Professional nap tester in the Sleeping Quarters.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "I would really like to work in the Clone Laaab.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*dances toward the Power room* The power room. Near all the important switches.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "Somewhere quiet. Where nobody asks about hats.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "The Holding Cell, so I can let my friends... I mean, guard it. Very hard.",
+        "replies": [
+          {
+            "text": "Who is in charge here?",
+            "next": "q_boss"
+          },
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_boss": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "You are, Commander. That is why you get the cool coat.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "You! Definitely you. Please do not put me on dish duty.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "The toaster in the Tech Lab. Just kidding, it is you.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Youuu are, Commander. Of course.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*spins in a circle* The Big Boss Clone! I mean, you. You are the boss.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "calm",
+        "text": "Whoever has the biggest hat. So... me? *straightens hat*",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Clone Captain Zorb. Wait. Who said that? Not me.",
+        "replies": [
+          {
+            "text": "How's the weather outside?",
+            "next": "q_weather"
+          },
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_weather": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Sunny and windy. Good day to fly the Cessna.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "I did not look. Was I supposed to look?",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "The sky is still up there. I checked twice.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "It is very much weather outsiiide.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*does a rain dance* It might rain soon. No reason.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "Very sunny. That is why I need this hat. Inside. Forever.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Nice and warm, just like the cloning tank. I mean the hot tub.",
+        "replies": [
+          {
+            "text": "Why aren't you wearing shoes?",
+            "next": "q_shoes"
+          },
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_shoes": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "I am! These are my work boots. See?",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "I took them off for one second, my feet were hot! Please do not tell anyone.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Shoes are just socks that went to college.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "nervous",
+        "text": "Shoes are for other peeeople.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*tippy toe dance* Bare feet are better for dancing. I mean walking.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "calm",
+        "text": "I spent all my shoe money on this hat.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Our feet are green so we do not need... I mean, my feet are cold. Normal cold.",
+        "replies": [
+          {
+            "text": "Quick! What's 2 plus 2?",
+            "next": "q_math"
+          },
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "q_math": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Four. Easy.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Four? Wait, is this a test? It is four.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Twenty two, if you just put them next to each other!",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Fooour. Obviously.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*counts on toes while dancing* One, two, three... four!",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "Let me check my hat. *peeks inside hat* Four.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Two plus two is... CLONE! No wait. Four. Ha ha.",
+        "replies": [
+          {
+            "text": "Where did you grow up?",
+            "next": "q_hometown"
+          },
+          {
+            "text": "What's your favorite food?",
+            "next": "q_food"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "npc_question": [
+      {
+        "kind": "question",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Do you have a bunk open? I only snore a little.",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "question",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Can I ride in the jet if I promise not to press any buttons?",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "question",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Is the Med Bay nice? I bump into things a lot.",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "question",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Where do you keep the antidote? Just curiooous.",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "question",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*taps feet to a beat* Is there a dance floor? For, um, exercise?",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "question",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "Is there a hat rack? I will not be using it.",
+        "replies": [
+          {
+            "text": "Sure. Now let me ask you something.",
+            "next": "q_hometown"
+          },
+          {
+            "text": "Why do you want to know?",
+            "next": "q_job"
+          },
+          {
+            "text": "I know what you are! (IDENTIFY)",
+            "next": "identify"
+          },
+          {
+            "text": "Okay, carry on.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "wrong_identify": [
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "A clone? I have worked here since Tuesday, Commander.",
+        "replies": [
+          {
+            "text": "Sorry! My mistake.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Me?! These are just new shoes! Please do not jail me!",
+        "replies": [
+          {
+            "text": "Sorry! My mistake.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "silly",
+        "text": "If I was a clone, would I be THIS good at burping? Wait, do not answer that.",
+        "replies": [
+          {
+            "text": "Sorry! My mistake.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "calm",
+        "text": "Scan me all you want. One hundred percent human.",
+        "replies": [
+          {
+            "text": "Sorry! My mistake.",
+            "next": "end"
+          }
+        ]
+      },
+      {
+        "kind": "answer",
+        "who": "crew",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "Wow. I am telling the whole Food Hall about this.",
+        "replies": [
+          {
+            "text": "Sorry! My mistake.",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "caught": [
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "calm",
+        "text": "Hmm. You found me, Commaaander.",
+        "replies": [
+          {
+            "text": "Exile: leave the base.",
+            "next": "exile"
+          },
+          {
+            "text": "Jail: off to the Holding Cell.",
+            "next": "jail"
+          },
+          {
+            "text": "Cure: time for the antidote.",
+            "next": "cure"
+          },
+          {
+            "text": "Recruit: let's talk.",
+            "next": "convert_1"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "dance",
+        "mood": "silly",
+        "text": "*stops dancing* Aw, the dancing gave it away, didn't it?",
+        "replies": [
+          {
+            "text": "Exile: leave the base.",
+            "next": "exile"
+          },
+          {
+            "text": "Jail: off to the Holding Cell.",
+            "next": "jail"
+          },
+          {
+            "text": "Cure: time for the antidote.",
+            "next": "cure"
+          },
+          {
+            "text": "Recruit: let's talk.",
+            "next": "convert_1"
+          }
+        ]
+      },
+      {
+        "kind": "slip",
+        "who": "clone",
+        "tell": "hat",
+        "mood": "nervous",
+        "text": "*hat falls off, revealing a little green antenna* Okay. Yes. Clone.",
+        "replies": [
+          {
+            "text": "Exile: leave the base.",
+            "next": "exile"
+          },
+          {
+            "text": "Jail: off to the Holding Cell.",
+            "next": "jail"
+          },
+          {
+            "text": "Cure: time for the antidote.",
+            "next": "cure"
+          },
+          {
+            "text": "Recruit: let's talk.",
+            "next": "convert_1"
+          }
+        ]
+      }
+    ],
+    "convert_1": [
+      {
+        "kind": "convert",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "nervous",
+        "text": "Whyyy should I staaay heeere?",
+        "replies": [
+          {
+            "text": "We have the best food in the West.",
+            "next": "convert_2",
+            "score": 1
+          },
+          {
+            "text": "Because I said so!",
+            "next": "convert_2",
+            "score": 0
+          },
+          {
+            "text": "Here you could be anything. Even a pilot.",
+            "next": "convert_2",
+            "score": 2
+          }
+        ]
+      }
+    ],
+    "convert_2": [
+      {
+        "kind": "convert",
+        "who": "clone",
+        "tell": "garble",
+        "mood": "nervous",
+        "text": "Yooou would truuust me?",
+        "replies": [
+          {
+            "text": "Everyone deserves a second chance.",
+            "next": "convert_3",
+            "score": 2
+          },
+          {
+            "text": "Not really, but let's try.",
+            "next": "convert_3",
+            "score": 1
+          },
+          {
+            "text": "Nope.",
+            "next": "convert_3",
+            "score": 0
+          }
+        ]
+      }
+    ],
+    "convert_3": [
+      {
+        "kind": "convert",
+        "who": "clone",
+        "tell": "none",
+        "mood": "calm",
+        "text": "If I join... can I keep my green feet?",
+        "replies": [
+          {
+            "text": "Of course. Green feet are cool here.",
+            "next": "convert_result",
+            "score": 2
+          },
+          {
+            "text": "We will get you some shoes.",
+            "next": "convert_result",
+            "score": 1
+          },
+          {
+            "text": "No way. Too weird.",
+            "next": "convert_result",
+            "score": 0
+          }
+        ]
+      }
+    ],
+    "convert_yes": [
+      {
+        "kind": "convert",
+        "who": "clone",
+        "tell": "none",
+        "mood": "silly",
+        "text": "Okay Commander, I am in! No more weird words. Maybe a little dancing.",
+        "replies": [
+          {
+            "text": "Welcome to the crew!",
+            "next": "end"
+          }
+        ]
+      }
+    ],
+    "convert_no": [
+      {
+        "kind": "convert",
+        "who": "clone",
+        "tell": "none",
+        "mood": "nervous",
+        "text": "I do not trust you yet. Maybe later...",
+        "replies": [
+          {
+            "text": "Fair enough.",
+            "next": "end"
+          }
+        ]
+      }
+    ]
+  }
+}
