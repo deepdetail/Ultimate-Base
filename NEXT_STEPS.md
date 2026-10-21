@@ -113,3 +113,27 @@ These would be added to the room and level run sheet when we build it.
 **Open questions for you:**
 - Should the exterior also show crew walking around outside?
 - Should raids happen on the exterior view, with turrets visible on the walls?
+
+## Flight 2.0 progress (path to legendary flight)
+- **F1, shipped.** The new flight model:
+  - The plane's attitude is tracked as a quaternion, so loops, rolls and inverted flight all work.
+  - Energy: climbing costs speed, diving gains it, gravity applies, and hard turns bleed speed.
+  - Pro mode adds stalls and sink, G-load, over-G and the tunnel-vision blackout.
+  - The afterburner is the top 10% of the throttle.
+  - Every aircraft flies from its own spec row (`VSPEC`): top speed, stall speed, thrust to weight, roll rate and G limit.
+  - The Huey and the Hover Saucer fly like helicopters: they can hover, and the throttle works as the collective.
+  - Three assist levels: Casual, Assisted and Pro.
+  - The HUD has a pitch ladder, KT, FT, Mach and G readouts, an afterburner cue, and a PULL UP warning.
+  - The game runs on real speeds in m/s and squeezes them into map units with a square root, so the map still fits. The HUD shows real knots.
+- **Hangar realism, shipped.**
+  - Real engines, top speed, stall speed, climb rate, ceiling, G limit, 0 to 60 times and weights replace the old 1 to 5 ratings.
+  - Upgrades are named stages, for example: Factory engine, Hot section overhaul, FADEC, Thrust uprate, Enhanced-performance engine.
+  - The specs are rounded public figures written from memory. Spot-check them before any public release.
+- **Ballistics, shipped.**
+  - Weapons carry their real names, muzzle velocities and fire rates: M2 Browning .50 cal, M61A1 Vulcan, Hydra 70 rockets, a laser pod, and a railgun.
+  - Tracers inherit the shooter's speed and drop under gravity.
+  - Hit tests check the whole path a round travels each frame, so fast rounds can't skip through a target.
+  - Rockets leave smoke trails and splash damage; the laser is a continuous beam; the railgun pierces through targets.
+  - Assisted and Pro show a lead marker; Casual keeps light aim help.
+- **Next:** F2 (cockpit images with live gauges), F3 (takeoff and landing at Truckee), F4 (enemy jets, radar, missile lock tones and flares), F5 (clouds, contrails, afterburner glow and sound).
+- **Not done yet:** realistic names for the base-defense turrets, and real flight physics for ground vehicles.

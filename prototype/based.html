@@ -275,6 +275,9 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .stick-knob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--teal) 40%,#147d81);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .stick-hint{position:absolute;left:16px;right:42%;bottom:calc(env(safe-area-inset-bottom,0px) + 22%);font-size:12px;font-weight:700;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none}
 .thr{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:46px;height:62%;border-radius:23px;background:rgba(23,26,30,.55);border:2px solid rgba(255,255,255,.4);touch-action:none}
+.m-hudc{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.m-gloc{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 35%,#000 85%)}
+.thr.ab i{background:linear-gradient(0deg,#ff7a2a,#ffd27a)}
 .thr i{position:absolute;left:3px;right:3px;bottom:3px;border-radius:20px;background:linear-gradient(0deg,var(--teal),#9ff6f8);max-height:calc(100% - 6px)}
 .thr span{position:absolute;left:-10px;right:-10px;top:-18px;text-align:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 3px #000}
 .fire{position:absolute;right:calc(max(14px,env(safe-area-inset-right,0px)) + 58px);bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:78px;height:78px;border-radius:50%;border:3px solid #ffb3ba;background:radial-gradient(circle at 35% 30%,#ff9aa4,#d0283a);font-family:var(--font-display);font-size:11px;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,.4);touch-action:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
@@ -600,19 +603,19 @@ const OUTFITS={
 // weapons go from backyard toys to sci fi. Every hit is a stun hit: raiders get knocked out, never hurt for real.
 const WEAPONS={
   none:{name:'No weapon',cost:0,dmg:0,look:'none',desc:'Fists of fury.'},
-  slingshot:{name:'Slingshot',cost:500,dmg:1,look:'sling',desc:'+1 battle damage. Rubber band power.'},
-  bb:{name:'BB Gun',cost:1500,dmg:2,look:'bb',desc:'+2 battle damage.'},
+  slingshot:{name:'Wrist-Rocket Slingshot',cost:500,dmg:1,look:'sling',desc:'+1 battle damage. Rubber band power.'},
+  bb:{name:'.177 Air Rifle',cost:1500,dmg:2,look:'bb',desc:'+2 battle damage.'},
   kunai:{name:'Kunai',cost:2000,dmg:2,look:'kunai',desc:'+2 battle damage. A ninja classic.'},
-  bow:{name:'Bow and Arrows',cost:3000,dmg:3,look:'bow',desc:'+3 battle damage. Foam tipped arrows.'},
+  bow:{name:'Recurve Bow',cost:3000,dmg:3,look:'bow',desc:'+3 battle damage. Foam tipped arrows.'},
   staff:{name:'Bo Staff',cost:2500,dmg:3,look:'staff',desc:'+3 battle damage.'},
-  handgun:{name:'Stun Pistol',cost:6000,dmg:4,look:'pistol',desc:'+4 battle damage.'},
+  handgun:{name:'M17 Pistol (stun rounds)',cost:6000,dmg:4,look:'pistol',desc:'+4 battle damage.'},
   katana:{name:'Katana',cost:8000,dmg:5,look:'katana',desc:'+5 battle damage.'},
-  rifle:{name:'Hunting Rifle',cost:12000,dmg:6,look:'rifle',level:3,desc:'+6 battle damage. Long range.'},
-  assault:{name:'Assault Rifle',cost:25000,dmg:8,look:'assault',level:5,desc:'+8 battle damage. Stun rounds.'},
-  mg:{name:'Machine Gun',cost:45000,dmg:11,look:'mg',level:8,desc:'+11 battle damage. Heavy.'},
-  laser:{name:'Laser Rifle',cost:80000,tech:20,dmg:15,look:'laser',level:12,desc:'+15 battle damage.'},
-  plasma:{name:'Plasma Cannon',cost:150000,tech:40,dmg:20,look:'plasma',level:20,desc:'+20 battle damage.'},
-  rail:{name:'Rail Gun',cost:300000,tech:80,dmg:28,look:'rail',level:32,desc:'+28 battle damage.'}
+  rifle:{name:'M24 Sniper Rifle',cost:12000,dmg:6,look:'rifle',level:3,desc:'+6 battle damage. Long range.'},
+  assault:{name:'M4A1 Carbine',cost:25000,dmg:8,look:'assault',level:5,desc:'+8 battle damage. Stun rounds.'},
+  mg:{name:'M249 SAW',cost:45000,dmg:11,look:'mg',level:8,desc:'+11 battle damage. Heavy.'},
+  laser:{name:'Directed-Energy Rifle',cost:80000,tech:20,dmg:15,look:'laser',level:12,desc:'+15 battle damage.'},
+  plasma:{name:'Plasma Projector',cost:150000,tech:40,dmg:20,look:'plasma',level:20,desc:'+20 battle damage.'},
+  rail:{name:'Gauss Rifle',cost:300000,tech:80,dmg:28,look:'rail',level:32,desc:'+28 battle damage.'}
 };
 const ARMOR={
   none:{name:'No armor',cost:0,def:0,desc:'Just vibes.'},
@@ -679,15 +682,66 @@ const VEH=[
   {id:'speedboat',name:'Speedboat',era:'classic',cat:'sea',kind:'Boat',cost:65000,spd:5,arm:2,col:0xf4f4f4},
   {id:'sub',name:'Atlantis Deep Sub',era:'future',cat:'sea',kind:'Submarine',cost:0,locked:'Unlocks with Atlantis'}
 ];
+// real-world specs (rounded public figures; future craft are made up). top: kt for aircraft and boats, mph for ground.
+// flight model inputs: tw thrust to weight, roll deg/s, pitch deg/s, g limit, ab afterburner, rotor flies like a helicopter
+const VSPEC={
+  cessna:{eng:'Lycoming IO-540, 230 hp',top:150,stall:49,climb:924,ceil:18100,g:3.8,tw:.3,roll:70,pitch:30,ek:'prop'},
+  l39:{eng:'Ivchenko AI-25TL turbofan, 3,792 lbf',top:405,stall:90,climb:4130,ceil:36100,g:8,tw:.42,roll:150,pitch:32,ek:'jet'},
+  huey:{eng:'Lycoming T53-L-13 turboshaft, 1,400 shp',top:124,climb:1755,ceil:12600,g:2.5,rotor:true,acc:4,yaw:55,ek:'rotor'},
+  f16:{eng:'GE F110-GE-129 turbofan, 29,000 lbf with afterburner',top:1146,stall:125,climb:50000,ceil:50000,g:9,tw:1.1,roll:300,pitch:34,ab:true,ek:'jet'},
+  mig:{eng:'2x Klimov RD-33 turbofans, 18,300 lbf each with afterburner',top:1320,stall:120,climb:65000,ceil:59100,g:9,tw:1.1,roll:240,pitch:34,ab:true,ek:'jet'},
+  f18:{eng:'2x GE F404-GE-402 turbofans, 17,750 lbf each with afterburner',top:1034,stall:115,climb:50000,ceil:50000,g:7.5,tw:.95,roll:220,pitch:34,ab:true,ek:'jet'},
+  f22:{eng:'2x P&W F119-PW-100 turbofans, 35,000 lbf each with afterburner',top:1303,stall:110,climb:0,ceil:65000,g:9,tw:1.15,roll:280,pitch:38,ab:true,ek:'jet',note:'Supercruise: Mach 1.8 without afterburner'},
+  hover:{eng:'Twin ion lift fans (2526 tech)',top:600,climb:20000,ceil:40000,g:6,rotor:true,acc:16,yaw:90,ek:'future'},
+  rocket:{eng:'Methalox rocket, 60,000 lbf (2526 tech)',top:2900,stall:140,climb:90000,ceil:100000,g:7,tw:2,roll:200,pitch:30,ek:'future'},
+  airship:{eng:'Four electric ducted fans',top:70,ceil:20000,ek:'future'},
+  mustang:{eng:'5.0L Coyote V8, 480 hp',top:155,z60:4.3,ek:'car'},
+  cyber:{eng:'Dual-motor AWD, 600 hp',top:112,z60:4.1,ek:'ev'},
+  ferrari:{eng:'Twin-turbo V6 plug-in hybrid, 819 hp',top:205,z60:2.9,ek:'car'},
+  rezvani:{eng:'6.2L V8, 420 hp',top:120,z60:6,ek:'car'},
+  lambo:{eng:'5.2L V10, 631 hp',top:202,z60:2.9,ek:'car'},
+  revuelto:{eng:'6.5L V12 plus 3 electric motors, 1,001 hp',top:217,z60:2.5,ek:'car'},
+  tank:{eng:'Honeywell AGT1500 gas turbine, 1,500 hp',top:42,weight:'73.6 tons',ek:'heavy'},
+  mech:{eng:'Fusion cell leg drives (2526 tech)',top:25,weight:'40 tons',ek:'future'},
+  speedboat:{eng:'Twin 450 hp outboards',top:61,ek:'boat'},
+  sub:{eng:'Fusion pump-jet (2526 tech)',top:40,ek:'future'}
+};
+const ENG_UP={prop:['Factory engine','Top overhaul','Electronic ignition','3-blade composite prop','Turbo-normalizer kit'],
+  jet:['Factory engine','Hot section overhaul','Digital engine control (FADEC)','Thrust uprate','Enhanced-performance engine'],
+  rotor:['Factory turbine','Hot section overhaul','Uprated transmission','Composite rotor blades','Turbine power uprate'],
+  car:['Stock engine','Cold air intake and exhaust','ECU tune','Forced induction kit','Race-built engine'],
+  ev:['Stock motors','Battery thermal upgrade','Inverter tune','Performance battery pack','Tri-motor conversion'],
+  heavy:['Stock powerpack','Filtration upgrade','Transmission tune','Turbine uprate','Next-gen powerpack'],
+  boat:['Stock outboards','Stainless props','ECU tune','Bigger outboards','Racing drives'],
+  future:['Stock core','Field calibration','Superconducting coils','Overdrive core','Prototype core']};
+const ARM_UP={air:['Stock airframe','Self-sealing fuel tanks','Kevlar cockpit panels','Composite armor plates','Ceramic armor and redundant hydraulics'],
+  ground:['Stock body','Run-flat tires','Kevlar door panels','Ballistic glass (B6)','Full armor package (B7)'],
+  heavy:['Stock armor','Spall liners','Reactive armor tiles','Active protection system','Next-gen composite armor'],
+  sea:['Stock hull','Kevlar hull layer','Composite hull plates','Armored helm','Full armor package'],
+  future:['Stock shell','Graphene layer','Hex shield emitters','Deflector field','Prototype shield']};
+const vSpec=v=>VSPEC[v.id]||{eng:'Unknown',top:0,ek:'car'};
+const armKind=v=>{const k=vSpec(v).ek;return k==='future'?'future':k==='heavy'?'heavy':v.cat==='air'?'air':v.cat==='sea'?'sea':'ground'};
+const engMul=v=>1+.05*((S&&S.vup&&S.vup[v.id]?S.vup[v.id].spd:1)-1);
+const topUnit=v=>v.cat==='ground'?'mph':'kt';
+const fmtTop=(v,m)=>Math.round(vSpec(v).top*(m||1)).toLocaleString()+' '+topUnit(v);
+const armClass=v=>(v.arm||0)>=6?'Armored':(v.arm||0)>=5?'Heavy':(v.arm||0)>=3?'Medium':'Light';
+function specStats(v,own){
+  const sp=vSpec(v),m=own?engMul(v):1,st=(l,b)=>`<div class="stat"><span class="label">${l}</span><b style="font-size:13px">${b}</b></div>`;
+  let h=st('Top speed',fmtTop(v,m));
+  if(v.cat==='air'){h+=sp.stall?st('Stall',sp.stall+' kt'):st('Hover','Yes');h+=st('Climb',sp.climb?sp.climb.toLocaleString()+' ft/min':sp.climb===0?'Classified':'n/a');h+=st('Ceiling',(sp.ceil||0).toLocaleString()+' ft');if(sp.g) h+=st('G limit','+'+sp.g+' G')}
+  else{if(sp.z60) h+=st('0 to 60',sp.z60+' s');if(sp.weight) h+=st('Weight',sp.weight)}
+  h+=st('Armor',armClass(v))+st('Price',money(v.cost));
+  return `<div class="muted" style="font-size:12px">${esc(sp.eng)}${sp.note?' · '+esc(sp.note):''}</div><div class="stats">${h}</div>`;
+}
 // vehicle weapon ladder; [max tier, starting tier] per vehicle
 const VWEAPONS=[
-  {name:'No weapon',dmg:0,rate:1,cost:0,color:0xffffff},
-  {name:'Paintball Cannon',dmg:4,rate:.25,cost:8000,color:0xff6fae},
-  {name:'Machine Gun',dmg:6,rate:.1,cost:30000,color:0xffe27a},
-  {name:'Auto Cannon',dmg:12,rate:.2,cost:120000,color:0xffb347},
-  {name:'Stun Rockets',dmg:30,rate:.7,cost:400000,color:0xff7f50,rocket:true,level:8},
-  {name:'Laser',dmg:18,rate:.12,cost:1500000,tech:40,color:0x7ff0f3,level:12},
-  {name:'Rail Gun',dmg:60,rate:.6,cost:5000000,tech:100,color:0x9fb8ff,level:25}
+  {name:'No weapon',dmg:0,rate:1,cost:0,color:0xffffff,mv:0},
+  {name:'Marker Pod (paint rounds)',cal:'.68 cal paint',mv:250,rpm:300,dmg:4,rate:.2,cost:8000,color:0xff6fae},
+  {name:'M2 Browning .50 cal',cal:'12.7 mm',mv:890,rpm:600,dmg:6,rate:.1,cost:30000,color:0xffd27a},
+  {name:'M61A1 Vulcan 20 mm',cal:'20 mm',mv:1050,rpm:6000,dmg:5,rate:.04,cost:120000,color:0xffb347},
+  {name:'Hydra 70 Rockets',cal:'70 mm rocket',mv:740,rpm:120,dmg:30,rate:.5,cost:400000,color:0xff7f50,rocket:true,splash:16,level:8},
+  {name:'High-Energy Laser Pod',cal:'60 kW beam',beam:true,dps:150,dmg:18,rate:.12,cost:1500000,tech:40,color:0x7ff0f3,level:12},
+  {name:'Electromagnetic Railgun',cal:'Tungsten slug',mv:2500,rpm:100,dmg:60,rate:.6,pierce:true,cost:5000000,tech:100,color:0x9fb8ff,level:25}
 ];
 const VCAP={cessna:[2,0],l39:[3,2],huey:[4,0],f16:[5,3],mig:[5,3],f18:[5,3],f22:[6,3],hover:[6,5],rocket:[6,5],mustang:[3,0],cyber:[4,0],ferrari:[2,0],rezvani:[5,0],lambo:[2,0],revuelto:[3,0],tank:[6,3],mech:[6,4],speedboat:[3,0]};
 VEH.forEach(v=>{const c=VCAP[v.id];if(c){v.wcap=c[0];v.wdef=c[1]}});
@@ -1559,7 +1613,7 @@ function hangarSheet(){
     else if(v.level&&lv<v.level) right=`<span class="tag dim">LV ${v.level}</span>`;
     else right=`<span class="tag gold">${money(v.cost)}</span>`;
     const era=v.era==='future'?'<span class="tag">FUTURISTIC</span>':'<span class="tag dim">CLASSIC</span>';
-    return `<button class="li" data-act="show" data-v="${v.id}"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${esc(v.name)}</b><span>${esc(v.kind)}${v.spd?' · Speed '+v.spd+' · Armor '+v.arm:''}${isArmed(v)?' · '+esc(VWEAPONS[vUp(v).wpn].name):''}</span><span style="display:block;margin-top:3px">${era}</span></span>${right}</button>`}).join('');
+    return `<button class="li" data-act="show" data-v="${v.id}"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${esc(v.name)}</b><span>${esc(v.kind)}${VSPEC[v.id]?' · Top '+fmtTop(v,S.vehicles.includes(v.id)?engMul(v):1)+' · '+esc(vSpec(v).eng.split(',')[0]):''}${isArmed(v)?' · '+esc(VWEAPONS[vUp(v).wpn].name):''}</span><span style="display:block;margin-top:3px">${era}</span></span>${right}</button>`}).join('');
   const tab=c=>`<button data-act="htab" data-t="${c}" class="${hangarTab===c?'on':''}">${CAT_NAME[c].toUpperCase()} · ${S.vehicles.filter(id=>{const v=VEH.find(x=>x.id===id);return v&&v.cat===c}).length}</button>`;
   openSheet(`${icon('plane')} Hangar · ${S.vehicles.length} of ${VEH.length}`,`
     <div class="muted" style="font-size:12px">Parking: ${S.vehicles.length}/${vehCap()} spots (4 per Hangar room). Prices are close to real life, so jets are a long term goal. Winning battles can also bring home vehicles the raiders left behind. Tap any vehicle to see it in 3D.</div>
@@ -1571,11 +1625,11 @@ function showroomSheet(vid){
   let actions='';
   if(own){
     const u=vUp(v),nw=u.wpn<v.wcap?VWEAPONS[u.wpn+1]:null,wl=nw&&nw.level&&lv<nw.level;
-    const up=(k,name,desc)=>{const c=vUpCost(v,u[k]);return `<button class="opt" data-act="vup" data-v="${v.id}" data-k="${k}" ${u[k]>=5||S.res.credits<c?'disabled':''}><b>${name}</b><div class="upbar">${[1,2,3,4,5].map(n=>`<i class="${n<=u[k]?'on':''}"></i>`).join('')}</div><span>${desc}</span><span class="cost">${u[k]>=5?'MAX':money(c)}</span></button>`};
+    const up=(k,name,desc)=>{const c=vUpCost(v,u[k]),L=k==='spd'?ENG_UP[vSpec(v).ek]||ENG_UP.car:ARM_UP[armKind(v)];return `<button class="opt" data-act="vup" data-v="${v.id}" data-k="${k}" ${u[k]>=5||S.res.credits<c?'disabled':''}><b>${name}: ${esc(L[u[k]-1])}</b><div class="upbar">${[1,2,3,4,5].map(n=>`<i class="${n<=u[k]?'on':''}"></i>`).join('')}</div><span>${u[k]>=5?'Fully upgraded.':'Next: '+esc(L[u[k]])+'. '+desc}</span><span class="cost">${u[k]>=5?'MAX':money(c)}</span></button>`};
     actions=`<button class="btn primary" data-act="launch" data-v="${v.id}" style="font-family:var(--font-display)">${icon('rocket')} LAUNCH MISSION</button>
       <button class="btn" data-act="vsell" data-v="${v.id}" ${canSell(v)?'':'disabled'}>${canSell(v)?'SELL · '+money(sellValue(v)):S.exp&&S.exp.veh===v.id?'AWAY ON A RAID':'KEEP AT LEAST ONE VEHICLE'}</button>
-      <div class="label">Upgrades</div><div class="grid2">${up('spd','Engine','+15% top speed per level.')}${up('arm','Armor','Takes 25% less damage per level.')}</div>
-      <div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Weapon: ${esc(VWEAPONS[u.wpn].name)}</b><span>${u.wpn?`Hits for ${VWEAPONS[u.wpn].dmg} per shot.`:'Unarmed vehicles fly recon or race rallies.'} Max for this vehicle: ${esc(VWEAPONS[v.wcap].name)}.</span></span></div>
+      <div class="label">Upgrades</div><div class="grid2">${up('spd','Engine',`Top speed ${fmtTop(v,engMul(v))} to ${fmtTop(v,engMul(v)+.05)}.`)}${up('arm','Armor','25% less damage per stage.')}</div>
+      <div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Weapon: ${esc(VWEAPONS[u.wpn].name)}</b><span>${u.wpn?(VWEAPONS[u.wpn].beam?`${VWEAPONS[u.wpn].cal}, continuous beam.`:`${VWEAPONS[u.wpn].cal} · ${VWEAPONS[u.wpn].mv.toLocaleString()} m/s muzzle velocity · ${VWEAPONS[u.wpn].rpm.toLocaleString()} rounds/min.`):'Unarmed vehicles fly recon or race rallies.'} Max for this vehicle: ${esc(VWEAPONS[v.wcap].name)}.</span></span></div>
       ${nw?`<button class="btn" data-act="vwpn" data-v="${v.id}" ${wl||S.res.credits<nw.cost||(nw.tech&&S.res.tech<nw.tech)?'disabled':''}>${icon('target')} ${wl?'NEXT WEAPON AT LEVEL '+nw.level:'INSTALL '+esc(nw.name.toUpperCase())+' · '+money(nw.cost)+(nw.tech?' + '+nw.tech+' tech':'')}</button>`:'<div class="muted" style="font-size:12px">Best weapon this vehicle can carry is installed.</div>'}`;
   } else if(v.locked) actions=`<div class="muted">${esc(v.locked)}.</div>`;
   else if(v.level&&lv<v.level) actions=`<div class="muted">Reach base Level ${v.level} to buy this one.</div>`;
@@ -1584,7 +1638,7 @@ function showroomSheet(vid){
   openSheet(esc(v.name),`
     <canvas class="show3d" id="show3d"></canvas>
     <div class="row" style="align-items:center">${v.era==='future'?'<span class="tag">FUTURISTIC</span>':'<span class="tag dim">CLASSIC</span>'}<span class="tag dim">${esc(CAT_NAME[v.cat].toUpperCase())}</span>${isArmed(v)?`<span class="tag bad">${esc(VWEAPONS[vUp(v).wpn].name.toUpperCase())}</span>`:''}<span class="muted" style="font-size:12px">Drag to spin</span></div>
-    ${v.spd?`<div class="stats"><div class="stat"><span class="label">Speed</span><b>${v.spd}</b>${own&&vUp(v).spd>1?`<small>+${(vUp(v).spd-1)*15}%</small>`:''}</div><div class="stat"><span class="label">Armor</span><b>${v.arm}</b>${own&&vUp(v).arm>1?`<small>Lv ${vUp(v).arm}</small>`:''}</div><div class="stat"><span class="label">Price</span><b style="font-size:13px">${money(v.cost)}</b></div></div>`:''}
+    ${VSPEC[v.id]?specStats(v,own):''}
     ${actions}
     <button class="btn" data-act="hangar">BACK TO HANGAR</button>`);
   if(!v.locked) startShowroom(v);
@@ -2149,7 +2203,8 @@ function startMission(vid){
   Promise.all([loadThree(),loadTerrain()]).then(()=>{
     S.res.power-=20; updateHUD();
     buildMission(v,mk,route,pilot);
-  }).catch(()=>{
+  }).catch(e=>{
+    console.error('mission failed to start',e);
     root.innerHTML='<div class="m-load"><div>COULD NOT LOAD THE 3D MAP<small>Check your internet connection and try again.</small><br><button class="btn" id="m-fail">BACK TO BASE</button></div></div>';
     $('#m-fail').onclick=()=>{root.hidden=true;root.innerHTML='';document.body.classList.remove('in-mission')};
   });
@@ -2207,23 +2262,24 @@ function buildMission(v,mk,route,pilot){
     return best||gp;
   }
   const type=missionType(v),armed=isArmed(v);
+  const FM=v.cat==='air'?flightModel(v):null;
   const root=$('#mission');
   const ckClass=v.cat==='sea'?'car boat':v.cat==='ground'?'car':'';
   root.innerHTML=`
     <div class="cockpit ${ckClass}" id="m-cockpit" style="--hood:#${(v.col||0xcc3333).toString(16).padStart(6,'0')}">
       <div class="arch"></div><div class="strut l"></div><div class="strut r"></div>${v.cat==='air'?'':'<div class="hood"></div>'}<div class="dash"><div class="gauge g1"><i id="g-spd"></i><span>SPD</span></div><div class="gauge g2"><i id="g-alt"></i><span>${v.cat==='air'?'ALT':'RPM'}</span></div></div></div>
-    ${type==='recon'?'<div class="m-frame"></div>':''}<div class="m-cross" id="m-cross"></div><div class="m-arrow" id="m-arrow"><i></i></div><div class="m-label" id="m-label" hidden></div><div class="m-warn" id="m-warn" hidden></div>
+    ${type==='recon'?'<div class="m-frame"></div>':''}<canvas class="m-hudc" id="m-hudc"></canvas><div class="m-gloc" id="m-gloc"></div><div class="m-cross" id="m-cross"></div><div class="m-arrow" id="m-arrow"><i></i></div><div class="m-label" id="m-label" hidden></div><div class="m-warn" id="m-warn" hidden></div>
     <div class="m-flash" id="m-flash"></div><div class="m-photos" id="m-photos"></div>
     <div class="m-top">
       <button class="m-btn" id="m-exit">✕ EXIT</button>
       <div class="m-obj"><b id="m-obj">Loading</b><span>${esc(pilot.name)} · ${esc(v.name)}</span>
-        <div class="m-gauges"><span>SPD <b id="m-spd">0</b></span><span>ALT <b id="m-alt">0</b></span><span>HDG <b id="m-hdg">0</b></span>${armed?'<span>KO <b id="m-ko">0</b></span>':''}</div>
+        <div class="m-gauges"><span>${v.cat==='air'?'KT':v.cat==='sea'?'KT':'MPH'} <b id="m-spd">0</b></span><span>ALT <b id="m-alt">0</b></span><span>HDG <b id="m-hdg">0</b></span>${armed?'<span>KO <b id="m-ko">0</b></span>':''}</div>
         <div class="m-hull"><i id="m-hull" style="width:100%"></i></div></div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><canvas id="minimap" width="160" height="160"></canvas><button class="m-btn" id="m-cam">VIEW: COCKPIT</button></div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><canvas id="minimap" width="160" height="160"></canvas><button class="m-btn" id="m-cam">VIEW: COCKPIT</button>${v.cat==='air'?`<button class="m-btn" id="m-assist">ASSIST: ${(S.assist||'casual').toUpperCase()}</button>`:''}</div>
     </div>
     <div class="m-ctl" id="m-ctl">
       <div class="stick-zone" id="m-stick"><div class="stick-base" id="m-sbase" hidden><div class="stick-knob" id="m-knob"></div></div></div>
-      <div class="stick-hint" id="m-hint">${v.cat==='air'?'Drag here to steer. Up climbs, down dives.':'Drag here. Up is gas, down is brake, sideways steers.'}</div>
+      <div class="stick-hint" id="m-hint">${v.cat==='air'?(FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Up pulls the nose up, sideways rolls. Throttle up top for afterburner.'):'Drag here. Up is gas, down is brake, sideways steers.'}</div>
       ${v.cat==='air'?'<div class="thr" id="m-thr"><span>THROTTLE</span><i id="m-thri" style="height:60%"></i></div>':''}
       ${armed?`<button class="fire ${v.cat==='air'?'':'solo'}" id="m-fire">${icon('target')}FIRE</button>`:type==='recon'?`<button class="fire photo" id="m-fire">${icon('camera')}PHOTO</button>`:''}
     </div>`;
@@ -2327,12 +2383,15 @@ function buildMission(v,mk,route,pilot){
   const makeDrone=(x,y,z)=>{const g=new T.Group();g.add(new T.Mesh(droneGeo,droneMat));const r=new T.Mesh(rotorGeo,rotorMat);r.rotation.x=Math.PI/2;r.position.y=2.4;g.add(r);
     const eye=new T.Mesh(eyeGeo,eyeMat);eye.position.set(0,.4,-2.6);g.add(eye);g.position.set(x,y,z);scene.add(g);return {g,rotor:r,state:'chase',vy:0}};
   const VU=vUp(v),VW=VWEAPONS[VU.wpn];
-  const maxS=(v.cat==='air'?40+v.spd*16:v.cat==='sea'?28+v.spd*9:20+v.spd*10)*(1+.15*(VU.spd-1));
+  const maxS=FM?comp(FM.vmax):(v.cat==='sea'?28+v.spd*9:20+v.spd*10)*(1+.05*(VU.spd-1));
   const first=stops[0];
-  const P={x:home.x,z:home.z,y:0,yaw:Math.atan2(-(first.x-home.x),-(first.z-home.z)),pitch:0,roll:0,speed:v.cat==='air'?maxS*.6:0,hull:100,thr:.6,bob:0};
+  const P={x:home.x,z:home.z,y:0,yaw:Math.atan2(-(first.x-home.x),-(first.z-home.z)),pitch:0,roll:0,speed:v.cat==='air'?maxS*.6:0,hull:100,thr:FM&&FM.rotor?.5:.6,bob:0};
+  if(FM){P.q=new T.Quaternion().setFromEuler(new T.Euler(0,P.yaw,0,'YXZ'));P.vr=FM.vmax*(FM.rotor?.5:FM.ab?.5:.75);P.sink=0;P.vy=0;P.g=1;P.speed=comp(P.vr)}
   P.y=v.cat==='air'?heightAt(P.x,P.z)+90:heightAt(P.x,P.z);
-  M={v,mk,type,armed,renderer,scene,camera,stops,idx:0,P,drones:[],shots:[],bits:[],ko:0,hits:0,photos:0,cam:'cockpit',input:{x:0,y:0,fire:false},keys:{},t:0,last:performance.now(),done:false,spawned:false,fireCd:0,raf:0,
-    maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,makeDrone,shotGeo:new T.SphereGeometry(VW.rocket?1.9:1.1,8,6),shotMat:new T.MeshBasicMaterial({color:VW.color}),wpn:VW,armMul:1/(1+.25*(VU.arm-1)),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min};
+  M={v,mk,type,armed,renderer,scene,camera,stops,idx:0,P,FM,drones:[],shots:[],bits:[],puffs:[],flash:0,ko:0,hits:0,photos:0,cam:'cockpit',input:{x:0,y:0,fire:false},keys:{},t:0,last:performance.now(),done:false,spawned:false,fireCd:0,raf:0,
+    maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,makeDrone,shotGeo:VW.rocket?new T.CylinderGeometry(.35,.35,2.6,8).rotateX(Math.PI/2):new T.BoxGeometry(.32,.32,1),shotMat:new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),
+    puffGeo:new T.SphereGeometry(1,6,5),flashMesh:(()=>{const f=new T.Mesh(new T.SphereGeometry(1.1,8,6),new T.MeshBasicMaterial({color:0xfff1b0,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false}));f.visible=false;scene.add(f);return f})(),
+    beam:VW.beam?(()=>{const b=new T.Mesh(new T.CylinderGeometry(.25,.25,1,6,1,true).rotateX(Math.PI/2).translate(0,0,.5),new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.8,blending:T.AdditiveBlending,depthWrite:false}));b.visible=false;scene.add(b);return b})():null,wpn:VW,armMul:1/(1+.25*(VU.arm-1)),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min};
   {const mm=$('#minimap'),g=mm.getContext('2d'),img=g.createImageData(160,160);
     for(let y=0;y<160;y++)for(let x=0;x<160;x++){const gi=Math.min(n-1,Math.round(y*(n-1)/159))*n+Math.min(n-1,Math.round(x*(n-1)/159));
       const c=water[gi]?hex(mk==='tahoe'?0x2f8fd0:0x4f9a8a):groundColor(mk,elev[gi],nor.getY(gi),false,.5);
@@ -2358,6 +2417,8 @@ function bindMissionInput(){
   if(fire&&M.armed){fire.addEventListener('pointerdown',e=>{e.preventDefault();if(M)M.input.fire=true});['pointerup','pointercancel','pointerleave'].forEach(t=>fire.addEventListener(t,()=>{if(M)M.input.fire=false}))}
   else if(fire) fire.addEventListener('pointerdown',e=>{e.preventDefault();takePhoto()});
   $('#m-exit').onclick=()=>{ if(!M||M.done) return; M.paused=true; openSheet('Leave mission?',`<div class="muted">You will head home with no reward. Nothing is lost.</div><div class="row"><button class="btn" data-act="m-resume">KEEP GOING</button><button class="btn danger" data-act="m-quit">GO HOME</button></div>`,true)};
+  const ab=$('#m-assist');if(ab) ab.onclick=()=>{const o=['casual','assisted','pro'];S.assist=o[(o.indexOf(S.assist||'casual')+1)%3];ab.textContent='ASSIST: '+S.assist.toUpperCase();
+    toast(S.assist==='casual'?'Casual: the plane levels itself and the guns help aim.':S.assist==='assisted'?'Assisted: auto-level stays on, but you can stall and you aim with the lead marker.':'Pro: full control. Stalls, G-forces and crashes are real.','ok')};
   $('#m-cam').onclick=()=>{if(!M) return;M.cam=M.cam==='cockpit'?'chase':'cockpit';$('#m-cam').textContent='VIEW: '+(M.cam==='cockpit'?'COCKPIT':'CHASE');$('#m-cockpit').hidden=M.cam!=='cockpit'};
   M.onKey=e=>{if(!M) return;const d=e.type==='keydown';M.keys[e.key.toLowerCase()]=d;if(e.key===' '){e.preventDefault();if(M.armed) M.input.fire=d;else if(d&&!e.repeat) takePhoto()}if(d&&e.key.toLowerCase()==='c') $('#m-cam').click()};
   window.addEventListener('keydown',M.onKey);window.addEventListener('keyup',M.onKey);
@@ -2390,6 +2451,91 @@ function boom(pos){
   for(let i=0;i<10;i++){const b=new window.THREE.Mesh(M.bitGeo,M.bitMat);b.position.copy(pos);M.scene.add(b);
     M.bits.push({m:b,v:new window.THREE.Vector3(rnd(-14,14),rnd(8,22),rnd(-14,14)),life:1.3})}
 }
+// flight 2.0: real m/s inside, squeezed into map units so a Cessna and an F-22 both fit the map (1 map unit is about 4 m)
+const KT=.5144,GRAV=9.81;
+const comp=vr=>4.2*Math.sqrt(Math.max(0,vr)/KT);
+function flightModel(v){
+  const sp=vSpec(v),m=engMul(v),vmax=sp.top*KT*m,tw=(sp.tw||1)*(1+.08*(m-1)/.05);
+  return {rotor:!!sp.rotor,ab:!!sp.ab,vmax,vs:(sp.stall||0)*KT,tw,cd:tw*GRAV/(vmax*vmax),roll:(sp.roll||90)*Math.PI/180,pitch:(sp.pitch||30)*Math.PI/180,
+    gmax:sp.g||4,ceil:sp.ceil||20000,acc:sp.acc||4,yaw:(sp.yaw||50)*Math.PI/180,climb:(sp.climb||1500)*.00508,jet:sp.ek==='jet'||sp.ek==='future'};
+}
+function flyStep(dt,ix,iy,k){
+  const T=window.THREE,P=M.P,F=M.FM,mode=S.assist||'casual';
+  const altFt=(P.y/(M.VEX*MWS)*10+M.minElev)*3.281,thin=clamp(1-altFt/F.ceil,.05,1);
+  if(F.rotor){
+    P.vr+=(iy*F.acc-F.acc*.25*(P.vr/F.vmax)*(P.vr/F.vmax)*4)*dt;P.vr=clamp(P.vr,0,F.vmax);
+    const climb=(P.thr-.5)*2*F.climb;P.vy+=(climb-P.vy)*Math.min(1,dt*1.5);
+    P.yaw-=ix*F.yaw*dt;const bank=ix*.4,pv=-clamp(iy,-1,1)*.18;
+    P.q.setFromEuler(new T.Euler(pv,P.yaw,-bank,'YXZ'));
+    const hd=new T.Vector3(-Math.sin(P.yaw),0,-Math.cos(P.yaw));P.speed=comp(P.vr);
+    P.x+=hd.x*P.speed*dt;P.z+=hd.z*P.speed*dt;P.y+=P.vy*.9*dt;P.g=1;
+  } else {
+    const fwd=new T.Vector3(0,0,-1).applyQuaternion(P.q),up=new T.Vector3(0,1,0).applyQuaternion(P.q),rt=new T.Vector3(1,0,0).applyQuaternion(P.q);
+    const bank=Math.atan2(-rt.y,up.y),pitch=Math.asin(clamp(fwd.y,-1,1));
+    const auth=clamp(P.vr/Math.max(F.vs*1.6,20),.25,1);
+    let rr=ix*F.roll*auth,pr=iy*Math.min(F.pitch,GRAV*(F.gmax-up.y*.5)/Math.max(P.vr,20))*auth;
+    if(iy<0) pr*=.6;
+    if(mode!=='pro'&&Math.abs(ix)<.12) rr+=-bank*2.2;
+    if(mode==='casual'&&Math.abs(iy)<.12) pr+=-pitch*1.1*Math.cos(bank);
+    const stall=F.vs&&P.vr<F.vs;
+    if(stall&&mode!=='casual'){pr-=1.1*(1-P.vr/F.vs);warn('STALL! NOSE DOWN AND THROTTLE UP',.4)}
+    P.q.multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),pr*dt)).multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0,0,1),-rr*dt));
+    if(mode!=='pro'){const yr=clamp(GRAV*Math.tan(clamp(bank,-1.35,1.35))/Math.max(P.vr,25),-1.4,1.4);P.q.premultiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),-yr*dt))}
+    P.q.normalize();
+    // thrust: jets get the last 10 percent of throttle as afterburner
+    const tf=F.ab?(P.thr<=.9?P.thr/.9*.62:.62+(P.thr-.9)/.1*.38):P.thr;
+    P.g=Math.abs(pr*P.vr/GRAV+up.y);
+    const acc=F.tw*GRAV*tf*thin-F.cd*P.vr*P.vr-GRAV*fwd.y-.55*Math.max(0,P.g-1);
+    P.vr=Math.max(mode==='casual'?Math.max(F.vs*1.1,F.vmax*.25):8,P.vr+acc*dt);
+    P.sink=stall&&mode!=='casual'?Math.min(P.sink+GRAV*(1-P.vr/F.vs)*dt,30):Math.max(0,P.sink-20*dt);
+    P.speed=comp(P.vr);
+    P.x+=fwd.x*P.speed*dt;P.z+=fwd.z*P.speed*dt;P.y+=fwd.y*P.speed*dt-P.sink*.5*dt;
+    const thr=$('#m-thr');if(thr) thr.classList.toggle('ab',F.ab&&P.thr>.9);
+    const gl=$('#m-gloc');if(gl) gl.style.opacity=mode==='pro'&&P.g>F.gmax*.85?clamp((P.g-F.gmax*.85)/(F.gmax*.4),0,.85):0;
+    if(mode==='pro'&&P.g>F.gmax+1.5) warn('OVER-G!',.4);
+  }
+  const e=new T.Euler().setFromQuaternion(P.q,'YXZ');P.pitch=e.x;P.yaw=e.y;P.roll=-e.z;
+  P.y=Math.min(P.y,950*MWS);
+  const gh=M.heightAt(P.x,P.z)+(M.waterAt(P.x,P.z)?.6:0);
+  const f=new T.Vector3(0,0,-1).applyQuaternion(P.q),fall=F.rotor?-P.vy*.9:-(f.y*P.speed-P.sink*.5);
+  if(P.y<gh+4){
+    if(mode==='pro'&&!F.rotor){P.y=gh+4;P.hull=0;warn('EJECT! EJECT!',2);return}
+    P.y=gh+14;P.q.setFromEuler(new T.Euler(.45,P.yaw,0,'YXZ'));P.vy=Math.max(P.vy,2);P.sink=0;
+    if(M.t-M.lastBonk>1){M.lastBonk=M.t;P.hull-=(mode==='assisted'?30:18)*M.armMul;warn('BONK! PULL UP!')}
+  } else if(fall>0&&(P.y-gh)/fall<4) warn('PULL UP! PULL UP!',.3);
+  else if(P.y<gh+22) warn('TOO LOW!',.3);
+}
+// hit test for fast rounds: does the path from a to b pass within r of p
+function segHit(a,b,p,r){const ab=b.clone().sub(a),t=clamp(p.clone().sub(a).dot(ab)/Math.max(ab.lengthSq(),1e-6),0,1);return a.clone().addScaledVector(ab,t).distanceTo(p)<r}
+function hitAim(a){
+  if(a.d&&a.d.state==='chase'){a.d.state='ko';a.d.vy=4;M.ko++;toast('Drone knocked out! It floats down safely.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko;spark(a.p,0xffe27a,6)}
+  else if(a.t&&a.t.alive){a.t.hp-=M.wpn.dmg;spark(a.p,0xffd27a,4);if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;boom(a.t.pos);M.hits++;toast(`${a.t.label} destroyed!`,'ok')}}
+}
+function spark(pos,col,n){const T=window.THREE;const mt=new T.MeshBasicMaterial({color:col,transparent:true,blending:T.AdditiveBlending,depthWrite:false});
+  for(let i=0;i<n;i++){const b=new T.Mesh(M.bitGeo,mt);b.scale.setScalar(.35);b.position.copy(pos);M.scene.add(b);M.bits.push({m:b,v:new T.Vector3(rnd(-25,25),rnd(-5,25),rnd(-25,25)),life:.45})}}
+function puff(pos,col,size,life,vy){if(M.puffs.length>220) return;const T=window.THREE;const m=new T.Mesh(M.puffGeo,new T.MeshBasicMaterial({color:col,transparent:true,opacity:.55,depthWrite:false}));
+  m.position.copy(pos);m.scale.setScalar(size);M.scene.add(m);M.puffs.push({m,life,max:life,size,vy:vy||0})}
+function drawHUD(fwd,lead){
+  const cv=$('#m-hudc');if(!cv) return;const W=M.root.clientWidth,H=M.root.clientHeight;if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.clearRect(0,0,W,H);if(M.v.cat!=='air') return;
+  const T=window.THREE,P=M.P,F=M.FM,C='#8dffc8';
+  const bp=new T.Vector3(P.x,P.y,P.z).addScaledVector(fwd,400).project(M.camera),bx=(bp.x+1)/2*W,by=(1-bp.y)/2*H;
+  const cr=$('#m-cross');if(cr){cr.style.left=bx+'px';cr.style.top=by+'px'}
+  g.strokeStyle=C;g.fillStyle=C;g.lineWidth=1.6;g.font='700 13px ui-monospace,Menlo,monospace';g.shadowColor='rgba(0,0,0,.85)';g.shadowBlur=1.5;
+  if(M.cam==='cockpit'){
+    const ppd=H/M.camera.fov,pd=P.pitch*180/Math.PI;g.save();g.translate(W/2,H/2);g.rotate(-P.roll);
+    for(let a=-90;a<=90;a+=10){const y=(pd-a)*ppd;if(Math.abs(y)>H*.32) continue;const w=a===0?W*.36:46;
+      g.setLineDash(a<0?[6,5]:[]);g.beginPath();g.moveTo(-w,y);g.lineTo(-18,y);g.moveTo(18,y);g.lineTo(w,y);g.stroke();
+      if(a){g.setLineDash([]);g.fillText(Math.abs(a),w+5,y+4);g.fillText(Math.abs(a),-w-22,y+4)}}
+    g.setLineDash([]);g.restore();
+  }
+  const kt=Math.round(P.vr/KT),ft=Math.round(($('#m-alt').dataset.m||0)*3.281),mach=P.vr/340;
+  g.textAlign='right';g.fillText(kt+' KT',W/2-90,H/2+4);if(F.jet&&!F.rotor) g.fillText('M '+mach.toFixed(2),W/2-90,H/2+20);
+  g.textAlign='left';g.fillText(ft.toLocaleString()+' FT',W/2+90,H/2+4);g.fillText('G '+P.g.toFixed(1),W/2+90,H/2+20);
+  g.textAlign='center';
+  if(F.ab&&P.thr>.9){g.fillStyle='#ffb347';g.fillText('AFTERBURNER',W/2,H/2+H*.2);g.fillStyle=C}
+  if(lead){const q=lead.clone().project(M.camera);if(q.z<1){const x=(q.x+1)/2*W,y=(1-q.y)/2*H;g.beginPath();g.moveTo(x,y-9);g.lineTo(x+9,y);g.lineTo(x,y+9);g.lineTo(x-9,y);g.closePath();g.stroke();g.beginPath();g.arc(x,y,2,0,7);g.fill()}}
+}
 function missionLoop(now){
   if(!M) return;
   M.raf=requestAnimationFrame(missionLoop);
@@ -2403,17 +2549,7 @@ function missionLoop(now){
   if(v.cat==='air'){
     if(k['shift']||k['e']) P.thr=Math.min(1,P.thr+dt*.6); if(k['control']||k['q']) P.thr=Math.max(0,P.thr-dt*.6);
     const ti=$('#m-thri'); if(ti) ti.style.height=(P.thr*100)+'%';
-    const minS=M.maxS*.35,target=minS+P.thr*(M.maxS-minS);
-    P.speed+=(target-P.speed)*Math.min(1,dt*.8);
-    P.roll+=(ix*.95-P.roll)*Math.min(1,dt*3);
-    P.yaw-=P.roll*.9*dt;
-    P.pitch+=(iy*.6-P.pitch)*Math.min(1,dt*2.4);
-    const cp=Math.cos(P.pitch);
-    P.x+=-Math.sin(P.yaw)*cp*P.speed*dt;P.z+=-Math.cos(P.yaw)*cp*P.speed*dt;P.y+=Math.sin(P.pitch)*P.speed*dt;
-    P.y=Math.min(P.y,950*MWS);
-    const gh=M.heightAt(P.x,P.z)+(M.waterAt(P.x,P.z)?.6:0);
-    if(P.y<gh+4){P.y=gh+14;P.pitch=.45;if(M.t-M.lastBonk>1){M.lastBonk=M.t;P.hull-=18*M.armMul;warn('BONK! PULL UP!')}}
-    else if(P.y<gh+22) warn('TOO LOW!',.3);
+    flyStep(dt,ix,iy,k);
   } else {
     const heavy=v.id==='mech'||v.id==='tank';
     const accel=heavy?14:26;
@@ -2433,13 +2569,16 @@ function missionLoop(now){
     if(v.cat==='ground'){const ah=M.heightAt(P.x-Math.sin(P.yaw)*8,P.z-Math.cos(P.yaw)*8);P.pitch+=(Math.atan2(ah-M.heightAt(P.x,P.z),8)*.8-P.pitch)*Math.min(1,dt*4)}
   }
   const half=M.size/2-20;
-  if(Math.abs(P.x)>half||Math.abs(P.z)>half){P.x=clamp(P.x,-half,half);P.z=clamp(P.z,-half,half);P.yaw+=Math.PI*dt;warn('EDGE OF THE MAP')}
-  const fwd=new T.Vector3(-Math.sin(P.yaw)*Math.cos(P.pitch),Math.sin(P.pitch),-Math.cos(P.yaw)*Math.cos(P.pitch));
-  if(M.cam==='cockpit'){M.camera.position.set(P.x,P.y,P.z);M.camera.rotation.set(P.pitch,P.yaw,-P.roll)}
-  else{const back=(v.cat==='air'?30:18)*VEH_S,upv=(v.cat==='air'?8:6)*VEH_S;M.camera.position.set(P.x-fwd.x*back,P.y+upv,P.z-fwd.z*back);M.camera.lookAt(P.x+fwd.x*20,P.y+2,P.z+fwd.z*20)}
+  if(Math.abs(P.x)>half||Math.abs(P.z)>half){P.x=clamp(P.x,-half,half);P.z=clamp(P.z,-half,half);P.yaw+=Math.PI*dt;if(P.q) P.q.premultiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0,1,0),Math.PI*dt));warn('EDGE OF THE MAP')}
+  const fwd=P.q?new T.Vector3(0,0,-1).applyQuaternion(P.q):new T.Vector3(-Math.sin(P.yaw)*Math.cos(P.pitch),Math.sin(P.pitch),-Math.cos(P.yaw)*Math.cos(P.pitch));
+  const upB=P.q?new T.Vector3(0,1,0).applyQuaternion(P.q):new T.Vector3(0,1,0);
+  if(M.cam==='cockpit'){M.camera.position.set(P.x,P.y,P.z);if(P.q) M.camera.quaternion.copy(P.q);else M.camera.rotation.set(P.pitch,P.yaw,-P.roll)}
+  else{const back=(v.cat==='air'?30:18)*VEH_S,upv=(v.cat==='air'?8:6)*VEH_S;
+    if(P.q){M.camera.position.set(P.x,P.y,P.z).addScaledVector(fwd,-back).addScaledVector(upB,upv);M.camera.up.copy(upB);M.camera.lookAt(P.x+fwd.x*20,P.y+fwd.y*20,P.z+fwd.z*20)}
+    else{M.camera.up.set(0,1,0);M.camera.position.set(P.x-fwd.x*back,P.y+upv,P.z-fwd.z*back);M.camera.lookAt(P.x+fwd.x*20,P.y+2,P.z+fwd.z*20)}}
   const mdl=M.model;mdl.visible=M.cam==='chase';
   mdl.position.set(P.x,P.y-(v.cat==='air'?1.2*VEH_S:v.id==='mech'?9:v.cat==='sea'?2.4:2.6),P.z);
-  mdl.rotation.set(v.cat==='air'?P.pitch:0,P.yaw,-P.roll);spinParts(mdl,dt);
+  if(P.q) mdl.quaternion.copy(P.q);else mdl.rotation.set(0,P.yaw,-P.roll);spinParts(mdl,dt);
   // current stop
   const st=M.stops[M.idx];
   const dx=st.x-P.x,dz=st.z-P.z,dist=Math.hypot(dx,dz);
@@ -2453,7 +2592,7 @@ function missionLoop(now){
     const g=d.g;
     if(d.state==='chase'){
       const tx=P.x-g.position.x,ty=P.y-g.position.y,tz=P.z-g.position.z,dd=Math.hypot(tx,ty,tz)||1;
-      const sp=v.cat==='air'?M.maxS*.62:24;
+      const sp=v.cat==='air'?M.maxS*.62:24;d.vel=d.vel||new T.Vector3();d.vel.set(tx/dd*sp,ty/dd*sp,tz/dd*sp);
       g.position.x+=tx/dd*sp*dt;g.position.y+=ty/dd*sp*dt;g.position.z+=tz/dd*sp*dt;
       const floor=M.heightAt(g.position.x,g.position.z)+8;if(g.position.y<floor) g.position.y=floor;
       d.rotor.rotation.z+=dt*20;g.lookAt(P.x,P.y,P.z);
@@ -2465,34 +2604,56 @@ function missionLoop(now){
   const aimables=[];
   M.drones.forEach(d=>{if(d.state==='chase') aimables.push({p:d.g.position,r:9,d})});
   st.targets.forEach(t=>{if(t.alive&&M.type==='strike') aimables.push({p:t.pos,r:t.r,t})});
-  let lock=false;
-  M.fireCd-=dt;
-  if(M.armed&&M.input.fire&&M.fireCd<=0){
-    M.fireCd=M.wpn.rate;const s=new T.Mesh(M.shotGeo,M.shotMat);
-    s.position.set(P.x+fwd.x*6,P.y+fwd.y*6-1,P.z+fwd.z*6);M.scene.add(s);
-    M.shots.push({m:s,v:fwd.clone().multiplyScalar(Math.max(P.speed,0)+(M.wpn.rocket?190:300)),life:2.4});
+  let lock=false,lead=null;
+  // ballistics: real muzzle velocity (map scale), the shooter's own speed added, gravity drop, tracers, and swept hit tests
+  const W=M.wpn,GW=GRAV/4,assist=v.cat==='air'?(S.assist||'casual'):'casual',me=new T.Vector3(P.x,P.y,P.z);
+  const muzzle=me.clone().addScaledVector(fwd,6).addScaledVector(upB,-1.2),ownV=fwd.clone().multiplyScalar(Math.max(P.speed,0));
+  M.fireCd-=dt;M.flash-=dt;M.flashMesh.visible=M.flash>0;
+  if(M.beam) M.beam.visible=false;
+  if(M.armed&&M.input.fire){
+    if(W.beam){let reach=700,hitA=null;for(const a of aimables){const to=a.p.clone().sub(me),L=to.dot(fwd);if(L>0&&L<reach&&me.clone().addScaledVector(fwd,L).distanceTo(a.p)<a.r){reach=L;hitA=a}}
+      M.beam.visible=true;M.beam.position.copy(muzzle);M.beam.scale.set(1,1,reach);M.beam.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),fwd);
+      if(hitA&&M.fireCd<=0){M.fireCd=W.rate;hitAim(hitA)}}
+    else if(M.fireCd<=0){
+      M.fireCd=W.rate;const s=new T.Mesh(M.shotGeo,M.shotMat);s.position.copy(muzzle);M.scene.add(s);
+      const mvW=W.mv/4,sv=W.rocket?fwd.clone().multiplyScalar(mvW*.25).add(ownV):fwd.clone().multiplyScalar(mvW).add(ownV);
+      M.shots.push({m:s,v:sv,life:Math.min(3.5,800/mvW)+(W.rocket?1.5:0),mvW,rocket:!!W.rocket,puffT:0,hit:new Set()});
+      M.flash=.05;M.flashMesh.position.copy(muzzle).addScaledVector(fwd,1.5);M.flashMesh.scale.setScalar(W.rocket?2:rnd(.7,1.2));
+    }
   }
   for(const s of M.shots){
     s.life-=dt;
-    let best=null,bd=1e9;
-    for(const a of aimables){const to=a.p.clone().sub(s.m.position);const L=to.length();if(L<700&&to.normalize().dot(s.v.clone().normalize())>.88&&L<bd){bd=L;best=a}}
-    if(best){const want=best.p.clone().sub(s.m.position).normalize().multiplyScalar(s.v.length());s.v.lerp(want,Math.min(1,dt*5))}
-    s.m.position.addScaledVector(s.v,dt);
+    if(assist==='casual'){let best=null,bd=1e9;
+      for(const a of aimables){const to=a.p.clone().sub(s.m.position);const L=to.length();if(L<700&&to.normalize().dot(s.v.clone().normalize())>.93&&L<bd){bd=L;best=a}}
+      if(best){const want=best.p.clone().sub(s.m.position).normalize().multiplyScalar(s.v.length());s.v.lerp(want,Math.min(1,dt*2.5))}}
+    if(s.rocket){const sp=s.v.length(),tgt=Math.min(s.mvW,sp+s.mvW*1.8*dt);s.v.multiplyScalar(tgt/Math.max(sp,1e-3));s.puffT-=dt;if(s.puffT<=0){s.puffT=.03;puff(s.m.position,0xd8dde2,1.2,1.1,2)}}
+    else s.v.y-=GW*dt;
+    const a0=s.m.position.clone();s.m.position.addScaledVector(s.v,dt);
+    const len=s.v.length();s.m.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),s.v.clone().divideScalar(len||1));if(!s.rocket) s.m.scale.set(1,1,clamp(len*.045,2,16));
     for(const a of aimables){
-      if(s.life<=0) break;
-      if(a.p.distanceTo(s.m.position)<a.r){
+      if(s.life<=0) break;if(s.hit.has(a)) continue;
+      if(segHit(a0,s.m.position,a.p,a.r)){
+        if(W.pierce){s.hit.add(a);hitAim(a);continue}
         s.life=0;
-        if(a.d&&a.d.state==='chase'){a.d.state='ko';a.d.vy=4;M.ko++;toast('Drone knocked out! It floats down safely.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko}
-        else if(a.t&&a.t.alive){a.t.hp-=M.wpn.dmg;if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;boom(a.t.pos);M.hits++;toast(`${a.t.label} destroyed!`,'ok')}}
+        if(W.splash){for(const b of aimables) if(b.p.distanceTo(s.m.position)<W.splash) hitAim(b);puff(s.m.position,0xffa24a,5,.6,4)}
+        else hitAim(a);
       }
     }
+    if(s.life>0&&s.m.position.y<M.heightAt(s.m.position.x,s.m.position.z)){s.life=0;puff(s.m.position,0xb9a27e,W.splash?5:1.6,.8,3);if(W.splash) for(const b of aimables) if(b.p.distanceTo(s.m.position)<W.splash) hitAim(b)}
     if(s.life<=0) M.scene.remove(s.m);
   }
   M.shots=M.shots.filter(s=>s.life>0);
+  for(const f of M.puffs){f.life-=dt;f.m.position.y+=f.vy*dt;const k2=1-f.life/f.max;f.m.scale.setScalar(f.size*(1+k2*2.5));f.m.material.opacity=.55*(1-k2);if(f.life<=0){M.scene.remove(f.m);f.m.material.dispose()}}
+  M.puffs=M.puffs.filter(f=>f.life>0);
+  // lead marker: where the target will be when your rounds get there (gravity drop included)
+  if(M.armed&&!W.beam&&assist!=='casual'){let best=null,bd=1e9;
+    for(const a of aimables){const to=a.p.clone().sub(me),L=to.length();if(L<800&&to.normalize().dot(fwd)>.8&&L<bd){bd=L;best=a}}
+    if(best){const mvW=W.rocket?W.mv/4*.8:W.mv/4,t=bd/(mvW+Math.max(P.speed,0)*.5);lead=best.p.clone();if(best.d&&best.d.vel) lead.addScaledVector(best.d.vel,t);if(!W.rocket) lead.y+=.5*GW*t*t}}
   for(const b of M.bits){b.life-=dt;b.v.y-=30*dt;b.m.position.addScaledVector(b.v,dt);b.m.rotation.x+=dt*5;if(b.life<=0) M.scene.remove(b.m)}
   M.bits=M.bits.filter(b=>b.life>0);
   if(M.armed){for(const a of aimables){const to=a.p.clone().sub(new T.Vector3(P.x,P.y,P.z));if(to.length()<700&&to.normalize().dot(fwd)>.97){lock=true;break}}}
   $('#m-cross').classList.toggle('lock',lock);
+  drawHUD(fwd,lead);
   if(P.hull<=0) return finishMission(false);
   hudMission(st,dist);
   M.renderer.render(M.scene,M.camera);
@@ -2510,12 +2671,12 @@ function hudMission(st,dist){
   $('#m-obj').textContent=st.kind==='ring'?`Fly through the ring at ${st.name} · ${km} km`.replace('Fly',v.cat==='air'?'Fly':'Drive'):
     st.kind==='photo'?`Photograph the ${st.final?'secret outpost':'gang camp'} at ${st.name} · ${km} km`:
     `Destroy ${st.final?'the outpost radar':'the targets'} at ${st.name} (${left} left) · ${km} km`;
-  const spd=Math.round(Math.abs(P.speed)*(v.cat==='air'?9:3.6));
+  const spd=v.cat==='air'?Math.round(P.vr/KT):Math.round(Math.abs(P.speed)/M.maxS*vSpec(v).top*engMul(v));
   $('#m-spd').textContent=spd;
   const alt=Math.round(P.y/(M.VEX*MWS)*10+M.minElev);
-  $('#m-alt').textContent=alt.toLocaleString()+'m';
+  $('#m-alt').dataset.m=alt;$('#m-alt').textContent=Math.round(alt*3.281).toLocaleString()+' ft';
   let hd=(-P.yaw*180/Math.PI)%360;if(hd<0) hd+=360;$('#m-hdg').textContent=Math.round(hd);
-  const gs=$('#g-spd'),ga=$('#g-alt');if(gs) gs.style.setProperty('--n',(-120+clamp(spd/(M.maxS*(v.cat==='air'?9:3.6)),0,1)*240)+'deg');
+  const gs=$('#g-spd'),ga=$('#g-alt');if(gs) gs.style.setProperty('--n',(-120+clamp(spd/(vSpec(v).top*engMul(v)),0,1)*240)+'deg');
   if(ga) ga.style.setProperty('--n',(-120+(v.cat==='air'?clamp((alt-M.minElev)/2500,0,1):clamp(Math.abs(P.speed)/M.maxS,0,1))*240)+'deg');
   const hb=$('#m-hull');hb.style.width=clamp(P.hull,0,100)+'%';hb.style.background=P.hull<30?'var(--bad)':P.hull<60?'var(--warn)':'var(--ok)';
   const T=window.THREE;const mk=new T.Vector3(st.x,st.y,st.z).project(M.camera);
@@ -2805,7 +2966,7 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='sb-lv'){const L=clamp(+b.dataset.l,1,100);let x=0;for(let l=1;l<L;l++)x+=xpNeed(l);S.xp=x+1;S.lastLv=L;renderWorld();save();toast(`Base set to Level ${L}.`,'ok');$('#b-gear').click()}
   else if(a==='sb-veh'){VEH.forEach(v=>{if(!v.locked&&!S.vehicles.includes(v.id)) S.vehicles.push(v.id)});renderWorld();save();toast('Every vehicle is in your Hangar!','ok')}
   else if(a==='sb-max'){VEH.forEach(v=>{if(v.locked) return;const u=vUp(v);u.spd=5;u.arm=5;u.wpn=v.wcap||0});S.turrets.forEach(t=>{if(t) t.lvl=TUR_MAX});Object.values(S.rooms).forEach(r=>r.lvl=5);renderWorld();save();toast('Maxed every turret, room and vehicle.','ok')}
-  else if(a==='sb-gear'){S.crew.forEach(c=>{c.weapon='rail';c.armor='nano';c.str=8});renderWorld();save();toast('Whole crew got Rail Guns and Nano Suits!','ok')}
+  else if(a==='sb-gear'){S.crew.forEach(c=>{c.weapon='rail';c.armor='nano';c.str=8});renderWorld();save();toast('Whole crew got Gauss Rifles and Nano Suits!','ok')}
   else if(a==='sb-clone'){closeSheet();S.arrivals=Math.max(S.arrivals,3);S.uid++;arrival(true)}
   else if(a==='sb-raid'){closeSheet();startBattle(makeWave(),false)}
   else if(a==='sb-wipe'){try{localStorage.removeItem('based-sandbox-v1')}catch(err){}location.reload()}
