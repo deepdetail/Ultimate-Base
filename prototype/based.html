@@ -2050,11 +2050,14 @@ function makeTarget(T,kind){
   }
   return {g:G,r,hp,max:hp,label,alive:true};
 }
+// mission scale: map stretch, tree size and vehicle size relative to the original prototype
+const MWS=2.5,TREE_S=.38,VEH_S=.65;
 function buildMission(v,mk,route,pilot){
-  const T=window.THREE,t=TERRAIN[mk],n0=t.n,size=t.km*100,VEX=mk==='moab'?2.2:1.4;
+  // WS stretches the real map so lakes and canyons read at a believable size next to the vehicles
+  const T=window.THREE,t=TERRAIN[mk],n0=t.n,WS=MWS,size=t.km*100*WS,VEX=mk==='moab'?2.2:1.4;
   const dec=decodeMap(t);
   const n=2*n0-1,elev=upsample(dec.elev,n0),water=upMask(dec.water,n0);
-  const hgt=new Float32Array(n*n);for(let i=0;i<n*n;i++) hgt[i]=(elev[i]-t.min)/10*VEX;
+  const hgt=new Float32Array(n*n);for(let i=0;i<n*n;i++) hgt[i]=(elev[i]-t.min)/10*VEX*WS;
   const sc=(n-1)/(n0-1);
   const g2w=(gx,gy)=>({x:(gx/(n-1)-.5)*size,z:(gy/(n-1)-.5)*size});
   const w2g=(x,z)=>({gx:(x/size+.5)*(n-1),gy:(z/size+.5)*(n-1)});
@@ -2098,8 +2101,8 @@ function buildMission(v,mk,route,pilot){
   renderer.setSize(root.clientWidth,root.clientHeight);
   renderer.domElement.className='gl'; root.prepend(renderer.domElement);
   const scene=new T.Scene();
-  scene.fog=new T.Fog(mk==='moab'?0xffe3c2:0xf4ecdc,600,mk==='moab'?2400:3000);
-  const camera=new T.PerspectiveCamera(66,root.clientWidth/root.clientHeight,.5,5000);
+  scene.fog=new T.Fog(mk==='moab'?0xffe3c2:0xf4ecdc,900,(mk==='moab'?2400:3000)*WS*.75);
+  const camera=new T.PerspectiveCamera(66,root.clientWidth/root.clientHeight,.5,5000*WS);
   camera.rotation.order='YXZ';
   scene.add(new T.HemisphereLight(0xd6ecff,0x8a6a4a,.7));
   const sun=new T.DirectionalLight(0xfff1d6,.8);sun.position.set(.6,1,.4);scene.add(sun);
@@ -2126,18 +2129,18 @@ function buildMission(v,mk,route,pilot){
   wg.computeVertexNormals();
   scene.add(new T.Mesh(wg,new T.MeshPhongMaterial({color:mk==='tahoe'?0x2f8fd0:0x4f9a8a,shininess:90,specular:0xffffff,transparent:true,opacity:.9})));
   // layered pines (Tahoe) or juniper clumps (Moab), one instanced draw call
-  {const R=seeded(11);const count=mk==='tahoe'?3400:1600;
+  {const R=seeded(11);const count=Math.round((mk==='tahoe'?18000:7000)*(window.innerWidth<900?.6:1));
     const tg=mk==='tahoe'
-      ?mergeColored(T,[{g:new T.CylinderGeometry(.16,.24,1.2,6).translate(0,.6,0),c:0x5a3a26},{g:new T.ConeGeometry(1,1.6,9).translate(0,1.6,0),c:0x2f6a45},{g:new T.ConeGeometry(.78,1.4,9).translate(0,2.35,0),c:0x3a7d52},{g:new T.ConeGeometry(.52,1.2,9).translate(0,3.05,0),c:0x4f9a62}])
+      ?mergeColored(T,[{g:new T.CylinderGeometry(.16,.24,1.2,5).translate(0,.6,0),c:0x5a3a26},{g:new T.ConeGeometry(1,1.6,7).translate(0,1.6,0),c:0x2f6a45},{g:new T.ConeGeometry(.78,1.4,7).translate(0,2.35,0),c:0x3a7d52},{g:new T.ConeGeometry(.52,1.2,7).translate(0,3.05,0),c:0x4f9a62}])
       :mergeColored(T,[{g:new T.CylinderGeometry(.12,.18,.6,5).translate(0,.3,0),c:0x6a4a32},{g:new T.IcosahedronGeometry(.8,1).translate(0,.9,0),c:0x5b6b3a},{g:new T.IcosahedronGeometry(.6,1).translate(.55,.75,.2),c:0x6f7f45},{g:new T.IcosahedronGeometry(.55,1).translate(-.45,.8,-.2),c:0x55653a}]);
     const im=new T.InstancedMesh(tg,toonMat(T,0xffffff,{vertexColors:true}),count);const dm=new T.Object3D();const col=new T.Color();let k=0;
     const tints=[0xffffff,0xe6f2e6,0xd2e6d2,0xf2f2dc];
-    for(let a=0;a<count*6&&k<count;a++){
+    for(let a=0;a<count*8&&k<count;a++){
       const gx=2+R()*(n-5),gy=2+R()*(n-5),i=Math.round(gy)*n+Math.round(gx);if(water[i]) continue;
       const m=elev[i],ny=nor.getY(i);
       if(mk==='tahoe'&&(m<1905||m>2600||ny<.8)) continue;
       if(mk==='moab'&&(ny<.93||R()<.4)) continue;
-      const {x,z}=g2w(gx,gy);const s=mk==='tahoe'?4+R()*6:2.4+R()*2.6;
+      const {x,z}=g2w(gx,gy);const s=(mk==='tahoe'?4+R()*6:2.4+R()*2.6)*TREE_S;
       dm.position.set(x,heightAt(x,z)-.4,z);dm.scale.set(s*(mk==='tahoe'?.85:1.2),s,s*(mk==='tahoe'?.85:1.2));dm.rotation.y=R()*6;dm.updateMatrix();
       im.setMatrixAt(k,dm.matrix);col.setHex(tints[Math.floor(R()*tints.length)]);im.setColorAt(k,col);k++;
     }
@@ -2148,7 +2151,7 @@ function buildMission(v,mk,route,pilot){
   {const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');
     [[64,70,34],[40,78,24],[88,78,26],[60,52,26],[80,60,22]].forEach(([x,y,r])=>{const gr=g.createRadialGradient(x,y,r*.2,x,y,r);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill()});
     const tex=new T.CanvasTexture(cv);const R=seeded(5);const sm=new T.SpriteMaterial({map:tex,transparent:true,depthWrite:false,opacity:.95,fog:true});
-    for(let i=0;i<46;i++){const sp=new T.Sprite(sm);const s=180+R()*260;sp.scale.set(s,s*.6,1);sp.position.set((R()-.5)*size,420+R()*260,(R()-.5)*size);scene.add(sp)}}
+    for(let i=0;i<Math.round(46*WS*WS*.6);i++){const sp=new T.Sprite(sm);const s=180+R()*260;sp.scale.set(s,s*.6,1);sp.position.set((R()-.5)*size,(420+R()*260)*WS*.8,(R()-.5)*size);scene.add(sp)}}
   const baseG=[t.base[0]*sc,t.base[1]*sc];
   const startG=v.cat==='sea'?snap(markP(ROUTES[mk].seaStart),true):v.cat==='ground'?snap(baseG,false):baseG;
   const home=g2w(...startG);
@@ -2180,7 +2183,7 @@ function buildMission(v,mk,route,pilot){
       op.position.set(p.x+60,heightAt(p.x+60,p.z+40),p.z+40);scene.add(op);}
     return st;
   });
-  const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.visible=false;model.rotation.order='YXZ';scene.add(model);
+  const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.scale.setScalar(VEH_S);model.visible=false;model.rotation.order='YXZ';scene.add(model);
   const droneGeo=new T.SphereGeometry(3,14,10),rotorGeo=new T.TorusGeometry(4.5,.5,8,20),eyeGeo=new T.SphereGeometry(1.1,10,8);
   const droneMat=toonMat(T,0xd9773f),rotorMat=toonMat(T,0x333333),eyeMat=new T.MeshBasicMaterial({color:0xff4d5e});
   const makeDrone=(x,y,z)=>{const g=new T.Group();g.add(new T.Mesh(droneGeo,droneMat));const r=new T.Mesh(rotorGeo,rotorMat);r.rotation.x=Math.PI/2;r.position.y=2.4;g.add(r);
@@ -2237,7 +2240,7 @@ function takePhoto(){
   if(snapped){M.intel+=snapped;M.renderer.render(M.scene,M.camera);const c=document.createElement('canvas');c.width=128;c.height=88;c.getContext('2d').drawImage(M.renderer.domElement,0,0,c.width,c.height);const box=$('#m-photos');box.appendChild(c);while(box.children.length>4) box.firstChild.remove();toast(`Drone photographed! Enemy intel +$${(2000*snapped).toLocaleString()}. It flew home scared.`,'ok')}
   const p=tg.pos.clone().project(M.camera),d=tg.pos.distanceTo(me);
   if(p.z>=1||Math.abs(p.x)>.5||Math.abs(p.y)>.5){if(!snapped) warn('LINE IT UP IN THE FRAME!');return}
-  if(d>320){if(!snapped) warn('GET CLOSER! '+(d/100).toFixed(1)+' KM');return}
+  if(d>320){if(!snapped) warn('GET CLOSER! '+(d/(100*MWS)).toFixed(1)+' KM');return}
   M.renderer.render(M.scene,M.camera);
   const c=document.createElement('canvas');c.width=128;c.height=88;c.getContext('2d').drawImage(M.renderer.domElement,0,0,c.width,c.height);
   const box=$('#m-photos');box.appendChild(c);while(box.children.length>4) box.firstChild.remove();
@@ -2269,7 +2272,7 @@ function missionLoop(now){
     P.pitch+=(iy*.6-P.pitch)*Math.min(1,dt*2.4);
     const cp=Math.cos(P.pitch);
     P.x+=-Math.sin(P.yaw)*cp*P.speed*dt;P.z+=-Math.cos(P.yaw)*cp*P.speed*dt;P.y+=Math.sin(P.pitch)*P.speed*dt;
-    P.y=Math.min(P.y,950);
+    P.y=Math.min(P.y,950*MWS);
     const gh=M.heightAt(P.x,P.z)+(M.waterAt(P.x,P.z)?.6:0);
     if(P.y<gh+4){P.y=gh+14;P.pitch=.45;if(M.t-M.lastBonk>1){M.lastBonk=M.t;P.hull-=18*M.armMul;warn('BONK! PULL UP!')}}
     else if(P.y<gh+22) warn('TOO LOW!',.3);
@@ -2295,9 +2298,9 @@ function missionLoop(now){
   if(Math.abs(P.x)>half||Math.abs(P.z)>half){P.x=clamp(P.x,-half,half);P.z=clamp(P.z,-half,half);P.yaw+=Math.PI*dt;warn('EDGE OF THE MAP')}
   const fwd=new T.Vector3(-Math.sin(P.yaw)*Math.cos(P.pitch),Math.sin(P.pitch),-Math.cos(P.yaw)*Math.cos(P.pitch));
   if(M.cam==='cockpit'){M.camera.position.set(P.x,P.y,P.z);M.camera.rotation.set(P.pitch,P.yaw,-P.roll)}
-  else{const back=v.cat==='air'?30:18,upv=v.cat==='air'?8:6;M.camera.position.set(P.x-fwd.x*back,P.y+upv,P.z-fwd.z*back);M.camera.lookAt(P.x+fwd.x*20,P.y+2,P.z+fwd.z*20)}
+  else{const back=(v.cat==='air'?30:18)*VEH_S,upv=(v.cat==='air'?8:6)*VEH_S;M.camera.position.set(P.x-fwd.x*back,P.y+upv,P.z-fwd.z*back);M.camera.lookAt(P.x+fwd.x*20,P.y+2,P.z+fwd.z*20)}
   const mdl=M.model;mdl.visible=M.cam==='chase';
-  mdl.position.set(P.x,P.y-(v.cat==='air'?1.2:v.id==='mech'?9:v.cat==='sea'?2.4:2.6),P.z);
+  mdl.position.set(P.x,P.y-(v.cat==='air'?1.2*VEH_S:v.id==='mech'?9:v.cat==='sea'?2.4:2.6),P.z);
   mdl.rotation.set(v.cat==='air'?P.pitch:0,P.yaw,-P.roll);spinParts(mdl,dt);
   // current stop
   const st=M.stops[M.idx];
@@ -2364,14 +2367,14 @@ function spawnDrones(){
 }
 function warn(msg,dur){const w=$('#m-warn');if(!w) return;w.textContent=msg;w.hidden=false;clearTimeout(warn.t);warn.t=setTimeout(()=>{w.hidden=true},(dur||1.2)*1000)}
 function hudMission(st,dist){
-  const P=M.P,v=M.v,km=(dist/100).toFixed(1);
+  const P=M.P,v=M.v,km=(dist/(100*MWS)).toFixed(1);
   const left=st.targets.filter(t=>t.alive).length;
   $('#m-obj').textContent=st.kind==='ring'?`Fly through the ring at ${st.name} · ${km} km`.replace('Fly',v.cat==='air'?'Fly':'Drive'):
     st.kind==='photo'?`Photograph the ${st.final?'secret outpost':'gang camp'} at ${st.name} · ${km} km`:
     `Destroy ${st.final?'the outpost radar':'the targets'} at ${st.name} (${left} left) · ${km} km`;
   const spd=Math.round(Math.abs(P.speed)*(v.cat==='air'?9:3.6));
   $('#m-spd').textContent=spd;
-  const alt=Math.round(P.y/M.VEX*10+M.minElev);
+  const alt=Math.round(P.y/(M.VEX*MWS)*10+M.minElev);
   $('#m-alt').textContent=alt.toLocaleString()+'m';
   let hd=(-P.yaw*180/Math.PI)%360;if(hd<0) hd+=360;$('#m-hdg').textContent=Math.round(hd);
   const gs=$('#g-spd'),ga=$('#g-alt');if(gs) gs.style.setProperty('--n',(-120+clamp(spd/(M.maxS*(v.cat==='air'?9:3.6)),0,1)*240)+'deg');
