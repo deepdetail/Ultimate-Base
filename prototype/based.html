@@ -42,6 +42,12 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 .portrait .person{position:absolute;left:5px;top:0;bottom:auto;width:60px;height:150px;animation:none;pointer-events:none}
 input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
+.looks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.lookb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border-radius:12px;border:2px solid var(--line,rgba(255,255,255,.12));background:rgba(0,0,0,.2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
+.lookb.on{border-color:var(--teal);box-shadow:0 0 10px rgba(46,196,201,.35)}
+.lookb .lf{width:46px;height:46px;border-radius:50%;overflow:hidden;background:#262b32;display:block}
+.lookb .lf svg{width:100%;height:100%;display:block}
+#classic-opts{display:flex;flex-direction:column;gap:8px}#classic-opts[hidden]{display:none}
 .sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
 .sw.on{border-color:var(--teal);box-shadow:0 0 0 2px var(--gm-900),0 0 10px var(--teal)}
 .factions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -335,8 +341,9 @@ button.shaft{border:none;padding:0;gap:4px}
   <div class="setup-inner">
     <div class="logo">BASED</div>
     <div class="tagline">North America · Year 2526</div>
+    <div class="card metal" id="cloud-card" hidden><div class="label">Continue a saved base</div><div class="list" id="cloud-list"></div></div>
     <div class="card metal">
-      <div class="label">1 · Design your Commander</div>
+      <div class="label">1 · Name and pick your Commander</div>
       <div class="cmd-row">
         <div class="portrait" id="cmd-preview"></div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
@@ -344,11 +351,14 @@ button.shaft{border:none;padding:0;gap:4px}
           <input type="text" id="cmd-name" maxlength="18" placeholder="Commander Ace" value="Commander Ace">
         </div>
       </div>
-      <div class="label">Look</div><div class="swatches" id="sw-art"></div>
+      <div class="looks" id="sw-art"></div>
+      <div id="classic-opts" hidden>
       <div class="label">Skin</div><div class="swatches" id="sw-skin"></div>
       <div class="label">Hair</div><div class="swatches" id="sw-hair"></div>
       <div class="label">Hair style</div><div class="swatches" id="sw-hs"></div>
       <div class="label">Coat trim</div><div class="swatches" id="sw-suit"></div>
+      </div>
+      <div class="muted" id="name-note" style="font-size:12px">Your Commander name is your save slot. Each name keeps its own base.</div>
     </div>
     <div class="card metal">
       <div class="label">2 · Pick your faction and home</div>
@@ -736,7 +746,7 @@ const pokes={};
 const advisor={};
 let setupCfg={skin:SKINS[1],hair:HAIRS[0],suit:SUITS[0],hs:0,art:'m',faction:'icr'};
 
-function save(){ if(!S) return; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
+function save(){ if(!S) return; S.savedAt=Date.now(); try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
 function load(){ try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null} }
 
 function makeCrew(o){
@@ -2564,25 +2574,74 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='sb-raid'){closeSheet();startBattle(makeWave(),false)}
   else if(a==='sb-wipe'){try{localStorage.removeItem('based-sandbox-v1')}catch(err){}location.reload()}
   else if(a==='reset-yes'){try{localStorage.removeItem(KEY)}catch(err){} location.reload()}
-  else if(a==='reset'){openSheet('Start over?',`<div class="muted">This erases your base, crew and hangar on this device.</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
+  else if(a==='cloud-load'){cloudLoad(b.dataset.slug).then(ok=>{if(!ok) toast('Could not load that save.','bad')})}
+  else if(a==='code-out'){const code=saveCode();openSheet('Your save code',`<div class="muted">Copy this and keep it somewhere safe (a note or an email to yourself). Paste it into LOAD CODE on any device to get this base back.</div><textarea id="code-box" readonly style="width:100%;height:120px;font-size:10px;background:#11161b;color:var(--text);border-radius:8px;border:1px solid var(--line,#333);padding:6px">${code}</textarea><button class="btn primary" data-act="code-copy">COPY CODE</button>`)}
+  else if(a==='code-copy'){const t=$('#code-box');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied!','ok'),()=>{try{document.execCommand('copy');toast('Save code copied!','ok')}catch(err){toast('Select the text and copy it by hand.')}})}
+  else if(a==='code-in'){openSheet('Load a save code',`<div class="muted">Paste a save code. This replaces the base on this device${CLOUD.ready?' and updates its cloud save':''}.</div><textarea id="code-in" style="width:100%;height:120px;font-size:10px;background:#11161b;color:var(--text);border-radius:8px;border:1px solid var(--line,#333);padding:6px"></textarea><button class="btn primary" data-act="code-apply">LOAD THIS BASE</button>`)}
+  else if(a==='code-apply'){try{const s0=JSON.parse(decodeURIComponent(escape(atob($('#code-in').value.trim()))));if(!(s0.v>=1&&s0.v<=3)||!s0.crew) throw 0;S=migrate(s0);save();cloudSave().finally(()=>location.reload())}catch(err){toast('That code did not work. Check you copied all of it.','bad')}}
+  else if(a==='reset'){openSheet('Start over?',`<div class="muted">This clears the base on this device so you can start a new one.${CLOUD.ready?` ${esc(cmdName(S.cmd.name))} stays in your cloud saves, so you can come back to it from the start screen.`:' Without cloud save it is gone for good, so make a SAVE CODE first.'}</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
 });
 $('#b-crew').onclick=crewList;
 $('#b-hangar').onclick=hangarSheet;
 $('#b-battle').onclick=battlePreview;
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
-$('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">Commander ${esc(S.cmd.name)} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. Your game saves on this device automatically.</div>${sandboxPanel()}<button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+$('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
+
+// ---------- cloud save: one base per Commander name, private to the signed-in account ----------
+const CLOUD={db:null,uid:null,ready:false,last:'',savedAt:0,busy:false,dirty:false,err:'',bases:[]};
+const cmdName=n=>/^commander\b/i.test(n)?n:'Commander '+n;
+const slug=n=>String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||'commander';
+const cloudCol=()=>CLOUD.db.collection('data/users/'+CLOUD.uid);
+async function cloudInit(){
+  if(SANDBOX||!window.claude||typeof claude.use!=='function') return;
+  try{
+    const [db,user]=await Promise.all([claude.use('db'),claude.use('user')]); if(!db||!user) return;
+    const uid=await user.id(); if(!uid) return;
+    CLOUD.db=db;CLOUD.uid=uid;CLOUD.ready=true;
+    const q=await cloudCol().get();
+    CLOUD.bases=q.docs.map(d=>d.data()).filter(d=>d&&typeof d.data==='string').sort((a,b)=>(b.updated||0)-(a.updated||0));
+    if(!S){renderCloudList();return}
+    const mine=CLOUD.bases.find(b=>slug(b.name)===slug(S.cmd.name));
+    if(mine&&(mine.updated||0)>(S.savedAt||0)+60000) openSheet('Newer save found',`<div class="muted">${esc(cmdName(mine.name))} has a newer cloud save (level ${mine.lv||1}) than this device. Load it?</div><div class="row"><button class="btn" data-close>KEEP THIS ONE</button><button class="btn primary" data-act="cloud-load" data-slug="${esc(slug(mine.name))}">LOAD NEWER SAVE</button></div>`);
+    else cloudSave();
+  }catch(e){CLOUD.ready=false}
+}
+function renderCloudList(){
+  const card=$('#cloud-card'); if(!CLOUD.bases.length){card.hidden=true;return}
+  card.hidden=false;
+  $('#cloud-list').innerHTML=CLOUD.bases.map(b=>{let c={};try{c=(JSON.parse(b.data).crew||[]).find(x=>x.isCmd)||{}}catch(e){}
+    return `<button class="li" data-cloud="${esc(slug(b.name))}"><span class="avatar">${personSVG(Object.assign({id:0},c),'12.5 0 15 20')}</span><span class="grow"><b>${esc(cmdName(b.name))}</b><span>Level ${b.lv||1} · saved ${new Date(b.updated||0).toLocaleDateString()}</span></span><span class="tag ok">CONTINUE</span></button>`}).join('');
+}
+async function cloudLoad(sl){
+  if(!CLOUD.ready) return false;
+  try{const d=await cloudCol().doc(sl).get(); if(!d.exists) return false; const s0=JSON.parse(d.data().data); if(!(s0.v>=1&&s0.v<=3)) return false;
+    const wasRunning=!!S; S=migrate(s0); CLOUD.last='';save();
+    if(wasRunning){location.reload();return true}
+    startGame(false); toast('Welcome back, '+S.cmd.name+'!','ok'); return true}catch(e){return false}
+}
+async function cloudSave(){
+  if(!CLOUD.ready||!S||S.sandbox) return;
+  if(CLOUD.busy){CLOUD.dirty=true;return}
+  const body=JSON.stringify(S); if(body===CLOUD.last) return;
+  CLOUD.busy=true;
+  try{await cloudCol().doc(slug(S.cmd.name)).set({name:S.cmd.name,lv:level(),updated:Date.now(),data:body});CLOUD.last=body;CLOUD.savedAt=Date.now();CLOUD.err=''}
+  catch(e){CLOUD.err=(e&&e.code)||'error';if(CLOUD.err==='invalid_argument'||CLOUD.err==='revoked'||CLOUD.err==='not_granted') CLOUD.ready=false}
+  CLOUD.busy=false; if(CLOUD.dirty){CLOUD.dirty=false;cloudSave()}
+}
+const cloudStatus=()=>SANDBOX?'Sandbox saves stay on this device only.':CLOUD.ready?`Cloud save is on for ${esc(cmdName(S.cmd.name))}${CLOUD.savedAt?`, last saved ${Math.max(0,Math.round((Date.now()-CLOUD.savedAt)/1000))}s ago`:''}. Open BASED on any device signed in to your account to keep playing.`:`Cloud save is off here (open BASED while signed in to Claude to turn it on). Your game is saved on this device only, so use the save code below as a backup.`;
+const saveCode=()=>{try{return btoa(unescape(encodeURIComponent(JSON.stringify(S))))}catch(e){return ''}};
 
 // ---------- setup screen ----------
 function renderSetup(){
   const sw=(id,list,key)=>{$(id).innerHTML=list.map(c=>`<button class="sw ${setupCfg[key]===c?'on':''}" style="background:${c}" data-k="${key}" data-c="${c}" aria-label="${key} ${c}"></button>`).join('')};
   sw('#sw-skin',SKINS,'skin'); sw('#sw-hair',HAIRS,'hair'); sw('#sw-suit',SUITS,'suit');
   $('#sw-hs').innerHTML=['Spiky','Ponytail','Swept','Messy'].map((n,i)=>`<button class="btn ${setupCfg.hs===i?'primary':''}" style="padding:6px 10px;font-size:12px" data-hs="${i}">${n}</button>`).join('');
-  $('#sw-art').innerHTML=[['m','Anime M'],['mb','Anime M Blond'],['f','Anime F'],['','Classic']].map(([k,n])=>`<button class="btn ${setupCfg.art===k?'primary':''}" style="padding:6px 10px;font-size:12px" data-art="${k}">${n}</button>`).join('');
-  ['#sw-skin','#sw-hair','#sw-hs','#sw-suit'].forEach(q=>{const el=$(q);el.style.opacity=setupCfg.art?.35:1;el.previousElementSibling.style.opacity=setupCfg.art?.35:1});
+  $('#sw-art').innerHTML=[['m','Dark hair'],['mb','Blond'],['f','Ponytail'],['','Classic']].map(([k,n])=>`<button class="lookb ${setupCfg.art===k?'on':''}" data-art="${k}"><span class="lf">${personSVG({id:-1,art:k,skin:setupCfg.skin,hair:setupCfg.hair,shirt:'#262b31',trim:setupCfg.suit,hs:setupCfg.hs,eye:EYES[0],isCmd:true},'12.5 0 15 20')}</span>${n}</button>`).join('');
+  $('#classic-opts').hidden=!!setupCfg.art;
   $('#cmd-preview').innerHTML=personHTML({id:-1,art:setupCfg.art,skin:setupCfg.skin,hair:setupCfg.hair,shirt:'#262b31',trim:setupCfg.suit,hs:setupCfg.hs,eye:EYES[0],isCmd:true,str:5,weapon:'katana'});
   $('#factions').innerHTML=Object.keys(FACTIONS).map(k=>{const f=FACTIONS[k];return `<button class="fac ${setupCfg.faction===k?'on':''} ${f.locked?'locked':''}" data-f="${k}" ${f.locked?'aria-disabled="true"':''}><span class="biome">${factionArt(f.biome)}</span><b>${esc(f.name)}</b><span>${esc(f.place)}</span><span>${esc(f.blurb)}</span></button>`}).join('');
 }
@@ -2594,8 +2653,14 @@ $('#setup').addEventListener('click',e=>{
 });
 $('#found').onclick=()=>{
   const name=($('#cmd-name').value.trim()||'Commander Ace').slice(0,18);
-  newGame(Object.assign({name},setupCfg)); save(); startGame(true);
+  const dup=CLOUD.bases.find(b=>slug(b.name)===slug(name));
+  if(dup){$('#name-note').innerHTML=`<b style="color:var(--warn)">${esc(cmdName(dup.name))} already has a base (level ${dup.lv||1}).</b> Tap it above to keep playing, or pick a different name.`;return}
+  newGame(Object.assign({name},setupCfg)); save(); startGame(true); cloudSave();
 };
+$('#cloud-list').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-cloud]'); if(!b) return;
+  b.disabled=true;const ok=await cloudLoad(b.dataset.cloud); if(!ok){b.disabled=false;toast('Could not load that base. Try again.','bad')}
+});
 
 function startGame(fresh){
   $('#setup').hidden=true; $('#game').hidden=false;
@@ -2609,6 +2674,8 @@ function startGame(fresh){
 const saved=load();
 if(saved&&saved.v>=1&&saved.v<=3){S=migrate(saved); startGame(false)}
 else { $('#setup').hidden=false; renderSetup(); }
-document.addEventListener('visibilitychange',()=>{ if(document.hidden) save() });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){save();cloudSave()} });
+setInterval(()=>{ if(S&&!document.hidden){save();cloudSave()} },30000);
+cloudInit();
 })();
 </script>
