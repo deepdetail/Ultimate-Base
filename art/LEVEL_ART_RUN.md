@@ -1,3 +1,5 @@
+> Superseded for rooms and building fronts by `art/ROOM_LEVEL_RUN.md` (one-at-a-time and Chrome versions in `art/ROOM_LEVEL_RUN_CHROME.md`). The turrets below are still valid.
+
 # BASED: Rooms, Building Fronts and Turrets (35 images)
 
 Same list as the main build session's Google Doc (file names match what the game expects). Two ways to run it: Part A, paste into ChatGPT yourself one message at a time; Part B, paste into the Claude in Chrome side panel and let it drive ChatGPT.
