@@ -44,6 +44,8 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .gear-img{width:100%;height:100%;object-fit:contain;display:block}
+.rimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
+.lobbyimg{width:100%;height:auto;display:block}
 .looks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .lookb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px;border-radius:12px;border:2px solid var(--line,rgba(255,255,255,.12));background:rgba(0,0,0,.2);color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
 .lookb.on{border-color:var(--teal);box-shadow:0 0 10px rgba(46,196,201,.35)}
@@ -1100,7 +1102,11 @@ const LVL_UP=lv=>(lv>=2?'<g><rect x="5" y="66" width="9" height="14" rx="2" fill
   +(lv>=5?'<g class="pulse"><path d="M60 6 l6 8 -6 8 -6 -8z" fill="#7FF0F3" opacity=".9"/><circle cx="48" cy="10" r="1.2" fill="#fff"/><circle cx="73" cy="18" r="1.4" fill="#fff"/></g>':'');
 const ROOM_DEFS='<defs><radialGradient id="rlc" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#ffe7b0" stop-opacity=".5"/><stop offset=".55" stop-color="#ffe7b0" stop-opacity=".1"/><stop offset="1" stop-color="#ffe7b0" stop-opacity="0"/></radialGradient><linearGradient id="rwl" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity=".05"/></linearGradient><linearGradient id="rwr" x1="1" x2="0"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity=".08"/></linearGradient><linearGradient id="rfl" y1="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>';
 const ROOM_LIGHT='<path d="M0 0 H120 L109 7 H11Z" fill="rgba(0,0,0,.38)"/><path d="M0 0 L11 7 L11 80 L0 100Z" fill="url(#rwl)"/><path d="M120 0 L109 7 L109 80 L120 100Z" fill="url(#rwr)"/><path d="M11 7 H109 M11 7 V80 M109 7 V80" stroke="rgba(255,255,255,.14)" stroke-width=".8" fill="none"/><path d="M46 7 L74 7 L102 80 L18 80Z" fill="url(#rlc)"/><rect x="11" y="77.5" width="98" height="3" fill="rgba(0,0,0,.22)"/><path d="M28 80 L92 80 L104 98 L16 98Z" fill="url(#rfl)"/><rect x="50" y="3.2" width="20" height="2.4" rx="1.2" fill="#fff6dc"/>';
+// painted room interiors and building fronts (art/rooms, art/exteriors); fall back to the drawn SVG
+const RSPR={},LSPR={},CSPR={};
+const roomArt=(type,lv)=>{const k={cell:'jail',fitness:'fitness'}[type]||type;return RSPR[k+'_l'+(lv>=4?5:lv>=3?3:1)]||RSPR[k+'_l'+(lv>=4?3:1)]||RSPR[k+'_l1']||null};
 function decorSVG(type,w,h,lv){
+  const art=roomArt(type,lv);if(art) return `<img class="decor rimg" src="${art}" alt="" aria-hidden="true">`;
   const base=DECOR[type]||'',wall=(base.match(/fill="(#[0-9a-fA-F]{6})"/)||[])[1]||'#3a4149',W=120*w,Hh=100*h,up=100*(h-1);
   let s='';
   if(h>1){s+=`<rect width="${W}" height="${Hh}" fill="${wall}"/><rect width="${W}" height="${up}" fill="rgba(0,0,0,.12)"/>`;for(let i=0;i<w;i++) s+=TALL_UP(i*120,up)}
@@ -1136,7 +1142,7 @@ function crownSVG(key){
   const c={
     brutal:'<rect x="20" y="40" width="260" height="34" fill="#7c7b76"/><rect x="40" y="52" width="220" height="5" fill="#2b2b2a"/><rect x="200" y="14" width="4" height="26" fill="#5e5d59"/><circle cx="202" cy="12" r="3" fill="#FF4D5E" class="pulse"/>',
     futur:'<path d="M20 74 V50 Q150 10 280 50 V74 Z" fill="#e6edf1"/><path d="M40 56 Q150 24 260 56" stroke="#2EC4C9" stroke-width="3" fill="none" class="pulse"/><g transform="translate(220 24)"><path d="M-12 0 a12 8 0 0 0 24 0z" fill="#c9d1d9"/><rect x="-1.5" y="0" width="3" height="14" fill="#8A939E"/></g>',
-    vintage:'<rect x="20" y="46" width="260" height="28" fill="#8a4a32"/><rect x="16" y="42" width="268" height="6" fill="#c9a36a"/><g transform="translate(60 4)"><rect x="0" y="10" width="34" height="24" rx="4" fill="#6a4a32"/><path d="M-4 10 H38 L17 0Z" fill="#5a3a26"/><rect x="4" y="34" width="3" height="5" fill="#4a3326"/><rect x="27" y="34" width="3" height="5" fill="#4a3326"/></g><defs><linearGradient id="logo-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#C9D1D9"/><stop offset=".55" stop-color="#8A939E"/><stop offset="1" stop-color="#e6edf3"/></linearGradient></defs><text x="200" y="36" text-anchor="middle" font-family="Orbitron,Arial Black,sans-serif" font-weight="800" font-size="22" letter-spacing="3" fill="url(#logo-steel)" style="filter:drop-shadow(0 0 4px rgba(46,196,201,.6))">BASED</text>',
+    vintage:'<rect x="20" y="46" width="260" height="28" fill="#8a4a32"/><rect x="16" y="42" width="268" height="6" fill="#c9a36a"/><defs><linearGradient id="logo-steel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#C9D1D9"/><stop offset=".55" stop-color="#8A939E"/><stop offset="1" stop-color="#e6edf3"/></linearGradient></defs><text x="150" y="36" text-anchor="middle" font-family="Orbitron,Arial Black,sans-serif" font-weight="800" font-size="22" letter-spacing="3" fill="url(#logo-steel)" style="filter:drop-shadow(0 0 4px rgba(46,196,201,.6))">BASED</text>',
     antique:'<rect x="30" y="54" width="240" height="20" fill="#d8cbb0"/><path d="M24 54 H276 L270 48 H30Z" fill="#b08a3a"/><path d="M96 48 Q150 -8 204 48Z" fill="#5f9e8a"/><path d="M108 48 Q150 4 192 48" stroke="#8fc9b4" fill="none" stroke-width="2"/><rect x="146" y="2" width="8" height="12" fill="#b08a3a"/><circle cx="150" cy="3" r="3" fill="#d4af37"/>',
     modern:'<path d="M20 74 V60 Q60 20 150 18 Q240 20 280 60 V74Z" fill="#1f4656"/><path d="M40 62 Q80 30 150 28 Q220 30 260 62" stroke="#7FF0F3" fill="none" stroke-width="1.6"/><ellipse cx="150" cy="12" rx="40" ry="6" fill="none" stroke="#7FF0F3" stroke-width="2" class="pulse"/><path d="M150 12 V18" stroke="#7FF0F3"/>',
     luxe:'<rect x="24" y="52" width="252" height="22" rx="10" fill="#faf7f0"/><rect x="24" y="52" width="252" height="3" fill="#d4af37"/><rect x="62" y="44" width="176" height="8" rx="4" fill="#3fb4dc"/><path d="M66 46 H234" stroke="#fff" opacity=".6"/><rect x="38" y="38" width="3" height="14" fill="#6a4a32"/><circle cx="40" cy="36" r="10" fill="#4f9a5c"/><rect x="260" y="36" width="3" height="16" fill="#6a4a32"/><circle cx="262" cy="34" r="12" fill="#4f9a5c"/><path d="M120 44 L128 24 L150 34 L172 24 L180 44Z" fill="#d4af37"/>',
@@ -1192,11 +1198,11 @@ function renderWorld(){
   const w=$('#world');
   let h=`<canvas id="bg"></canvas><div class="layer sky pad-x">`;
   h+=S.up<maxFloors()?`<div class="expand"><button data-expand="up">▲ BUILD UP · ${money(expandCost())}</button></div>`:'<div style="height:16px"></div>';
-  h+=crownSVG(eraOf(level()).key)+'<div class="tower">';
+  h+=(CSPR[eraOf(level()).key]?`<img class="crown" src="${CSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:crownSVG(eraOf(level()).key))+'<div class="tower">';
   for(let f=S.up;f>=1;f--) h+=floorHTML(f);
   const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=Math.max(156,LB.h+104),small=lt<=1;
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
-    <div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
+    <div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
     <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
     <div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>
     ${pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
