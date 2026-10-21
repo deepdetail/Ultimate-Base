@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>BASED Prototype</title>
+<title>BASED Commander</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Chakra+Petch:wght@400;600;700&display=swap">
@@ -34,7 +34,8 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 /* ---------- Setup screen ---------- */
 #setup{height:100%;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;background:radial-gradient(120% 60% at 50% 0%,#2a3b44 0%,var(--gm-950) 70%)}
 .setup-inner{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
-.logo{font-family:var(--font-display);font-weight:800;font-size:56px;letter-spacing:.14em;text-align:center;background:linear-gradient(180deg,#fff 0%,var(--steel-hi) 45%,var(--steel) 55%,#e6edf3 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(46,196,201,.45));line-height:1}
+.logo{display:block;width:min(300px,82vw);height:auto;margin:0 auto;overflow:visible;filter:drop-shadow(0 0 14px rgba(46,196,201,.45))}
+.logo text{font-family:var(--font-display);font-weight:800}
 .tagline{text-align:center;color:var(--teal);letter-spacing:.3em;font-size:12px;text-transform:uppercase;margin-top:-8px}
 .card{border-radius:14px;border:1px solid var(--glass-line);padding:14px;display:flex;flex-direction:column;gap:10px}
 .cmd-row{display:flex;gap:14px;align-items:center}
@@ -339,7 +340,9 @@ button.shaft{border:none;padding:0;gap:4px}
 
 <div id="setup" hidden>
   <div class="setup-inner">
-    <div class="logo">BASED</div>
+    <svg class="logo" viewBox="0 0 300 104" role="img" aria-label="BASED Commander"><defs><linearGradient id="logo-metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#C9D1D9"/><stop offset=".55" stop-color="#8A939E"/><stop offset="1" stop-color="#e6edf3"/></linearGradient></defs>
+      <text x="150" y="58" text-anchor="middle" textLength="288" lengthAdjust="spacingAndGlyphs" font-size="66" fill="url(#logo-metal)">BASED</text>
+      <text x="150" y="96" text-anchor="middle" textLength="288" lengthAdjust="spacing" font-size="24" fill="url(#logo-metal)">COMMANDER</text></svg>
     <div class="tagline">North America · Year 2526</div>
     <div class="card metal" id="cloud-card" hidden><div class="label">Continue a saved base</div><div class="list" id="cloud-list"></div></div>
     <div class="card metal">
