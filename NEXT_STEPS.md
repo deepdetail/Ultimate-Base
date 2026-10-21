@@ -66,3 +66,50 @@ This is a long-term direction, not a rewrite. The order it recommends, which I a
 - **Phase 3 (driving):** two sessions.
 - **Phase 4 (recon):** one or two sessions.
 - **Regions and the aircraft roster:** ongoing.
+
+## Future UI idea (Phoenix): start outside, tap in
+**The idea.** The game opens on the base EXTERIOR only: the building front, the grounds, the runway and the sky. You tap a part of the outside to go into that view:
+- **The building** opens the full cutaway base view we have now.
+- **The hangar** opens the hangar and showroom.
+- **The radar tower or map table** opens the world map and mission list.
+- Possible later hotspots: the Barracks yard (battles and defense), the Store (a shop front), and the Academy.
+
+**Why it works.**
+- The first screen reads as one place, not a menu.
+- It gives the painted lobby and exterior art (ROOM_LEVEL_RUN images 23 to 36) a home.
+- Upgrades become visible from the outside: a bigger hangar door, a taller tower.
+
+**How I would build it.**
+- A new `view` state: exterior, base, hangar or map.
+- The exterior is a wide 2D painted scene with tappable hotspots, plus a Back button in each view.
+- The base cutaway becomes one view instead of the home screen.
+- Saves don't change.
+- Cost: one session for the shell and hotspots with the current drawn art, then swapping in painted art as it arrives.
+
+**Hangar levels (also Phoenix's idea).**
+- **L1:** a ground-floor hangar beside the building.
+- **L10:** upgraded to a SUBTERRANEAN hangar. The ground opens through a ceiling port door, and vehicles rise on a lift platform to launch.
+
+The animation would be: the doors slide apart, the lift rises, and the vehicle rolls out or takes off.
+
+Rooms are capped at Level 5 today, so this needs the Hangar to get its own 10-level ladder. Suggested ladder:
+
+| Hangar level | What it adds |
+|---|---|
+| L1 | 4 vehicle slots |
+| Every 2 levels | +1 slot |
+| L5 | Fighter jets |
+| L7 | A second bay |
+| L10 | Underground hangar with the port door, 10 slots, and launch time cut in half |
+
+**Art needed:**
+- A ground hangar exterior.
+- A closed and an open port door.
+- The underground bay interior.
+- The lift platform.
+
+These would be added to the room and level run sheet when we build it.
+
+**Open questions for you:**
+- Should the exterior also show crew walking around outside?
+- Should raids happen on the exterior view, with turrets visible on the walls?
