@@ -676,6 +676,17 @@ const VCAP={cessna:[2,0],l39:[3,2],huey:[4,0],f16:[5,3],mig:[5,3],f18:[5,3],f22:
 VEH.forEach(v=>{const c=VCAP[v.id];if(c){v.wcap=c[0];v.wdef=c[1]}});
 const vUp=v=>{S.vup=S.vup||{};if(!S.vup[v.id]) S.vup[v.id]={spd:1,arm:1,wpn:v.wdef||0};return S.vup[v.id]};
 const vUpCost=(v,l)=>Math.max(4000,Math.round((v.cost||50000)*.06*l));
+// resale: 60 percent of the sticker price, plus a little for each upgrade you paid for
+const sellValue=v=>{const u=vUp(v);return Math.round(v.cost*(.6+.04*(u.spd+u.arm-2)+.03*Math.max(0,u.wpn-(v.wdef||0))))};
+const canSell=v=>S.vehicles.includes(v.id)&&S.vehicles.length>1&&!(S.exp&&S.exp.veh===v.id);
+// a steady prize ladder: every few mission wins earns a vehicle (any mission type, air or ground)
+const PRIZES={3:'mustang',5:'ferrari',8:'speedboat',12:'huey',16:'l39',20:'tank',25:'f16'};
+const nextPrize=()=>{const w=S.mwins||0;const k=Object.keys(PRIZES).map(Number).find(n=>n>w);return k?{at:k,left:k-w,v:VEH.find(x=>x.id===PRIZES[k])}:null};
+function grantPrize(v,why){
+  if(!S.vehicles.includes(v.id)&&S.vehicles.length<vehCap()){S.vehicles.push(v.id);return `<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${why}: ${esc(v.name)}!</b><span>It is in your Hangar. Keep it, or sell it in the Store for about ${money(sellValue(v))}.</span></span></div>`}
+  const cash=Math.round(v.cost*.6);S.res.credits+=cash;
+  return `<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${why}: ${esc(v.name)}</b><span>${S.vehicles.includes(v.id)?'You already own one':'Your Hangar is full'}, so it was sold for you: +${money(cash)}.</span></span></div>`;
+}
 const isArmed=v=>!v.locked&&vUp(v).wpn>0;
 const missionType=v=>isArmed(v)?'strike':v.cat==='air'?'recon':'rally';
 const ENEMIES={
@@ -1323,11 +1334,17 @@ function gearSheet(id){
 }
 let storeTab='weapon';
 function storeSheet(){
+  if(storeTab==='sell') return sellSheet();
   const cat=GEAR[storeTab],lv=level();
   const items=Object.keys(cat).filter(k=>cat[k].cost>0).map(k=>{const d=cat[k],lock=d.level&&lv<d.level,who=S.crew.filter(c=>curGear(c,storeTab)===k).length;
     return `<button class="li" data-act="sitem" data-key="${k}" ${lock?'disabled':''}><span class="thumb icon">${gearArt(storeTab,k)}</span><span class="grow"><b>${esc(d.name)}</b><span>${esc(d.desc)}${who?' · '+who+' equipped':''}</span></span><span class="tag ${lock?'dim':'gold'}">${lock?'LV '+d.level:money(d.cost)+(d.tech?' +'+d.tech+'T':'')}</span></button>`}).join('');
   openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Buy gear for any crew member. All weapons fire stun shots, so raiders get knocked out, never hurt. Vehicle weapons, engines and armor are in the Hangar.</div>
-    <div class="tabs">${['weapon','armor','outfit'].map(t=>`<button data-act="stab" data-t="${t}" class="${storeTab===t?'on':''}">${{weapon:'WEAPONS',armor:'ARMOR',outfit:'OUTFITS'}[t]}</button>`).join('')}</div><div class="list">${items}</div>`);
+    ${storeTabs()}<div class="list">${items}</div>`);
+}
+const storeTabs=()=>`<div class="tabs">${['weapon','armor','outfit','sell'].map(t=>`<button data-act="stab" data-t="${t}" class="${storeTab===t?'on':''}">${{weapon:'WEAPONS',armor:'ARMOR',outfit:'OUTFITS',sell:'SELL'}[t]}</button>`).join('')}</div>`;
+function sellSheet(){
+  const rows=S.vehicles.map(id=>VEH.find(v=>v.id===id)).filter(Boolean).sort((a,b)=>b.cost-a.cost).map(v=>`<button class="li" data-act="vsell" data-v="${v.id}" ${canSell(v)?'':'disabled'}><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${esc(v.name)}</b><span>${S.exp&&S.exp.veh===v.id?'Away on a raid':'Bought new for '+money(v.cost)}</span></span><span class="tag gold">${money(sellValue(v))}</span></button>`).join('');
+  openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Sell vehicles you won in battles and missions for 60 percent of their price, plus extra for upgrades. You always keep at least one vehicle.</div>${storeTabs()}<div class="list">${rows}</div>`);
 }
 function storePick(key){
   const d=GEAR[storeTab][key];
@@ -1488,6 +1505,7 @@ function showroomSheet(vid){
     const u=vUp(v),nw=u.wpn<v.wcap?VWEAPONS[u.wpn+1]:null,wl=nw&&nw.level&&lv<nw.level;
     const up=(k,name,desc)=>{const c=vUpCost(v,u[k]);return `<button class="opt" data-act="vup" data-v="${v.id}" data-k="${k}" ${u[k]>=5||S.res.credits<c?'disabled':''}><b>${name}</b><div class="upbar">${[1,2,3,4,5].map(n=>`<i class="${n<=u[k]?'on':''}"></i>`).join('')}</div><span>${desc}</span><span class="cost">${u[k]>=5?'MAX':money(c)}</span></button>`};
     actions=`<button class="btn primary" data-act="launch" data-v="${v.id}" style="font-family:var(--font-display)">${icon('rocket')} LAUNCH MISSION</button>
+      <button class="btn" data-act="vsell" data-v="${v.id}" ${canSell(v)?'':'disabled'}>${canSell(v)?'SELL · '+money(sellValue(v)):S.exp&&S.exp.veh===v.id?'AWAY ON A RAID':'KEEP AT LEAST ONE VEHICLE'}</button>
       <div class="label">Upgrades</div><div class="grid2">${up('spd','Engine','+15% top speed per level.')}${up('arm','Armor','Takes 25% less damage per level.')}</div>
       <div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Weapon: ${esc(VWEAPONS[u.wpn].name)}</b><span>${u.wpn?`Hits for ${VWEAPONS[u.wpn].dmg} per shot.`:'Unarmed vehicles fly recon or race rallies.'} Max for this vehicle: ${esc(VWEAPONS[v.wcap].name)}.</span></span></div>
       ${nw?`<button class="btn" data-act="vwpn" data-v="${v.id}" ${wl||S.res.credits<nw.cost||(nw.tech&&S.res.tech<nw.tech)?'disabled':''}>${icon('target')} ${wl?'NEXT WEAPON AT LEVEL '+nw.level:'INSTALL '+esc(nw.name.toUpperCase())+' · '+money(nw.cost)+(nw.tech?' + '+nw.tech+' tech':'')}</button>`:'<div class="muted" style="font-size:12px">Best weapon this vehicle can carry is installed.</div>'}`;
@@ -1555,6 +1573,7 @@ function missionSheet(vid){
     <div class="muted">${what}</div>
     <div class="route">${route.map((n,i)=>`<div class="${i===route.length-1?'fin':''}"><i></i>${esc(n)}${i===route.length-1?' · secret outpost':''}</div>`).join('')}</div>
     <div class="muted" style="font-size:12px">Badlands drones will chase you. ${isArmed(v)?'Shoot them with your '+esc(VWEAPONS[vUp(v).wpn].name)+' for a bonus.':v.cat==='air'?'Photograph them for an intel bonus, or outrun them.':'Outrun them!'} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    ${(()=>{const np=nextPrize();return np?`<div class="li"><span class="veh">${vehArt(np.v.id)}</span><span class="grow"><b>Prize ladder: ${esc(np.v.name)}</b><span>Win ${np.left} more mission${np.left>1?'s':''} to earn it. Sell it for about ${money(Math.round(np.v.cost*.6))}, or keep it.</span></span></div>`:''})()}
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
     <div class="muted" style="font-size:11px">Map: real elevation data from the open Terrain Tiles dataset (Mapzen and USGS, hosted by AWS). Mountains are stretched taller to look dramatic.</div>`);
@@ -2412,11 +2431,17 @@ function finishMission(won){
       const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*stops;
       const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0)+2000*intel;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
+      S.mwins=(S.mwins||0)+1;let prize='';
+      if(PRIZES[S.mwins]) prize=grantPrize(VEH.find(x=>x.id===PRIZES[S.mwins]),'Mission '+S.mwins+' prize');
+      else{const diff=Math.min(.3,.06+.02*(v.spd||1)+(type==='strike'?.04:0));
+        if(Math.random()<diff){const pool=VEH.filter(x=>!x.locked&&!x.tech&&(!x.level||level()>=x.level)&&x.cost<=Math.max(450000,v.cost*1.5));if(pool.length) prize=grantPrize(pick(pool),'Bonus prize')}}
+      const np=nextPrize();
       const detail=type==='strike'?`<div class="stat"><span class="label">Targets</span><b>${hits}</b></div>`:type==='recon'?`<div class="stat"><span class="label">Photos</span><b>${photos}</b></div>`:`<div class="stat"><span class="label">Rings</span><b>${stops}</b></div>`;
       openSheet('Mission complete!',`${badge(firstTime?'map':'flag')}
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost at '+esc(ROUTES[mk][v.cat].slice(-1)[0])+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
         <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div>${detail}<div class="stat"><span class="label">${type==='recon'?'Drone intel':'Drones KO'}</span><b>${type==='recon'?intel:ko}</b></div></div>
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
+        ${prize}${np?`<div class="muted" style="font-size:12px">Mission wins: ${S.mwins}. Next prize: ${esc(np.v.name)} in ${np.left} more win${np.left>1?'s':''}.</div>`:''}
         <button class="btn primary" data-close>BACK TO BASE</button>`);
     } else {
       openSheet('Mayday!',`${badge('chute')}<div class="muted" style="text-align:center">Your pilot parachuted out safely and the ${esc(v.name)} got towed home. Try again any time.</div><button class="btn primary" data-close>BACK TO BASE</button>`);
@@ -2642,6 +2667,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='vwpn'){const v=VEH.find(x=>x.id===b.dataset.v),u=vUp(v),w=VWEAPONS[u.wpn+1];if(!w||u.wpn>=v.wcap||S.res.credits<w.cost||(w.tech&&S.res.tech<w.tech))return;S.res.credits-=w.cost;if(w.tech)S.res.tech-=w.tech;u.wpn++;S.xp+=10;save();updateHUD();toast(`${v.name} now has a ${w.name}!`,'ok');showroomSheet(v.id)}
   else if(a==='sitem') storePick(b.dataset.key);
   else if(a==='stab'){storeTab=b.dataset.t;storeSheet()}
+  else if(a==='vsell'){const v=VEH.find(x=>x.id===b.dataset.v);if(!v||!canSell(v)) return;openSheet('Sell the '+esc(v.name)+'?',`<div class="row" style="align-items:center"><span class="veh">${vehArt(v.id)}</span><span class="muted" style="flex:1">You get ${money(sellValue(v))}. Its upgrades go with it.${v.cat==='air'&&S.vehicles.filter(id=>(VEH.find(x=>x.id===id)||{}).cat==='air').length===1?' <b style="color:var(--warn)">This is your only aircraft, so no flight missions until you buy another.</b>':''}</span></div><div class="row"><button class="btn" data-act="stab" data-t="sell">KEEP IT</button><button class="btn primary" data-act="vsell-yes" data-v="${v.id}">SELL · ${money(sellValue(v))}</button></div>`)}
+  else if(a==='vsell-yes'){const v=VEH.find(x=>x.id===b.dataset.v);if(!v||!canSell(v)) return;const cash=sellValue(v);S.res.credits+=cash;S.vehicles=S.vehicles.filter(x=>x!==v.id);if(S.vup) delete S.vup[v.id];stopShowroom();renderWorld();save();toast('Sold the '+v.name+' for '+money(cash)+'!','ok');storeTab='sell';storeSheet()}
   else if(a==='store') storeSheet();
   else if(a==='recruit') recruit();
   else if(a==='launch') missionSheet(b.dataset.v);
