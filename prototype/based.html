@@ -44,6 +44,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 input[type=text],input[type=password]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .gear-img{width:100%;height:100%;object-fit:contain;display:block}
+.gchip{display:inline-grid;place-items:center;width:30px;height:16px;vertical-align:-4px;border-radius:4px;background:linear-gradient(180deg,#e6ebef,#aeb7c0);border:1px solid rgba(255,255,255,.35);margin-right:3px}.gchip svg,.gchip img{width:28px;height:14px}
 .rimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
 .lobbyimg{width:100%;height:auto;display:block}
 .looks{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -332,7 +333,7 @@ button.shaft{border:none;padding:0;gap:4px}
 .badge{display:flex;justify-content:center}
 .badge svg{width:76px;height:76px}
 .thumb{width:44px;height:36px;border-radius:7px;flex:none;border:1px solid var(--glass-line);background:#3a4149}
-.thumb.icon{display:grid;place-items:center;background:rgba(10,12,15,.5)}
+.thumb.icon{display:grid;place-items:center;background:linear-gradient(180deg,#e6ebef,#aeb7c0)}
 .thumb.icon svg{width:42px;height:21px}
 .fac .biome svg{width:40px;height:28px;display:block}
 .wv{display:inline-block}
@@ -552,6 +553,8 @@ function gearArt(kind,key){
   }
   return `<svg viewBox="0 0 48 24" aria-hidden="true">${g}</svg>`;
 }
+// small inline gear icon for lists; painted art in GSPR replaces the drawing everywhere
+const gchip=(kind,key)=>`<span class="gchip">${gearArt(kind,key)}</span>`;
 const roomThumb=t=>`<svg class="thumb" viewBox="0 0 120 100" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${DECOR[t]||''}</svg>`;
 
 // ---------- game data ----------
@@ -1399,7 +1402,7 @@ function crewCard(id,lineOverride){
       <div class="stat"><span class="label">Aim</span>${st('aim')}</div>
       <div class="stat"><span class="label">Smarts</span>${st('smarts')}</div>
     </div>
-    <div class="muted" style="font-size:12px">${icon('shirt')} ${esc(OUTFITS[curGear(c,'outfit')].name)} · ${icon('swords')} ${esc(WEAPONS[curGear(c,'weapon')].name)} · ${icon('lock')} ${esc(ARMOR[curGear(c,'armor')].name)}</div>
+    <div class="muted" style="font-size:12px">${gchip('outfit',curGear(c,'outfit'))}${esc(OUTFITS[curGear(c,'outfit')].name)} · ${gchip('weapon',curGear(c,'weapon'))}${esc(WEAPONS[curGear(c,'weapon')].name)} · ${gchip('armor',curGear(c,'armor'))}${esc(ARMOR[curGear(c,'armor')].name)}</div>
     <div><div class="label">Mood · ${moodWord(c.mood)}</div><div class="bar" style="height:6px"><i style="width:${c.mood}%" class="${c.mood<35?'bad':c.mood<66?'warn':''}"></i></div></div>
     <div class="row">
       <button class="btn" data-act="talk" data-id="${c.id}">TALK</button>
@@ -1408,7 +1411,7 @@ function crewCard(id,lineOverride){
       <button class="btn" data-act="rename" data-id="${c.id}">RENAME</button>
     </div>
     ${c.isCmd?'':`<button class="btn danger" data-act="identify" data-id="${c.id}">${icon('eye')} IDENTIFY CLONE</button>
-    <div class="muted" style="font-size:12px">Clone clues: a trench coat flash when they arrive, green bare feet, and one stretched out word when they talk.</div>`}
+    <div class="muted" style="font-size:12px">Clone clues: a trench coat flash when they arrive, then two or three odd tells, like green bare feet, an alien hat, an oxygen tube, a weird dance, glitchy eyes or stretched out words. Some real crew have one quirk, so look for two.</div>`}
   `);
 }
 function gearItem(c,kind,key,back){
@@ -1460,7 +1463,7 @@ function assignSheet(id){
 }
 function crewList(){
   const items=S.crew.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span>
-    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span><span style="display:block">${icon('ninja')} ${PHYS[physOf(c)]} · ${esc(WEAPONS[curGear(c,'weapon')].name)}</span></span>
+    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span><span style="display:block">${icon('ninja')} ${PHYS[physOf(c)]} · ${gchip('weapon',curGear(c,'weapon'))}${esc(WEAPONS[curGear(c,'weapon')].name)} ${gchip('armor',curGear(c,'armor'))}</span></span>
     <span class="tag ${c.mood<35?'bad':''}">${moodWord(c.mood)}</span></button>`).join('');
   const jail=S.jail.length?`<div class="label">In the Holding Cell</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Caught clone · tap to talk</span></span></button>`).join('')}</div>`:'';
   openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<button class="btn primary" data-act="recruit">${icon('plus')} RECRUIT SOMEONE NEW · $2,500</button><div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}. Train crew in the Dojo to grow from Novice to Advanced physique.</div><div class="list">${items}</div>${jail}`);
@@ -1829,7 +1832,7 @@ function planSheet(bid){
   const squad=expPlan.squad.map(id=>S.crew.find(c=>c.id===id)),v=VEH.find(x=>x.id===expPlan.veh);
   const P=Math.round(squad.reduce((a,c)=>a+memberPow(c),0)+vehPow(v)),E=basePow(b),ch=expChance(P,E),dur=Math.round(40+Math.min(200,E*.4)),pc=Math.round(ch*100),col=pc>=70?'ok':pc>=40?'gold':'bad';
   expPlan.P=P;expPlan.ch=ch;expPlan.dur=dur;
-  const crewRows=avail.map(c=>{const on=expPlan.squad.includes(c.id);return `<button class="li" data-act="etog" data-id="${c.id}" style="${on?'border-color:var(--teal)':''}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>Power ${Math.round(memberPow(c))} · ${esc(WEAPONS[curGear(c,'weapon')].name)} · ${esc(ARMOR[curGear(c,'armor')].name)}</span></span>${on?'<span class="tag ok">IN SQUAD</span>':''}</button>`}).join('');
+  const crewRows=avail.map(c=>{const on=expPlan.squad.includes(c.id);return `<button class="li" data-act="etog" data-id="${c.id}" style="${on?'border-color:var(--teal)':''}"><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>Power ${Math.round(memberPow(c))} · ${gchip('weapon',curGear(c,'weapon'))}${esc(WEAPONS[curGear(c,'weapon')].name)} · ${gchip('armor',curGear(c,'armor'))}${esc(ARMOR[curGear(c,'armor')].name)}</span></span>${on?'<span class="tag ok">IN SQUAD</span>':''}</button>`}).join('');
   const vehRows=vehs.map(x=>`<button class="li" data-act="eveh" data-v="${x.id}" style="${expPlan.veh===x.id?'border-color:var(--teal)':''}"><span class="veh">${vehArt(x.id)}</span><span class="grow"><b>${esc(x.name)}</b><span>Power ${Math.round(vehPow(x))} · ${esc(VWEAPONS[vUp(x).wpn].name)}</span></span>${expPlan.veh===x.id?'<span class="tag ok">TAKING</span>':''}</button>`).join('');
   openSheet('Raid: '+esc(b.name),`<div class="row" style="align-items:center"><span class="wv">${enemyArt(b.art)}</span><span class="muted" style="flex:1;font-size:12px">${esc(b.fac)} at ${esc(b.where)}. Enemy power ${E}, your squad ${P}. Trip time ${fmtT(dur)}.</span><span class="tag ${col}" style="font-size:13px">${pc}% WIN</span></div>
     <button class="btn danger" data-act="elaunch" style="font-family:var(--font-display)" ${squad.length&&v?'':'disabled'}>SEND THE SQUAD</button>
