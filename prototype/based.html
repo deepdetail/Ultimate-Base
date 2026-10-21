@@ -41,7 +41,7 @@ h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 .cmd-row{display:flex;gap:14px;align-items:center}
 .portrait{width:70px;height:150px;flex:none;position:relative;border-radius:12px;background:radial-gradient(circle at 50% 80%,rgba(255,231,176,.22),transparent 70%)}
 .portrait .person{position:absolute;left:5px;top:0;bottom:auto;width:60px;height:150px;animation:none;pointer-events:none}
-input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
+input[type=text],input[type=password]{width:100%;background:var(--gm-950);border:1px solid var(--gm-600);border-radius:8px;padding:10px;color:var(--text);font:600 16px var(--font-body)}
 .swatches{display:flex;gap:8px;flex-wrap:wrap}
 .gear-img{width:100%;height:100%;object-fit:contain;display:block}
 .rimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
@@ -51,6 +51,7 @@ input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-6
 .lookb.on{border-color:var(--teal);box-shadow:0 0 10px rgba(46,196,201,.35)}
 .lookb{font-size:15px}.lookb .lf{width:64px;height:64px;border-radius:50%;overflow:hidden;background:#262b32;display:block}
 .lookb .lf svg{width:100%;height:100%;display:block}
+[hidden]{display:none!important}
 #classic-opts{display:flex;flex-direction:column;gap:8px}#classic-opts[hidden]{display:none}
 .sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;padding:0}
 .sw.on{border-color:var(--teal);box-shadow:0 0 0 2px var(--gm-900),0 0 10px var(--teal)}
@@ -154,6 +155,10 @@ input[type=text]{width:100%;background:var(--gm-950);border:1px solid var(--gm-6
 .person svg{width:100%;height:100%;display:block;overflow:visible;animation:face calc(var(--d,4s) * 2) step-end infinite;animation-delay:inherit}
 @keyframes pace{0%,100%{transform:translateX(calc(var(--r,14px) * -1))}50%{transform:translateX(var(--r,14px))}}
 @keyframes face{0%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+.person.dance svg{transform-origin:50% 92%;animation:face calc(var(--d,4s) * 2) step-end infinite,jig .42s ease-in-out infinite alternate}
+@keyframes jig{from{rotate:-7deg}to{rotate:7deg}}
+.person.glitch svg{animation:face calc(var(--d,4s) * 2) step-end infinite,glitch 3.1s steps(1) infinite}
+@keyframes glitch{0%,88%,100%{opacity:1;filter:none}90%{opacity:.35;filter:hue-rotate(90deg)}93%{opacity:1;filter:drop-shadow(2px 0 0 #9aff6a)}96%{opacity:.6}}
 .person .coatg{display:none}
 .person.coat .coatg{display:inline}
 .person.hurt,.person.jailed{animation:none}
@@ -347,18 +352,22 @@ button.shaft{border:none;padding:0;gap:4px}
       <text x="150" y="58" text-anchor="middle" textLength="288" lengthAdjust="spacingAndGlyphs" font-size="66" fill="url(#logo-metal)">BASED</text>
       <text x="150" y="96" text-anchor="middle" textLength="288" lengthAdjust="spacing" font-size="24" fill="url(#logo-metal)">COMMANDER</text></svg>
     <div class="tagline">North America · Year 2526</div>
-    <div class="card metal" id="cloud-card" hidden><div class="label">Continue a saved base</div><div class="list" id="cloud-list"></div></div>
+    <div class="card metal" id="cont-card"><div class="label">Continue game</div>
+      <div class="muted" style="font-size:12px">Type your Commander name. It is your password, so nobody else can open your base unless they know it.</div>
+      <div class="row" style="align-items:center"><input type="password" id="cont-name" maxlength="18" placeholder="Your Commander name" autocomplete="off" autocapitalize="off" spellcheck="false" style="flex:1;min-width:0"><button class="btn primary" id="cont-go" style="flex:none;width:auto;padding:10px 16px">CONTINUE</button></div>
+      <label class="muted" style="font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="cont-show"> Show name</label>
+      <div class="muted" id="cont-note" style="font-size:12px"></div></div>
     <div class="card metal">
       <div class="label">1 · Name and pick your Commander</div>
       <div class="cmd-row">
         <div class="portrait" id="cmd-preview"></div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
           <label class="label" for="cmd-name">Commander name</label>
-          <input type="text" id="cmd-name" maxlength="18" placeholder="Commander Ace" value="Commander Ace">
+          <input type="text" id="cmd-name" maxlength="18" placeholder="Commander Ace" autocomplete="off">
         </div>
       </div>
       <div class="looks" id="sw-art"></div>
-      <div class="muted" id="name-note" style="font-size:12px">Your Commander name is your save slot. Each name keeps its own base.</div>
+      <div class="muted" id="name-note" style="font-size:12px">Your Commander name is your save slot and your password. Pick one that is yours, and remember it to continue later.</div>
     </div>
     <div class="card metal">
       <div class="label">2 · Pick your faction and home</div>
@@ -770,12 +779,14 @@ const pokes={};
 const advisor={};
 let setupCfg={skin:SKINS[1],hair:HAIRS[0],suit:SUITS[0],hs:0,art:'mb',faction:'icr'};
 
-function save(){ if(!S) return; S.savedAt=Date.now(); try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
+function save(){ if(!S) return; S.savedAt=Date.now(); try{const j=JSON.stringify(S);localStorage.setItem(KEY,j);if(!SANDBOX)localStorage.setItem(KEY+':'+slug(S.cmd.name),j)}catch(e){} }
 function load(){ try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null} }
 
 function makeCrew(o){
-  return Object.assign({id:S.uid++,name:pick(FIRST)+' '+pick(LAST),skin:pick(SKINS),hair:pick(HAIRS),shirt:pick(SHIRTS),hs:ri(0,3),eye:pick(EYES),
+  const c=Object.assign({id:S.uid++,name:pick(FIRST)+' '+pick(LAST),skin:pick(SKINS),hair:pick(HAIRS),shirt:pick(SHIRTS),hs:ri(0,3),eye:pick(EYES),
     clone:false,str:rnd(2,4.2),aim:ri(2,6),smarts:ri(2,6),xp:0,mood:75,hurt:0,room:null,joined:S.t,lastSab:S.t,outfit:'jumpsuit',weapon:'none'},o||{},{art:(o&&o.art)||(o&&o.room&&S.rooms[o.room]&&ROLE_LOOK[S.rooms[o.room].type])||pick(CREW_LOOKS)});
+  if(c.clone){c.tells=c.tells||pickTells();c.stole=c.stole||0}else if(Math.random()<.1) c.quirk=pick(QUIRKS);
+  return c;
 }
 function newGame(cfg){
   S={v:3,cmd:{name:cfg.name,skin:cfg.skin,hair:cfg.hair,suit:cfg.suit,hs:cfg.hs},faction:cfg.faction,
@@ -872,10 +883,10 @@ function personSVG(c,vb){
     const h=88*(A.s||1),w=h*A.w/A.h,x=(20-w/2).toFixed(2),img=`<image href="${A.full}" x="${x}" y="${(90.5-h).toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}"/>`;
     // clones keep their tells on painted sprites: green bare feet and the trench coat flash
     const u='k'+String(c.id).replace(/\W/g,'');
-    const tell=c.clone?`<defs><clipPath id="cf${u}"><rect x="0" y="${(90.5-h*.1).toFixed(2)}" width="40" height="12"/></clipPath><filter id="gf${u}"><feColorMatrix type="matrix" values=".15 .15 0 0 0  .35 .55 .2 0 .22  .05 .1 .1 0 0  0 0 0 1 0"/></filter></defs><g clip-path="url(#cf${u})" filter="url(#gf${u})">${img}</g>`:'';
+    const tell=hasTell(c,'feet')?`<defs><clipPath id="cf${u}"><rect x="0" y="${(90.5-h*.1).toFixed(2)}" width="40" height="12"/></clipPath><filter id="gf${u}"><feColorMatrix type="matrix" values=".15 .15 0 0 0  .35 .55 .2 0 .22  .05 .1 .1 0 0  0 0 0 1 0"/></filter></defs><g clip-path="url(#cf${u})" filter="url(#gf${u})">${img}</g>`:'';
     const sw=w*.36,hw=w*.52;
     const coat=`<g class="coatg"><path d="M${20-sw} 25 Q${20-sw-1} 21.5 20 21 Q${20+sw+1} 21.5 ${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q20 80 ${20-hw} 77 L${20-sw-1.5} 46 Z" fill="#A88A5C"/><path d="M20 21.5 L${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q22 79.5 20.5 79.5 Z" fill="rgba(0,0,0,.14)"/><path d="M${20-4} 21.5 L20 33 L${20+4} 21.5 L${20+5.5} 27 L20 37 L${20-5.5} 27 Z" fill="#8F7349"/><rect x="${20-sw-1}" y="44" width="${2*sw+2}" height="2.4" rx="1" fill="#6E5636"/><path d="M20 37 L20 79" stroke="rgba(0,0,0,.28)" stroke-width=".5"/><circle cx="21.6" cy="40" r=".55" fill="#5A4428"/><circle cx="21.6" cy="52" r=".55" fill="#5A4428"/></g>`;
-    return `<svg viewBox="0 0 40 100" aria-hidden="true"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${img}${tell}${coat}</svg>`}
+    return `<svg viewBox="0 0 40 100" aria-hidden="true"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${img}${tell}${tellX(c,90.5-h,20+w*.05)}${coat}</svg>`}
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
   const eye=c.eye||EYES[Math.abs(c.id||0)%EYES.length];
   const ph=physOf(c),P=BODY[ph],o=c.isCmd&&(!c.outfit||c.outfit==='jumpsuit')?'cmd':(c.outfit||'jumpsuit');
@@ -906,7 +917,7 @@ function personSVG(c,vb){
   const legPath=(x,d)=>`M${x} 49 L${x+d*.3} 70 L${x} 90.5`;
   const legs=`<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="${legPath(hipL,-1)}" stroke="${pants}" stroke-width="${P.leg}"/><path d="${legPath(hipR,1)}" stroke="${shade(pants,.82)}" stroke-width="${P.leg}"/><path d="M${hipL+P.leg*.25} 52 L${hipL+P.leg*.3} 69" stroke="rgba(255,255,255,.12)" stroke-width=".5"/><path d="M${hipL-.3} 70 l.8 .4 M${hipR+.3} 70 l-.8 .4" stroke="rgba(0,0,0,.3)" stroke-width=".4"/></g>`+
     (o==='gi'?`<g stroke="#e8e2d4" stroke-width="${P.leg+.3}"><path d="M${hipL} 86 L${hipL} 89.6"/><path d="M${hipR} 86 L${hipR} 89.6"/></g>`:'');
-  const feet=c.clone
+  const feet=hasTell(c,'feet')
     ?`<g fill="#5BE36B" stroke="#2c8c3c" stroke-width=".5"><ellipse cx="${hipL-.5}" cy="93" rx="${P.leg*.75+.6}" ry="2.1"/><ellipse cx="${hipR+.5}" cy="93" rx="${P.leg*.75+.6}" ry="2.1"/><circle cx="${hipL-2.8}" cy="92.1" r="1"/><circle cx="${hipL-1}" cy="91.6" r="1"/><circle cx="${hipR+2.8}" cy="92.1" r="1"/><circle cx="${hipR+1}" cy="91.6" r="1"/></g>`
     :`<g><path d="M${hipL-P.leg*.6-1.6} 94.6 Q${hipL-P.leg*.6-1.6} 90.6 ${hipL} 90.2 Q${hipL+P.leg*.55} 90.6 ${hipL+P.leg*.55} 94.6 Z" fill="#1e2227"/><path d="M${hipR+P.leg*.6+1.6} 94.6 Q${hipR+P.leg*.6+1.6} 90.6 ${hipR} 90.2 Q${hipR-P.leg*.55} 90.6 ${hipR-P.leg*.55} 94.6 Z" fill="#14171b"/><path d="M${hipL-P.leg*.6-1.2} 93.8 H${hipL+P.leg*.4}" stroke="rgba(255,255,255,.2)" stroke-width=".4"/></g>`;
   // arms with cel shading: the far arm is darker
@@ -960,11 +971,19 @@ function personSVG(c,vb){
     ${face}${blush}${eyes}${brows}${nose}${mouth}
     ${band}
     <path d="${H.f}" fill="${c.hair}"/><path d="${H.f}" fill="${hairS}" opacity=".35" transform="translate(.35 .25)"/><path d="${H.f}" fill="${c.hair}" transform="translate(-.2 -.2)"/>
-    ${shine}${hurtBand}${coat}
+    ${shine}${hurtBand}${tellX(c,3.6,20)}${coat}
   </svg>`;
 }
+// small giveaway props drawn over any look: an alien beanie, an oxygen tube, glowing eyes
+function tellX(c,top,hx){
+  let g='';
+  if(hasTell(c,'hat')) g+=`<g transform="translate(${hx.toFixed(1)} ${(top+1.4).toFixed(1)})"><path d="M-4.6 0 Q0 -5.4 4.6 0Z" fill="#7a3cff" stroke="#3a1a80" stroke-width=".3"/><rect x="-5.2" y="-.5" width="10.4" height="1.2" rx=".6" fill="#9a6aff"/><path d="M0 -4.6 V-8.8" stroke="#9aff6a" stroke-width=".5"/><circle cx="0" cy="-9.2" r="1.2" fill="#9aff6a"/></g>`;
+  if(c.clone&&hasTell(c,'tube')) g+=`<path d="M${(hx+2.6).toFixed(1)} ${(top+9.6).toFixed(1)} Q${(hx-1).toFixed(1)} ${(top+14).toFixed(1)} ${(hx-5).toFixed(1)} ${(top+18).toFixed(1)} T${(hx-6.4).toFixed(1)} ${(top+25).toFixed(1)}" stroke="#7fe0f0" stroke-width=".8" fill="none"/><rect x="${(hx-8.4).toFixed(1)}" y="${(top+24).toFixed(1)}" width="3.6" height="7.4" rx="1.5" fill="#c9d1d9" stroke="#4a525c" stroke-width=".3"/>`;
+  if(c.clone&&hasTell(c,'eyes')) g+=`<g fill="#9aff6a" opacity=".35"><circle cx="${(hx+1.2).toFixed(1)}" cy="${(top+6.4).toFixed(1)}" r="1.7"/><circle cx="${(hx+3.7).toFixed(1)}" cy="${(top+6.4).toFixed(1)}" r="1.7"/></g><g fill="#c8ff9a"><circle cx="${(hx+1.2).toFixed(1)}" cy="${(top+6.4).toFixed(1)}" r=".6"/><circle cx="${(hx+3.7).toFixed(1)}" cy="${(top+6.4).toFixed(1)}" r=".6"/></g>`;
+  return g;
+}
 function personHTML(c,extra){
-  const cls=['person',c.clone?'clone':'',c.isCmd?'cmd':'',c.hurt>0?'hurt':'',extra||''].join(' ');
+  const cls=['person',c.clone?'clone':'',c.isCmd?'cmd':'',c.hurt>0?'hurt':'',hasTell(c,'dance')?'dance':'',c.clone&&hasTell(c,'glitch')?'glitch':'',extra||''].join(' ');
   const st=`--x:${ri(14,64)}%;--d:${rnd(2.6,5.5).toFixed(2)}s;--r:${ri(8,18)}px;animation-delay:-${rnd(0,4).toFixed(2)}s`;
   return `<div class="${cls}" data-cid="${c.id}" style="${st}">${personSVG(c)}</div>`;
 }
@@ -1296,7 +1315,8 @@ function sayLine(c){
   else if(physOf(c)===2&&Math.random()<.25) line=pick(LINES.strong);
   else if(Math.random()<.35) line=pick(LINES.room[S.rooms[c.room].type]||LINES.ok);
   else line=pick(c.mood>66?LINES.happy:c.mood>35?LINES.ok:LINES.sad);
-  return c.clone?garble(line):line;
+  if(c.clone&&Math.random()<.35) line=pick(DIALOG.filter(d=>d.kind==='slip')).text;
+  return hasTell(c,'garble')?garble(line):line;
 }
 
 // ---------- crew card ----------
@@ -1397,10 +1417,19 @@ function identify(id){
     toast(c.name+' is not a clone. Their mood went down.','warn');
     return;
   }
-  S.caught++; S.res.credits+=5000; S.res.ap=Math.min(5,S.res.ap+1); S.xp+=30;
+  const age=S.t-(c.joined||0),stole=c.stole||0,fast=age<=CLONE_WINDOW,bonus=fast?Math.round(ri(1000,3000)*(1+.05*level())):0,back=fast?stole*2+bonus:stole;
+  S.caught++; S.res.credits+=5000+back; S.res.ap=Math.min(5,S.res.ap+1); S.xp+=30; c.stole=0;
   flashCoat(c.id);
-  toast('Clone caught! +$5,000 bounty and +1 Adventure Point','ok');
+  toast(fast?`Caught in ${age}s! Double the ${money(stole)} they took, plus a ${money(bonus)} bonus: +${money(5000+back)}`:`Clone caught! +$5,000 bounty${stole?' and '+money(stole)+' recovered':''}`,'ok');
   cloneChoice(c);
+}
+// a clone left too long bursts out as a monster; beat it to win back double what it stole
+function shapeshift(c){
+  S.crew=S.crew.filter(x=>x.id!==c.id);
+  toast(`${c.name} was a clone and just turned into a monster! Defend the base!`,'bad');
+  const lv=level(),wave=[{name:'Shapeshifted Clone',art:'clonebear',hp:140+14*lv,speed:20,dmg:12,big:true,boss:true,m:1},{name:'Scavenger Thief',art:'thief',hp:16,speed:52,dmg:3,m:1},{name:'Scavenger Thief',art:'thief',hp:16,speed:52,dmg:3,m:1}];
+  renderWorld();startBattle(wave,false,DIFFS[1]);
+  if(B){B.cloneLoot=c.stole||0;B.cloneName=c.name}
 }
 function cloneChoice(c){
   const hasCell=S.jail.length<jailCap(),hasLab=roomsOf('clonelab').length>0,tech=S.res.tech>=30;
@@ -1415,12 +1444,37 @@ function cloneChoice(c){
       <button class="opt" data-act="clone" data-how="talk" data-id="${c.id}"><b>${icon('chat')} Recruit</b><span>Talk them into joining. Might not work!</span></button>
     </div>`,true);
 }
+// clone game v2: each clone shows 2 or 3 random tells; some real crew have one harmless quirk so kids look for two
+const TELLS=['feet','garble','hat','tube','dance','eyes','glitch'],QUIRKS=['hat','dance'];
+const pickTells=()=>[...TELLS].sort(()=>Math.random()-.5).slice(0,Math.random()<.4?3:2);
+const hasTell=(c,k)=>c.clone?(c.tells?c.tells.includes(k):(k==='feet'||k==='garble')):c.quirk===k;
+const CLONE_WINDOW=60,CLONE_SHIFT=120;   // catch inside a minute for double the stolen cash; at two minutes they shapeshift
+// dialogue lines: kind slip (clones say odd things), more can be pasted in later with the same shape
+const DIALOG=[
+  {kind:'slip',text:'I love human food. Especially the spoons.'},
+  {kind:'slip',text:'My home planet... I mean my home town is very nice.'},
+  {kind:'slip',text:'Why does everyone here have only two eyes?'},
+  {kind:'slip',text:'I am definitely a normal person doing normal person things.'},
+  {kind:'slip',text:'Is it time for the moon meeting? Never mind.'},
+  {kind:'slip',text:'I breathe air all the time. Love it. Big fan.'},
+  {kind:'slip',text:'This coat? I have always had this coat. Always.'},
+  {kind:'slip',text:'Shoes are so uncomfortable. Who needs shoes.'},
+  {kind:'slip',text:'Can you help me count the credits? All of them?'},
+  {kind:'slip',text:'I am not dancing. This is how humans stand.'},
+  {kind:'slip',text:'Beep. I mean, hello Commander.'},
+  {kind:'slip',text:'The vault code would be useful for... reasons.'}
+];
 const TALK=[
   {q:'Whyyy should I staaay heeere?',a:[['We have the best food in the West.',1],['Because I said so!',0],['Here you could be anything. Even a pilot.',2]]},
-  {q:'Yooou would truuust me?',a:[['Everyone deserves a second chance.',2],['Not really, but let\'s try.',1],['Nope.',0]]}
+  {q:'Yooou would truuust me?',a:[['Everyone deserves a second chance.',2],['Not really, but let\'s try.',1],['Nope.',0]]},
+  {q:'What would I eeeven do heeere?',a:[['Learn to fly jets with our pilots.',2],['Sweep the floors forever.',0],['Help us find the other clones.',2]]},
+  {q:'Will they laaaugh at my feeet?',a:[['Nobody here cares about feet.',2],['Maybe a little.',1],['Yes, constantly.',0]]},
+  {q:'Do yooou have snaaacks?',a:[['The best snacks in the Sierras.',2],['Only on Tuesdays.',1],['No snacks for clones.',0]]}
 ];
 function talkStep(c,step,score,fromJail){
-  if(step>=TALK.length){
+  const Q=c._q||(c._q=[...TALK].sort(()=>Math.random()-.5).slice(0,2));
+  if(step>=Q.length){
+    delete c._q;
     const ok=score>=3;
     if(fromJail){
       if(ok){S.jail=S.jail.filter(p=>p.id!==c.id);c.clone=false;c.exClone=true;c.smarts+=2;c.room=null;c.mood=80;c.joined=S.t;S.crew.push(c);toast(c.name+' joined your crew!','ok')}
@@ -1431,7 +1485,7 @@ function talkStep(c,step,score,fromJail){
     }
     closeSheet(); renderWorld(); save(); return;
   }
-  const t=TALK[step];
+  const t=Q[step];
   openSheet('Talking to '+esc(c.name),`<div class="cmd-row"><div class="portrait">${personHTML(Object.assign({},c,{hurt:0}))}</div><div class="bubble" style="flex:1">${esc(t.q)}</div></div>
     <div class="list">${t.a.map(([txt,pts])=>`<button class="li" data-act="talk-ans" data-id="${c.id}" data-step="${step}" data-score="${score+pts}" data-jail="${fromJail?1:0}"><span class="grow"><b>${esc(txt)}</b></span></button>`).join('')}</div>`,!fromJail);
 }
@@ -1819,6 +1873,8 @@ function endBattle(won){
     const DF=ended.diff||DIFFS[1],cr=Math.round((8000+1500*level()+ri(0,3000))*DF.rew); S.res.credits+=cr; S.xp+=50; S.wins++;
     S.crew.forEach(c=>c.xp+=20);
     let veh='';
+    if(ended.cloneLoot!==undefined){const b2=Math.round(ri(1500,4000)*(1+.05*level())),back=ended.cloneLoot*2+b2;S.res.credits+=back;S.caught++;
+      veh+=`<div class="li"><span class="wv">${enemyArt('clonebear')}</span><span class="grow"><b>Clone monster defeated!</b><span>You got back double the ${money(ended.cloneLoot)} it stole, plus a ${money(b2)} bonus: +${money(back)}.</span></span></div>`}
     if(BPRIZES[S.wins]) veh=grantPrize(VEH.find(x=>x.id===BPRIZES[S.wins]),'Battle '+S.wins+' prize');
     else if(Math.random()<Math.min(.7,.3*DF.rew)&&S.vehicles.length<vehCap()){
       const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&(!v.level||level()>=v.level));
@@ -1832,6 +1888,7 @@ function endBattle(won){
     for(let i=0;i<Math.min(2,pool.length);i++){const c=pool.splice(ri(0,pool.length-1),1)[0];c.hurt=Math.round(60/(1+armorDef(c)*.4));hurt.push(c.name)}
     body=`${badge('dizzy')}<div class="muted" style="text-align:center">The raiders got in and grabbed some loot. Everyone is okay, they just need some rest.</div>
       <div class="stats"><div class="stat"><span class="label">Cash</span><b>-${money(lostC)}</b></div><div class="stat"><span class="label">Food</span><b>-${lostF}</b></div><div class="stat"><span class="label">Knocked out</span><b>${hurt.length}</b></div></div>
+      ${ended.cloneLoot?`<div class="muted" style="font-size:12px">The clone monster escaped with ${money(ended.cloneLoot)}. Catch clones sooner next time!</div>`:''}
       <div class="muted" style="font-size:12px">Tip: more turrets, upgrades, and Barracks defenders with weapons and armor. Armor adds to the base shield.</div>`;
   }
   openSheet(won?'Victory!':'Base raided',body+`<button class="btn primary" data-close>OKAY</button>`);
@@ -2656,15 +2713,22 @@ function tick(){
     if(r.food<=0) advise('food','The crew is hungry! Put someone in the Food Hall.','bad');
     else if(r.food<foodMax()*.15) advise('foodlow','Food is getting low.');
     if(r.power<=0) advise('pow','Power is out! Turrets are slow and rooms work at half speed.','bad');
-    for(const c of S.crew){
-      if(!c.clone||S.t-c.joined<25||S.t-(c.lastSab||0)<30) continue;
-      c.lastSab=S.t; if(Math.random()<.5) continue;
+    for(const c of [...S.crew]){
+      if(!c.clone||c.away) continue;
+      const age=S.t-(c.joined||0);
+      if(age>=CLONE_SHIFT&&!M&&!B){shapeshift(c);break}
+      if(age<12||S.t-(c.lastSab||0)<15) continue;
+      c.lastSab=S.t;
       const where=c.room?ROOMS[S.rooms[c.room].type].name:'the lobby';
-      const kind=ri(0,2);
-      if(kind===0){const n=Math.min(3000,Math.floor(r.credits*.05));r.credits-=n;toast(`Hmm... ${money(n)} went missing near ${where}.`,'warn')}
+      const kind=Math.random()<.7?0:ri(1,2);
+      if(kind===0){const n=Math.min(Math.floor(r.credits*.02),300+80*level());if(n>0){r.credits-=n;c.stole=(c.stole||0)+n;
+        const tot=S.crew.filter(x=>x.clone).reduce((a,x)=>a+(x.stole||0),0);toast(`Hmm... ${money(n)} went missing near ${where}. ${money(tot)} missing so far.${age<=CLONE_WINDOW?' Catch the thief fast for double!':''}`,'warn')}}
       else if(kind===1){r.food=Math.max(0,r.food-15);toast(`Somebody licked all the food in ${where}. Gross. And suspicious.`,'warn')}
       else {r.power=Math.max(0,r.power-15);toast(`The power flickered near ${where}. Weird...`,'warn')}
     }
+    if(level()>=15&&!M&&!B){if(!S.nextTurn) S.nextTurn=S.t+ri(240,420);
+      if(S.t>=S.nextTurn){S.nextTurn=S.t+ri(240,420);const pool=S.crew.filter(c=>!c.isCmd&&!c.clone&&!c.away&&!c.exClone);
+        if(pool.length&&Math.random()<.5){const c=pick(pool);Object.assign(c,{clone:true,turned:true,tells:pickTells(),stole:0,joined:S.t,lastSab:S.t});delete c.quirk;renderWorld();toast('Something feels off in the base... someone is acting strange.','warn')}}}
     if(S.t>=S.nextArrival){ arrival(S.arrivals===1); S.nextArrival=S.t+ri(40,65) }
     if(S.t>=S.nextRaid&&!B){ S.nextRaid=S.t+999; toast('Radar: the Badlands Gang is coming! Battle in 5 seconds.','bad'); setTimeout(()=>{if(!B&&!M) startBattle(makeWave(),false); else S.nextRaid=S.t+120},5000) }
   }
@@ -2745,13 +2809,14 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='sb-clone'){closeSheet();S.arrivals=Math.max(S.arrivals,3);S.uid++;arrival(true)}
   else if(a==='sb-raid'){closeSheet();startBattle(makeWave(),false)}
   else if(a==='sb-wipe'){try{localStorage.removeItem('based-sandbox-v1')}catch(err){}location.reload()}
+  else if(a==='lock'){save();cloudSave().finally(()=>{try{sessionStorage.removeItem('based-open')}catch(err){}location.reload()})}
   else if(a==='reset-yes'){try{localStorage.removeItem(KEY)}catch(err){} location.reload()}
   else if(a==='cloud-load'){cloudLoad(b.dataset.slug).then(ok=>{if(!ok) toast('Could not load that save.','bad')})}
   else if(a==='code-out'){const code=saveCode();openSheet('Your save code',`<div class="muted">Copy this and keep it somewhere safe (a note or an email to yourself). Paste it into LOAD CODE on any device to get this base back.</div><textarea id="code-box" readonly style="width:100%;height:120px;font-size:10px;background:#11161b;color:var(--text);border-radius:8px;border:1px solid var(--line,#333);padding:6px">${code}</textarea><button class="btn primary" data-act="code-copy">COPY CODE</button>`)}
   else if(a==='code-copy'){const t=$('#code-box');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied!','ok'),()=>{try{document.execCommand('copy');toast('Save code copied!','ok')}catch(err){toast('Select the text and copy it by hand.')}})}
   else if(a==='code-in'){openSheet('Load a save code',`<div class="muted">Paste a save code. This replaces the base on this device${CLOUD.ready?' and updates its cloud save':''}.</div><textarea id="code-in" style="width:100%;height:120px;font-size:10px;background:#11161b;color:var(--text);border-radius:8px;border:1px solid var(--line,#333);padding:6px"></textarea><button class="btn primary" data-act="code-apply">LOAD THIS BASE</button>`)}
-  else if(a==='code-apply'){try{const s0=JSON.parse(decodeURIComponent(escape(atob($('#code-in').value.trim()))));if(!(s0.v>=1&&s0.v<=3)||!s0.crew) throw 0;S=migrate(s0);save();cloudSave().finally(()=>location.reload())}catch(err){toast('That code did not work. Check you copied all of it.','bad')}}
-  else if(a==='reset'){openSheet('Start over?',`<div class="muted">This clears the base on this device so you can start a new one.${CLOUD.ready?` ${esc(cmdName(S.cmd.name))} stays in your cloud saves, so you can come back to it from the start screen.`:' Without cloud save it is gone for good, so make a SAVE CODE first.'}</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
+  else if(a==='code-apply'){try{const s0=JSON.parse(decodeURIComponent(escape(atob($('#code-in').value.trim()))));if(!(s0.v>=1&&s0.v<=3)||!s0.crew) throw 0;S=migrate(s0);save();unlock(S.cmd.name);cloudSave().finally(()=>location.reload())}catch(err){toast('That code did not work. Check you copied all of it.','bad')}}
+  else if(a==='reset'){openSheet('Start over?',`<div class="muted">This clears the base on this device so you can start a new one.${CLOUD.ready?` ${esc(cmdName(S.cmd.name))} stays saved: type its name under Continue game to come back.`:' It stays on this device under its name: type the name under Continue game to come back. Make a SAVE CODE too, in case this browser gets cleared.'}</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
 });
 $('#b-crew').onclick=crewList;
 $('#b-hangar').onclick=hangarSheet;
@@ -2759,7 +2824,7 @@ $('#b-battle').onclick=battlePreview;
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
@@ -2768,6 +2833,7 @@ const CLOUD={db:null,uid:null,ready:false,last:'',savedAt:0,busy:false,dirty:fal
 const cmdName=n=>/^commander\b/i.test(n)?n:'Commander '+n;
 const slug=n=>String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||'commander';
 const cloudCol=()=>CLOUD.db.collection('data/users/'+CLOUD.uid);
+let cloudInitP=null;
 async function cloudInit(){
   if(SANDBOX||!window.claude||typeof claude.use!=='function') return;
   try{
@@ -2776,22 +2842,38 @@ async function cloudInit(){
     CLOUD.db=db;CLOUD.uid=uid;CLOUD.ready=true;
     const q=await cloudCol().get();
     CLOUD.bases=q.docs.map(d=>d.data()).filter(d=>d&&typeof d.data==='string').sort((a,b)=>(b.updated||0)-(a.updated||0));
-    if(!S){renderCloudList();return}
+    if(!S) return;
     const mine=CLOUD.bases.find(b=>slug(b.name)===slug(S.cmd.name));
     if(mine&&(mine.updated||0)>(S.savedAt||0)+60000) openSheet('Newer save found',`<div class="muted">${esc(cmdName(mine.name))} has a newer cloud save (level ${mine.lv||1}) than this device. Load it?</div><div class="row"><button class="btn" data-close>KEEP THIS ONE</button><button class="btn primary" data-act="cloud-load" data-slug="${esc(slug(mine.name))}">LOAD NEWER SAVE</button></div>`);
     else cloudSave();
   }catch(e){CLOUD.ready=false}
 }
-function renderCloudList(){
-  const card=$('#cloud-card'); if(!CLOUD.bases.length){card.hidden=true;return}
-  card.hidden=false;
-  $('#cloud-list').innerHTML=CLOUD.bases.map(b=>{let c={};try{c=(JSON.parse(b.data).crew||[]).find(x=>x.isCmd)||{}}catch(e){}
-    return `<button class="li" data-cloud="${esc(slug(b.name))}"><span class="avatar">${personSVG(Object.assign({id:0},c),'12.5 0 15 20')}</span><span class="grow"><b>${esc(cmdName(b.name))}</b><span>Level ${b.lv||1} · saved ${new Date(b.updated||0).toLocaleDateString()}</span></span><span class="tag ok">CONTINUE</span></button>`}).join('');
+// "Continue game": the typed name is the key. Saves are never listed, so a base opens only for someone who knows its name.
+const nameSlugs=n=>{n=String(n||'').trim();const bare=n.replace(/^commander\s+/i,'');return [...new Set([slug(n),slug(bare),slug('Commander '+bare)])]};
+const okSave=s0=>s0&&s0.v>=1&&s0.v<=3&&s0.cmd;
+function localBase(sls){
+  let best=null;
+  const take=s0=>{if(okSave(s0)&&sls.includes(slug(s0.cmd.name))&&(!best||(s0.savedAt||0)>(best.savedAt||0))) best=s0};
+  try{sls.forEach(k=>{const j=localStorage.getItem(KEY+':'+k);if(j) take(JSON.parse(j))});const j=localStorage.getItem(KEY);if(j) take(JSON.parse(j))}catch(e){}
+  return best;
+}
+async function cloudBase(sls){
+  if(cloudInitP) await cloudInitP; if(!CLOUD.ready) return null;
+  for(const k of sls){try{const d=await cloudCol().doc(k).get();if(d.exists){const r=d.data(),s0=JSON.parse(r.data);if(okSave(s0)){s0.savedAt=Math.max(s0.savedAt||0,r.updated||0);return s0}}}catch(e){}}
+  return null;
+}
+const nameTaken=n=>{const sls=nameSlugs(n);return !!localBase(sls)||CLOUD.bases.some(b=>sls.includes(slug(b.name)))};
+function unlock(name){try{sessionStorage.setItem('based-open',slug(name))}catch(e){}}
+async function continueGame(name){
+  const sls=nameSlugs(name),loc=localBase(sls),cl=await cloudBase(sls);
+  const s0=cl&&(!loc||(cl.savedAt||0)>(loc.savedAt||0)+1000)?cl:loc;
+  if(!s0) return false;
+  S=migrate(s0);CLOUD.last='';save();unlock(S.cmd.name);startGame(false);toast('Welcome back, '+cmdName(S.cmd.name)+'!','ok');return true;
 }
 async function cloudLoad(sl){
   if(!CLOUD.ready) return false;
   try{const d=await cloudCol().doc(sl).get(); if(!d.exists) return false; const s0=JSON.parse(d.data().data); if(!(s0.v>=1&&s0.v<=3)) return false;
-    const wasRunning=!!S; S=migrate(s0); CLOUD.last='';save();
+    const wasRunning=!!S; S=migrate(s0); CLOUD.last='';save();unlock(S.cmd.name);
     if(wasRunning){location.reload();return true}
     startGame(false); toast('Welcome back, '+S.cmd.name+'!','ok'); return true}catch(e){return false}
 }
@@ -2821,15 +2903,19 @@ $('#setup').addEventListener('click',e=>{
   const f=e.target.closest('.fac'); if(f){ if(FACTIONS[f.dataset.f].locked){toast(FACTIONS[f.dataset.f].name+' unlocks later in the game!');return} setupCfg.faction=f.dataset.f;renderSetup() }
 });
 $('#found').onclick=()=>{
-  const name=($('#cmd-name').value.trim()||'Commander Ace').slice(0,18);
-  const dup=CLOUD.bases.find(b=>slug(b.name)===slug(name));
-  if(dup){$('#name-note').innerHTML=`<b style="color:var(--warn)">${esc(cmdName(dup.name))} already has a base (level ${dup.lv||1}).</b> Tap it above to keep playing, or pick a different name.`;return}
-  newGame(Object.assign({name},setupCfg)); save(); startGame(true); cloudSave();
+  const name=$('#cmd-name').value.trim().slice(0,18);
+  if(name.length<2){$('#name-note').innerHTML='<b style="color:var(--warn)">Type a Commander name first.</b> It is your password for this base.';$('#cmd-name').focus();return}
+  if(nameTaken(name)){$('#name-note').innerHTML='<b style="color:var(--warn)">That name already has a base.</b> If it is yours, type it under Continue game. Otherwise pick a different name.';return}
+  newGame(Object.assign({name},setupCfg)); save(); unlock(name); startGame(true); cloudSave();
 };
-$('#cloud-list').addEventListener('click',async e=>{
-  const b=e.target.closest('[data-cloud]'); if(!b) return;
-  b.disabled=true;const ok=await cloudLoad(b.dataset.cloud); if(!ok){b.disabled=false;toast('Could not load that base. Try again.','bad')}
-});
+$('#cont-show').onchange=e=>{$('#cont-name').type=e.target.checked?'text':'password'};
+const contGo=async()=>{
+  const n=$('#cont-name').value.trim(),btn=$('#cont-go'); if(!n){$('#cont-note').textContent='Type your Commander name.';return}
+  btn.disabled=true;$('#cont-note').textContent='Looking for your base...';
+  const ok=await continueGame(n); btn.disabled=false;
+  if(!ok){$('#cont-note').innerHTML='<b style="color:var(--warn)">No base found with that name.</b> Check the spelling, or found a new base below.';$('#cont-name').select()}
+};
+$('#cont-go').onclick=contGo;$('#cont-name').onkeydown=e=>{if(e.key==='Enter') contGo()};
 
 function startGame(fresh){
   $('#setup').hidden=true; $('#game').hidden=false;
@@ -2840,11 +2926,12 @@ function startGame(fresh){
   initTur3D();
 }
 
-const saved=load();
-if(saved&&saved.v>=1&&saved.v<=3){S=migrate(saved); startGame(false)}
+// only skip the start screen in sandbox mode, or when this tab already unlocked the base (a refresh)
+const saved=load();let opened='';try{opened=sessionStorage.getItem('based-open')||''}catch(e){}
+if(okSave(saved)&&(SANDBOX||opened===slug(saved.cmd.name))){S=migrate(saved); startGame(false)}
 else { $('#setup').hidden=false; renderSetup(); }
 document.addEventListener('visibilitychange',()=>{ if(document.hidden){save();cloudSave()} });
 setInterval(()=>{ if(S&&!document.hidden){save();cloudSave()} },30000);
-cloudInit();
+cloudInitP=cloudInit();
 })();
 </script>
