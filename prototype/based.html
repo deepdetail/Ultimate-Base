@@ -349,6 +349,10 @@ button.shaft{border:none;padding:0;gap:4px}
 .era-list div.next{outline:1px dashed var(--teal)}
 /* v0.5: lobby building, art, store */
 .door,.sign,.lobby{z-index:2}
+/* people at the door sit above the building's recruit tap area, so tapping a person opens their card */
+#world .lobby{z-index:3;pointer-events:none}#world .lobby .person{pointer-events:auto}
+/* inside: no door, turrets or lobby walls; floor 1 sits on the ground with a thin strip for crew without a room */
+#world.inside #tur3d{display:none}#world.inside .lobby{left:10%;right:10%;bottom:10px;height:52px}
 .lobbyart{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);max-width:540px;z-index:1;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
 .lobbyart svg{display:block}
 .tpad.mount::after{content:"";position:absolute;left:1px;right:1px;bottom:-5px;height:6px;background:linear-gradient(#5a636d,#2b3036);border-radius:2px}
@@ -1410,13 +1414,13 @@ function renderWorld(){
   if(ins){h+=(CSPR[eraOf(level()).key]?`<img class="crown" src="${CSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:crownSVG(eraOf(level()).key))+'<div class="tower">';
     for(let f=S.up;f>=1;f--) h+=floorHTML(f);}
   else h+=exteriorHTML()+'<div>';
-  const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=Math.max(156,LB.h+104),small=lt<=1;
+  const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=ins?66:Math.max(156,LB.h+104),small=lt<=1;
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
-    ${ins?`<div class="tower lobbyhall" style="height:${LB.h+46}px"></div>`:''}<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px;${ins?'display:none':''}">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
-    <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
+    ${ins?'':`<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
+    <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>`}
     <div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>
     ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"><span class="tapin" style="top:${lt>=3?-30:-64}px">TAP TO RECRUIT CREW</span></button>`}
-    ${pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
+    ${ins?'':pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x">${ins?'<div class="bunker">':'<div class="outground">'}`;
   if(ins) for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
   h+='</div>';
