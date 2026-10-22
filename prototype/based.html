@@ -350,7 +350,7 @@ button.shaft{border:none;padding:0;gap:4px}
 /* v0.5: lobby building, art, store */
 .door,.sign,.lobby{z-index:2}
 /* people at the door sit above the building's recruit tap area, so tapping a person opens their card */
-#world .lobby{z-index:3;pointer-events:none}#world .lobby .person{pointer-events:auto}
+#world .lobby{z-index:3;pointer-events:none}#world .lobby .person{pointer-events:auto}#world .lobby .person::after{inset:-14px -14px -6px}
 /* inside: no door, turrets or lobby walls; floor 1 sits on the ground with a thin strip for crew without a room */
 #world.inside #tur3d{display:none}#world.inside .lobby{left:10%;right:10%;bottom:10px;height:52px}
 .lobbyart{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);max-width:540px;z-index:1;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
