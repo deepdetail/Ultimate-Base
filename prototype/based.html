@@ -777,10 +777,14 @@ const nextSlotLv=()=>SLOT_MS.find(m=>m>level());
 const baseSize=()=>(S?(S.up||1)+(S.down||1)+(S.cols||3):5);
 const grow=()=>S?clamp(.12+.22*Math.max(0,(S.up||1)-2)+.025*Math.max(0,(S.down||1)+(S.cols||3)-5),.12,1.6):.12;
 const wmax=()=>Math.round(clamp(560+80*Math.max(0,(S?S.up||1:1)-2)+20*Math.max(0,baseSize()-6),560,1200));
+// the outside always shows an approved painted front; styles without their own art yet use the first approved front
+const frontKey=()=>{const k=eraOf(level()).key;return LSPR[k]?k:'futur'};
 function lobbyDims(t){
-  const B=LOBBY[t],era=eraOf(level()).key,boost=grow(),w=Math.min(1,B.w*(1+boost));
+  const B=LOBBY[t],era=frontKey(),boost=grow();let w=Math.min(1,B.w*(1+boost));
   const wr=$('#wrap'),W=Math.min((wr&&wr.clientWidth)||390,wmax());
-  const h=LSPR[era]?Math.round(w*W*(LASP[era]||.4)*.85):Math.round(B.h*1.5*(1+boost*.5));
+  // painted fronts are never shorter than about two crew members, so the first building reads to scale
+  let h=LSPR[era]?Math.round(w*W*(LASP[era]||.4)*.85):Math.round(B.h*1.5*(1+boost*.5));
+  if(LSPR[era]&&h<96){w=Math.min(1,96/(W*(LASP[era]||.4)*.85));h=Math.round(w*W*(LASP[era]||.4)*.85)}
   return {w,h,W,min:B.min,name:B.name};
 }
 function slotPositions(){
@@ -1498,8 +1502,8 @@ function renderWorld(){
   else h+=exteriorHTML()+'<div>';
   const lt=lobbyTier(),LB=lobbyDims(lt),pos=slotPositions(),nOpen=slotCount(),surfH=ins?26:Math.max(156,LB.h+104),small=lt<=1;
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
-    ${ins?'':`<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,LB.W,LB)}</div>
-    <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>`}
+    ${ins?'':`<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[frontKey()]?`<img class="lobbyimg" src="${LSPR[frontKey()]}" alt="" aria-hidden="true">`:lobbySVG(lt,LB.W,LB)}</div>
+    <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div>`}
     ${ins?'':`<div class="lobby">${S.crew.filter(c=>!c.room&&!c.away&&!isGuard(c)).map(c=>personHTML(c)).join('')}</div><div class="guards">${guards().map((c,i)=>`<span class="gpost" style="left:calc(${(GSPOT[i%12]*100).toFixed(1)}% + ${GSPOT[i%12]<.5?-16:16}px)">${personHTML(c)}</span>`).join('')}</div>`}
     ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"></button>`}
     ${ins?'':pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
