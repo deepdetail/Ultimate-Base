@@ -1063,8 +1063,17 @@ const GRIP={"slingshot":[0.2,0.85,0.24,20,10],"bb":[0.22,0.62,0.5,60,35],"kunai"
 // armor on painted crew: where each picture's chest sits (left, right, shoulder line, waist, as fractions of the picture).
 // Armor draws over the clothes and under the held weapon, so the gun always stays on top.
 const TORSO={mb:[.27,.72,.15,.36],f:[.26,.68,.15,.355],chef:[.3,.74,.18,.355],ninja:[.26,.74,.16,.37],mech:[.29,.68,.17,.34],suit:[.22,.7,.155,.36],scout:[.26,.72,.155,.36]};
+// the approved gear pictures go on the body: [width as a multiple of chest width, top offset as a fraction of the picture height]
+const ARMOR_FIT={kevlar:[1.18,-.02],padded:[1.85,-.03],plate:[1.95,-.04],nano:[1.85,-.03],power:[2.15,-.06]};
+function outfitOver(c,x,top,w,h){
+  const o=c.outfit,src=o&&o!=='jumpsuit'&&GSPR['outfit:'+o];if(!src) return '';
+  const T0=TORSO[c.art]||[.27,.71,.16,.36],oy=top+(T0[2]-.015)*h,oh=top+h-oy,ow=oh*.52,cx=x+(T0[0]+T0[1])/2*w;
+  return `<image class="outfit" href="${src}" x="${(cx-ow/2).toFixed(2)}" y="${oy.toFixed(2)}" width="${ow.toFixed(2)}" height="${oh.toFixed(2)}" preserveAspectRatio="xMidYMin meet"/>`;
+}
 function armorOver(c,x,top,w,h){
   const ar=c.armor||'none';if(ar==='none'||!ARMOR[ar]) return '';
+  if(GSPR['armor:'+ar]&&ARMOR_FIT[ar]){const T0=TORSO[c.art]||[.27,.71,.16,.36],[k,dy]=ARMOR_FIT[ar],aw=(T0[1]-T0[0])*w*k,cx=x+(T0[0]+T0[1])/2*w,ay=top+T0[2]*h+dy*aw;
+    return `<image class="armor" href="${GSPR['armor:'+ar]}" x="${(cx-aw/2).toFixed(2)}" y="${ay.toFixed(2)}" width="${aw.toFixed(2)}" height="${aw.toFixed(2)}" preserveAspectRatio="xMidYMin meet"/>`}
   const T0=TORSO[c.art]||[.27,.71,.16,.36],big=ar==='power'?.07:ar==='plate'?.03:0;
   const X0=x+(T0[0]-big)*w,X1=x+(T0[1]+big)*w,T=top+T0[2]*h,Bt=top+(T0[3]+big*.6)*h,bw=X1-X0,bh=Bt-T,nx=X0+bw*.55,f=n=>n.toFixed(2);
   const P=(pts)=>'M'+pts.map(([a,b])=>f(a)+' '+f(b)).join(' L')+' Z';
@@ -1095,7 +1104,7 @@ function personSVG(c,vb){
     const tell=hasTell(c,'feet')?`<defs><clipPath id="cf${u}"><rect x="0" y="${(90.5-h*.1).toFixed(2)}" width="40" height="12"/></clipPath><filter id="gf${u}"><feColorMatrix type="matrix" values=".15 .15 0 0 0  .35 .55 .2 0 .22  .05 .1 .1 0 0  0 0 0 1 0"/></filter></defs><g clip-path="url(#cf${u})" filter="url(#gf${u})">${img}</g>`:'';
     const sw=w*.36,hw=w*.52;
     const coat=`<g class="coatg"><path d="M${20-sw} 25 Q${20-sw-1} 21.5 20 21 Q${20+sw+1} 21.5 ${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q20 80 ${20-hw} 77 L${20-sw-1.5} 46 Z" fill="#A88A5C"/><path d="M20 21.5 L${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q22 79.5 20.5 79.5 Z" fill="rgba(0,0,0,.14)"/><path d="M${20-4} 21.5 L20 33 L${20+4} 21.5 L${20+5.5} 27 L20 37 L${20-5.5} 27 Z" fill="#8F7349"/><rect x="${20-sw-1}" y="44" width="${2*sw+2}" height="2.4" rx="1" fill="#6E5636"/><path d="M20 37 L20 79" stroke="rgba(0,0,0,.28)" stroke-width=".5"/><circle cx="21.6" cy="40" r=".55" fill="#5A4428"/><circle cx="21.6" cy="52" r=".55" fill="#5A4428"/></g>`;
-    return `<svg viewBox="0 0 40 100" aria-hidden="true" style="overflow:visible"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${img}${tell}${armorOver(c,+x,90.5-h,w,h)}${tellX(c,90.5-h,20+w*.05)}${coat}${heldWeapon(c,+x,90.5-h,w,h)}</svg>`}
+    return `<svg viewBox="0 0 40 100" aria-hidden="true" style="overflow:visible"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${img}${tell}${outfitOver(c,+x,90.5-h,w,h)}${armorOver(c,+x,90.5-h,w,h)}${tellX(c,90.5-h,20+w*.05)}${coat}${heldWeapon(c,+x,90.5-h,w,h)}</svg>`}
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
   const eye=c.eye||EYES[Math.abs(c.id||0)%EYES.length];
   const ph=physOf(c),P=BODY[ph],o=c.isCmd&&(!c.outfit||c.outfit==='jumpsuit')?'cmd':(c.outfit||'jumpsuit');
