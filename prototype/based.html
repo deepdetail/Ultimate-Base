@@ -753,11 +753,13 @@ const lobbyTier=()=>{const L=level();let t=0;LOBBY.forEach((b,i)=>{if(L>=b.min)t
 const SLOT_MS=[1,2,3,5,7,10,15,20,32,42,50,60,75,90,100];
 const slotCount=()=>Math.min(16,1+SLOT_MS.filter(m=>level()>=m).length);
 const nextSlotLv=()=>SLOT_MS.find(m=>m>level());
-// the outside picture grows with the whole base: every floor and column you build makes the front bigger
+// the outside picture grows with the whole base: two floors up is the base size, each floor above that
+// makes the front a lot bigger, and digging down or widening adds a little
 const baseSize=()=>(S?(S.up||1)+(S.down||1)+(S.cols||3):5);
-const wmax=()=>Math.round(clamp(540+40*(baseSize()-6),540,1100));
+const grow=()=>S?clamp(.12+.22*Math.max(0,(S.up||1)-2)+.025*Math.max(0,(S.down||1)+(S.cols||3)-5),.12,1.6):.12;
+const wmax=()=>Math.round(clamp(560+80*Math.max(0,(S?S.up||1:1)-2)+20*Math.max(0,baseSize()-6),560,1200));
 function lobbyDims(t){
-  const B=LOBBY[t],era=eraOf(level()).key,boost=clamp(.035*(baseSize()-5),0,.7),w=Math.min(1,B.w*(1+boost));
+  const B=LOBBY[t],era=eraOf(level()).key,boost=grow(),w=Math.min(1,B.w*(1+boost));
   const wr=$('#wrap'),W=Math.min((wr&&wr.clientWidth)||390,wmax());
   const h=LSPR[era]?Math.round(w*W*(LASP[era]||.4)*.85):Math.round(B.h*(1+boost*.5));
   return {w,h,W,min:B.min,name:B.name};
@@ -1570,7 +1572,7 @@ function crewCard(id,lineOverride){
       <button class="btn" data-act="gear" data-id="${c.id}">GEAR</button>
       <button class="btn" data-act="rename" data-id="${c.id}">RENAME</button>
     </div>
-    ${c.isCmd?'':`<button class="btn danger" data-act="identify" data-id="${c.id}">${icon('eye')} IDENTIFY CLONE</button>
+    ${c.isCmd?'':`<div class="row"><button class="btn danger" data-act="identify" data-id="${c.id}">${icon('eye')} IDENTIFY CLONE</button><button class="btn" data-act="deny" data-id="${c.id}">${icon('door')} ${c.room?'EXILE':'DENY ACCESS'}</button></div>
     <div class="muted" style="font-size:12px">Clone clues: a trench coat flash when they arrive, then two or three odd tells, like green bare feet, an alien hat, an oxygen tube, a weird dance, glitchy eyes or stretched out words. Some real crew have one quirk, so look for two.</div>`}
   `);
 }
@@ -3218,6 +3220,15 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='rename-save'){const c=S.crew.find(x=>x.id===id);const v=$('#rn').value.trim();if(v){c.name=v.slice(0,18);if(c.isCmd)S.cmd.name=c.name}renderWorld();save();crewCard(id,'Nice. I like my new name!')}
   else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=roomCap(k))return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
   else if(a==='identify') identify(id);
+  else if(a==='deny'){const c=S.crew.find(x=>x.id===id);if(!c) return;const out=!c.room;
+    openSheet((out?'Deny access to ':'Exile ')+esc(c.name)+'?',`<div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="bubble" style="flex:1">${esc(out?'Wait, you are not letting me in?':'You want me to leave the base?')}</div></div>
+      <div class="muted">${out?'They walk away and never join. Use this when a recruit seems off.':'They pack up and leave the base for good.'} No refund. Catching a clone with IDENTIFY CLONE pays a bounty, this does not.</div>
+      <div class="row"><button class="btn" data-act="deny-back" data-id="${c.id}">KEEP THEM</button><button class="btn danger" data-act="deny-yes" data-id="${c.id}">${out?'DENY ACCESS':'EXILE'}</button></div>`)}
+  else if(a==='deny-back') crewCard(id);
+  else if(a==='deny-yes'){const c=S.crew.find(x=>x.id===id);if(!c||c.isCmd) return;const out=!c.room;
+    S.crew=S.crew.filter(x=>x.id!==id);closeSheet();renderWorld();save();
+    if(c.clone){toast(`${c.name} ran off and dropped a trench coat. They were a clone! Good call.`+(c.stole?` They got away with ${money(c.stole)}.`:''),'ok')}
+    else toast(out?`${c.name} was turned away at the door.`:`${c.name} was exiled from the base.`,'warn')}
   else if(a==='clone') resolveClone(id,b.dataset.how);
   else if(a==='talk-ans'){const fromJail=b.dataset.jail==='1';const c=fromJail?S.jail.find(x=>x.id===id):S.crew.find(x=>x.id===id);talkStep(c,+b.dataset.step+1,+b.dataset.score,fromJail)}
   else if(a==='prisoner'){const p=S.jail.find(x=>x.id===id);if(p) talkStep(p,0,0,true)}
