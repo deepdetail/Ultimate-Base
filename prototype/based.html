@@ -69,6 +69,7 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 #game{height:100%;display:flex;flex-direction:column}
 #hud{flex:none;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-block:8px;z-index:20;background:linear-gradient(180deg,rgba(40,45,52,.98),rgba(26,30,35,.96));border-bottom:1px solid var(--glass-line);box-shadow:0 1px 0 rgba(46,196,201,.35),0 6px 18px rgba(0,0,0,.35)}
 .hud-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.hrec{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);color:#e6edf3;font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
 .avatar{width:40px;height:40px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--teal);background:radial-gradient(circle at 50% 30%,#4a6a78,#1e2a33);box-shadow:0 0 10px rgba(46,196,201,.4)}
 .avatar svg{width:100%;height:100%;display:block}
 .who{flex:1;min-width:0}
@@ -351,6 +352,7 @@ button.shaft{border:none;padding:0;gap:4px}
 /* v0.5: lobby building, art, store */
 .door,.sign,.lobby{z-index:2}
 /* people at the door sit above the building's recruit tap area, so tapping a person opens their card */
+#world .guards{position:absolute;inset:0;z-index:5;pointer-events:none}#world .gpost{position:absolute;bottom:20px;width:24px;height:60px;transform:translateX(-50%)}#world .gpost .person{left:0;animation:none;pointer-events:auto}#world .gpost .person::after{inset:-14px -14px -6px}
 #world .lobby{z-index:3;pointer-events:none}#world .lobby .person{pointer-events:auto}#world .lobby .person::after{inset:-14px -14px -6px}
 /* inside: no door, turrets or lobby walls; floor 1 sits on the ground with a thin strip for crew without a room */
 #world.inside #tur3d{display:none}#world.inside .lobby{left:10%;right:10%;bottom:10px;height:52px}
@@ -358,8 +360,8 @@ button.shaft{border:none;padding:0;gap:4px}
 .lobbyart svg{display:block}
 .tpad.mount::after{content:"";position:absolute;left:1px;right:1px;bottom:-5px;height:6px;background:linear-gradient(#5a636d,#2b3036);border-radius:2px}
 .tpad.locked{opacity:.0;pointer-events:none}
-.tpad.img{width:50px;height:38px}.tpad.img .timg{position:absolute;left:0;bottom:0;width:50px;height:auto;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));transition:transform .08s}
-.tpad.img.left .timg{transform:scaleX(-1)}.tpad.img.fire .timg{filter:brightness(1.35) drop-shadow(0 0 6px #7ff0f3);transform:translateX(-2px)}.tpad.img.left.fire .timg{transform:scaleX(-1) translateX(-2px)}
+.tpad.img{width:50px;height:38px}.tpad.img .timg{position:absolute;left:0;bottom:0;width:50px;height:auto;filter:drop-shadow(0 3px 2px rgba(0,0,0,.4));transform-origin:45% 70%;transform:scaleX(var(--sx,1)) rotate(var(--rot,0deg));transition:transform .15s}
+.tpad.img.left .timg{--sx:-1}.tpad.img.fire .timg{filter:brightness(1.35) drop-shadow(0 0 6px #7ff0f3);transform:scaleX(var(--sx,1)) rotate(var(--rot,0deg)) translateX(-2px)}
 img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 100%}
 .thumb.icon img.timg{width:44px;height:auto;position:static}
 .enemy svg{width:52px;height:33px;display:block}
@@ -433,7 +435,7 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
     <div class="hud-top">
       <div class="avatar" id="h-avatar"></div>
       <div class="who"><b id="h-name">Commander</b><span id="h-place"></span><div class="xp"><i id="h-xp" style="width:0"></i></div></div>
-      <span class="lv" id="h-lv">LV 1</span>
+      <button class="hrec" id="b-recruit" aria-label="Recruit crew">+ RECRUIT</button><span class="lv" id="h-lv">LV 1</span>
       <button class="gear" id="b-gear" aria-label="Settings"></button>
     </div>
     <div id="h-exp" class="exp-pill" hidden></div>
@@ -1012,7 +1014,7 @@ const jailCap=()=>sumOf('cell',k=>2*rW(k));
 const foodMax=()=>100+sumOf('food',k=>100*rW(k));
 const powMax=()=>100+sumOf('power',k=>100*rW(k));
 const floorName=f=>f>0?'F'+f:'B'+(-f);
-const clsOf=c=>c.isCmd?'Commander':(c.room?ROOMS[S.rooms[c.room].type].cls:'Crew');
+const clsOf=c=>c.isCmd?'Commander':(c.room?ROOMS[S.rooms[c.room].type].cls:c.post==='ext'?'Defender':'Crew');
 function titleOf(c){
   if(c.isCmd) return 'Base Commander';
   const tier=Math.min(3,Math.floor(c.xp/90));
@@ -1439,8 +1441,8 @@ function renderWorld(){
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
     ${ins?'':`<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,LB.W,LB)}</div>
     <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>`}
-    ${ins?'':`<div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>`}
-    ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"><span class="tapin" style="top:${lt>=3?-30:-64}px">TAP TO RECRUIT CREW</span></button>`}
+    ${ins?'':`<div class="lobby">${S.crew.filter(c=>!c.room&&!c.away&&!isGuard(c)).map(c=>personHTML(c)).join('')}</div><div class="guards">${guards().map((c,i)=>`<span class="gpost" style="left:calc(${(GSPOT[i%12]*100).toFixed(1)}% + ${GSPOT[i%12]<.5?-16:16}px)">${personHTML(c)}</span>`).join('')}</div>`}
+    ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"></button>`}
     ${ins?'':pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x">${ins?'<div class="bunker">':'<div class="outground">'}`;
   if(ins) for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
@@ -1534,9 +1536,9 @@ function sayLine(c){
   let line;
   if(c.hurt>0) line=pick(LINES.hurt);
   else if(pokes[c.id]>=4&&!c.isCmd){line=pick(LINES.poke);pokes[c.id]=0;c.mood=clamp(c.mood-3,0,100)}
-  else if(!c.room) line=pick(LINES.lobby);
+  else if(!c.room&&!isGuard(c)) line=pick(LINES.lobby);
   else if(physOf(c)===2&&Math.random()<.25) line=pick(LINES.strong);
-  else if(Math.random()<.35) line=pick(LINES.room[S.rooms[c.room].type]||LINES.ok);
+  else if(Math.random()<.35) line=pick((c.room&&LINES.room[S.rooms[c.room].type])||LINES.ok);
   else line=pick(c.mood>66?LINES.happy:c.mood>35?LINES.ok:LINES.sad);
   if(c.clone&&Math.random()<.35) line=pick(DIALOG.filter(d=>d.kind==='slip')).text;
   return hasTell(c,'garble')?garble(line):line;
@@ -1552,7 +1554,7 @@ function physHTML(c){
 function crewCard(id,lineOverride){
   const c=S.crew.find(x=>x.id===id); if(!c) return;
   const line=lineOverride||sayLine(c);
-  const where=c.room?`${ROOMS[S.rooms[c.room].type].name} (${floorName(+c.room.split(':')[0])})`:'Lobby, no job yet';
+  const where=c.room?`${ROOMS[S.rooms[c.room].type].name} (${floorName(+c.room.split(':')[0])})`:isGuard(c)?'Exterior guard, outside':'Lobby, no job yet';
   const tags=(c.exClone?'<span class="tag ok">EX-CLONE</span> ':'')+(c.hurt>0?'<span class="tag bad">KNOCKED OUT</span>':'');
   const st=s=>{const b=gearBonus(c,s);return `<b>${Math.floor(c[s])+b}</b>${b?`<small>+${b} gear</small>`:''}`};
   openSheet(esc(c.name),`
@@ -1614,6 +1616,18 @@ function renameSheet(id){
     <button class="btn primary" data-act="rename-save" data-id="${id}">SAVE NAME</button>`);
   setTimeout(()=>{const i=$('#rn');i&&i.focus()},50);
 }
+// auto jobs: food or power first when low, then empty rooms, then the room that fits their best stat; extras become exterior guards
+function autoAssign(list){let last='';
+  for(const c of list){
+    const ks=Object.keys(S.rooms).filter(k=>{const t=S.rooms[k].type;return !['quarters','cell','clonelab'].includes(t)&&crewIn(k).length<roomCap(k)});
+    const sc=k=>{const d=ROOMS[S.rooms[k].type],st=d.stat||d.train;return (st?c[st]||0:0)+(crewIn(k).length?0:4)+(d.prod==='food'&&S.res.food<40?6:0)+(d.prod==='power'&&S.res.power<40?6:0)+(d.prod?1:0)};
+    ks.sort((a,b)=>sc(b)-sc(a));
+    if(ks[0]){c.room=ks[0];c.post=null;last='now works in the '+ROOMS[S.rooms[ks[0]].type].name}
+    else if(!isGuard(c)&&guards().length<extCap()){c.room=null;c.post='ext';last='now guards the outside'}
+    else return '';
+  }
+  return last;
+}
 function assignSheet(id){
   const c=S.crew.find(x=>x.id===id);
   const keys=Object.keys(S.rooms).filter(k=>k!==c.room).sort((a,b)=>(+b.split(':')[0])-(+a.split(':')[0]));
@@ -1621,14 +1635,16 @@ function assignSheet(id){
     const def=ROOMS[S.rooms[k].type],n=crewIn(k).length,full=n>=roomCap(k);
     return `<button class="li" data-act="assign-to" data-id="${id}" data-k="${k}" ${full?'disabled':''}>${roomThumb(S.rooms[k].type)}
       <span class="grow"><b>${esc(def.name)} · ${floorName(+k.split(':')[0])}</b><span>${n}/${roomCap(k)} crew · makes them a ${esc(def.cls)}</span></span>${full?'<span class="tag bad">FULL</span>':''}</button>`}).join('');
-  openSheet('Assign '+esc(c.name),`<div class="list">${items}${c.room?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span class="thumb icon">${icon('door')}</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
+  const gN=guards().length,gC=extCap(),gFull=gN>=gC||isGuard(c);
+  const ext=`<button class="li" data-act="assign-ext" data-id="${id}" ${gFull?'disabled':''}><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Exterior Guard · Outside</b><span>${gN}/${gC} guards · stands by the turrets and fires at raiders · 1 spot per turret, +1 every 10 levels</span></span>${isGuard(c)?'<span class="tag ok">HERE</span>':gN>=gC?'<span class="tag bad">FULL</span>':''}</button>`;
+  openSheet('Assign '+esc(c.name),`<button class="btn primary" data-act="auto-one" data-id="${id}">AUTO PICK BEST JOB</button><div class="list">${ext}${items}${c.room||isGuard(c)?`<button class="li" data-act="assign-to" data-id="${id}" data-k=""><span class="thumb icon">${icon('door')}</span><span class="grow"><b>Lobby</b><span>No job</span></span></button>`:''}</div>`);
 }
 function crewList(){
   const items=S.crew.map(c=>`<button class="li" data-act="card" data-id="${c.id}"><span class="mini">${personHTML(c)}</span>
-    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):'Lobby'}</span><span style="display:block">${icon('ninja')} ${PHYS[physOf(c)]} · ${gchip('weapon',curGear(c,'weapon'))}${esc(WEAPONS[curGear(c,'weapon')].name)} ${gchip('armor',curGear(c,'armor'))}</span></span>
+    <span class="grow"><b>${esc(c.name)}</b><span>${esc(titleOf(c))} · ${c.room?esc(ROOMS[S.rooms[c.room].type].name):isGuard(c)?'Exterior guard':'Lobby'}</span><span style="display:block">${icon('ninja')} ${PHYS[physOf(c)]} · ${gchip('weapon',curGear(c,'weapon'))}${esc(WEAPONS[curGear(c,'weapon')].name)} ${gchip('armor',curGear(c,'armor'))}</span></span>
     <span class="tag ${c.mood<35?'bad':''}">${moodWord(c.mood)}</span></button>`).join('');
   const jail=S.jail.length?`<div class="label">In the Holding Cell</div><div class="list">${S.jail.map(p=>`<button class="li" data-act="prisoner" data-id="${p.id}"><span class="mini">${personHTML(p)}</span><span class="grow"><b>${esc(p.name)}</b><span>Caught clone · tap to talk</span></span></button>`).join('')}</div>`:'';
-  openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<button class="btn primary" data-act="recruit">${icon('plus')} RECRUIT SOMEONE NEW · $2,500</button><div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}. Train crew in the Dojo to grow from Novice to Advanced physique.</div><div class="list">${items}</div>${jail}`);
+  openSheet(`Crew · ${S.crew.length}/${crewCap()}`,`<div class="row"><button class="btn primary" data-act="recruit">${icon('plus')} RECRUIT · $2,500</button><button class="btn" data-act="auto-all">AUTO ASSIGN JOBS</button></div><div class="muted" style="font-size:12px">Clones caught so far: ${S.caught}. Train crew in the Dojo to grow from Novice to Advanced physique.</div><div class="list">${items}</div>${jail}`);
 }
 
 // ---------- identify + clone choices ----------
@@ -1955,11 +1971,12 @@ function battlePosts(W){
   const pos=slotPositions(),n=slotCount(),door=W/2,out=[];
   defenders().forEach((c,i)=>{const ok=i<n&&pos[i],x=ok?pos[i][0]*W+(pos[i][0]<.5?18:-18):door+(i%2?1:-1)*(44+i*8);const W0=WEAPONS[curGear(c,'weapon')],wd=W0.dmg||0;
     out.push({c,x,y:ok?pos[i][1]:0,dmg:2+eff(c,'aim')*.6+wd,rate:1.1,range:110+wd*6,col:shooterStats(c).col})});
+  guards().filter(c=>!c.hurt&&!c.clone).forEach((c,i)=>{const wd=WEAPONS[curGear(c,'weapon')].dmg||0;out.push({c,x:guardX(S.crew.filter(isGuard).filter(x=>!x.away).indexOf(c),W),y:0,dmg:2+eff(c,'aim')*.5+wd,rate:1.1,range:100+wd*6,col:shooterStats(c).col})});
   lobbyShooters().forEach((c,j)=>{const st=shooterStats(c);out.push({c,x:door+(j%2?1:-1)*(14+j*7),y:0,dmg:st.dmg,rate:st.rate,range:st.range,col:st.col})});
   return out;
 }
 // crew waiting out front fight with whatever they have equipped
-const lobbyShooters=()=>S.crew.filter(c=>!c.room&&!c.away&&!c.hurt&&!c.clone);
+const lobbyShooters=()=>S.crew.filter(c=>!c.room&&!c.away&&!c.hurt&&!c.clone&&!isGuard(c));
 function shooterStats(c){const W=WEAPONS[curGear(c,'weapon')],wd=W.dmg||0;
   return {dmg:1+wd+eff(c,'aim')*.3,range:45+Math.min(170,wd*12),rate:Math.max(.5,1-wd*.02),col:{laser:'#7FF0F3',plasma:'#ff5fd2',rail:'#9fb8ff',bow:'#f4efe2',sling:'#c9a36a',kunai:'#d9e0e6',staff:'#c9a36a',katana:'#d9e0e6'}[W.look]||'#FFE27A'}}
 function simBattle(wave){
@@ -2101,6 +2118,12 @@ function resolveExp(){
   playRaid(sc.defs,squad,win,()=>{const r=$('#raidres'),k=$('#raidskip');if(r) r.hidden=false;if(k) k.hidden=true;if(r) r.scrollIntoView({block:'nearest'})});
   renderWorld();save();
 }
+// exterior guards stand outside by the turrets: one spot per turret built, plus one more every 10 base levels
+const isGuard=c=>c.post==='ext'&&!c.room;
+const guards=()=>S.crew.filter(c=>isGuard(c)&&!c.away);
+const extCap=()=>Math.min(12,S.turrets.filter((t,i)=>t&&i<slotCount()).length+1+Math.floor(level()/10));
+const GSPOT=[.075,.925,.18,.82,.285,.715,.38,.62,.44,.56,.33,.67];
+const guardX=(i,W)=>GSPOT[i%12]*W+(GSPOT[i%12]<.5?-16:16);
 const defenders=()=>S.crew.filter(c=>c.room&&S.rooms[c.room]&&S.rooms[c.room].type==='barracks'&&!c.hurt&&!c.away);
 function battleArt(d){const k=artKey(d.art),P=ESPR[k],base=(EDEF[k]||{}).h||44,h=Math.round(base*(d.boss&&!(EDEF[k]||{}).boss?1.4:1));
   return `<img class="ba" src="${P.src}" style="height:${h}px" alt="">`}
@@ -2156,7 +2179,7 @@ function battleLoop(now){
     B.cds[i]=d.rate; hit(best,turDmg(t),{x:px,y:py},d.col,d.splash);
     if(d.splash) targets.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(t)*.5;ko(o)}});
     if(d.slow) best.slow=1.6;
-    tur3dFire(i,best.x,33);
+    tur3dFire(i,best.x,33);aimPad(i,px,py,best.x,H-38);
   });
   (B.posts||[]).forEach(st=>{st.cd-=dt;if(st.cd>0) return;
     const tg=targets.filter(e=>e.hp>0&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!tg) return;
@@ -3075,6 +3098,9 @@ function syncTur3D(){
     T3.units[i]={key,g,face,yaw:face,aimYaw:face,pitch:.15,aimPitch:.15,flash:0,lastFire:-99,recoil:0};
   }
 }
+// painted turrets swing to face whoever they shoot at and tilt the barrel down at them
+function aimPad(i,px,py,ex,ey){const im=document.querySelector(`.tpad.img[data-pad="${i}"] .timg`);if(!im) return;
+  im.style.setProperty('--sx',ex<px?-1:1);im.style.setProperty('--rot',clamp(Math.atan2(ey-py,Math.abs(ex-px)||1)*57.3,-25,35).toFixed(1)+'deg')}
 function tur3dFire(i,tx,ty){
   const pad=document.querySelector(`.tpad.img[data-pad="${i}"]`);if(pad){pad.classList.add('fire');clearTimeout(pad._ft);pad._ft=setTimeout(()=>pad.classList.remove('fire'),90)}
   const u=T3&&T3.units[i];if(!u) return;
@@ -3153,7 +3179,7 @@ function tick(){
   r.food=clamp(r.food,0,foodMax()); r.power=clamp(r.power,0,powMax());
   const medOn=roomsOf('med').some(k=>crewIn(k).some(c=>!c.hurt));
   for(const c of S.crew){
-    const target=r.food<=0?20:r.power<=0?45:(c.room?78:60);
+    const target=r.food<=0?20:r.power<=0?45:(c.room||isGuard(c)?78:60);
     c.mood+=(target-c.mood)*.02;
     if(c.hurt>0){c.hurt=Math.max(0,c.hurt-(medOn?4:1)); if(!c.hurt&&!M) renderWorldSoon()}
   }
@@ -3168,7 +3194,7 @@ function tick(){
       if(age>=CLONE_SHIFT&&!M&&!B){shapeshift(c);break}
       if(age<12||S.t-(c.lastSab||0)<15) continue;
       c.lastSab=S.t;
-      const where=c.room?ROOMS[S.rooms[c.room].type].name:'the lobby';
+      const where=c.room?ROOMS[S.rooms[c.room].type].name:isGuard(c)?'the front gate':'the lobby';
       const kind=Math.random()<.7?0:ri(1,2);
       if(kind===0){const n=Math.min(Math.floor(r.credits*.02),300+80*level());if(n>0){r.credits-=n;c.stole=(c.stole||0)+n;
         const tot=S.crew.filter(x=>x.clone).reduce((a,x)=>a+(x.stole||0),0);toast(`Hmm... ${money(n)} went missing near ${where}. ${money(tot)} missing so far.${age<=CLONE_WINDOW?' Catch the thief fast for double!':''}`,'warn')}}
@@ -3218,14 +3244,17 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='rename') renameSheet(id);
   else if(a==='cmdlook'){const c=S.crew.find(x=>x.id===id);c.art=CMD_LOOKS[(CMD_LOOKS.indexOf(c.art||'')+1)%CMD_LOOKS.length];renderWorld();updateHUD(true);save();crewCard(id,c.art?'Fresh look, same Commander.':'Back to the classic look!')}
   else if(a==='rename-save'){const c=S.crew.find(x=>x.id===id);const v=$('#rn').value.trim();if(v){c.name=v.slice(0,18);if(c.isCmd)S.cmd.name=c.name}renderWorld();save();crewCard(id,'Nice. I like my new name!')}
-  else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=roomCap(k))return;c.room=k;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
+  else if(a==='assign-to'){const c=S.crew.find(x=>x.id===id);const k=b.dataset.k||null;if(k&&crewIn(k).length>=roomCap(k))return;c.room=k;c.post=null;renderWorld();save();toast(`${c.name} now works ${k?'in the '+ROOMS[S.rooms[k].type].name:'nowhere (lobby)'}.`);closeSheet()}
+  else if(a==='assign-ext'){const c=S.crew.find(x=>x.id===id);if(!c||isGuard(c)||guards().length>=extCap()) return;c.room=null;c.post='ext';renderWorld();save();toast(`${c.name} is now an exterior guard.`,'ok');closeSheet()}
+  else if(a==='auto-one'){const c=S.crew.find(x=>x.id===id);if(c){const r=autoAssign([c]);toast(r?`${c.name}: ${r}.`:'No open job right now. Build more rooms or turrets!',r?'ok':'warn');renderWorld();save();closeSheet()}}
+  else if(a==='auto-all'){const pool=S.crew.filter(c=>!c.isCmd&&!c.room&&!isGuard(c)&&!c.away);let n=0;pool.forEach(c=>{if(autoAssign([c]))n++});renderWorld();save();toast(n?`Auto assigned ${n} crew.`:pool.length?'No open jobs. Build more rooms or turrets!':'Everyone already has a job.',n?'ok':'warn');crewList()}
   else if(a==='identify') identify(id);
-  else if(a==='deny'){const c=S.crew.find(x=>x.id===id);if(!c) return;const out=!c.room;
+  else if(a==='deny'){const c=S.crew.find(x=>x.id===id);if(!c) return;const out=!c.room&&!isGuard(c);
     openSheet((out?'Deny access to ':'Exile ')+esc(c.name)+'?',`<div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="bubble" style="flex:1">${esc(out?'Wait, you are not letting me in?':'You want me to leave the base?')}</div></div>
       <div class="muted">${out?'They walk away and never join. Use this when a recruit seems off.':'They pack up and leave the base for good.'} No refund. Catching a clone with IDENTIFY CLONE pays a bounty, this does not.</div>
       <div class="row"><button class="btn" data-act="deny-back" data-id="${c.id}">KEEP THEM</button><button class="btn danger" data-act="deny-yes" data-id="${c.id}">${out?'DENY ACCESS':'EXILE'}</button></div>`)}
   else if(a==='deny-back') crewCard(id);
-  else if(a==='deny-yes'){const c=S.crew.find(x=>x.id===id);if(!c||c.isCmd) return;const out=!c.room;
+  else if(a==='deny-yes'){const c=S.crew.find(x=>x.id===id);if(!c||c.isCmd) return;const out=!c.room&&!isGuard(c);
     S.crew=S.crew.filter(x=>x.id!==id);closeSheet();renderWorld();save();
     if(c.clone){toast(`${c.name} ran off and dropped a trench coat. They were a clone! Good call.`+(c.stole?` They got away with ${money(c.stole)}.`:''),'ok')}
     else toast(out?`${c.name} was turned away at the door.`:`${c.name} was exiled from the base.`,'warn')}
@@ -3299,6 +3328,7 @@ function recruitSheet(){
     <div class="muted" style="font-size:12px">${full?'No bunks left. Go inside the base and build Sleeping Quarters.':poor?'You need $2,500.':'Tap BASE to go inside and give them a job.'}</div>`)}
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
+$('#b-recruit').onclick=()=>{if(S) recruitSheet()};
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
   ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
