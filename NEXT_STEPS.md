@@ -169,3 +169,13 @@ These would be added to the room and level run sheet when we build it.
 ## Later stage (parked)
 - **Rooftops as their own stage levels.** The 7 painted rooftops are in the game (`CSPR`). Outside they're not shown, and inside they still cap the top floor. They'll be redesigned as separate rooftop stages later.
 - **Still open:** growth rates for base height, depth and width; renaming the Hover Saucer to Hover Bike; painted tower facades.
+
+## Gameplay roadmap from J and Phoenix (22 October)
+Shipped now: the level roster waves, enemy weapons, the Clone Lab timer and Holding Cell escapes (see art/LEVEL_ROSTER.md).
+
+Still to build, in a sensible order:
+1. **Hangar missions with a story flow.** Start with a Cessna recon flight to spot things, then unlock base growth and harder missions from what you found.
+2. **Top-down map of the home region.** The real Tahoe or Utah area seen from above, with your base on it. Recon flights reveal enemy bases on the map, and you pick raid targets from there.
+3. **Satellite (an exterior upgrade).** Once built, it shows roaming gangs on the map and how far away they are, so you get a warning before a raid and more time to prepare.
+4. **New rooms: Weapon Foundry and Armory.** The Foundry builds weapons (cheaper or better than the store over time). The Armory stores and upgrades gear and could arm exterior guards. Both need room art in the next ChatGPT room run.
+5. **Clone Lab and Holding Cell tuning.** Converting takes 10 minutes at room level 1 (each level makes it faster). Prisoners sneak out after 10 minutes at level 1 (each cell level adds 50 percent) and come back as a disguised clone worth a big bonus. Tune these once Phoenix has played them.
