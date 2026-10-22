@@ -165,3 +165,7 @@ These would be added to the room and level run sheet when we build it.
 6. **PvP-like ghost battles.** Fight a recorded version of your own best run, or a friend's, saved in cloud storage.
 7. **Spectacle.** Clouds, contrails, afterburner glow, camera shake, engine sound, and a slow-motion replay of each takedown.
 8. **Cockpit gauges.** Live needles drawn over the photo cockpits.
+
+## Later stage (parked)
+- **Rooftops as their own stage levels.** The 7 painted rooftops are in the game (`CSPR`). Outside they're not shown, and inside they still cap the top floor. They'll be redesigned as separate rooftop stages later.
+- **Still open:** growth rates for base height, depth and width; renaming the Hover Saucer to Hover Bike; painted tower facades.
