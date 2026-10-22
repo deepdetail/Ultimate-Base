@@ -354,7 +354,7 @@ button.shaft{border:none;padding:0;gap:4px}
 #world .lobby{z-index:3;pointer-events:none}#world .lobby .person{pointer-events:auto}#world .lobby .person::after{inset:-14px -14px -6px}
 /* inside: no door, turrets or lobby walls; floor 1 sits on the ground with a thin strip for crew without a room */
 #world.inside #tur3d{display:none}#world.inside .lobby{left:10%;right:10%;bottom:10px;height:52px}
-.lobbyart{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);max-width:540px;z-index:1;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
+.lobbyart{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:1;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
 .lobbyart svg{display:block}
 .tpad.mount::after{content:"";position:absolute;left:1px;right:1px;bottom:-5px;height:6px;background:linear-gradient(#5a636d,#2b3036);border-radius:2px}
 .tpad.locked{opacity:.0;pointer-events:none}
@@ -753,8 +753,17 @@ const lobbyTier=()=>{const L=level();let t=0;LOBBY.forEach((b,i)=>{if(L>=b.min)t
 const SLOT_MS=[1,2,3,5,7,10,15,20,32,42,50,60,75,90,100];
 const slotCount=()=>Math.min(16,1+SLOT_MS.filter(m=>level()>=m).length);
 const nextSlotLv=()=>SLOT_MS.find(m=>m>level());
+// the outside picture grows with the whole base: every floor and column you build makes the front bigger
+const baseSize=()=>(S?(S.up||1)+(S.down||1)+(S.cols||3):5);
+const wmax=()=>Math.round(clamp(540+40*(baseSize()-6),540,1100));
+function lobbyDims(t){
+  const B=LOBBY[t],era=eraOf(level()).key,boost=clamp(.035*(baseSize()-5),0,.7),w=Math.min(1,B.w*(1+boost));
+  const wr=$('#wrap'),W=Math.min((wr&&wr.clientWidth)||390,wmax());
+  const h=LSPR[era]?Math.round(w*W*(LASP[era]||.4)*.85):Math.round(B.h*(1+boost*.5));
+  return {w,h,W,min:B.min,name:B.name};
+}
 function slotPositions(){
-  const t=lobbyTier(),B=LOBBY[t],L0=.5-B.w/2,h=B.h,out=[[.075,0],[.925,0],[.18,0],[.82,0],[.285,0],[.715,0]];
+  const t=lobbyTier(),B=lobbyDims(t),L0=.5-B.w/2,h=B.h,out=[[.075,0],[.925,0],[.18,0],[.82,0],[.285,0],[.715,0]];
   if(t===3) out.push([.5-B.w*.16,h],[.5+B.w*.16,h]);
   if(t===4) out.push([.5-B.w*.1,h],[.5+B.w*.1,h],[.5-B.w*.34,Math.round(h*.6)],[.5+B.w*.34,Math.round(h*.6)]);
   if(t===5) out.push([.5-B.w*.1,h],[.5+B.w*.1,h],[.5-B.w*.28,Math.round(h*.6)],[.5+B.w*.28,Math.round(h*.6)],[L0+B.w*.06,h],[1-L0-B.w*.06,h]);
@@ -1424,11 +1433,11 @@ function renderWorld(){
   if(ins){h+=(CSPR[eraOf(level()).key]?`<img class="crown" src="${CSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:crownSVG(eraOf(level()).key))+'<div class="tower">';
     for(let f=S.up;f>=1;f--) h+=floorHTML(f);}
   else h+=exteriorHTML()+'<div>';
-  const lt=lobbyTier(),LB=LOBBY[lt],pos=slotPositions(),nOpen=slotCount(),surfH=ins?66:Math.max(156,LB.h+104),small=lt<=1;
+  const lt=lobbyTier(),LB=lobbyDims(lt),pos=slotPositions(),nOpen=slotCount(),surfH=ins?26:Math.max(156,LB.h+104),small=lt<=1;
   h+=`</div></div><div class="layer surface" id="surface" style="height:${surfH}px">
     ${ins?'':`<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
     <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>`}
-    <div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>
+    ${ins?'':`<div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>`}
     ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"><span class="tapin" style="top:${lt>=3?-30:-64}px">TAP TO RECRUIT CREW</span></button>`}
     ${ins?'':pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x">${ins?'<div class="bunker">':'<div class="outground">'}`;
@@ -1438,7 +1447,7 @@ function renderWorld(){
   h+='</div>';
   w.innerHTML=h;w.dataset.era=eraOf(level()).key;w.classList.toggle('inside',ins);
   // inside view: rooms get a little bigger, and wide bases scroll sideways
-  const need=ins?28+cols*124:0,wrap=$('#wrap');w.style.width=need>wrap.clientWidth?need+'px':'';w.style.maxWidth=need>wrap.clientWidth?'none':'';wrap.style.overflowX=need>wrap.clientWidth?'auto':'hidden';
+  const need=ins?28+cols*124:0,wrap=$('#wrap');w.style.width=need>wrap.clientWidth?need+'px':'';w.style.maxWidth=need>wrap.clientWidth?'none':(ins?'':wmax()+'px');wrap.style.overflowX=need>wrap.clientWidth?'auto':'hidden';
   const vb=$('#viewbtn');if(vb){vb.innerHTML=ins?`${icon('door')}<b>OUTSIDE</b>`:`${icon('build')}<b>BASE</b>`;vb.dataset.view=ins?'out':'in'}
   attachTur3D();
   if(B){const box=$('#enemies');B.enemies.forEach(e=>{if(e.el)box.appendChild(e.el)});renderShield()}
