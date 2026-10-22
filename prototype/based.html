@@ -3360,7 +3360,7 @@ function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','war
 $('#b-store').onclick=()=>storeSheet();
 $('#b-recruit').onclick=()=>{if(S) recruitSheet()};
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED prototype v0.6${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED Commander v2.0${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
