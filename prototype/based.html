@@ -114,7 +114,7 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 .extower .frow i{display:block;flex:1;max-width:22px;height:62%;border-radius:2px;background:linear-gradient(160deg,var(--glass),rgba(0,0,0,.35));box-shadow:inset 0 0 0 1px var(--trim)}
 .extower.leaving{transform:scale(1.05);opacity:0}
 .extower .tapin{position:absolute;left:50%;top:-30px;transform:translateX(-50%);font-family:var(--font-display);font-size:10px;letter-spacing:.14em;color:#fff;background:rgba(10,12,15,.6);padding:5px 12px;border-radius:999px;white-space:nowrap;border:1px solid rgba(127,240,243,.6);z-index:2}
-.enterhit .tapin{display:none}.in-battle .extower .tapin{display:none}
+.exroof{position:relative;z-index:0;pointer-events:none}.exroof img,.exroof svg{display:block;width:100%;height:auto}
 .lobbyhall{position:absolute;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:18px;z-index:0;border-radius:0!important}
 #world:not(.inside) .sky{flex:1 1 auto}#world:not(.inside) .under{flex:0 0 auto}
 .enterhit{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);max-width:540px;z-index:2;background:none;border:none;padding:0;cursor:pointer;transition:transform .26s ease,opacity .26s}
@@ -1393,21 +1393,11 @@ function turretHTML(i,pos,open){
 function expandCost(){return 50000+25000*Math.max(0,S.up+S.down-3)}
 // painted fronts: height / width, so the tower can tuck in behind the top of the front
 const LASP={futur:.304,vintage:.407,antique:.426,modern:.458,luxe:.456,billion:.45};
-// outside view: the tower is every floor you own and every column wide, squeezed to fit the screen above the front
-function exteriorHTML(){
-  const era=eraOf(level()).key,lt=lobbyTier(),LB=LOBBY[lt],wr=$('#wrap'),WW=Math.min(540,(wr&&wr.clientWidth)||390),cols=S.cols||3;
-  const frontW=Math.min(540,LB.w*WW),frontH=LSPR[era]?frontW*(LASP[era]||.4):LB.h+30,surfH=Math.max(156,LB.h+104);
-  const tw=Math.round(clamp(cols*54,96,Math.max(110,Math.min(WW*.9,frontW*.82)))),crownH=Math.round(tw*.24);
-  const avail=Math.max(120,((wr&&wr.clientHeight)||700)-surfH-crownH-60),units=Array.from({length:S.up},(_,i)=>(S.floorH&&S.floorH[S.up-i])||1),tot=units.reduce((a,b)=>a+b,0);
-  const rowH=clamp(avail/tot,7,34),gap=surfH-18-frontH,tuck=Math.round(frontH*.22);
-  const P=ERA_PAL[era]||{};
-  const rows=units.map(u=>`<span class="frow" style="height:${(rowH*u).toFixed(1)}px">${'<i></i>'.repeat(cols*2)}</span>`).join('');
-  return `<button class="extower" data-view="in" aria-label="Go inside the base" style="width:${tw}px;margin-bottom:${-Math.round(gap+tuck)}px;--glass:${P.glass||'#7fd8e0'};--trim:${P.trim||'#2EC4C9'}">
-    <span class="tapin">TAP TO GO INSIDE</span>${CSPR[era]?`<img class="excrown" src="${CSPR[era]}" alt="">`:`<span class="excrown svg">${crownSVG(era)}</span>`}<span class="tower exbody" style="padding-bottom:${tuck+4}px">${rows}</span></button>`;
-}
+// outside view: only the approved painted front of the building; rooftops are their own layer and are not stacked here
+function exteriorHTML(){return ''}
 function setView(v,anim){if(VIEW===v) return;
   const go=()=>{VIEW=v;renderWorld();if(v==='out'){const w=$('#world');w.classList.add('closing');setTimeout(()=>w.classList.remove('closing'),340);$('#wrap').scrollLeft=0;scrollToSurface(true)}else{const w=$('#world'),wr=$('#wrap');wr.scrollLeft=Math.max(0,(w.offsetWidth-wr.clientWidth)/2);w.classList.add('zoomin');setTimeout(()=>w.classList.remove('zoomin'),400)}};
-  const fa=document.querySelectorAll('#world .enterhit,#world .extower');
+  const fa=[];
   if(v==='in'&&anim&&fa.length){fa.forEach(el=>el.classList.add('leaving'));setTimeout(go,260)}else go()}
 function renderWorld(){
   const w=$('#world');
@@ -1425,7 +1415,7 @@ function renderWorld(){
     ${ins?`<div class="tower lobbyhall" style="height:${LB.h+46}px"></div>`:''}<div class="lobbyart" style="width:${Math.round(LB.w*100)}%;bottom:18px;${ins?'display:none':''}">${LSPR[eraOf(level()).key]?`<img class="lobbyimg" src="${LSPR[eraOf(level()).key]}" alt="" aria-hidden="true">`:lobbySVG(lt,Math.min(540,$('#world').clientWidth||390))}</div>
     <div class="sign" style="${lt>=3?'bottom:1px;font-size:8px;padding:2px 8px':'bottom:'+(24+LB.h+10)+'px'}">${esc(FACTIONS[S.faction].place.toUpperCase())}</div><div class="door" style="${small?'width:40px;height:38px;border-radius:20px 20px 0 0':''}"></div>
     <div class="lobby">${S.crew.filter(c=>!c.room&&!c.away).map(c=>personHTML(c)).join('')}</div>
-    ${ins?'':`<button class="enterhit" data-view="in" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Go inside the base"><span class="tapin" style="top:${lt>=3?-30:-64}px">TAP TO GO INSIDE</span></button>`}
+    ${ins?'':`<button class="enterhit" data-recruit="1" style="width:${Math.round(LB.w*100)}%;height:${LB.h+20}px" aria-label="Recruit crew"><span class="tapin" style="top:${lt>=3?-30:-64}px">TAP TO RECRUIT CREW</span></button>`}
     ${pos.map((p,i)=>turretHTML(i,p,i<nOpen)).join('')}<div id="enemies"></div><canvas id="fx"></canvas><div id="shieldbox"></div></div>`;
   h+=`<div class="layer under pad-x">${ins?'<div class="bunker">':'<div class="outground">'}`;
   if(ins) for(let f=-1;f>=-S.down;f--) h+=floorHTML(f);
@@ -3180,7 +3170,8 @@ $('#world').addEventListener('click',e=>{
   const room=e.target.closest('[data-room]'); if(room){roomSheet(room.dataset.room);return}
   const emp=e.target.closest('[data-empty]'); if(emp){buildSheet(emp.dataset.empty);return}
   const pad=e.target.closest('[data-pad]'); if(pad){if(B) return; turretSheet(+pad.dataset.pad);return}
-  const vw=e.target.closest('[data-view]'); if(vw){setView(vw.dataset.view,true);return}
+  // outside, tapping the building recruits crew; only the BASE / OUTSIDE button goes inside
+  if(e.target.closest('[data-recruit]')){recruitSheet();return}
   const ex=e.target.closest('[data-expand]'); if(ex){
     const dir=ex.dataset.expand;
     if(dir==='wide'){const c=widenCost();if((S.cols||3)>=maxCols()) return;if(S.res.credits<c){toast(`You need ${money(c)} to widen the base.`,'warn');return}
@@ -3267,6 +3258,11 @@ $('#panel').addEventListener('click',e=>{
 $('#b-crew').onclick=crewList;
 $('#b-hangar').onclick=hangarSheet;
 $('#b-battle').onclick=battlePreview;
+function recruitSheet(){
+  const n=S.crew.length,cap=crewCap(),full=n>=cap,poor=S.res.credits<2500;
+  openSheet('Recruit crew',`<div class="muted">Crew ${n}/${cap} bunks. A new recruit walks up to the front door. Watch them closely: some recruits are clones!</div>
+    <button class="btn primary" data-act="recruit" ${full||poor?'disabled':''}>${icon('plus')} RECRUIT SOMEONE NEW · $2,500</button>
+    <div class="muted" style="font-size:12px">${full?'No bunks left. Go inside the base and build Sleeping Quarters.':poor?'You need $2,500.':'Tap BASE to go inside and give them a job.'}</div>`)}
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
