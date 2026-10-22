@@ -175,7 +175,12 @@ Shipped now: the level roster waves, enemy weapons, the Clone Lab timer and Hold
 
 Still to build, in a sensible order:
 1. **Hangar missions with a story flow.** Start with a Cessna recon flight to spot things, then unlock base growth and harder missions from what you found.
-2. **Top-down map of the home region.** The real Tahoe or Utah area seen from above, with your base on it. Recon flights reveal enemy bases on the map, and you pick raid targets from there.
+2. **Top-down map of the home region.** (First version shipped 22 October: Sierras map with recon and outposts on the road to Las Vegas.) The real Tahoe or Utah area seen from above, with your base on it. Recon flights reveal enemy bases on the map, and you pick raid targets from there.
 3. **Satellite (an exterior upgrade).** Once built, it shows roaming gangs on the map and how far away they are, so you get a warning before a raid and more time to prepare.
 4. **New rooms: Weapon Foundry and Armory.** The Foundry builds weapons (cheaper or better than the store over time). The Armory stores and upgrades gear and could arm exterior guards. Both need room art in the next ChatGPT room run.
 5. **Clone Lab and Holding Cell tuning.** Converting takes 10 minutes at room level 1 (each level makes it faster). Prisoners sneak out after 10 minutes at level 1 (each cell level adds 50 percent) and come back as a disguised clone worth a big bonus. Tune these once Phoenix has played them.
+
+## Mission map (shipped 22 October)
+- MAP button above BASE. Real shaded relief of Lake Tahoe to Las Vegas, built from AWS Terrain Tiles elevation (USGS and SRTM), Natural Earth lakes and US Census state lines.
+- Towns on the road east: Carson City, Yerington, Hawthorne, Tonopah, Beatty, Las Vegas. Recon with the Cessna (or any plane) to find each enemy base, then capture it with a squad raid. Each outpost reaches another 110 miles, so the chain is Tahoe, Hawthorne, Tonopah, Beatty, Las Vegas.
+- Next: Las Vegas opens Sky Vegas (airship), then the road to Moab. A Moab map and the Bahamas by sea come later. Ideas: faster planes recon farther, outposts pay a small income, enemies try to take outposts back, and the satellite shows raiders moving on this map.
