@@ -137,3 +137,31 @@ These would be added to the room and level run sheet when we build it.
   - Assisted and Pro show a lead marker; Casual keeps light aim help.
 - **Next:** F2 (cockpit images with live gauges), F3 (takeoff and landing at Truckee), F4 (enemy jets, radar, missile lock tones and flares), F5 (clouds, contrails, afterburner glow and sound).
 - **Not done yet:** realistic names for the base-defense turrets, and real flight physics for ground vehicles.
+
+## Battles and raids (shipped 22 October)
+- **Approved art only.** Every enemy uses painted art. Any old drawn key falls back to an approved enemy, and the raven, coyote, rogue thief and black bear were added from Drive.
+- **Waves grow with base level, a few enemies at a time:**
+
+| Base level | New enemies |
+|---|---|
+| 1 | Critters: coyote, raven, skunk |
+| 3 | Phoenix's pairs: girl thief with raven, boy thief with coyote |
+| 5 | Raider soldier with coyote, boars |
+| 8 | Mercs and the black bear |
+| 12 | Glow gator and clone bear |
+| 18 | Giant grizzly |
+
+  Boss fights bring the grizzly first, then the dragon at level 25 and the T. rex at level 35.
+- **Crew on the battlefield.** Barracks defenders stand at the turret posts and lobby crew step out front. Each fires their own equipped weapon, with tracers and muzzle flashes, and the win-chance math uses the same positions.
+- **Raid you can watch.** The enemy fort is generated from the base's power (walls, towers, number of defenders) and stocked with that faction's roster. Your squad drives up and fights, and the outcome matches the real result. It can be skipped.
+- **Flight and drive missions.** Quadcopter drones replace the orange blobs. On ground missions, raider Cybertrucks chase you; shooting the engine and tires disables them (smoke, then a pop), and the driver runs off safe.
+
+## Metal Storm options for flight (pick the order)
+1. **Enemy jets and dogfights.** Raider fighter jets with simple chase and evade AI, a radar ring, a missile lock tone, flares to break locks, and pilots who eject and parachute when hit.
+2. **Missiles and countermeasures.** Heat seekers (an AIM-9 style missile) and radar missiles with real lock time, range, and lead.
+3. **Ground attack runs.** Raider convoys, truck camps and anti-air sites, with strafing passes, rockets and bombs.
+4. **Squad wingman.** A crew member flies a second jet and calls out targets.
+5. **Mission chains and an XP ladder.** Patrol, then intercept, then escort, then a boss. Pilot ranks unlock new aircraft and loadouts.
+6. **PvP-like ghost battles.** Fight a recorded version of your own best run, or a friend's, saved in cloud storage.
+7. **Spectacle.** Clouds, contrails, afterburner glow, camera shake, engine sound, and a slow-motion replay of each takedown.
+8. **Cockpit gauges.** Live needles drawn over the photo cockpits.
