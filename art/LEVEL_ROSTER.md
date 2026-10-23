@@ -34,7 +34,7 @@
 
 ## How the game uses it (shipped 22 October)
 - Each base level sends its roster group first (`ROSTER` in prototype/based.html). Hard and Extreme raids add earlier groups behind it. Past level 14, the lead group is picked from levels 8 to 14 and more groups join every 6 levels.
-- Group sizes picked for now: Raiders x2 at L3, so L7 has four raiders (the L3 group twice). Bears x2 at L4. Soldiers x2 at L5.
-- Weapons: Female Thief holds two throwing knives, Male Thief a katana, Raider a pistol, Soldier a rifle, Mercenary an assault rifle. Animals and giants have none.
+- Group sizes: Raiders x2 at L3 (confirmed by J, 23 October), so L7 has four raiders (the L3 group twice). Bears x2 at L4. Soldiers x2 at L5.
+- Weapons (updated 23 October): Female Thief and Male Thief carry sniper rifles, Raider an M4A1 style carbine, Soldier a rifle, Mercenary a machine gun. Animals and giants have none.
 - Art stand-ins until painted art exists: Soldier uses the raider picture with a rifle. Mutant Bear is the black bear tinted green. Superbear is the giant grizzly with a gold glow. Radioactive Crocodile is the glow gator with a green glow. Dinosaur is the T. rex. Clone Bears use their own clone bear art.
 - Giants (Dinosaur, Dragon, Mercenary on Dragon, Superbear) start weaker when they show up early and reach full strength around level 30.
