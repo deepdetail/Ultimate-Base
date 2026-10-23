@@ -770,7 +770,7 @@ const TURRETS={
   mg:{name:'Machine Gun Nest',cost:15000,dmg:4,rate:.35,range:140,col:'#FFC845',desc:'Cheap and fast. Stun rounds.'},
   auto:{name:'Auto Cannon',cost:25000,dmg:7,rate:.8,range:160,col:'#FFC845',desc:'Twin barrels. Good all around.'},
   net:{name:'Net Launcher',cost:18000,dmg:2,rate:1.1,range:130,slow:true,col:'#2EC4C9',desc:'Sticky nets slow raiders way down.'},
-  gatling:{name:'Gatling Turret',cost:60000,dmg:3,rate:.12,range:150,level:7,col:'#FFE27A',desc:'Spinning barrels. Super fast.'},
+  gatling:{name:'Gatling Turret',cost:60000,dmg:3,rate:.2,range:150,level:7,col:'#FFE27A',desc:'Spinning barrels. Super fast.'},
   laser:{name:'Laser Turret',cost:80000,tech:40,dmg:16,rate:1.4,range:190,level:10,col:'#3A8DDE',desc:'Long range beam. Needs tech.'},
   missile:{name:'Stun Missile Pod',cost:90000,dmg:22,rate:2.2,range:220,splash:true,level:15,col:'#FF7F50',desc:'Six missiles. Hits a whole group.'},
   rail:{name:'Rail Gun',cost:250000,tech:80,dmg:60,rate:3.5,range:260,level:32,col:'#7F9CFF',desc:'Huge range, huge hit.'},
@@ -2079,12 +2079,14 @@ function shooterStats(c){const W=WEAPONS[curGear(c,'weapon')],wd=W.dmg||0;
   return {dmg:1+wd+eff(c,'aim')*.3,range:45+Math.min(170,wd*12),rate:Math.max(.5,1-wd*.02),col:{laser:'#7FF0F3',plasma:'#ff5fd2',rail:'#9fb8ff',bow:'#f4efe2',sling:'#c9a36a',kunai:'#d9e0e6',staff:'#c9a36a',katana:'#d9e0e6'}[W.look]||'#FFE27A'}}
 // raiders fight back: gunmen shoot from range, thieves throw knives, animals bite whatever they reach first.
 // Turrets and crew have health in a battle; a turret at 0 goes offline, a crew member at 0 is knocked out and rests afterward.
+// raiders are tough: much more health so fights last, and harder hits on turrets, crew and the shield
+const FOE_HP=6,FOE_DMG=1.6;
 const GUNS=new Set(['handgun','rifle','assault','mg','laser','plasma','rail','bb']);
 const foeWp=d=>(d.wp||[]).concat(d.rider?((EDEF[d.rider]||{}).wp||[]):[]);
 const foeRange=d=>{const w=foeWp(d);return w.some(g=>GUNS.has(g))?120:w.includes('kunai')?70:(d.big?34:24)};
 const foeRanged=d=>foeRange(d)>40;
 const foeFly=d=>!!(d.fly||(EDEF[artKey(d.art)]||{}).fly);
-const foeDmg=(d,L)=>d.dmg*(foeRanged(d)?.55:.7)*(1+.03*((L||1)-1));
+const foeDmg=(d,L)=>FOE_DMG*d.dmg*(foeRanged(d)?.55:.7)*(1+.03*((L||1)-1));
 const turHP=tu=>45+25*(tu.lvl||1);
 const postHP=c=>Math.round(14+eff(c,'str')*2+armorDef(c)*7);
 function foeTarget(x,dir,d,list){const R=foeRange(d),fly=foeFly(d);let best=null,bd=1e9;
@@ -2095,14 +2097,14 @@ function simBattle(wave,L){
   let shield=100+defs.reduce((a,c)=>a+armorDef(c)*6,0);
   const posts=battlePosts(W).map(st=>Object.assign({},st,{hp:postHP(st.c),cd:Math.random()*.8}));
   const tur=S.turrets.map((tu,i)=>tu&&i<nOpen&&pos[i]?{i,tu,x:pos[i][0]*W,y:pos[i][1],hp:turHP(tu),cd:0}:null).filter(Boolean),targets=tur.concat(posts);
-  const en=wave.map((d,i)=>({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0,acd:0}));
+  const en=wave.map((d,i)=>({d,hp:FOE_HP*d.hp*(d.m||1)*(1+.12*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0,acd:0}));
   let t=0;const dt=.1;
   const kill=e=>{if(e.hp<=0) e.st=2};
   while(t<180){t+=dt;
     for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;
       const tg=foeTarget(e.x,e.dir,e.d,targets);
       if(tg){e.acd-=dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,lv)}continue}
-      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=e.d.dmg*dt}
+      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=FOE_DMG*e.d.dmg*dt}
     const tg=en.filter(e=>e.st===1);
     tur.forEach(T=>{if(T.hp<=0) return;const d=TURRETS[T.tu.type],range=d.range*(T.y>0?1.2:1);T.cd-=dt*powF;if(T.cd>0) return;
       let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-T.x);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
@@ -2122,10 +2124,10 @@ function battlePreview(){
   if(B) return;
   const tabs=`<div class="tabs"><button data-act="btab" data-t="defend" class="${battleTab==='defend'?'on':''}">DEFEND THE BASE</button><button data-act="btab" data-t="attack" class="${battleTab==='attack'?'on':''}">ATTACK A BASE</button></div>`;
   if(battleTab==='attack') return expeditionSheet(tabs);
-  const N=S.raidLv||1,from=Math.max(1,N-5),rows=[];
+  const N=S.raidLv||1,from=N,rows=[];
   for(let L=N+2;L>=from;L--){const lock=L>N,done=L<N,p=lock?0:winChance('normal',L===N?16:8,L),col=p>=70?'ok':p>=40?'gold':'bad';
     rows.push(`<button class="li" data-act="fstep" data-l="${L}" ${lock||S.res.ap<1?'disabled':''} style="${L===N?'border-color:var(--teal)':''}">${raidPreview(L)}<span class="grow"><b>Raid Level ${L}${L===N?' · NEXT':done?' · cleared':''}</b><span>${lock?'Beat Raid Level '+(L-1)+' first':`Pays about ${money(raidPay(L))} · 1 Adv Pt`}</span></span><span class="tag ${lock?'dim':done?'ok':col}">${lock?'LOCKED':done?'REPLAY':p+'% WIN'}</span></button>`)}
-  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">${(()=>{const np=nextBPrize();return np?`Next battle prize: ${esc(np.v.name)} in ${np.left} win${np.left>1?'s':''}. `:''})()}Beat each raid level to unlock the next. Raiders fight back now: they attack your turrets and crew on the way to the door.</div>
+  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">${(()=>{const np=nextBPrize();return np?`Next battle prize: ${esc(np.v.name)} in ${np.left} win${np.left>1?'s':''}. `:''})()}Beat each raid level to unlock the next. Cleared raids leave the list. Raiders fight back: they attack your turrets and crew on the way to the door.</div>
     <div class="list">${rows.join('')}</div>
     <button class="li" data-act="frand" ${S.res.ap<1?'disabled':''}><span class="wv">${enemyArt('dragon')}</span><span class="grow"><b>Random Raid</b><span>Any raid up to Level ${N+3}, any toughness. Could be super easy or super hard. 1 Adv Pt</span></span><span class="tag gold">???</span></button>
     <div class="muted" style="font-size:12px">${S.res.ap<1?'No Adventure Points left. They refill over time, or catch a clone!':'Nobody gets hurt for real. Stun hits knock raiders out and they drive home. Knocked out crew rest in the Med Bay.'}</div>`);
@@ -2341,7 +2343,7 @@ function startBattle(wave,paid,D,L,rnd0){
   B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,lcd:{},over:false,diff:D||DIFFS[1],L:lv,step:L&&!rnd0?L:0};
   wave.forEach((d,i)=>{
     const left=i%2===0;
-    B.enemies.push({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),max:d.hp*(d.m||1)*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,state:'wait',el:null});
+    B.enemies.push({d,hp:FOE_HP*d.hp*(d.m||1)*(1+.12*(lv-1)),max:FOE_HP*d.hp*(d.m||1)*(1+.12*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,state:'wait',el:null});
   });
   B.posts=battlePosts(W);const box=$('#enemies'),pos0=slotPositions();
   B.tur=S.turrets.map((tu,i)=>{if(!tu||i>=slotCount()||!pos0[i]) return null;const hp=turHP(tu),bar=document.createElement('div');bar.className='thp';bar.style.left=(pos0[i][0]*W)+'px';bar.style.bottom=(24+pos0[i][1]+44)+'px';bar.innerHTML='<i></i>';box.appendChild(bar);return {i,tu,x:pos0[i][0]*W,y:pos0[i][1],hp,max:hp,bar}});
@@ -2373,7 +2375,7 @@ function battleLoop(now){
       if(tg){e.acd=(e.acd||0)-dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,B.L);e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
           if(foeRanged(e.d)) B.tracers.push({x1:e.x,y1:H-24-(foeFly(e.d)?70:30),x2:tg.x,y2:H-24-tg.y-26,t:.12,c:'#ff6b5e',w:2});
           if(tg.hp<=0){if(tg.tu){const pad=document.querySelector(`.tpad[data-pad="${tg.i}"]`);if(pad) pad.classList.add('off');B.lostT=(B.lostT||0)+1}else{tg.el.classList.add('pko');B.lostC=(B.lostC||0)+1}}}}
-      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=e.d.dmg*dt; }
+      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=FOE_DMG*e.d.dmg*dt; }
     } else if(e.state==='ko'){ e.koT-=dt; if(e.koT<=0){e.state='flee';e.el.classList.toggle('flip')} }
     else if(e.state==='flee'){ e.x-=e.dir*140*dt; if(e.x<-60||e.x>W+60){e.state='gone';e.el.remove()} }
     if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
