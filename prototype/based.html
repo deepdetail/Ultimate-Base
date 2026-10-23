@@ -2003,7 +2003,7 @@ function missionSheet(vid){
   openSheet(title,`
     <div class="muted">${what}</div>
     <div class="route">${route.map((n,i)=>`<div class="${i===route.length-1?'fin':''}"><i></i>${esc(n)}${i===route.length-1?' · secret outpost':''}</div>`).join('')}</div>
-    <div class="muted" style="font-size:12px">Badlands drones will chase you. ${isArmed(v)?'Shoot them with your '+esc(VWEAPONS[vUp(v).wpn].name)+' for a bonus.':v.cat==='air'?'Photograph them for an intel bonus, or outrun them.':'Outrun them!'} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    <div class="muted" style="font-size:12px">Badlands drones will chase you. ${isArmed(v)?'Shoot them with your '+esc(VWEAPONS[vUp(v).wpn].name)+' for a bonus.':v.cat==='air'?'Photograph them for an intel bonus, or outrun them: drones are a little slower than your plane at full throttle.':'Outrun them!'} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
     ${(()=>{const np=nextPrize();return np?`<div class="li"><span class="veh">${vehArt(np.v.id)}</span><span class="grow"><b>Prize ladder: ${esc(np.v.name)}</b><span>Win ${np.left} more mission${np.left>1?'s':''} to earn it. Sell it for about ${money(Math.round(np.v.cost*.6))}, or keep it.</span></span></div>`:''})()}
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
@@ -2878,7 +2878,7 @@ function buildMission(v,mk,route,pilot){
   const makeDrone=(x,y,z)=>{const g=new T.Group(),add=(geo,mat,px,py,pz)=>{const m=new T.Mesh(geo,mat);m.position.set(px||0,py||0,pz||0);g.add(m);return m};
     add(qBody,qBodyM);add(qTop,qAccM,0,.9,0);[Math.PI/4,-Math.PI/4].forEach(a=>{const m=add(qArm,qArmM);m.rotation.y=a});
     const rotors=[];[[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([sx,sz])=>{add(qMot,qArmM,sx*3.3,.4,sz*3.3);const r=add(qRot,qRotM,sx*3.3,.9,sz*3.3);rotors.push(r);add(qLeg,qArmM,sx*1.6,-1.2,sz*1.6)});
-    add(qCam,qCamM,0,-.8,1.7);add(eyeGeo,eyeMat,0,-.8,2.45);g.scale.setScalar(1.25);g.position.set(x,y,z);scene.add(g);return {g,rotors,state:'chase',vy:0}};
+    add(qCam,qCamM,0,-.8,1.7);add(eyeGeo,eyeMat,0,-.8,2.45);g.scale.setScalar(1.25);g.position.set(x,y,z);scene.add(g);return {g,rotors,state:'chase',vy:0,hp:18,max:18,hitCd:0}};
   // raider Cybertrucks for ground missions: stop them by shooting out the engine and tires
   const truckDef=Object.assign({},VEH.find(v=>v.id==='cyber'),{col:0x5d4b3b});
   const makeTruck=(x,z)=>{const g=buildVehicle(T,truckDef,true,{env:vehEnv(T,renderer)});g.scale.setScalar(VEH_S);g.rotation.order='YXZ';g.position.set(x,heightAt(x,z),z);scene.add(g);return {g,truck:true,hp:30,state:'chase',vy:0,aimP:new T.Vector3(x,heightAt(x,z)+3,z),smokeT:0}};
@@ -2964,7 +2964,7 @@ function boom(pos){
 const KT=.5144,GRAV=9.81;
 const comp=vr=>4.2*Math.sqrt(Math.max(0,vr)/KT);
 function flightModel(v){
-  const sp=vSpec(v),m=engMul(v),vmax=sp.top*KT*m,tw=(sp.tw||1)*(1+.08*(m-1)/.05);
+  const sp=vSpec(v),m=engMul(v),vmax=sp.top*KT*m*1.1,tw=(sp.tw||1)*(1+.08*(m-1)/.05);
   return {rotor:!!sp.rotor,ab:!!sp.ab,vmax,vs:(sp.stall||0)*KT,tw,cd:tw*GRAV/(vmax*vmax),roll:(sp.roll||90)*Math.PI/180,pitch:(sp.pitch||30)*Math.PI/180,
     gmax:sp.g||4,ceil:sp.ceil||20000,acc:sp.acc||4,yaw:(sp.yaw||50)*Math.PI/180,climb:(sp.climb||1500)*.00508,jet:sp.ek==='jet'||sp.ek==='future'};
 }
@@ -3019,7 +3019,8 @@ function segHit(a,b,p,r){const ab=b.clone().sub(a),t=clamp(p.clone().sub(a).dot(
 function hitAim(a){
   if(a.d&&a.d.truck){if(a.d.state!=='chase') return;a.d.hp-=M.wpn.dmg||4;spark(a.p,0xffd27a,4);puff(a.p,0x555555,1.2,.6,3);
     if(a.d.hp<=0){a.d.state='ko';a.d.koT=1.6;M.ko++;toast('Raider truck disabled! Engine smoking, tires flat. The driver ran off safe.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko}return}
-  if(a.d&&a.d.state==='chase'){a.d.state='ko';a.d.vy=4;M.ko++;toast('Drone knocked out! It floats down safely.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko;spark(a.p,0xffe27a,6)}
+  if(a.d&&a.d.state==='chase'){a.d.hp-=M.wpn.dmg||4;spark(a.p,0xffe27a,4);
+    if(a.d.hp<=0){a.d.state='ko';a.d.vy=-2;M.ko++;boom(a.d.g.position.clone());spark(a.p,0xffa24a,12);puff(a.p,0x555555,3,.8,5);toast('Drone destroyed! Nobody was on board.','ok');const ko=$('#m-ko');if(ko)ko.textContent=M.ko}}
   else if(a.t&&a.t.alive){a.t.hp-=M.wpn.dmg;spark(a.p,0xffd27a,4);if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;boom(a.t.pos);M.hits++;toast(`${a.t.label} destroyed!`,'ok')}}
 }
 function spark(pos,col,n){const T=window.THREE;const mt=new T.MeshBasicMaterial({color:col,transparent:true,blending:T.AdditiveBlending,depthWrite:false});
@@ -3115,11 +3116,12 @@ function missionLoop(now){
       d.aimP.set(g.position.x,g.position.y+3,g.position.z);continue}
     if(d.state==='chase'){
       const tx=P.x-g.position.x,ty=P.y-g.position.y,tz=P.z-g.position.z,dd=Math.hypot(tx,ty,tz)||1;
-      const sp=v.cat==='air'?M.maxS*.62:24;d.vel=d.vel||new T.Vector3();d.vel.set(tx/dd*sp,ty/dd*sp,tz/dd*sp);
+      // planes: half throttle cruises at about 84 percent of top speed, so a drone at 92 percent catches a cruising plane but not one at full throttle flying straight
+      const sp=v.cat==='air'?M.maxS*.92:24;d.vel=d.vel||new T.Vector3();d.vel.set(tx/dd*sp,ty/dd*sp,tz/dd*sp);d.hitCd=Math.max(0,(d.hitCd||0)-dt);
       g.position.x+=tx/dd*sp*dt;g.position.y+=ty/dd*sp*dt;g.position.z+=tz/dd*sp*dt;
       const floor=M.heightAt(g.position.x,g.position.z)+8;if(g.position.y<floor) g.position.y=floor;
       d.rotors.forEach(r=>r.rotation.y+=dt*38);g.lookAt(P.x,P.y,P.z);
-      if(dd<28){P.hull-=7*dt*M.armMul;warn('DRONE BUZZING YOU!',.3)}
+      if(dd<28&&d.hitCd<=0){P.hull-=10*M.armMul;d.hitCd=3;g.position.x-=tx/dd*60;g.position.z-=tz/dd*60;spark(g.position.clone(),0xff6b5e,6);warn('DRONE HIT YOU! FULL THROTTLE TO OUTRUN IT!',1.2)}
       if(dd>1100){d.state='gone';M.scene.remove(g);toast('You lost a drone!','ok')}
     } else if(d.state==='ko'){d.vy=Math.max(d.vy-12*dt,-14);g.position.y+=d.vy*dt;g.rotation.z+=dt*3;if(g.position.y<M.heightAt(g.position.x,g.position.z)){d.state='gone';M.scene.remove(g)}}
   }
