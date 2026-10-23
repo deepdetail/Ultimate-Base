@@ -2,7 +2,32 @@
 
 Every commit on GitHub, oldest first, grouped into versions. The playable game is `prototype/based.html`.
 
-## Version 2.0 (current, 2026-10-22)
+## Since version 2.0 (2026-10-22 to 2026-10-23)
+
+Every commit here carries the Co-authored-by line for John Pistotti's GitHub no-reply address.
+
+**Highlights**
+- Level roster raids from J's notes, with weapons on human raiders and riders on bears and dragons.
+- Clone Lab conversion timer and Holding Cell escapes with a big bonus.
+- Mission map: real Tahoe to Las Vegas terrain, Cessna recon flights, capturable outposts that extend range.
+- Level 1 uses the approved painted front, no drawn doors, crew drawn to building scale.
+- Inside view: rooms sit inside the outline of the approved front.
+- Raiders fight back against turrets and crew; numbered raid ladder plus Random Raid; base health that grows with the base and its turrets.
+- Drones just slower than a plane at full throttle, with health; aircraft 10 percent faster.
+
+- `4022755` 2026-10-22: Add CLAUDE.md with commit attribution rule
+- `a0696ed` 2026-10-22: Use GitHub no-reply email in CLAUDE.md attribution
+- `9102597` 2026-10-22: Level roster waves, enemy weapons, Clone Lab conversion timer and Holding Cell escapes
+- `a761858` 2026-10-22: Mission map: real Tahoe to Las Vegas terrain, Cessna recon, capturable outposts that extend range
+- `c5f1d3d` 2026-10-22: Level 1 outside uses the approved painted front; remove the drawn door from all fronts
+- `e71af4f` 2026-10-22: Outside crew drawn to the building's scale
+- `92c67cb` 2026-10-23: Inside view: rooms sit inside the outline of the approved front, with a soft wash between rooms and outline
+- `02ec69c` 2026-10-23: Raiders attack turrets and crew; numbered raid ladder plus Random Raid
+- `040fb30` 2026-10-23: Tougher raiders: 6x health, harder hits, health grows faster per raid level; Gatling fires a bit slower; cleared raids leave the list
+- `0909425` 2026-10-23: Drones: just slower than full throttle, one hit then back off, health and explode when shot; aircraft 10 percent faster
+- `7f1c7e9` 2026-10-23: Base health: big core that grows with the base plus every turret's health; softer door hits; turrets sturdier; raiders retuned so early bears and giants are not walls
+
+## Version 2.0 (2026-10-22)
 
 The painted art version. Still a little glitchy, with plenty left to work out (see NEXT_STEPS.md), but most of the game now runs on approved art from Drive.
 
