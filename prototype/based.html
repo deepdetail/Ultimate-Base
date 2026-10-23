@@ -396,6 +396,12 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
 .raid .rbase{position:absolute;left:0;right:0;bottom:22px;width:100%;height:150px}.raid canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
 .raid .rd,.raid .rs,.raid .rveh{position:absolute;transform:translateX(-50%);z-index:2}.raid .rd{transform:translateX(-50%) scaleX(-1)}.raid .rs .mini{transform:scale(1.1);transform-origin:50% 100%}.raid .rs.flip .mini{transform:scale(-1.1,1.1)}
 .raid .rveh{bottom:4px;width:70px}.raid .rveh svg{width:70px;height:30px}.raid .rko{opacity:.35;filter:grayscale(1)}.raid .rko::after{content:"\2726 \2726";position:absolute;left:50%;top:-12px;transform:translateX(-50%);font-size:11px;color:#ffc845}
+.thp{position:absolute;width:30px;height:4px;transform:translateX(-50%);background:rgba(0,0,0,.55);border-radius:2px;overflow:hidden;z-index:6;pointer-events:none}.thp i{display:block;height:100%;width:100%;background:#5BE36B}
+.php{position:absolute;left:50%;top:-8px;width:22px;height:3px;transform:translateX(-50%);background:rgba(0,0,0,.55);border-radius:2px;overflow:hidden}.php i{display:block;height:100%;width:100%;background:#7FF0F3}
+.post.pko .mini{transform:rotate(-80deg) scale(.8);transform-origin:50% 100%;opacity:.7;transition:transform .3s}.post.pko .php{display:none}
+.tpad.off{filter:grayscale(1) brightness(.55)}.tpad.off::after{content:"OFFLINE";position:absolute;left:50%;top:-14px;transform:translateX(-50%);font:800 8px/1 var(--font-display,sans-serif);color:#ff6b5e;letter-spacing:.08em;white-space:nowrap}
+.enemy.atk .em{animation:lunge .25s ease-out}.enemy.flip.atk .em{animation:lungeL .25s ease-out}
+@keyframes lunge{40%{transform:translateX(6px)}}@keyframes lungeL{40%{transform:scaleX(-1) translateX(6px)}}
 .post{position:absolute;transform:translateX(-50%);z-index:4;pointer-events:none}.post .mini{transform:scale(.9);transform-origin:50% 100%}.post.flip .mini{transform:scale(-.9,.9)}
 .veh{width:66px;flex:none;font-size:0}
 .veh svg{width:66px;height:25px;display:block}
@@ -2038,8 +2044,8 @@ const ROSTER=[['rogue','crow'],['thief','coyote'],['raider','raider'],['blackbea
 // giants show up early in the roster, so they start weaker and reach full strength around level 30
 const GIANT={dino:1,dragon:1,dragonrider:1,superbear:1};
 const foe=(k,extra)=>Object.assign({art:k},EDEF[k],extra||{});
-function makeWave(dk){
-  const D=DIFFS.find(d=>d.k===(dk||'normal')),lv=level(),top=Math.min(lv,ROSTER.length),w=[];
+function makeWave(dk,L){
+  const D=DIFFS.find(d=>d.k===(dk||'normal')),lv=L||level(),top=Math.min(lv,ROSTER.length),w=[];
   // the level's own group leads; harder raids and higher levels add earlier groups behind it
   const extra=(D.cnt>=1.8?2:D.cnt>=1.4?1:0)+Math.min(4,Math.floor(Math.max(0,lv-14)/6)),list=[ROSTER[lv>ROSTER.length?ri(7,ROSTER.length-1):top-1]];
   for(let i=0;i<extra;i++) list.push(ROSTER[ri(0,Math.max(0,Math.min(top,lv>14?ROSTER.length:top-1)-1))]);
@@ -2071,34 +2077,58 @@ function battlePosts(W){
 const lobbyShooters=()=>S.crew.filter(c=>!c.room&&!c.away&&!c.hurt&&!c.clone&&!isGuard(c));
 function shooterStats(c){const W=WEAPONS[curGear(c,'weapon')],wd=W.dmg||0;
   return {dmg:1+wd+eff(c,'aim')*.3,range:45+Math.min(170,wd*12),rate:Math.max(.5,1-wd*.02),col:{laser:'#7FF0F3',plasma:'#ff5fd2',rail:'#9fb8ff',bow:'#f4efe2',sling:'#c9a36a',kunai:'#d9e0e6',staff:'#c9a36a',katana:'#d9e0e6'}[W.look]||'#FFE27A'}}
-function simBattle(wave){
-  const W=390,door=W/2,pos=slotPositions(),nOpen=slotCount(),lv=level(),powF=S.res.power>0?1:.5,defs=defenders(),lob=lobbyShooters().map(shooterStats);
-  let shield=100+defs.reduce((a,c)=>a+armorDef(c)*6,0);const posts=battlePosts(W),pcd=posts.map(()=>Math.random()*.8);
-  const en=wave.map((d,i)=>({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0}));
-  const cds=new Array(16).fill(0),lcd=lob.map(()=>Math.random()*.8);let dcd=0,t=0;const dt=.1;
+// raiders fight back: gunmen shoot from range, thieves throw knives, animals bite whatever they reach first.
+// Turrets and crew have health in a battle; a turret at 0 goes offline, a crew member at 0 is knocked out and rests afterward.
+const GUNS=new Set(['handgun','rifle','assault','mg','laser','plasma','rail','bb']);
+const foeWp=d=>(d.wp||[]).concat(d.rider?((EDEF[d.rider]||{}).wp||[]):[]);
+const foeRange=d=>{const w=foeWp(d);return w.some(g=>GUNS.has(g))?120:w.includes('kunai')?70:(d.big?34:24)};
+const foeRanged=d=>foeRange(d)>40;
+const foeFly=d=>!!(d.fly||(EDEF[artKey(d.art)]||{}).fly);
+const foeDmg=(d,L)=>d.dmg*(foeRanged(d)?.55:.7)*(1+.03*((L||1)-1));
+const turHP=tu=>45+25*(tu.lvl||1);
+const postHP=c=>Math.round(14+eff(c,'str')*2+armorDef(c)*7);
+function foeTarget(x,dir,d,list){const R=foeRange(d),fly=foeFly(d);let best=null,bd=1e9;
+  for(const t of list){if(!t||t.hp<=0) continue;if((t.x-x)*dir<-12) continue;if(t.y>0&&!fly&&!foeRanged(d)) continue;const di=Math.abs(t.x-x);if(di<=R&&di<bd){bd=di;best=t}}
+  return best}
+function simBattle(wave,L){
+  const W=390,door=W/2,pos=slotPositions(),nOpen=slotCount(),lv=L||level(),powF=S.res.power>0?1:.5,defs=defenders();
+  let shield=100+defs.reduce((a,c)=>a+armorDef(c)*6,0);
+  const posts=battlePosts(W).map(st=>Object.assign({},st,{hp:postHP(st.c),cd:Math.random()*.8}));
+  const tur=S.turrets.map((tu,i)=>tu&&i<nOpen&&pos[i]?{i,tu,x:pos[i][0]*W,y:pos[i][1],hp:turHP(tu),cd:0}:null).filter(Boolean),targets=tur.concat(posts);
+  const en=wave.map((d,i)=>({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0,acd:0}));
+  let t=0;const dt=.1;
   const kill=e=>{if(e.hp<=0) e.st=2};
   while(t<180){t+=dt;
-    for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=e.d.dmg*dt}
+    for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;
+      const tg=foeTarget(e.x,e.dir,e.d,targets);
+      if(tg){e.acd-=dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,lv)}continue}
+      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=e.d.dmg*dt}
     const tg=en.filter(e=>e.st===1);
-    S.turrets.forEach((tu,i)=>{if(!tu||i>=nOpen||!pos[i]) return;const d=TURRETS[tu.type],px=pos[i][0]*W,range=d.range*(pos[i][1]>0?1.2:1);cds[i]-=dt*powF;if(cds[i]>0) return;
-      let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-px);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
-      cds[i]=d.rate;best.hp-=turDmg(tu);if(d.splash) tg.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(tu)*.5;kill(o)}});if(d.slow) best.slow=1.6;kill(best)});
-    posts.forEach((st,j)=>{pcd[j]-=dt;if(pcd[j]>0) return;const e=tg.filter(e=>e.st===1&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!e) return;pcd[j]=st.rate;e.hp-=st.dmg;kill(e)});
+    tur.forEach(T=>{if(T.hp<=0) return;const d=TURRETS[T.tu.type],range=d.range*(T.y>0?1.2:1);T.cd-=dt*powF;if(T.cd>0) return;
+      let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-T.x);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
+      T.cd=d.rate;best.hp-=turDmg(T.tu);if(d.splash) tg.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(T.tu)*.5;kill(o)}});if(d.slow) best.slow=1.6;kill(best)});
+    posts.forEach(st=>{if(st.hp<=0) return;st.cd-=dt;if(st.cd>0) return;const e=tg.filter(e=>e.st===1&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!e) return;st.cd=st.rate;e.hp-=st.dmg;kill(e)});
     if(shield<=0) return false;if(en.every(e=>e.st===2)) return true;
   }
   return true;
 }
-function winChance(dk,n){n=n||14;let w=0;for(let i=0;i<n;i++) if(simBattle(makeWave(dk))) w++;return Math.round(w/n*100)}
+function winChance(dk,n,L){n=n||14;let w=0;for(let i=0;i<n;i++) if(simBattle(makeWave(dk,L),L)) w++;return Math.round(w/n*100)}
 let battleTab='defend';
+// Defend tab: a ladder of numbered raids. Beat the next one to unlock the one after. Old ones can be replayed.
+// Random Raid picks any level up to three past your next one, at a random toughness, so it can be easy or very hard.
+const raidPay=(L,rew)=>Math.round((8000+1500*L)*(rew||1));
+const raidPreview=L=>{const g=ROSTER[Math.min(L,ROSTER.length)-1]||ROSTER[0];return [...new Set(g)].slice(0,4).map(k=>`<span class="wv">${enemyArt(k)}</span>`).join('')};
 function battlePreview(){
   if(B) return;
   const tabs=`<div class="tabs"><button data-act="btab" data-t="defend" class="${battleTab==='defend'?'on':''}">DEFEND THE BASE</button><button data-act="btab" data-t="attack" class="${battleTab==='attack'?'on':''}">ATTACK A BASE</button></div>`;
   if(battleTab==='attack') return expeditionSheet(tabs);
-  const lv=level(),base=8000+1500*lv;
-  const rows=DIFFS.map(d=>{const lock=d.level&&lv<d.level,p=lock?0:winChance(d.k),col=p>=70?'ok':p>=40?'gold':'bad';
-    return `<button class="li" data-act="fight" data-d="${d.k}" ${S.res.ap<d.ap||lock?'disabled':''}><span class="wv">${enemyArt(d.boss?(biome()==='desert'?'warlord':'titan'):d.k==='easy'?'biker':d.k==='extreme'?'scorpion':'buggy')}</span><span class="grow"><b>${d.name}</b><span>${d.desc} · pays about ${money(base*d.rew)} · ${d.ap} Adv Pt${d.ap>1?'s':''}</span></span><span class="tag ${lock?'dim':col}">${lock?'LV '+d.level:p+'% WIN'}</span></button>`}).join('');
-  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">${(()=>{const np=nextBPrize();return np?`Next battle prize: ${esc(np.v.name)} in ${np.left} win${np.left>1?'s':''}. `:''})()}Pick how tough the raid is. The win chance comes from running the fight against your turrets, Barracks defenders, and anyone waiting out front with a weapon.</div><div class="list">${rows}</div>
-    <div class="muted" style="font-size:12px">${S.res.ap<1?'No Adventure Points left. They refill over time, or catch a clone!':'Nobody gets hurt for real. Stun hits knock raiders out and they drive home.'}</div>`);
+  const N=S.raidLv||1,from=Math.max(1,N-5),rows=[];
+  for(let L=N+2;L>=from;L--){const lock=L>N,done=L<N,p=lock?0:winChance('normal',L===N?16:8,L),col=p>=70?'ok':p>=40?'gold':'bad';
+    rows.push(`<button class="li" data-act="fstep" data-l="${L}" ${lock||S.res.ap<1?'disabled':''} style="${L===N?'border-color:var(--teal)':''}">${raidPreview(L)}<span class="grow"><b>Raid Level ${L}${L===N?' · NEXT':done?' · cleared':''}</b><span>${lock?'Beat Raid Level '+(L-1)+' first':`Pays about ${money(raidPay(L))} · 1 Adv Pt`}</span></span><span class="tag ${lock?'dim':done?'ok':col}">${lock?'LOCKED':done?'REPLAY':p+'% WIN'}</span></button>`)}
+  openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">${(()=>{const np=nextBPrize();return np?`Next battle prize: ${esc(np.v.name)} in ${np.left} win${np.left>1?'s':''}. `:''})()}Beat each raid level to unlock the next. Raiders fight back now: they attack your turrets and crew on the way to the door.</div>
+    <div class="list">${rows.join('')}</div>
+    <button class="li" data-act="frand" ${S.res.ap<1?'disabled':''}><span class="wv">${enemyArt('dragon')}</span><span class="grow"><b>Random Raid</b><span>Any raid up to Level ${N+3}, any toughness. Could be super easy or super hard. 1 Adv Pt</span></span><span class="tag gold">???</span></button>
+    <div class="muted" style="font-size:12px">${S.res.ap<1?'No Adventure Points left. They refill over time, or catch a clone!':'Nobody gets hurt for real. Stun hits knock raiders out and they drive home. Knocked out crew rest in the Med Bay.'}</div>`);
 }
 // ---------- expeditions: raid the bad guy bases ----------
 const EBASES={
@@ -2301,20 +2331,22 @@ function battleArt(d){const k=artKey(d.art),P=ESPR[k],base=(EDEF[k]||{}).h||44,h
   if(d.rider&&ESPR[d.rider]){const R=ESPR[d.rider],rh=Math.round((EDEF[d.rider]||{}).h*.92||46),rw=Math.round(rh*R.w/R.h),rx=Math.round(w*.42-rw/2),rb=Math.round(h*(d.fly?.5:.55));
     rider=`<span class="erider" style="left:${rx}px;bottom:${rb}px;width:${rw}px;height:${rh}px"><img class="ba" src="${R.src}" style="height:${rh}px" alt="">${enemyGuns(d.rider,(EDEF[d.rider]||{}).wp,rw,rh)}</span>`}
   return `<span class="ebox" style="width:${w}px;height:${h}px"><img class="ba" src="${P.src}" style="height:${h}px;${d.tint?'filter:'+d.tint:''}" alt="">${rider?'':enemyGuns(k,d.wp,w,h)}${rider}</span>`}
-function startBattle(wave,paid,D){
+function startBattle(wave,paid,D,L,rnd0){
   if(B||M) return;
   if(VIEW!=='out'){VIEW='out';renderWorld()}
   document.body.classList.add('in-battle');
   if(paid){ if(S.res.ap<1) return; S.res.ap--; }
   closeSheet(); scrollToSurface(true);
-  const W=$('#surface').clientWidth,lv=level(),sh=100+defenders().reduce((a,c)=>a+armorDef(c)*6,0);
-  B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,lcd:{},over:false,diff:D||DIFFS[1]};
+  const W=$('#surface').clientWidth,lv=L||level(),sh=100+defenders().reduce((a,c)=>a+armorDef(c)*6,0);
+  B={W,shield:sh,max:sh,enemies:[],tracers:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,lcd:{},over:false,diff:D||DIFFS[1],L:lv,step:L&&!rnd0?L:0};
   wave.forEach((d,i)=>{
     const left=i%2===0;
     B.enemies.push({d,hp:d.hp*(d.m||1)*(1+.06*(lv-1)),max:d.hp*(d.m||1)*(1+.06*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,state:'wait',el:null});
   });
-  B.posts=battlePosts(W);const box=$('#enemies');
-  B.posts.forEach(st=>{st.cd=rnd(0,.8);st.el=document.createElement('div');st.el.className='post';st.el.style.left=st.x+'px';st.el.style.bottom=(20+st.y)+'px';st.el.innerHTML=`<span class="mini">${personHTML(Object.assign({},st.c,{_aim:1})).replace(/ data-cid="[^"]*"/g,'')}</span>`;box.appendChild(st.el)});
+  B.posts=battlePosts(W);const box=$('#enemies'),pos0=slotPositions();
+  B.tur=S.turrets.map((tu,i)=>{if(!tu||i>=slotCount()||!pos0[i]) return null;const hp=turHP(tu),bar=document.createElement('div');bar.className='thp';bar.style.left=(pos0[i][0]*W)+'px';bar.style.bottom=(24+pos0[i][1]+44)+'px';bar.innerHTML='<i></i>';box.appendChild(bar);return {i,tu,x:pos0[i][0]*W,y:pos0[i][1],hp,max:hp,bar}});
+  B.targets=B.tur.filter(Boolean);
+  B.posts.forEach(st=>{st.cd=rnd(0,.8);st.el=document.createElement('div');st.el.className='post';st.el.style.left=st.x+'px';st.el.style.bottom=(20+st.y)+'px';st.el.innerHTML=`<span class="mini">${personHTML(Object.assign({},st.c,{_aim:1})).replace(/ data-cid="[^"]*"/g,'')}</span><span class="php"><i></i></span>`;st.hp=st.max=postHP(st.c);box.appendChild(st.el);B.targets.push(st)});
   let hs=$('#bhide');if(!hs){hs=document.createElement('style');hs.id='bhide';document.head.appendChild(hs)}
   hs.textContent=B.posts.map(st=>`#world [data-cid="${st.c.id}"]`).join(',')+(B.posts.length?'{visibility:hidden}':'');
   renderShield();
@@ -2337,7 +2369,11 @@ function battleLoop(now){
     if(e.state==='wait'){ if(B.time>=e.spawn){e.state='go';e.el=document.createElement('div');e.el.className='enemy'+(e.dir<0?' flip':'')+(e.d.big?' big':'')+(e.d.boss?' boss':'');e.el.innerHTML=`<span class="em">${battleArt(e.d)}</span><span class="hpb"><i></i></span>`;if(e.d.fly||(EDEF[artKey(e.d.art)]||{}).fly) e.el.classList.add('fly');box.appendChild(e.el)} else continue; }
     if(e.state==='go'){
       const sp=e.d.speed*(e.slow>0?.4:1); e.slow=Math.max(0,e.slow-dt);
-      if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=e.d.dmg*dt; }
+      const tg=foeTarget(e.x,e.dir,e.d,B.targets||[]);
+      if(tg){e.acd=(e.acd||0)-dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,B.L);e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
+          if(foeRanged(e.d)) B.tracers.push({x1:e.x,y1:H-24-(foeFly(e.d)?70:30),x2:tg.x,y2:H-24-tg.y-26,t:.12,c:'#ff6b5e',w:2});
+          if(tg.hp<=0){if(tg.tu){const pad=document.querySelector(`.tpad[data-pad="${tg.i}"]`);if(pad) pad.classList.add('off');B.lostT=(B.lostT||0)+1}else{tg.el.classList.add('pko');B.lostC=(B.lostC||0)+1}}}}
+      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=e.d.dmg*dt; }
     } else if(e.state==='ko'){ e.koT-=dt; if(e.koT<=0){e.state='flee';e.el.classList.toggle('flip')} }
     else if(e.state==='flee'){ e.x-=e.dir*140*dt; if(e.x<-60||e.x>W+60){e.state='gone';e.el.remove()} }
     if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
@@ -2346,7 +2382,7 @@ function battleLoop(now){
   const ko=e=>{if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;e.el.classList.add('ko')}};
   const hit=(e,dmg,from,color,wide)=>{ e.hp-=dmg; B.tracers.push({x1:from.x,y1:from.y,x2:e.x,y2:H-38,t:.12,c:color,w:wide?5:2.5}); ko(e) };
   S.turrets.forEach((t,i)=>{
-    if(!t||i>=slotCount()||!pos[i]) return; const d=TURRETS[t.type],px=pos[i][0]*W,py=H-24-pos[i][1]-18,range=d.range*(pos[i][1]>0?1.2:1);
+    if(!t||i>=slotCount()||!pos[i]||(B.tur&&B.tur[i]&&B.tur[i].hp<=0)) return; const d=TURRETS[t.type],px=pos[i][0]*W,py=H-24-pos[i][1]-18,range=d.range*(pos[i][1]>0?1.2:1);
     B.cds[i]-=dt*powF; if(B.cds[i]>0) return;
     let best=null,bd=1e9; for(const e of targets){const dist=Math.abs(e.x-px); if(dist<=range&&dist<bd&&e.hp>0){bd=dist;best=e}}
     if(!best) return;
@@ -2355,7 +2391,8 @@ function battleLoop(now){
     if(d.slow) best.slow=1.6;
     tur3dFire(i,best.x,33);aimPad(i,px,py,best.x,H-38);
   });
-  (B.posts||[]).forEach(st=>{st.cd-=dt;if(st.cd>0) return;
+  (B.targets||[]).forEach(T=>{const f=clamp(T.hp/T.max,0,1),bi=T.tu?T.bar.firstChild:T.el.querySelector('.php i');if(bi) bi.style.width=f*100+'%'});
+  (B.posts||[]).forEach(st=>{if(st.hp<=0) return;st.cd-=dt;if(st.cd>0) return;
     const tg=targets.filter(e=>e.hp>0&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!tg) return;
     st.cd=st.rate;st.el.classList.toggle('flip',tg.x<st.x);hit(tg,st.dmg,{x:st.x+(tg.x<st.x?-8:8),y:H-24-st.y-36},st.col);B.flashes=(B.flashes||[]);B.flashes.push({x:st.x+(tg.x<st.x?-9:9),y:H-24-st.y-36,t:.07})});
   const cv=$('#fx'); if(cv){const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
@@ -2372,11 +2409,14 @@ function battleLoop(now){
 function endBattle(won){
   B.over=true;document.body.classList.remove('in-battle');
   const ended=B;
-  setTimeout(()=>{ ended.enemies.forEach(e=>e.el&&e.el.remove());(ended.posts||[]).forEach(st=>st.el&&st.el.remove());const hs=$('#bhide');if(hs) hs.textContent=''; if(B===ended) B=null; renderShield(); const cv=$('#fx'); if(cv) cv.getContext('2d').clearRect(0,0,cv.width,cv.height); updateHUD(); },won?1200:200);
+  setTimeout(()=>{ ended.enemies.forEach(e=>e.el&&e.el.remove());(ended.posts||[]).forEach(st=>st.el&&st.el.remove());(ended.tur||[]).forEach(T=>T&&T.bar&&T.bar.remove());document.querySelectorAll('.tpad.off').forEach(p=>p.classList.remove('off'));const hs=$('#bhide');if(hs) hs.textContent=''; if(B===ended) B=null; renderShield(); const cv=$('#fx'); if(cv) cv.getContext('2d').clearRect(0,0,cv.width,cv.height); updateHUD(); },won?1200:200);
   S.nextRaid=S.t+ri(200,280);
+  const koC=(ended.posts||[]).filter(st=>st.hp<=0);koC.forEach(st=>{st.c.hurt=Math.max(st.c.hurt||0,Math.round(45/(1+armorDef(st.c)*.3)))});
+  const dmgNote=(ended.lostT||koC.length)?`<div class="muted" style="font-size:12px">${ended.lostT?`${ended.lostT} turret${ended.lostT>1?'s were':' was'} knocked offline (fixed now). `:''}${koC.length?`${koC.map(st=>esc(st.c.name)).join(', ')} got knocked out and needs rest.`:''}</div>`:'';
+  let stepNote='';if(won&&ended.step&&ended.step===(S.raidLv||1)){S.raidLv=(S.raidLv||1)+1;stepNote=`<div class="muted" style="text-align:center"><b>Raid Level ${ended.step} cleared!</b> Raid Level ${S.raidLv} is unlocked.</div>`}
   let body;
   if(won){
-    const DF=ended.diff||DIFFS[1],cr=Math.round((8000+1500*level()+ri(0,3000))*DF.rew); S.res.credits+=cr; S.xp+=50; S.wins++;
+    const DF=ended.diff||DIFFS[1],cr=Math.round((8000+1500*(ended.L||level())+ri(0,3000))*DF.rew); S.res.credits+=cr; S.xp+=50; S.wins++;
     S.crew.forEach(c=>c.xp+=20);
     let veh='';
     if(ended.cloneLoot!==undefined){const b2=Math.round(ri(1500,4000)*(1+.05*level())),back=ended.cloneLoot*2+b2;S.res.credits+=back;S.caught++;
@@ -2397,7 +2437,7 @@ function endBattle(won){
       ${ended.cloneLoot?`<div class="muted" style="font-size:12px">The clone monster escaped with ${money(ended.cloneLoot)}. Catch clones sooner next time!</div>`:''}
       <div class="muted" style="font-size:12px">Tip: more turrets, upgrades, and Barracks defenders with weapons and armor. Armor adds to the base shield.</div>`;
   }
-  openSheet(won?'Victory!':'Base raided',body+`<button class="btn primary" data-close>OKAY</button>`);
+  openSheet(won?'Victory!':'Base raided',body+stepNote+dmgNote+`<button class="btn primary" data-close>OKAY</button>`);
   renderWorld(); save();
 }
 
@@ -3385,7 +3425,7 @@ function tick(){
       if(S.t>=S.nextTurn){S.nextTurn=S.t+ri(240,420);const pool=S.crew.filter(c=>!c.isCmd&&!c.clone&&!c.away&&!c.exClone);
         if(pool.length&&Math.random()<.5){const c=pick(pool);Object.assign(c,{clone:true,turned:true,tells:pickTells(),stole:0,joined:S.t,lastSab:S.t});delete c.quirk;renderWorld();toast('Something feels off in the base... someone is acting strange.','warn')}}}
     if(S.t>=S.nextArrival){ arrival(S.arrivals===1); S.nextArrival=S.t+ri(40,65) }
-    if(S.t>=S.nextRaid&&!B){ S.nextRaid=S.t+999; toast('Radar: the Badlands Gang is coming! Battle in 5 seconds.','bad'); setTimeout(()=>{if(!B&&!M) startBattle(makeWave(),false); else S.nextRaid=S.t+120},5000) }
+    if(S.t>=S.nextRaid&&!B){ S.nextRaid=S.t+999; toast('Radar: the Badlands Gang is coming! Battle in 5 seconds.','bad'); setTimeout(()=>{if(!B&&!M) startBattle(makeWave('normal',Math.max(1,(S.raidLv||1)-1)),false,DIFFS[1],Math.max(1,(S.raidLv||1)-1)); else S.nextRaid=S.t+120},5000) }
   }
   updateHUD();
   if(S.t%5===0) save();
@@ -3476,6 +3516,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='m-resume'){closeSheet();if(M){M.paused=false;M.last=performance.now()}}
   else if(a==='m-quit'){closeSheet();closeMission();renderWorld()}
   else if(a==='fight'){const D=DIFFS.find(x=>x.k===b.dataset.d);if(!D||S.res.ap<D.ap) return;S.res.ap-=D.ap;startBattle(makeWave(D.k),false,D)}
+  else if(a==='fstep'){const L=+b.dataset.l;if(L>(S.raidLv||1)||S.res.ap<1) return;S.res.ap--;startBattle(makeWave('normal',L),false,DIFFS[1],L)}
+  else if(a==='frand'){if(S.res.ap<1) return;S.res.ap--;const L=ri(1,(S.raidLv||1)+3),D=pick(DIFFS.filter(d=>!d.boss)),dk=Math.random()<.15?'boss':D.k,DD=DIFFS.find(d=>d.k===dk);toast(`Random raid: Level ${L}, ${DD.name}!`,DD.rew>=1.8?'bad':'');startBattle(makeWave(dk,L),false,DD,L,true)}
   else if(a==='btab'){battleTab=b.dataset.t;battlePreview()}
   else if(a==='eplan') planSheet(b.dataset.b);
   else if(a==='etog'){const i=expPlan.squad.indexOf(id);if(i>=0) expPlan.squad.splice(i,1);else{if(expPlan.squad.length>=3) expPlan.squad.shift();expPlan.squad.push(id)}planSheet(expPlan.base)}
