@@ -184,3 +184,7 @@ Still to build, in a sensible order:
 - MAP button above BASE. Real shaded relief of Lake Tahoe to Las Vegas, built from AWS Terrain Tiles elevation (USGS and SRTM), Natural Earth lakes and US Census state lines.
 - Towns on the road east: Carson City, Yerington, Hawthorne, Tonopah, Beatty, Las Vegas. Recon with the Cessna (or any plane) to find each enemy base, then capture it with a squad raid. Each outpost reaches another 110 miles, so the chain is Tahoe, Hawthorne, Tonopah, Beatty, Las Vegas.
 - Next: Las Vegas opens Sky Vegas (airship), then the road to Moab. A Moab map and the Bahamas by sea come later. Ideas: faster planes recon farther, outposts pay a small income, enemies try to take outposts back, and the satellite shows raiders moving on this map.
+
+## Building scale (note from J, 23 October)
+- Bigger bases should look much taller and larger outside, scaling one to one with the base: more floors up means a taller front, more width means a wider front. Keep checking crew to door proportions on each painted front as the art lands.
+- Inside view: the rooms sit inside the outline of the current approved front, stretched to fit the whole base, with a soft blurred wash of the building's colors between the rooms and the outline. No rooftop piece on top.
