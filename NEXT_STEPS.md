@@ -188,3 +188,19 @@ Still to build, in a sensible order:
 ## Building scale (note from J, 23 October)
 - Bigger bases should look much taller and larger outside, scaling one to one with the base: more floors up means a taller front, more width means a wider front. Keep checking crew to door proportions on each painted front as the art lands.
 - Inside view: the rooms sit inside the outline of the current approved front, stretched to fit the whole base, with a soft blurred wash of the building's colors between the rooms and the outline. No rooftop piece on top.
+
+## Exterior defenses module (draft, 23 October)
+Shipped now: a DEFENSES button outside with three upgrades that already change raids. No wall art yet.
+- Reinforced Walls: each level adds 20 percent base core health.
+- Turret Armor Plating: each level, turrets take 10 percent less damage (up to 50 percent).
+- Blast Door: each level, raiders at the door hit 8 percent softer (up to 64 percent).
+- Upgrade levels unlock with the base: one level per 4 base levels, up to 10. Costs grow 1.7x per level.
+- Base core health now also grows with every turret's level, on top of base level and Barracks armor.
+
+Next for this module (art and features to add later):
+1. Wall art layers on the outside view that change look at levels 1, 4 and 8 (sandbags, concrete, energy fence), sized to each painted front.
+2. Gate and moat style upgrades that slow raiders near the door, and spike strips that hurt walkers but not flyers.
+3. Repair crew: turrets heal slowly during a raid; Engineers in the Power Core make it faster.
+4. Shield generator (needs tech): a separate energy bar that soaks hits before the core, recharging between raids.
+5. Paid repairs after a raid for turrets knocked offline, so damage carries a cost.
+6. Exterior guard posts: towers or bunkers that raise the guard limit and protect guards.

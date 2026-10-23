@@ -130,7 +130,9 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 #viewbtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:30;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}
 #viewbtn svg{width:20px;height:20px;stroke:#7FF0F3}
 #mapbtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 160px);z-index:30;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:14px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}
-#mapbtn svg{width:18px;height:18px;stroke:#7FF0F3}#mapbtn b{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.14em;background:linear-gradient(180deg,#fff,#C9D1D9 45%,#8A939E 55%,#e6edf3);-webkit-background-clip:text;background-clip:text;color:transparent}
+#mapbtn svg{width:18px;height:18px;stroke:#7FF0F3}
+#defbtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 216px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}#defbtn svg{width:16px;height:16px;stroke:#7FF0F3}#defbtn b{font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.12em;color:#e6edf3}
+.in-mission #defbtn,.in-battle #defbtn,.in-map #defbtn,body.view-in #defbtn{display:none}#mapbtn b{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.14em;background:linear-gradient(180deg,#fff,#C9D1D9 45%,#8A939E 55%,#e6edf3);-webkit-background-clip:text;background-clip:text;color:transparent}
 .in-mission #mapbtn,.in-battle #mapbtn,.in-map #mapbtn,.in-map #viewbtn{display:none}
 #mapview{position:fixed;inset:0;z-index:80;background:#14181c;display:flex;flex-direction:column}
 #mapview .mtop{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 8px;flex-wrap:wrap}#mapview .mtop b{font-family:var(--font-display);letter-spacing:.08em;flex:1}#mapview .mtop .muted{order:9;flex-basis:100%;font-size:11px}#mapview .mtop .btn{width:auto;padding:8px 14px;margin:0}
@@ -460,7 +462,7 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
   </div>
 </div>
 
-<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button>
+<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
   <div id="hud">
     <div class="hud-top">
       <div class="avatar" id="h-avatar"></div>
@@ -1530,7 +1532,7 @@ function renderWorld(){
   h+='</div>';
   h+=ins?(S.down<maxDown()?`<div class="expand"><button data-expand="down">▼ DIG DOWN · ${money(expandCost())}</button></div>`:`<div class="expand"><span class="lim">Depth max · more at base Level ${nextLv(lvlFn(2,8,15),S.down)}</span></div>`):'<div style="height:16px"></div>';
   h+='</div>';
-  w.innerHTML=h;w.dataset.era=eraOf(level()).key;w.classList.toggle('inside',ins);
+  w.innerHTML=h;w.dataset.era=eraOf(level()).key;w.classList.toggle('inside',ins);document.body.classList.toggle('view-in',ins);
   {const tc=w.querySelector('.tower.contoured');if(tc) tc.style.marginTop=Math.round(tc.offsetHeight*+tc.dataset.cy+8)+'px'}
   // inside view: rooms get a little bigger, and wide bases scroll sideways
   const need=ins?28+cols*124:0,wrap=$('#wrap');w.style.width=need>wrap.clientWidth?need+'px':'';w.style.maxWidth=need>wrap.clientWidth?'none':(ins?'':wmax()+'px');wrap.style.overflowX=need>wrap.clientWidth?'auto':'hidden';
@@ -2022,8 +2024,8 @@ const DIFFS=[
 // every enemy uses approved art. h = on-screen height in px; fly = comes in high
 const EDEF={
   coyote:{name:'Coyote',hp:14,speed:60,dmg:3,h:30},raven:{name:'Raven',hp:10,speed:72,dmg:2,h:26,fly:true},skunk:{name:'Rabid Skunk',hp:22,speed:36,dmg:4,h:28},
-  rogue:{name:'Girl Thief',hp:18,speed:54,dmg:3,h:48,wp:['kunai','kunai']},thief:{name:'Boy Thief',hp:20,speed:52,dmg:4,h:48,wp:['katana']},raider:{name:'Raider',hp:26,speed:32,dmg:5,h:50,wp:['handgun']},
-  boar:{name:'Feral Boar',hp:50,speed:42,dmg:8,h:32},merc:{name:'Raider Kings Merc',hp:70,speed:30,dmg:10,h:54,wp:['assault']},blackbear:{name:'Black Bear',hp:60,speed:26,dmg:8,h:46,big:true},
+  rogue:{name:'Girl Thief',hp:18,speed:54,dmg:3,h:48,wp:['rifle']},thief:{name:'Boy Thief',hp:20,speed:52,dmg:4,h:48,wp:['rifle']},raider:{name:'Raider',hp:26,speed:32,dmg:5,h:50,wp:['assault']},
+  boar:{name:'Feral Boar',hp:50,speed:42,dmg:8,h:32},merc:{name:'Raider Kings Merc',hp:70,speed:30,dmg:10,h:54,wp:['mg']},blackbear:{name:'Black Bear',hp:60,speed:26,dmg:8,h:46,big:true},
   gator:{name:'Glow Gator',hp:120,speed:16,dmg:14,h:28,big:true},clonebear:{name:'Clone Bear',hp:130,speed:20,dmg:15,h:48,big:true},grizzly:{name:'Giant Grizzly',hp:260,speed:15,dmg:18,h:66,big:true},
   soldier:{name:'Soldier',hp:34,speed:30,dmg:7,h:50,wp:['rifle']},crow:{name:'Crow',hp:10,speed:72,dmg:2,h:26,fly:true},
   mutantbear:{name:'Mutant Bear',hp:150,speed:22,dmg:15,h:52,big:true,tint:'hue-rotate(75deg) saturate(1.7)'},superbear:{name:'Superbear',hp:300,speed:16,dmg:20,h:72,big:true,tint:'drop-shadow(0 0 6px #ffd54a)'},
@@ -2084,10 +2086,28 @@ const FOE_HP=4,FOE_DMG=1.4;
 // base health: a big core that grows with the base, plus every turret's own health on top. Raiders at the door hit the core
 // a bit softer than they hit a turret, so one monster reaching the door is a threat, not an instant loss.
 const DOOR_DMG=.6;
-const baseCore=()=>Math.round(400+25*level()+defenders().reduce((a,c)=>a+armorDef(c)*6,0));
+// exterior defenses (DEFENSES button outside): walls add core health, plating protects turrets, the blast door softens hits at the door.
+// More levels unlock as the base grows. No wall art yet; these are upgrades only.
+const DEFS={
+  walls:{name:'Reinforced Walls',cost:20000,per:'+20% base core health',desc:'Thicker outer walls give the base more health in every raid.'},
+  plating:{name:'Turret Armor Plating',cost:25000,per:'turrets take 10% less damage',desc:'Bolt-on plates so turrets stay online longer.'},
+  door:{name:'Blast Door',cost:30000,per:'raiders at the door hit 8% softer',desc:'A heavier front door that takes hits better.'}};
+const defLv=k=>(S.def&&S.def[k])||0;
+const defMax=()=>Math.min(10,1+Math.floor(level()/4));
+const defCost=k=>Math.round(DEFS[k].cost*Math.pow(1.7,defLv(k)));
+const plateMul=()=>1-.1*Math.min(5,defLv('plating'));
+const doorMul=()=>DOOR_DMG*(1-.08*Math.min(8,defLv('door')));
+// base core grows with the base level, every turret's level, Barracks armor and the walls upgrade
+const baseCore=()=>Math.round((400+25*level()+30*S.turrets.reduce((a,t,i)=>a+(t&&i<slotCount()?t.lvl||1:0),0)+defenders().reduce((a,c)=>a+armorDef(c)*6,0))*(1+.2*defLv('walls')));
+function defenseSheet(){
+  const mx=defMax(),rows=Object.keys(DEFS).map(k=>{const D=DEFS[k],lv=defLv(k),full=lv>=mx,poor=S.res.credits<defCost(k);
+    return `<div class="li"><span class="thumb icon">${icon(k==='walls'?'build':k==='plating'?'target':'door')}</span><span class="grow"><b>${esc(D.name)} · Level ${lv}</b><span>${esc(D.desc)} Each level: ${esc(D.per)}.</span>
+      <button class="btn ${full||poor?'':'primary'}" data-act="defup" data-k="${k}" style="width:auto;margin:8px 0 0;padding:8px 14px" ${full||poor?'disabled':''}>${full?'MAX FOR NOW':'UPGRADE · '+money(defCost(k))}</button></span></div>`}).join('');
+  openSheet('Base Defenses',`<div class="muted" style="font-size:12px">Base health in a raid: <b>${baseCore()}</b> plus every turret's own health. Upgrade levels unlock as the base grows: up to Level ${mx} now${mx<10?', more at base Level '+(4*mx):''}.</div><div class="list">${rows}</div>`);
+}
 const GUNS=new Set(['handgun','rifle','assault','mg','laser','plasma','rail','bb']);
 const foeWp=d=>(d.wp||[]).concat(d.rider?((EDEF[d.rider]||{}).wp||[]):[]);
-const foeRange=d=>{const w=foeWp(d);return w.some(g=>GUNS.has(g))?120:w.includes('kunai')?70:(d.big?34:24)};
+const foeRange=d=>{const w=foeWp(d);return w.includes('rifle')?160:w.some(g=>GUNS.has(g))?120:w.includes('kunai')?70:(d.big?34:24)};
 const foeRanged=d=>foeRange(d)>40;
 const foeFly=d=>!!(d.fly||(EDEF[artKey(d.art)]||{}).fly);
 const foeDmg=(d,L)=>FOE_DMG*d.dmg*(foeRanged(d)?.55:.7)*(1+.03*((L||1)-1));
@@ -2098,7 +2118,7 @@ function foeTarget(x,dir,d,list){const R=foeRange(d),fly=foeFly(d);let best=null
   return best}
 function simBattle(wave,L){
   const W=390,door=W/2,pos=slotPositions(),nOpen=slotCount(),lv=L||level(),powF=S.res.power>0?1:.5,defs=defenders();
-  let shield=baseCore();
+  let shield=baseCore();const pm=plateMul(),dm=doorMul();
   const posts=battlePosts(W).map(st=>Object.assign({},st,{hp:postHP(st.c),cd:Math.random()*.8}));
   const tur=S.turrets.map((tu,i)=>tu&&i<nOpen&&pos[i]?{i,tu,x:pos[i][0]*W,y:pos[i][1],hp:turHP(tu),cd:0}:null).filter(Boolean),targets=tur.concat(posts);
   const en=wave.map((d,i)=>({d,hp:FOE_HP*d.hp*(d.m||1)*(1+.09*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0,acd:0}));
@@ -2107,8 +2127,8 @@ function simBattle(wave,L){
   while(t<180){t+=dt;
     for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;
       const tg=foeTarget(e.x,e.dir,e.d,targets);
-      if(tg){e.acd-=dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,lv)}continue}
-      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=DOOR_DMG*FOE_DMG*e.d.dmg*dt}
+      if(tg){e.acd-=dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,lv)*(tg.tu?pm:1)}continue}
+      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=dm*FOE_DMG*e.d.dmg*dt}
     const tg=en.filter(e=>e.st===1);
     tur.forEach(T=>{if(T.hp<=0) return;const d=TURRETS[T.tu.type],range=d.range*(T.y>0?1.2:1);T.cd-=dt*powF;if(T.cd>0) return;
       let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-T.x);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
@@ -2377,10 +2397,10 @@ function battleLoop(now){
     if(e.state==='go'){
       const sp=e.d.speed*(e.slow>0?.4:1); e.slow=Math.max(0,e.slow-dt);
       const tg=foeTarget(e.x,e.dir,e.d,B.targets||[]);
-      if(tg){e.acd=(e.acd||0)-dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,B.L);e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
+      if(tg){e.acd=(e.acd||0)-dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,B.L)*(tg.tu?plateMul():1);e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
           if(foeRanged(e.d)) B.tracers.push({x1:e.x,y1:H-24-(foeFly(e.d)?70:30),x2:tg.x,y2:H-24-tg.y-26,t:.12,c:'#ff6b5e',w:2});
           if(tg.hp<=0){if(tg.tu){const pad=document.querySelector(`.tpad[data-pad="${tg.i}"]`);if(pad) pad.classList.add('off');B.lostT=(B.lostT||0)+1}else{tg.el.classList.add('pko');B.lostC=(B.lostC||0)+1}}}}
-      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=DOOR_DMG*FOE_DMG*e.d.dmg*dt; }
+      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=doorMul()*FOE_DMG*e.d.dmg*dt; }
     } else if(e.state==='ko'){ e.koT-=dt; if(e.koT<=0){e.state='flee';e.el.classList.toggle('flip')} }
     else if(e.state==='flee'){ e.x-=e.dir*140*dt; if(e.x<-60||e.x>W+60){e.state='gone';e.el.remove()} }
     if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
@@ -3478,6 +3498,7 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='auto-one'){const c=S.crew.find(x=>x.id===id);if(c){const r=autoAssign([c]);toast(r?`${c.name}: ${r}.`:'No open job right now. Build more rooms or turrets!',r?'ok':'warn');renderWorld();save();closeSheet()}}
   else if(a==='auto-all'){const pool=S.crew.filter(c=>!c.isCmd&&!c.room&&!isGuard(c)&&!c.away);let n=0;pool.forEach(c=>{if(autoAssign([c]))n++});renderWorld();save();toast(n?`Auto assigned ${n} crew.`:pool.length?'No open jobs. Build more rooms or turrets!':'Everyone already has a job.',n?'ok':'warn');crewList()}
   else if(a==='identify') identify(id);
+  else if(a==='defup'){const k=b.dataset.k;if(!DEFS[k]||defLv(k)>=defMax()) return;const c=defCost(k);if(S.res.credits<c){toast('Not enough cash.','warn');return}S.res.credits-=c;S.def=S.def||{};S.def[k]=defLv(k)+1;updateHUD();save();toast(`${DEFS[k].name} is now Level ${S.def[k]}!`,'ok');defenseSheet()}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
   else if(a==='mrecon') startRecon(b.dataset.n);
   else if(a==='mcap'){closeMap();planSheet('rt_'+b.dataset.n)}
@@ -3564,6 +3585,7 @@ function recruitSheet(){
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#mapbtn').onclick=()=>openMap();
+$('#defbtn').onclick=()=>{if(S&&!B) defenseSheet()};
 document.addEventListener('click',e=>{const b=e.target.closest('#mapview [data-act]');if(!b) return;const a=b.dataset.act;
   if(a==='mclose') closeMap();
   else if(a==='mzoom'){const sc=$('#mscroll'),cx=(sc.scrollLeft+sc.clientWidth/2)/sc.scrollWidth,cy=(sc.scrollTop+sc.clientHeight/2)/sc.scrollHeight;mapZoom=clamp(mapZoom*(+b.dataset.z>0?1.4:1/1.4),Math.min(1,Math.max(sc.clientWidth/MAPIMG[mapReg()].W,sc.clientHeight/MAPIMG[mapReg()].H)),2.2);$('#mapview').innerHTML=mapHTML();const s2=$('#mscroll');s2.scrollLeft=cx*s2.scrollWidth-s2.clientWidth/2;s2.scrollTop=cy*s2.scrollHeight-s2.clientHeight/2}
