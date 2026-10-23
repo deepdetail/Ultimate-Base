@@ -95,6 +95,8 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 
 #wrap{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;-webkit-overflow-scrolling:touch;background:var(--gm-950)}
 #world{max-width:540px;margin:0 auto;position:relative;min-height:100%;display:flex;flex-direction:column}
+#world.focus{transition:transform .38s cubic-bezier(.2,.8,.2,1);will-change:transform}
+#sheet.roomfocus #panel{max-height:58vh;overflow-y:auto}
 #bg{position:absolute;left:0;top:0;width:100%;z-index:0;pointer-events:none}
 #world>.layer{position:relative;z-index:1}
 #world .under{flex:1}
@@ -1601,7 +1603,13 @@ function openSheet(title,body,locked){
   $('#panel').innerHTML=`<div class="panel-h"><h2>${title}</h2>${locked?'':'<button class="x" data-close aria-label="Close">✕</button>'}</div>${body}`;
   $('#sheet').hidden=false;
 }
-function closeSheet(){ stopShowroom(); $('#sheet').hidden=true; sheetLocked=false; }
+function closeSheet(){ stopShowroom(); $('#sheet').hidden=true; $('#sheet').classList.remove('roomfocus'); sheetLocked=false; unfocusRoom(); }
+// tapping a room zooms the base toward it, centered in the space above the sheet; closing the sheet zooms back out to the full base
+function focusRoom(el){const w=$('#world'),wr=$('#wrap');if(!w||!wr) return;w.style.transform='';const r=el.getBoundingClientRect(),W=w.getBoundingClientRect(),V=wr.getBoundingClientRect();
+  const pn=$('#panel'),top=V.top,bot=pn&&!$('#sheet').hidden?Math.min(V.bottom,pn.getBoundingClientRect().top):V.bottom,room2=Math.max(60,bot-top);
+  const s=clamp(Math.min(V.width*.8/r.width,room2*.8/r.height),1,2.2),cx=r.left+r.width/2-W.left,cy=r.top+r.height/2-W.top,tx=V.left+V.width/2-W.left-s*cx,ty=top+room2/2-W.top-s*cy;
+  w.classList.add('focus');w.style.transformOrigin='0 0';requestAnimationFrame(()=>{w.style.transform=`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${s.toFixed(3)})`})}
+function unfocusRoom(){const w=$('#world');if(!w||!w.style.transform) return;w.style.transform='';setTimeout(()=>{if(!w.style.transform) w.classList.remove('focus')},400)}
 $('#sheet').addEventListener('click',e=>{ if(e.target.id==='sheet'&&!sheetLocked) closeSheet(); if(e.target.closest('[data-close]')) closeSheet(); });
 
 // ---------- speech ----------
@@ -3467,7 +3475,7 @@ $('#viewbtn').addEventListener('click',()=>{if(!S) return;if(B&&VIEW==='out'){to
 $('#world').addEventListener('click',e=>{
   const fb=e.target.closest('[data-floor]'); if(fb){floorSheet(+fb.dataset.floor);return}
   const p=e.target.closest('.person'); if(p&&!p.classList.contains('jailed')){crewCard(+p.dataset.cid);return}
-  const room=e.target.closest('[data-room]'); if(room){roomSheet(room.dataset.room);return}
+  const room=e.target.closest('[data-room]'); if(room){roomSheet(room.dataset.room);$('#sheet').classList.add('roomfocus');focusRoom(room);return}
   const emp=e.target.closest('[data-empty]'); if(emp){buildSheet(emp.dataset.empty);return}
   const pad=e.target.closest('[data-pad]'); if(pad){if(B) return; turretSheet(+pad.dataset.pad);return}
   // outside, tapping the building recruits crew; only the BASE / OUTSIDE button goes inside
