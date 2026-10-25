@@ -1366,6 +1366,8 @@ function paintWorld(){
     else{const sy=bd.naturalHeight*.5,sh=bd.naturalHeight*.4,s=Math.max(W/bd.naturalWidth,gy/sh);g.save();g.filter='blur(3px) brightness(.72) saturate(.9)';g.drawImage(bd,0,sy,bd.naturalWidth,sh,(W-bd.naturalWidth*s)/2,gy-sh*s,bd.naturalWidth*s,sh*s);g.restore()}
     const gr=g.createLinearGradient(0,gy,0,gy+24);gr.addColorStop(0,'#8fcf6a');gr.addColorStop(1,'#5a9a4a');g.fillStyle=gr;g.fillRect(0,gy,W,24);
     for(let i=0;i<60;i++){const x=r()*W,y=gy+3+r()*18;g.strokeStyle='rgba(40,90,40,.6)';g.lineWidth=1;g.beginPath();g.moveTo(x,y+4);g.lineTo(x+1.5,y);g.stroke()}
+    // outside: no underground. The painting's own rocky foreground carries on below the grass instead of dirt.
+    if(!ins){const s2=W/bd.naturalWidth,fh=bd.naturalHeight*.12,top2=gy+24;g.drawImage(bd,0,bd.naturalHeight*.88,bd.naturalWidth,fh,0,top2,W,Math.max(H-top2,fh*s2));return}
   } else {
   const sk=g.createLinearGradient(0,0,0,gy);
   if(desert){sk.addColorStop(0,'#3f8fd8');sk.addColorStop(.55,'#9fd6e8');sk.addColorStop(1,'#ffe3c2')}
