@@ -204,3 +204,9 @@ Next for this module (art and features to add later):
 4. Shield generator (needs tech): a separate energy bar that soaks hits before the core, recharging between raids.
 5. Paid repairs after a raid for turrets knocked offline, so damage carries a cost.
 6. Exterior guard posts: towers or bunkers that raise the guard limit and protect guards.
+
+## Backdrop, crew ranks and pets (shipped 25 October)
+- Sierras backdrop from Drive (Exteriors, 31AB2791...): full painting behind the outside view, a cropped and softened mountain band behind the inside view. Saved as art/backdrops/sierra_sunset.webp.
+- Crew ranks: Common, Rare (+1 every stat) after 300 XP, Legendary (+2 every stat) after 1800 XP and 3 raids fought. Barracks gives 1 XP a second, other jobs 0.5, so Rare is about 5 Barracks minutes and Legendary about 30 plus three raids. Tune after Phoenix plays.
+- Pets with placeholder emoji: Guard Dog, Base Cat, Clever Fox, Scout Hawk, Dire Wolf, Baby Dragon. One per crew member, bought from the crew card PET button. Bonuses to stats, mood, and raid damage. Swap in painted pet art from Drive when it lands.
+- Still pending: painted art for each room, the Moab backdrop, pet art.
