@@ -1,18 +1,17 @@
 # Enemy base progression (raids)
 
-Order taken from Drive upload times in BASED Art / Exteriors (first uploaded = weakest base). Enemy bases only: the player's own building fronts, rooftops and the Sierra backdrop in the same folder (uploaded 22 and 25 October as real PNGs) are left out and stay as they are. These are still saved ChatGPT pages, not images, so they are not in the game yet. Re-save each one as a PNG (download arrow on the image itself) and they will be wired into raids in this order.
+Source: Drive folder 1gmYOJjNbnhf2PhZDm1UBQeC052er2s0G (real PNGs, magenta backgrounds keyed out). The three files labeled Enemy Base 1, 2 and 3 come first; the unlabeled ones follow in the order they were created. The portrait sunset canyon (2B6A2034) is the raid backdrop, not a base.
 
-| Step | Uploaded (UTC) | ChatGPT title | Use |
-|---|---|---|---|
-| backdrop | 2026-10-25 01:06 | Golden-Hour Canyon Vista | Moab or canyon backdrop, not a base |
-| 1 | 2026-10-25 03:02 | Sunset Citadel Over the Red Wasteland | weakest enemy base |
-| 2 | 2026-10-25 03:09 | Post-Apocalyptic Scrap Fortress | |
-| 3 | 2026-10-25 03:15 | Post-Apocalyptic Scrap Fortress (second version) | |
-| 4 | 2026-10-25 03:17 | Post-Apocalyptic Fortress on Magenta | |
-| 5 | 2026-10-25 15:15 | Futuristic Fortified Military Outpost | |
-| 6 | 2026-10-25 16:04 | Fortified Sci-Fi Command Bunker | |
-| 7 | 2026-10-25 16:06 | Futuristic Fortress Against Magenta | strongest enemy base |
+| Step | File in game | Source file | Created (UTC) | Base power from |
+|---|---|---|---|---|
+| 1 | art/enemy_bases/eb1.webp | Enemy Base 1.png | labeled | 0 |
+| 2 | art/enemy_bases/eb2.webp | Enemy Base 2.png | labeled | 25 |
+| 3 | art/enemy_bases/eb3.webp | Enemy Base 3.png | labeled | 40 |
+| 4 | art/enemy_bases/eb4.webp | 522A2369 | 16:09:52 | 60 |
+| 5 | art/enemy_bases/eb5.webp | 4E202CBE | 16:10:29 | 85 |
+| 6 | art/enemy_bases/eb6.webp | 0BBF0651 | 16:10:44 | 120 |
+| 7 | art/enemy_bases/eb7.webp | CC0F5595 | 16:10:51 | 165 |
+| 8 | art/enemy_bases/eb8.webp | 6E525E44 | 16:11:06 | 240 |
+| backdrop | art/backdrops/raid_sunset.webp | 2B6A2034 | 16:11:33 | every raid |
 
-Two later uploads (2026-10-25 15:16) are copies of steps 3 and 4 and are skipped.
-
-Plan once PNGs land: each raid target (Attack tab and the map's road to Las Vegas) shows the picture for its strength, and a beaten base that rebuilds stronger moves up a step.
+How it plays: the raid scene picks the picture by the target's current power (EB_TIER in prototype/based.html). A beaten base rebuilds 30 percent stronger, so it climbs to the next picture on its own. Note the labeled files were created after 522A2369, so a strict created-time order would have put 522A first; the labels win, as asked.
