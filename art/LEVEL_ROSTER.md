@@ -38,3 +38,20 @@
 - Weapons (updated 23 October): Female Thief and Male Thief carry sniper rifles, Raider an M4A1 style carbine, Soldier a rifle, Mercenary a machine gun. Animals and giants have none.
 - Art stand-ins until painted art exists: Soldier uses the raider picture with a rifle. Mutant Bear is the black bear tinted green. Superbear is the giant grizzly with a gold glow. Radioactive Crocodile is the glow gator with a green glow. Dinosaur is the T. rex. Clone Bears use their own clone bear art.
 - Giants (Dinosaur, Dragon, Mercenary on Dragon, Superbear) start weaker when they show up early and reach full strength around level 30.
+
+## Phoenix's counts (28 October, shipped)
+- L1: 4 Female Thieves + 4 Crows
+- L2: 4 Male Thieves + 4 Coyotes
+- L3: 5 Raiders with pistols
+- L4: 2 Bears + 3 Skunks
+- L5: 2 Alligators + 3 Soldiers with rifles
+- L6: 4 Mutant Bears
+- L7: 2 Dinosaurs
+- L8: 4 Radioactive Crocodiles + 2 Crows
+- L9: 4 Superbears + 2 Crows
+- L10: 2 Raiders riding Bears + 4 Female Thieves + 4 Crows + 2 Skunks
+- L11: 4 Dinosaurs
+- L12: 2 Clone Bears + 4 Superbears
+- L13: 2 Dragons
+- L14: 4 Mercenaries riding Dragons
+Balance: in big groups each member is a bit weaker (8 of one kind are about 3.5 times as tough as 1, not 8), and giants that appear early start weaker. Sniper rifles reach just under a machine gun turret's range so turrets can fire back.
