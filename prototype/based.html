@@ -1752,13 +1752,23 @@ function gearSheet(id){
 let storeTab='weapon';
 function storeSheet(){
   if(storeTab==='sell') return sellSheet();
+  if(storeTab==='pets') return petStoreSheet();
   const cat=GEAR[storeTab],lv=level();
   const items=Object.keys(cat).filter(k=>cat[k].cost>0).map(k=>{const d=cat[k],lock=d.level&&lv<d.level,who=S.crew.filter(c=>curGear(c,storeTab)===k).length;
     return `<button class="li" data-act="sitem" data-key="${k}" ${lock?'disabled':''}><span class="thumb icon">${gearArt(storeTab,k)}</span><span class="grow"><b>${esc(d.name)}</b><span>${esc(d.desc)}${who?' · '+who+' equipped':''}</span></span><span class="tag ${lock?'dim':'gold'}">${lock?'LV '+d.level:money(d.cost)+(d.tech?' +'+d.tech+'T':'')}</span></button>`}).join('');
   openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Buy gear for any crew member. All weapons fire stun shots, so raiders get knocked out, never hurt. Vehicle weapons, engines and armor are in the Hangar.</div>
     ${storeTabs()}<div class="list">${items}</div>`);
 }
-const storeTabs=()=>`<div class="tabs">${['weapon','armor','outfit','sell'].map(t=>`<button data-act="stab" data-t="${t}" class="${storeTab===t?'on':''}">${{weapon:'WEAPONS',armor:'ARMOR',outfit:'OUTFITS',sell:'SELL'}[t]}</button>`).join('')}</div>`;
+const storeTabs=()=>`<div class="tabs">${['weapon','armor','outfit','pets','sell'].map(t=>`<button data-act="stab" data-t="${t}" class="${storeTab===t?'on':''}">${{weapon:'WEAPONS',armor:'ARMOR',outfit:'OUTFITS',pets:'PETS',sell:'SELL'}[t]}</button>`).join('')}</div>`;
+// Store, Pets tab: pick a pet, then pick who it goes to (the crew card PET button does the same for one person)
+function petStoreSheet(){const lv=level();
+  const rows=Object.keys(PETS).map(k=>{const P=PETS[k],lock=P.level&&lv<P.level,R=RANKS[P.rank],who=S.crew.filter(c=>c.pet===k).length;
+    return `<button class="li" data-act="spet" data-k="${k}" ${lock?'disabled':''}><span class="thumb icon" style="font-size:30px;display:grid;place-items:center">${P.e}</span><span class="grow"><b>${esc(P.name)} <span style="color:${R.col};font-size:11px">${R.name}</span></b><span>${esc(P.desc)}${who?' · '+who+' in the base':''}</span></span><span class="tag ${lock?'dim':'gold'}">${lock?'LV '+P.level:money(P.cost)}</span></button>`}).join('');
+  openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Each crew member can have one pet. Dogs and cats level up with armor from the pet screen. Placeholder pictures for now.</div>${storeTabs()}<div class="list">${rows}</div>`)}
+function petPick(k){const P=PETS[k];
+  const list=S.crew.map(c=>{const has=c.pet===k,poor=S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech);
+    return `<button class="li" data-act="petbuy" data-k="${k}" data-id="${c.id}" data-back="store" ${has||poor?'disabled':''}><span class="mini">${personHTML(c)}</span><span class="grow"><b>${esc(c.name)}</b><span>${petOf(c)?'Has '+esc(petLabel(c))+' (it goes home)':'No pet yet'}</span></span>${has?'<span class="tag ok">HAS ONE</span>':''}</button>`}).join('');
+  openSheet('Who gets the '+esc(P.name)+'?',`<div class="row" style="align-items:center"><span class="thumb icon" style="font-size:30px;display:grid;place-items:center">${P.e}</span><span class="muted">${esc(P.desc)} Costs ${money(P.cost)}${P.tech?' + '+P.tech+' tech':''}.</span></div><div class="list">${list}</div><button class="btn" data-act="stab" data-t="pets">BACK</button>`)}
 function sellSheet(){
   const rows=S.vehicles.map(id=>VEH.find(v=>v.id===id)).filter(Boolean).sort((a,b)=>b.cost-a.cost).map(v=>`<button class="li" data-act="vsell" data-v="${v.id}" ${canSell(v)?'':'disabled'}><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${esc(v.name)}</b><span>${S.exp&&S.exp.veh===v.id?'Away on a raid':'Bought new for '+money(v.cost)}</span></span><span class="tag gold">${money(sellValue(v))}</span></button>`).join('');
   openSheet(`${icon('cart')} Store`,`<div class="muted" style="font-size:12px">Sell vehicles you won in battles and missions for 60 percent of their price, plus extra for upgrades. You always keep at least one vehicle.</div>${storeTabs()}<div class="list">${rows}</div>`);
@@ -3579,8 +3589,9 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='auto-all'){const pool=S.crew.filter(c=>!c.isCmd&&!c.room&&!isGuard(c)&&!c.away);let n=0;pool.forEach(c=>{if(autoAssign([c]))n++});renderWorld();save();toast(n?`Auto assigned ${n} crew.`:pool.length?'No open jobs. Build more rooms or turrets!':'Everyone already has a job.',n?'ok':'warn');crewList()}
   else if(a==='identify') identify(id);
   else if(a==='pet') petSheet(id);
+  else if(a==='spet') petPick(b.dataset.k);
   else if(a==='dogup'){const c=S.crew.find(x=>x.id===id);if(!c||!petLvT(c)) return;const N=petLvT(c)[dogLv(c)+1];if(!N||(N.cmd&&!c.isCmd)||S.res.credits<N.cost) return;S.res.credits-=N.cost;c.petLv=dogLv(c)+1;renderWorld();save();toast(`${c.name}'s ${c.pet} is now a ${N.name}! +${N.arm} armor.`,'ok');petSheet(id)}
-  else if(a==='petbuy'){const c=S.crew.find(x=>x.id===id),P=PETS[b.dataset.k];if(!c||!P||S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech)) return;S.res.credits-=P.cost;if(P.tech) S.res.tech-=P.tech;c.pet=b.dataset.k;c.petV=pick(PET_V[c.pet]||['']);c.petAt=Date.now();c.petLv=0;renderWorld();save();toast(`${c.name} adopted a ${petLabel(c)}! ${P.e}`,'ok');petSheet(id)}
+  else if(a==='petbuy'){const c=S.crew.find(x=>x.id===id),P=PETS[b.dataset.k];if(!c||!P||S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech)) return;S.res.credits-=P.cost;if(P.tech) S.res.tech-=P.tech;c.pet=b.dataset.k;c.petV=pick(PET_V[c.pet]||['']);c.petAt=Date.now();c.petLv=0;renderWorld();save();toast(`${c.name} adopted a ${petLabel(c)}! ${P.e}`,'ok');if(b.dataset.back==='store'){storeTab='pets';storeSheet()}else petSheet(id)}
   else if(a==='petfree'){const c=S.crew.find(x=>x.id===id);if(!c) return;toast(`${petLabel(c)} went home to the pet shelter.`);c.pet=null;c.petV=null;c.petAt=null;renderWorld();save();petSheet(id)}
   else if(a==='defup'){const k=b.dataset.k;if(!DEFS[k]||defLv(k)>=defMax()) return;const c=defCost(k);if(S.res.credits<c){toast('Not enough cash.','warn');return}S.res.credits-=c;S.def=S.def||{};S.def[k]=defLv(k)+1;updateHUD();save();toast(`${DEFS[k].name} is now Level ${S.def[k]}!`,'ok');defenseSheet()}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
