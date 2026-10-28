@@ -780,13 +780,24 @@ const PETS={
   fox:{e:'🦊',name:'Clever Fox',rank:1,cost:12000,b:{smarts:2},level:4,desc:'+2 Smarts.'},
   hawk:{e:'🦅',name:'Scout Hawk',rank:1,cost:15000,b:{aim:2},atk:3,level:5,desc:'+2 Aim. Dives at raiders.'},
   wolf:{e:'🐺',name:'Dire Wolf',rank:1,cost:25000,b:{str:2},atk:5,level:8,desc:'+2 Strength. Fights beside its owner.'},
-  dragon:{e:'🐉',name:'Baby Dragon',rank:2,cost:120000,tech:30,b:{str:2,aim:2,smarts:2},atk:9,level:20,desc:'+2 to everything. Puffs stun fire at raiders.'}};
-const petOf=c=>c&&c.pet&&PETS[c.pet]?PETS[c.pet]:null;
+  crow:{e:'🐦',name:'Base Crow',rank:0,cost:4500,b:{smarts:1},desc:'+1 Smarts. Brings back shiny loot.'},
+  dragon:{e:'🐉',name:'Juvenile Dragon',rank:2,cost:120000,tech:30,b:{str:2,aim:2,smarts:2},atk:9,level:20,desc:'+2 to everything. Puffs stun fire at raiders. Grows into a full Dragon after about a day and a half with its owner.'}};
+// breeds and colors (matches art/PET_RUN.md); a new pet gets one at random
+const PET_V={dog:['German Shepherd','Golden Retriever','Siberian Husky','Border Collie','Black Labrador','Corgi','Australian Shepherd','Bernese Mountain Dog'],
+  cat:['Gray Tabby','Orange Tabby','Maine Coon','Siamese','Bengal','Black Bombay','Russian Blue','Calico'],crow:['Raven','White Raven','Magpie'],
+  fox:['Red Fox','Arctic Fox','Fennec Fox','Silver Fox'],hawk:['Red-tailed Hawk','Bald Eagle','Golden Eagle','Peregrine Falcon',"Harris's Hawk",'Snowy Owl','Great Horned Owl'],
+  wolf:['Gray Wolf','Arctic Wolf','Black Timber Wolf','Red Wolf','Desert Coyote'],dragon:['Storm','Sun','Ember','Frost']};
+// a Juvenile Dragon grows up after 36 hours of real time with its owner, even while the game is closed
+const DRAGON_GROW=36*3600*1000;
+const DRAGON_ADULT={e:'🐉',name:'Dragon',rank:2,b:{str:4,aim:4,smarts:4},atk:16,desc:'Fully grown. +4 to everything and big stun fire in raids.'};
+const petGrown=c=>c&&c.pet==='dragon'&&Date.now()-(c.petAt||Date.now())>=DRAGON_GROW;
+const petLabel=c=>{const P=petOf(c);if(!P) return '';const v=c.petV;return c.pet==='dragon'?`${v?v+' ':''}${P.name}`:`${v?v+' · ':''}${P.name}`};
+const petOf=c=>c&&c.pet&&PETS[c.pet]?(petGrown(c)?DRAGON_ADULT:PETS[c.pet]):null;
 const gearBonus=(c,s)=>(((OUTFITS[curGear(c,'outfit')]||{}).bonus||{})[s]||0)+RANKS[rankOf(c)].b+(((petOf(c)||{}).b||{})[s]||0);
 function petSheet(id){const c=S.crew.find(x=>x.id===id);if(!c) return;const lv=level();
   const rows=Object.keys(PETS).map(k=>{const P=PETS[k],on=c.pet===k,lock=P.level&&lv<P.level,poor=S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech),R=RANKS[P.rank];
     return `<button class="opt ${on?'on':''}" data-act="petbuy" data-id="${c.id}" data-k="${k}" ${on||lock||poor?'disabled':''} style="${on?'opacity:1':''}"><span class="thumb icon" style="font-size:34px;display:grid;place-items:center">${P.e}</span><b>${esc(P.name)}</b><span style="color:${R.col};font-weight:700">${R.name}</span><span>${esc(P.desc)}</span><span class="cost">${on?'WITH '+esc(c.name.split(' ')[0].toUpperCase()):lock?'Needs Level '+P.level:money(P.cost)+(P.tech?' + '+P.tech+' tech':'')}</span></button>`}).join('');
-  openSheet('Pet for '+esc(c.name),`<div class="muted" style="font-size:12px">Each crew member can have one pet. Pets give a bonus, and some fight in raids. Placeholder pictures for now.</div><div class="grid2">${rows}</div>${c.pet?`<button class="btn" data-act="petfree" data-id="${c.id}">LET ${esc(PETS[c.pet].name.toUpperCase())} GO HOME</button>`:''}<button class="btn" data-act="card" data-id="${c.id}">BACK</button>`)}
+  openSheet('Pet for '+esc(c.name),`<div class="muted" style="font-size:12px">Each crew member can have one pet. Pets give a bonus, and some fight in raids. Placeholder pictures for now.</div><div class="grid2">${rows}</div>${c.pet?`<div class="muted" style="font-size:12px">Now: ${esc(petLabel(c))}${c.pet==='dragon'&&!petGrown(c)?` · grows up in about ${Math.max(1,Math.ceil((DRAGON_GROW-(Date.now()-(c.petAt||Date.now())))/3600000))} hours`:''}</div><button class="btn" data-act="petfree" data-id="${c.id}">LET ${esc(petOf(c).name.toUpperCase())} GO HOME</button>`:''}<button class="btn" data-act="card" data-id="${c.id}">BACK</button>`)}
 const eff=(c,s)=>c[s]+gearBonus(c,s);
 const armorDef=c=>(ARMOR[curGear(c,'armor')]||ARMOR.none).def;
 // base defenses: realistic boxy turrets, each with 10 upgrade levels
@@ -1694,7 +1705,7 @@ function crewCard(id,lineOverride){
   const line=lineOverride||sayLine(c);
   const where=c.room?`${ROOMS[S.rooms[c.room].type].name} (${floorName(+c.room.split(':')[0])})`:isGuard(c)?'Exterior guard, outside':'Lobby, no job yet';
   const RK=RANKS[rankOf(c)],nx=c.isCmd?'':rankOf(c)===0?` · Rare at ${RARE_XP} XP (now ${Math.floor(c.xp||0)})`:rankOf(c)===1?` · Legendary at ${LEG_XP} XP and ${LEG_RAIDS} raids (${Math.floor(c.xp||0)} XP, ${c.battles||0} raids)`:'';
-  const tags=`<span class="tag" style="background:${RK.col};color:#111">${RK.name.toUpperCase()}</span> `+(petOf(c)?`<span class="tag">${petOf(c).e} ${esc(petOf(c).name)}</span> `:'')+(c.exClone?'<span class="tag ok">EX-CLONE</span> ':'')+(c.hurt>0?'<span class="tag bad">KNOCKED OUT</span>':'');
+  const tags=`<span class="tag" style="background:${RK.col};color:#111">${RK.name.toUpperCase()}</span> `+(petOf(c)?`<span class="tag">${petOf(c).e} ${esc(petLabel(c))}</span> `:'')+(c.exClone?'<span class="tag ok">EX-CLONE</span> ':'')+(c.hurt>0?'<span class="tag bad">KNOCKED OUT</span>':'');
   const st=s=>{const b=gearBonus(c,s);return `<b>${Math.floor(c[s])+b}</b>${b?`<small>+${b} bonus</small>`:''}`};
   openSheet(esc(c.name),`
     <div class="cmd-row"><div class="portrait">${personHTML(c)}</div><div class="bubble" style="flex:1">${esc(line)}</div></div>
@@ -3561,8 +3572,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='auto-all'){const pool=S.crew.filter(c=>!c.isCmd&&!c.room&&!isGuard(c)&&!c.away);let n=0;pool.forEach(c=>{if(autoAssign([c]))n++});renderWorld();save();toast(n?`Auto assigned ${n} crew.`:pool.length?'No open jobs. Build more rooms or turrets!':'Everyone already has a job.',n?'ok':'warn');crewList()}
   else if(a==='identify') identify(id);
   else if(a==='pet') petSheet(id);
-  else if(a==='petbuy'){const c=S.crew.find(x=>x.id===id),P=PETS[b.dataset.k];if(!c||!P||S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech)) return;S.res.credits-=P.cost;if(P.tech) S.res.tech-=P.tech;c.pet=b.dataset.k;renderWorld();save();toast(`${c.name} adopted a ${P.name}! ${P.e}`,'ok');petSheet(id)}
-  else if(a==='petfree'){const c=S.crew.find(x=>x.id===id);if(!c) return;toast(`${PETS[c.pet].name} went home to the pet shelter.`);c.pet=null;renderWorld();save();petSheet(id)}
+  else if(a==='petbuy'){const c=S.crew.find(x=>x.id===id),P=PETS[b.dataset.k];if(!c||!P||S.res.credits<P.cost||(P.tech&&S.res.tech<P.tech)) return;S.res.credits-=P.cost;if(P.tech) S.res.tech-=P.tech;c.pet=b.dataset.k;c.petV=pick(PET_V[c.pet]||['']);c.petAt=Date.now();renderWorld();save();toast(`${c.name} adopted a ${petLabel(c)}! ${P.e}`,'ok');petSheet(id)}
+  else if(a==='petfree'){const c=S.crew.find(x=>x.id===id);if(!c) return;toast(`${petLabel(c)} went home to the pet shelter.`);c.pet=null;c.petV=null;c.petAt=null;renderWorld();save();petSheet(id)}
   else if(a==='defup'){const k=b.dataset.k;if(!DEFS[k]||defLv(k)>=defMax()) return;const c=defCost(k);if(S.res.credits<c){toast('Not enough cash.','warn');return}S.res.credits-=c;S.def=S.def||{};S.def[k]=defLv(k)+1;updateHUD();save();toast(`${DEFS[k].name} is now Level ${S.def[k]}!`,'ok');defenseSheet()}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
   else if(a==='mrecon') startRecon(b.dataset.n);
