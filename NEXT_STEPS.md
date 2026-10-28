@@ -210,3 +210,8 @@ Next for this module (art and features to add later):
 - Crew ranks: Common, Rare (+1 every stat) after 300 XP, Legendary (+2 every stat) after 1800 XP and 3 raids fought. Barracks gives 1 XP a second, other jobs 0.5, so Rare is about 5 Barracks minutes and Legendary about 30 plus three raids. Tune after Phoenix plays.
 - Pets with placeholder emoji: Guard Dog, Base Cat, Clever Fox, Scout Hawk, Dire Wolf, Baby Dragon. One per crew member, bought from the crew card PET button. Bonuses to stats, mood, and raid damage. Swap in painted pet art from Drive when it lands.
 - Still pending: painted art for each room, the Moab backdrop, pet art.
+
+## Pets: dog armor levels (shipped 28 October)
+- Dogs level up with armor: Guard Dog, Vested Dog (+1 armor), Armored Dog (+2), Heavy Armor K9 (+3). Only the Commander's own dog can become the Commander's Dog (+5). Dog armor also protects its owner.
+- Wild Dog (Drive: Pets, "wild dog"): parked for later game mechanics, such as wild dogs to tame on missions or as a raid enemy.
+- Pet art in Drive (Pets) is still saved ChatGPT pages, not PNG files, so the emoji stays until real images land.
