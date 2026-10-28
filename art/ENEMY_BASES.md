@@ -1,6 +1,6 @@
 # Enemy base progression (raids)
 
-Order taken from Drive upload times in BASED Art / Exteriors (first uploaded = weakest base). These are still saved ChatGPT pages, not images, so they are not in the game yet. Re-save each one as a PNG (download arrow on the image itself) and they will be wired into raids in this order.
+Order taken from Drive upload times in BASED Art / Exteriors (first uploaded = weakest base). Enemy bases only: the player's own building fronts, rooftops and the Sierra backdrop in the same folder (uploaded 22 and 25 October as real PNGs) are left out and stay as they are. These are still saved ChatGPT pages, not images, so they are not in the game yet. Re-save each one as a PNG (download arrow on the image itself) and they will be wired into raids in this order.
 
 | Step | Uploaded (UTC) | ChatGPT title | Use |
 |---|---|---|---|
