@@ -213,5 +213,6 @@ Next for this module (art and features to add later):
 
 ## Pets: dog armor levels (shipped 28 October)
 - Dogs level up with armor: Guard Dog, Vested Dog (+1 armor), Armored Dog (+2), Heavy Armor K9 (+3). Only the Commander's own dog can become the Commander's Dog (+5). Dog armor also protects its owner.
+- Cats level up the same way: Base Cat, Vested Cat, Armored Cat, Stealth Ops Cat (+3 armor), then Commander's Cat (+4 armor) for the Commander only. Cats also add Smarts as they level.
 - Wild Dog (Drive: Pets, "wild dog"): parked for later game mechanics, such as wild dogs to tame on missions or as a raid enemy.
 - Pet art in Drive (Pets) is still saved ChatGPT pages, not PNG files, so the emoji stays until real images land.
