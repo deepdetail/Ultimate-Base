@@ -95,3 +95,12 @@ Pose 10, save name dragon_ko.png. Same dragon, knocked out cartoon style: lying 
 
 ## Pet dragon note
 For a pet dragon, upload its adult picture and in prompt 0 change the first sentence to "This is my kid's pet dragon (Storm, Sun, Ember or Frost) from BASED Commander." Storm breathes lightning, so swap fire in prompts 4, 5, 7 and 8 for "crackling blue white lightning". Frost breathes "icy blue frost with snowflakes". Ember and Sun keep fire.
+
+## In the game now (first set, 2026-10-30)
+From the Exteriors folder upload: the two flying poses, fire breath (mouth open), claw swipe and knocked out (asleep). All five are keyed, lined up on the flying pose so the body does not jump, and saved in art/enemies/dragon/. dragon_flying.gif is a 6 second flapping loop over the raid sunset.
+- Flying: the two wing poses swap every quarter second.
+- Fire breath: a dragon with no rider breathes fire at turrets and guards up to 80 px away (the flame is drawn by the game from its mouth).
+- Claw: used up close, and by the dragon carrying a rider (the rider does the shooting).
+- Knocked out: it drops to the ground asleep, then flies off.
+- Big fliers now come fully on screen before attacking.
+Still open: a separate flame picture (prompt 7) and a hit flinch (prompt 9) would make it look even better.
