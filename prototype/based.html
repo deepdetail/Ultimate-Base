@@ -2214,29 +2214,93 @@ const postHP=c=>Math.round(14+eff(c,'str')*2+armorDef(c)*7);
 function foeTarget(x,dir,d,list){const R=foeRange(d),fly=foeFly(d);let best=null,bd=1e9;
   for(const t of list){if(!t||t.hp<=0) continue;if((t.x-x)*dir<-12) continue;if(t.y>0&&!fly&&!foeRanged(d)) continue;const di=Math.abs(t.x-x);if(di<=R&&di<bd){bd=di;best=t}}
   return best}
-function simBattle(wave,L){
-  const W=390,door=W/2,pos=slotPositions(),nOpen=slotCount(),lv=L||level(),powF=S.res.power>0?1:.5,defs=defenders();
-  let shield=baseCore();const pm=plateMul(),dm=doorMul();
-  const posts=battlePosts(W).map(st=>Object.assign({},st,{hp:postHP(st.c),cd:Math.random()*.8}));
-  const tur=S.turrets.map((tu,i)=>tu&&i<nOpen&&pos[i]?{i,tu,x:pos[i][0]*W,y:pos[i][1],hp:turHP(tu),cd:0}:null).filter(Boolean),targets=tur.concat(posts);
-  const en=wave.map((d,i)=>({d,hp:FOE_HP*d.hp*(d.m||1)*(1+.09*(lv-1)),x:i%2===0?-30:W+30,dir:i%2===0?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,st:0,acd:0}));
-  let t=0;const dt=.1;
-  const kill=e=>{if(e.hp<=0) e.st=2};
-  while(t<180){t+=dt;
-    for(const e of en){if(e.st===0&&t>=e.spawn) e.st=1;if(e.st!==1) continue;
-      const tg=foeTarget(e.x,e.dir,e.d,targets);
-      if(tg){e.acd-=dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,lv)*(tg.tu?pm:1)}continue}
-      const sp=e.d.speed*(e.slow>0?.4:1);e.slow=Math.max(0,e.slow-dt);if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt;else shield-=dm*FOE_DMG*e.d.dmg*dt}
-    const tg=en.filter(e=>e.st===1);
-    tur.forEach(T=>{if(T.hp<=0) return;const d=TURRETS[T.tu.type],range=d.range*(T.y>0?1.2:1);T.cd-=dt*powF;if(T.cd>0) return;
-      let best=null,bd=1e9;for(const e of tg){const di=Math.abs(e.x-T.x);if(e.st===1&&di<=range&&di<bd){bd=di;best=e}}if(!best) return;
-      T.cd=d.rate;best.hp-=turDmg(T.tu);if(d.splash) tg.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(T.tu)*.5;kill(o)}});if(d.slow) best.slow=1.6;kill(best)});
-    posts.forEach(st=>{if(st.hp<=0) return;st.cd-=dt;if(st.cd>0) return;const e=tg.filter(e=>e.st===1&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!e) return;st.cd=st.rate;e.hp-=st.dmg;kill(e)});
-    if(shield<=0) return false;if(en.every(e=>e.st===2)) return true;
-  }
-  return true;
+// ---------- turn-based battle core, shared by the live battle and the win-chance simulator ----------
+// Raiders walk in for real, but the fighting goes in rounds like a card game: your turrets and crew fire one at a time,
+// left to right, then every raider that reached something takes its turn. Damage per turn equals the old damage per
+// second times the round length, so balance carries over. A full round (your turn plus theirs) is about ROUND seconds.
+// PACE scales every hit on both sides (so the winner stays the same, fights just finish sooner); WALK speeds up the walk in
+const ROUND=1.6,TURN_GAP=[.14,.34],MIN_ROUNDS=4,PACE=2.5,WALK=1.5;
+// raiders must be on screen to fight or be shot; big fliers come all the way in so you can see them
+const onScreen=(e,W)=>{const m=e.d.big&&foeFly(e.d)?80:e.d.big?36:18;return e.x>=m&&e.x<=W-m};
+const foeEngaged=(B,e,W)=>onScreen(e,W)?foeTarget(e.x,e.dir,e.d,B.targets):null;
+const liveFoes=(B,W)=>B.enemies.filter(e=>e.state==='go'&&e.hp>0&&e.x>-10&&e.x<W+10);
+// how hard your side hits in one turn (turrets plus crew)
+const volley=B=>B.tur.reduce((a,T)=>a+(T&&T.hp>0?turDmg(T.tu)*ROUND/TURRETS[T.tu.type].rate*B.powF:0),0)+B.posts.reduce((a,p)=>a+(p.hp>0?p.dmg*ROUND/p.rate:0),0);
+function battleInit(B,wave,W){
+  const pos=slotPositions(),nOpen=slotCount(),lv=B.L;
+  Object.assign(B,{time:0,next:1.4,side:'foe',q:[],round:0,powF:S.res.power>0?1:.5,lostT:0,lostC:0});
+  B.tur=S.turrets.map((tu,i)=>tu&&i<nOpen&&pos[i]?{i,tu,x:pos[i][0]*W,y:pos[i][1],hp:turHP(tu),max:turHP(tu)}:null);
+  B.posts=battlePosts(W).map(st=>Object.assign(st,{hp:postHP(st.c),max:postHP(st.c)}));
+  B.targets=B.tur.filter(Boolean).concat(B.posts);
+  B.enemies=wave.map((d,i)=>{const left=i%2===0,hp=FOE_HP*d.hp*(d.m||1)*(1+.09*(lv-1));return {d,hp,max:hp,x:left?-30:W+30,dir:left?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,state:'wait'}});
+  // even a tiny raid on a big base lasts a few rounds: weak waves are stretched to MIN_ROUNDS of your full volley
+  const tot=B.enemies.reduce((a,e)=>a+e.hp,0),need=volley(B)*PACE*(B.minR!==undefined?B.minR:MIN_ROUNDS);
+  if(tot>0&&tot<need) B.enemies.forEach(e=>{e.hp*=need/tot;e.max=e.hp});
 }
+function battleAct(B,a,W,fx){
+  const live=liveFoes(B,W),ko=e=>{if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;fx&&fx.ko(e)}};
+  if(a.k==='tur'){const T=a.a;if(T.hp<=0) return;const d=TURRETS[T.tu.type],range=d.range*(T.y>0?1.2:1);
+    let best=null,bd=1e9;for(const e of live){const di=Math.abs(e.x-T.x);if(di<=range&&di<bd){bd=di;best=e}}if(!best) return;
+    const dmg=turDmg(T.tu)*ROUND/d.rate*PACE;best.hp-=dmg;
+    if(d.splash) live.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=dmg*.5;ko(o)}});
+    if(d.slow) best.slow=ROUND*1.2;fx&&fx.tur(T,best);ko(best);return}
+  if(a.k==='post'){const p=a.a;if(p.hp<=0) return;const e=live.filter(e=>Math.abs(e.x-p.x)<p.range).sort((x,y)=>Math.abs(x.x-p.x)-Math.abs(y.x-p.x))[0];if(!e) return;
+    e.hp-=p.dmg*ROUND/p.rate*PACE;fx&&fx.post(p,e);ko(e);return}
+  const e=a.a;if(e.state!=='go'||e.hp<=0) return;const tg=foeEngaged(B,e,W),m=ROUND*PACE*(e.d.dmgM||1);
+  if(tg){tg.hp-=foeDmg(e.d,B.L)*(tg.tu?plateMul():1)*m/(foeRanged(e.d)?1.1:.9);fx&&fx.foe(e,tg);
+    if(tg.hp<=0){if(tg.tu) B.lostT++;else B.lostC++;fx&&fx.down(tg)}}
+  else if(Math.abs(e.x-W/2)<=30){B.shield-=doorMul()*FOE_DMG*e.d.dmg*m;fx&&fx.door(e)}
+}
+// one step of the battle: walking is real time, attacks come out of the turn queue. Returns 'win', 'lose' or ''.
+function battleTick(B,dt,W,fx){
+  B.time+=dt;const t=B.time,door=W/2;
+  for(const e of B.enemies){
+    if(e.state==='wait'){if(t>=e.spawn){e.state='go';fx&&fx.spawn(e)}continue}
+    if(e.state==='go'){e.slow=Math.max(0,e.slow-dt);if(!foeEngaged(B,e,W)&&Math.abs(e.x-door)>30) e.x+=e.dir*e.d.speed*WALK*(e.slow>0?.4:1)*dt}
+    else if(e.state==='ko'){e.koT-=dt;if(e.koT<=0){e.state='flee';fx&&fx.flee(e)}}
+    else if(e.state==='flee'){e.x-=e.dir*140*dt;if(e.x<-60||e.x>W+60){e.state='gone';fx&&fx.gone(e)}}
+  }
+  while(B.q.length&&B.q[0].at<=t) battleAct(B,B.q.shift(),W,fx);
+  if(!B.q.length&&t>=B.next){
+    B.side=B.side==='def'?'foe':'def';const acts=[],live=liveFoes(B,W);
+    if(B.side==='def'){B.round++;
+      if(B.powF>=1||B.round%2) B.tur.forEach(T=>{if(T&&T.hp>0&&live.some(e=>Math.abs(e.x-T.x)<=TURRETS[T.tu.type].range*(T.y>0?1.2:1))) acts.push({k:'tur',a:T,x:T.x})});
+      B.posts.forEach(p=>{if(p.hp>0&&live.some(e=>Math.abs(e.x-p.x)<p.range)) acts.push({k:'post',a:p,x:p.x})})}
+    else live.forEach(e=>{if(foeEngaged(B,e,W)||Math.abs(e.x-door)<=30) acts.push({k:'foe',a:e,x:e.x})});
+    acts.sort((x,y)=>x.x-y.x);const gap=acts.length?clamp(1.1/acts.length,TURN_GAP[0],TURN_GAP[1]):0;let at=t;
+    acts.forEach(a=>{a.at=at;at+=gap+(a.k==='foe'&&artKey(a.a.d.art)==='dragon'?.4:0)});
+    B.q=acts;B.next=acts.length?Math.max(at,t+ROUND/2)+.25:t+.2;
+  }
+  B.shield=Math.max(0,B.shield);
+  if(B.shield<=0) return 'lose';
+  if(B.enemies.every(e=>e.state==='gone'||e.state==='flee')) return 'win';
+  return '';
+}
+function simBattle(wave,L,opt){const W=390,B0=Object.assign({L:L||level(),shield:baseCore()},opt||{});battleInit(B0,wave,W);let r='';while(!r&&B0.time<300) r=battleTick(B0,.05,W,null);simBattle.t=B0.time;simBattle.left=B0.shield;simBattle.enemyLeft=B0.enemies.reduce((a,e)=>a+Math.max(0,e.hp)/e.max,0)/Math.max(1,B0.enemies.length);return r!=='lose'}
 function winChance(dk,n,L){n=n||14;let w=0;for(let i=0;i<n;i++) if(simBattle(makeWave(dk,L),L)) w++;return Math.round(w/n*100)}
+// ---------- Dragon Attack: one Crimson Dragon sized to YOUR base, so even a maxed-out base gets a real fight ----------
+// rounds sets how long the fight lasts (health worth that many of your full volleys). The simulator then tunes its
+// strength so YOUR base ends with about 'left' of its core health: half for Young, a sliver for Crimson, none for Elder.
+// Each real fight is then nudged up or down a little at random, so the close one is really close.
+const DRAGON_RAID=[
+  {k:'young',name:'Young Dragon',rounds:2.1,left:.45,rew:2.5,ap:1,desc:'A good fight. You should win with some health left.'},
+  {k:'crimson',name:'Crimson Dragon',rounds:2.6,left:.12,rew:4,ap:1,desc:'A close one. You can barely win.'},
+  {k:'elder',name:'Elder Dragon',rounds:3.2,left:-.08,rew:7,ap:2,desc:'Super hard. Upgrade first or bring luck.'}];
+function dragonFoe(o,jit){
+  const B0={L:level(),shield:baseCore(),minR:0};battleInit(B0,[],390);
+  const V=volley(B0)*PACE,pool=baseCore()+B0.targets.reduce((a,t)=>a+t.max,0),lv=B0.L,d=foe('dragon',{boss:true,big:true,sp:0,speed:40,dragon:o.k});
+  d.m=Math.max(1,V)*o.rounds*(jit||1)/(FOE_HP*d.hp*(1+.09*(lv-1)));
+  d.dmgM=pool*(jit||1)/(o.rounds*1.6)/(foeDmg(d,lv)*ROUND*PACE/1.1);
+  return d}
+// find the strength where the fight ends with about o.left of the core left (negative: you just lose)
+function dragonCal(o){let lo=.05,hi=8;for(let i=0;i<16;i++){const m=Math.sqrt(lo*hi),w=simBattle([dragonFoe(o,m)],level(),{minR:0}),left=w?simBattle.left/baseCore():-simBattle.enemyLeft;if(left>o.left) lo=m;else hi=m}return Math.sqrt(lo*hi)}
+const DRAGON_JIT=[.88,1.12];
+function dragonChance(o,n){n=n||7;const c=dragonCal(o);let w=0;for(let i=0;i<n;i++) if(simBattle([dragonFoe(o,c*(DRAGON_JIT[0]+(DRAGON_JIT[1]-DRAGON_JIT[0])*i/(n-1)))],level(),{minR:0})) w++;return Math.round(w/n*100)}
+function dragonSheet(){
+  const rows=DRAGON_RAID.map(o=>{const p=dragonChance(o),col=p>=70?'ok':p>=40?'gold':'bad',poor=S.res.ap<o.ap;
+    return `<button class="li" data-act="dfight" data-k="${o.k}" ${poor?'disabled':''}><span class="wv">${enemyArt('dragon')}</span><span class="grow"><b>${esc(o.name)}</b><span>${esc(o.desc)} Pays about ${money(raidPay(level(),o.rew))} · ${o.ap} Adv Pt${o.ap>1?'s':''}</span></span><span class="tag ${col}">${p}% WIN</span></button>`}).join('');
+  openSheet('Dragon Attack!',`<div class="muted" style="font-size:12px">A Crimson Dragon swoops in. It grows with your base, so a bigger base still gets a real fight. It breathes fire at turrets and crew, then takes on the door.</div><div class="list">${rows}</div><button class="btn" data-act="btab" data-t="defend">BACK</button>`);
+}
 let battleTab='defend';
 // Defend tab: a ladder of numbered raids. Beat the next one to unlock the one after. Old ones can be replayed.
 // Random Raid picks any level up to three past your next one, at a random toughness, so it can be easy or very hard.
@@ -2250,6 +2314,7 @@ function battlePreview(){
   for(let L=N+2;L>=from;L--){const lock=L>N,done=L<N,p=lock?0:winChance('normal',L===N?16:8,L),col=p>=70?'ok':p>=40?'gold':'bad';
     rows.push(`<button class="li" data-act="fstep" data-l="${L}" ${lock||S.res.ap<1?'disabled':''} style="${L===N?'border-color:var(--teal)':''}">${raidPreview(L)}<span class="grow"><b>Raid Level ${L}${L===N?' · NEXT':done?' · cleared':''}</b><span>${lock?'Beat Raid Level '+(L-1)+' first':`Pays about ${money(raidPay(L))} · 1 Adv Pt`}</span></span><span class="tag ${lock?'dim':done?'ok':col}">${lock?'LOCKED':done?'REPLAY':p+'% WIN'}</span></button>`)}
   openSheet('Battle Ready',`${tabs}<div class="muted" style="font-size:12px">${(()=>{const np=nextBPrize();return np?`Next battle prize: ${esc(np.v.name)} in ${np.left} win${np.left>1?'s':''}. `:''})()}Beat each raid level to unlock the next. Cleared raids leave the list. Raiders fight back: they attack your turrets and crew on the way to the door.</div>
+    <button class="li" data-act="dsheet" style="border-color:var(--gold)"><span class="wv">${enemyArt('dragon')}</span><span class="grow"><b>Dragon Attack!</b><span>One dragon, sized to your base. Pick how tough.</span></span><span class="tag gold">DRAGON</span></button>
     <div class="list">${rows.join('')}</div>
     <button class="li" data-act="frand" ${S.res.ap<1?'disabled':''}><span class="wv">${enemyArt('dragon')}</span><span class="grow"><b>Random Raid</b><span>Any raid up to Level ${N+3}, any toughness. Could be super easy or super hard. 1 Adv Pt</span></span><span class="tag gold">???</span></button>
     <div class="muted" style="font-size:12px">${S.res.ap<1?'No Adventure Points left. They refill over time, or catch a clone!':'Nobody gets hurt for real. Stun hits knock raiders out and they drive home. Knocked out crew rest in the Med Bay.'}</div>`);
@@ -2457,22 +2522,18 @@ function battleArt(d){const k=artKey(d.art),P=ESPR[k],base=(EDEF[k]||{}).h||44,h
     rider=`<span class="erider" style="left:${rx}px;bottom:${rb}px;width:${rw}px;height:${rh}px"><img class="ba" src="${R.src}" style="height:${rh}px" alt="">${enemyGuns(d.rider,(EDEF[d.rider]||{}).wp,rw,rh)}</span>`}
   const im=k==='dragon'?`<span class="dfr" style="height:${h}px;${d.tint?'filter:'+d.tint:''}">${[['f1',P.src],['f2',DRAGON_F.flyB],['fb',DRAGON_F.breathe],['fc',DRAGON_F.claw],['fk',DRAGON_F.ko]].map(([c,s])=>`<img class="ba ${c}" src="${s}" style="height:${h}px" alt="">`).join('')}</span>`:`<img class="ba" src="${P.src}" style="height:${h}px;${d.tint?'filter:'+d.tint:''}" alt="">`;
   return `<span class="ebox" style="width:${w}px;height:${h}px">${im}${rider?'':enemyGuns(k,d.wp,w,h)}${rider}</span>`}
-function startBattle(wave,paid,D,L,rnd0){
+function startBattle(wave,paid,D,L,rnd0,opt){
   if(B||M) return;
   if(VIEW!=='out'){VIEW='out';renderWorld()}
   document.body.classList.add('in-battle');
   if(paid){ if(S.res.ap<1) return; S.res.ap--; }
   closeSheet(); scrollToSurface(true);
   const W=$('#surface').clientWidth,lv=L||level(),sh=baseCore();
-  B={W,shield:sh,max:sh,enemies:[],tracers:[],fires:[],last:performance.now(),cds:new Array(16).fill(0),dcd:0,lcd:{},over:false,diff:D||DIFFS[1],L:lv,step:L&&!rnd0?L:0};
-  wave.forEach((d,i)=>{
-    const left=i%2===0;
-    B.enemies.push({d,hp:FOE_HP*d.hp*(d.m||1)*(1+.09*(lv-1)),max:FOE_HP*d.hp*(d.m||1)*(1+.09*(lv-1)),x:left?-30:W+30,dir:left?1:-1,spawn:d.sp!==undefined?d.sp:i*1.1,slow:0,state:'wait',el:null});
-  });
-  B.posts=battlePosts(W);const box=$('#enemies'),pos0=slotPositions();
-  B.tur=S.turrets.map((tu,i)=>{if(!tu||i>=slotCount()||!pos0[i]) return null;const hp=turHP(tu),bar=document.createElement('div');bar.className='thp';bar.style.left=(pos0[i][0]*W)+'px';bar.style.bottom=(24+pos0[i][1]+44)+'px';bar.innerHTML='<i></i>';box.appendChild(bar);return {i,tu,x:pos0[i][0]*W,y:pos0[i][1],hp,max:hp,bar}});
-  B.targets=B.tur.filter(Boolean);
-  B.posts.forEach(st=>{st.cd=rnd(0,.8);st.el=document.createElement('div');st.el.className='post';st.el.style.left=st.x+'px';st.el.style.bottom=(20+st.y)+'px';st.el.innerHTML=`<span class="mini">${personHTML(Object.assign({},st.c,{_aim:1})).replace(/ data-cid="[^"]*"/g,'')}</span><span class="php"><i></i></span>`;st.hp=st.max=postHP(st.c);box.appendChild(st.el);B.targets.push(st)});
+  B=Object.assign({W,shield:sh,max:sh,tracers:[],fires:[],last:performance.now(),over:false,diff:D||DIFFS[1],L:lv,step:L&&!rnd0?L:0},opt||{});
+  battleInit(B,wave,W);
+  const box=$('#enemies');
+  B.tur.forEach(T=>{if(!T) return;const bar=document.createElement('div');bar.className='thp';bar.style.left=T.x+'px';bar.style.bottom=(24+T.y+44)+'px';bar.innerHTML='<i></i>';box.appendChild(bar);T.bar=bar});
+  B.posts.forEach(st=>{st.el=document.createElement('div');st.el.className='post';st.el.style.left=st.x+'px';st.el.style.bottom=(20+st.y)+'px';st.el.innerHTML=`<span class="mini">${personHTML(Object.assign({},st.c,{_aim:1})).replace(/ data-cid="[^"]*"/g,'')}</span><span class="php"><i></i></span>`;box.appendChild(st.el)});
   let hs=$('#bhide');if(!hs){hs=document.createElement('style');hs.id='bhide';document.head.appendChild(hs)}
   hs.textContent=B.posts.map(st=>`#world [data-cid="${st.c.id}"]`).join(',')+(B.posts.length?'{visibility:hidden}':'');
   renderShield();
@@ -2483,61 +2544,44 @@ function renderShield(){
   const box=$('#shieldbox'); if(!box) return;
   const T=B?(B.tur||[]).filter(Boolean):[],cur=B?Math.max(0,B.shield)+T.reduce((a,t)=>a+Math.max(0,t.hp),0):0,mx=B?B.max+T.reduce((a,t)=>a+t.max,0):1;
   const pc=B?clamp(cur/mx*100,0,100):0;
-  box.innerHTML=B?`<div class="shield"><div class="label">Base health · ${Math.round(cur)}</div><div class="bar"><i style="width:${pc}%" class="${pc<25?'bad':pc<50?'warn':''}"></i></div></div>`:'';
+  box.innerHTML=B?`<div class="shield"><div class="label">Base health · ${Math.round(cur)}${B.round?` · Round ${B.round} · ${B.side==='def'?'Your turn':B.dragon?'Dragon\'s turn':'Raiders\' turn'}`:''}</div><div class="bar"><i style="width:${pc}%" class="${pc<25?'bad':pc<50?'warn':''}"></i></div></div>`:'';
 }
+// what the player sees for each thing the battle core does
+const BFX={
+  spawn(e){e.el=document.createElement('div');e.el.className='enemy'+(e.dir<0?' flip':'')+(e.d.big?' big':'')+(e.d.boss?' boss':'');e.el.innerHTML=`<span class="em">${battleArt(e.d)}</span><span class="hpb"><i></i></span>`;if(foeFly(e.d)) e.el.classList.add('fly');$('#enemies').appendChild(e.el)},
+  flee(e){e.el&&e.el.classList.toggle('flip')},gone(e){e.el&&e.el.remove()},ko(e){e.el&&e.el.classList.add('ko')},
+  tur(T,e){const d=TURRETS[T.tu.type],H=B.H,py=H-24-T.y-18;B.tracers.push({x1:T.x,y1:py,x2:e.x,y2:H-38,t:.18,c:d.col,w:d.splash?5:2.5});tur3dFire(T.i,e.x,33);aimPad(T.i,T.x,py,e.x,H-38);B.hitE=e;B.hitT=.15},
+  post(p,e){const H=B.H,sx=p.x+(e.x<p.x?-8:8),sy=H-24-p.y-36;p.el.classList.toggle('flip',e.x<p.x);B.tracers.push({x1:sx,y1:sy,x2:e.x,y2:H-38,t:.18,c:p.col,w:2.5});B.flashes.push({x:sx,y:sy,t:.08})},
+  foe(e,tg){if(!e.el) return;const H=B.H;e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
+    if(artKey(e.d.art)==='dragon'){const fire=!e.d.rider&&Math.abs(tg.x-e.x)>36;e.pose=fire?'breath':'claw';e.poseT=fire?.75:.4;e.el.classList.remove('breath','claw');e.el.classList.add(e.pose);if(fire){B.fires.push({e,x2:tg.x,y2:H-24-tg.y-26,t:.6});return}}
+    if(foeRanged(e.d)) B.tracers.push({x1:e.x,y1:H-24-(foeFly(e.d)?70:30),x2:tg.x,y2:H-24-tg.y-26,t:.18,c:'#ff6b5e',w:2})},
+  door(e){if(!e.el) return;e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');B.shake=.2},
+  down(tg){if(tg.tu){const pad=document.querySelector(`.tpad[data-pad="${tg.i}"]`);if(pad) pad.classList.add('off')}else tg.el.classList.add('pko')}
+};
 function battleLoop(now){
   if(!B||B.over) return;
-  const dt=Math.min(.05,(now-B.last)/1000); B.last=now; B.time=(B.time||0)+dt;
+  const dt=Math.min(.05,(now-B.last)/1000); B.last=now;
   const surf=$('#surface'); if(!surf){requestAnimationFrame(battleLoop);return}
-  const W=surf.clientWidth,H=surf.clientHeight,door=W/2; B.W=W;
-  const box=$('#enemies');
-  const powF=S.res.power>0?1:.5,pos=slotPositions();
+  const W=surf.clientWidth,H=surf.clientHeight; B.H=H; B.flashes=B.flashes||[];
+  const res=battleTick(B,dt,B.W,BFX);
   for(const e of B.enemies){
-    if(e.state==='wait'){ if(B.time>=e.spawn){e.state='go';e.el=document.createElement('div');e.el.className='enemy'+(e.dir<0?' flip':'')+(e.d.big?' big':'')+(e.d.boss?' boss':'');e.el.innerHTML=`<span class="em">${battleArt(e.d)}</span><span class="hpb"><i></i></span>`;if(e.d.fly||(EDEF[artKey(e.d.art)]||{}).fly) e.el.classList.add('fly');box.appendChild(e.el)} else continue; }
-    if(e.state==='go'){
-      const sp=e.d.speed*(e.slow>0?.4:1); e.slow=Math.max(0,e.slow-dt);
-      // big fliers come fully on screen before they attack so you can see them
-      const edge=e.d.big&&foeFly(e.d)?80:0,tg=e.x<edge||e.x>W-edge?null:foeTarget(e.x,e.dir,e.d,B.targets||[]);
-      if(tg){e.acd=(e.acd||0)-dt;if(e.acd<=0){e.acd=foeRanged(e.d)?1.1:.9;tg.hp-=foeDmg(e.d,B.L)*(tg.tu?plateMul():1);e.el.classList.remove('atk');void e.el.offsetWidth;e.el.classList.add('atk');
-          if(artKey(e.d.art)==='dragon'){const fire=!e.d.rider&&Math.abs(tg.x-e.x)>36;e.pose=fire?'breath':'claw';e.poseT=fire?.55:.35;e.el.classList.remove('breath','claw');e.el.classList.add(e.pose);if(fire) B.fires.push({e,x2:tg.x,y2:H-24-tg.y-26,t:.5})}
-          if(foeRanged(e.d)&&!(artKey(e.d.art)==='dragon'&&!e.d.rider)) B.tracers.push({x1:e.x,y1:H-24-(foeFly(e.d)?70:30),x2:tg.x,y2:H-24-tg.y-26,t:.12,c:'#ff6b5e',w:2});
-          if(tg.hp<=0){if(tg.tu){const pad=document.querySelector(`.tpad[data-pad="${tg.i}"]`);if(pad) pad.classList.add('off');B.lostT=(B.lostT||0)+1}else{tg.el.classList.add('pko');B.lostC=(B.lostC||0)+1}}}}
-      else if(Math.abs(e.x-door)>30) e.x+=e.dir*sp*dt; else { B.shield-=doorMul()*FOE_DMG*e.d.dmg*dt; }
-    } else if(e.state==='ko'){ e.koT-=dt; if(e.koT<=0){e.state='flee';e.el.classList.toggle('flip')} }
-    else if(e.state==='flee'){ e.x-=e.dir*140*dt; if(e.x<-60||e.x>W+60){e.state='gone';e.el.remove()} }
     if(e.poseT>0&&(e.poseT-=dt)<=0&&e.el) e.el.classList.remove('breath','claw');
     if(e.el&&e.state!=='gone'){ e.el.style.left=e.x+'px'; const bar=e.el.querySelector('.hpb i'); if(bar) bar.style.width=clamp(e.hp/e.max,0,1)*100+'%'; }
   }
-  const targets=B.enemies.filter(e=>e.state==='go');
-  const ko=e=>{if(e.hp<=0&&e.state==='go'){e.state='ko';e.koT=.8;e.el.classList.add('ko')}};
-  const hit=(e,dmg,from,color,wide)=>{ e.hp-=dmg; B.tracers.push({x1:from.x,y1:from.y,x2:e.x,y2:H-38,t:.12,c:color,w:wide?5:2.5}); ko(e) };
-  S.turrets.forEach((t,i)=>{
-    if(!t||i>=slotCount()||!pos[i]||(B.tur&&B.tur[i]&&B.tur[i].hp<=0)) return; const d=TURRETS[t.type],px=pos[i][0]*W,py=H-24-pos[i][1]-18,range=d.range*(pos[i][1]>0?1.2:1);
-    B.cds[i]-=dt*powF; if(B.cds[i]>0) return;
-    let best=null,bd=1e9; for(const e of targets){const dist=Math.abs(e.x-px); if(dist<=range&&dist<bd&&e.hp>0){bd=dist;best=e}}
-    if(!best) return;
-    B.cds[i]=d.rate; hit(best,turDmg(t),{x:px,y:py},d.col,d.splash);
-    if(d.splash) targets.forEach(o=>{if(o!==best&&Math.abs(o.x-best.x)<44){o.hp-=turDmg(t)*.5;ko(o)}});
-    if(d.slow) best.slow=1.6;
-    tur3dFire(i,best.x,33);aimPad(i,px,py,best.x,H-38);
-  });
-  (B.targets||[]).forEach(T=>{const f=clamp(T.hp/T.max,0,1),bi=T.tu?T.bar.firstChild:T.el.querySelector('.php i');if(bi) bi.style.width=f*100+'%'});
-  (B.posts||[]).forEach(st=>{if(st.hp<=0) return;st.cd-=dt;if(st.cd>0) return;
-    const tg=targets.filter(e=>e.hp>0&&Math.abs(e.x-st.x)<st.range).sort((a,b)=>Math.abs(a.x-st.x)-Math.abs(b.x-st.x))[0];if(!tg) return;
-    st.cd=st.rate;st.el.classList.toggle('flip',tg.x<st.x);hit(tg,st.dmg,{x:st.x+(tg.x<st.x?-8:8),y:H-24-st.y-36},st.col);B.flashes=(B.flashes||[]);B.flashes.push({x:st.x+(tg.x<st.x?-9:9),y:H-24-st.y-36,t:.07})});
+  (B.targets||[]).forEach(T=>{const f=clamp(T.hp/T.max,0,1),bi=T.tu?T.bar&&T.bar.firstChild:T.el.querySelector('.php i');if(bi) bi.style.width=f*100+'%'});
   const cv=$('#fx'); if(cv){const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
     const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
     B.tracers=B.tracers.filter(tr=>(tr.t-=dt)>0); g.lineCap='round';
     for(const tr of B.tracers){g.lineWidth=tr.w||2.5;g.strokeStyle=tr.c;g.globalAlpha=clamp(tr.t/.12,0,1);g.beginPath();g.moveTo(tr.x1,tr.y1);g.lineTo(tr.x2,tr.y2);g.stroke()}
     B.fires=(B.fires||[]).filter(f=>(f.t-=dt)>0&&f.e.el&&f.e.state==='go');const cr=cv.getBoundingClientRect();
-    for(const f of B.fires){const r=f.e.el.querySelector('.dfr .fb');if(!r) continue;const q=r.getBoundingClientRect(),fl=f.e.dir<0,x1=q.left-cr.left+q.width*(fl?1-DRAGON_MOUTH[0]:DRAGON_MOUTH[0]),y1=q.top-cr.top+q.height*DRAGON_MOUTH[1],a=clamp(f.t/.15,0,1);
-      g.globalCompositeOperation='lighter';for(let j=0;j<16;j++){const u=j/15,px=x1+(f.x2-x1)*u+rnd(-3,3),py=y1+(f.y2-y1)*u+rnd(-3,3),rr=3+u*14;g.globalAlpha=a*(1-u*.45);g.fillStyle=u<.25?'#fff3b0':u<.6?'#ffab2e':'#ff5a1f';g.beginPath();g.arc(px,py,rr,0,7);g.fill()}
+    for(const f of B.fires){const r=f.e.el.querySelector('.dfr .fb');if(!r) continue;const q=r.getBoundingClientRect(),fl=f.e.dir<0,x1=q.left-cr.left+q.width*(fl?1-DRAGON_MOUTH[0]:DRAGON_MOUTH[0]),y1=q.top-cr.top+q.height*DRAGON_MOUTH[1],a=clamp(f.t/.15,0,1),grow=clamp((.6-f.t)/.2,0,1);
+      g.globalCompositeOperation='lighter';for(let j=0;j<18;j++){const u=j/17*grow,px=x1+(f.x2-x1)*u+rnd(-3,3),py=y1+(f.y2-y1)*u+rnd(-3,3),rr=4+u*16;g.globalAlpha=a*(1-u*.4);g.fillStyle=u<.25?'#fff3b0':u<.6?'#ffab2e':'#ff5a1f';g.beginPath();g.arc(px,py,rr,0,7);g.fill()}
       g.globalCompositeOperation='source-over'}
-    B.flashes=(B.flashes||[]).filter(f=>(f.t-=dt)>0);for(const f of B.flashes){g.globalAlpha=1;g.fillStyle='#fff3c4';g.beginPath();g.arc(f.x,f.y,3.2,0,7);g.fill()}
+    B.flashes=B.flashes.filter(f=>(f.t-=dt)>0);for(const f of B.flashes){g.globalAlpha=1;g.fillStyle='#fff3c4';g.beginPath();g.arc(f.x,f.y,3.2,0,7);g.fill()}
     g.globalAlpha=1;}
-  B.shield=Math.max(0,B.shield); renderShield();
-  if(B.shield<=0) return endBattle(false);
-  if(B.enemies.every(e=>e.state==='gone'||e.state==='flee')&&B.enemies.every(e=>e.state!=='wait')) return endBattle(true);
+  renderShield();
+  if(res==='lose') return endBattle(false);
+  if(res==='win') return endBattle(true);
   requestAnimationFrame(battleLoop);
 }
 function endBattle(won){
@@ -2560,13 +2604,13 @@ function endBattle(won){
       const pool=VEH.filter(v=>!S.vehicles.includes(v.id)&&!v.locked&&!v.tech&&(!v.level||level()>=v.level));
       if(pool.length){const v=pick(pool);S.vehicles.push(v.id);veh=`<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>New vehicle: ${esc(v.name)}</b><span>The raiders left it behind. Worth about ${money(v.cost)}!</span></span></div>`}
     }
-    body=`${badge('trophy')}<div class="muted" style="text-align:center">The raiders got knocked silly and drove home.</div>
+    body=`${badge('trophy')}<div class="muted" style="text-align:center">${ended.dragon?`The ${esc(ended.dragon)} got knocked out, took a nap and flew home!`:'The raiders got knocked silly and drove home.'}</div>
       <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div><div class="stat"><span class="label">Base XP</span><b>+50</b></div><div class="stat"><span class="label">Crew XP</span><b>+20</b></div></div>${veh}${(()=>{const np=nextBPrize();return np?`<div class="muted" style="font-size:12px">Battle wins: ${S.wins}. Next prize: ${esc(np.v.name)} in ${np.left} more win${np.left>1?'s':''}.</div>`:''})()}`;
   } else {
     const lostC=Math.floor(S.res.credits*.1),lostF=Math.floor(S.res.food*.25); S.res.credits-=lostC; S.res.food-=lostF;
     const pool=S.crew.filter(c=>!c.isCmd&&armorDef(c)<3); const hurt=[];
     for(let i=0;i<Math.min(2,pool.length);i++){const c=pool.splice(ri(0,pool.length-1),1)[0];c.hurt=Math.round(60/(1+armorDef(c)*.4));hurt.push(c.name)}
-    body=`${badge('dizzy')}<div class="muted" style="text-align:center">The raiders got in and grabbed some loot. Everyone is okay, they just need some rest.</div>
+    body=`${badge('dizzy')}<div class="muted" style="text-align:center">${ended.dragon?`The ${esc(ended.dragon)} scorched the door and grabbed some loot.`:'The raiders got in and grabbed some loot.'} Everyone is okay, they just need some rest.</div>
       <div class="stats"><div class="stat"><span class="label">Cash</span><b>-${money(lostC)}</b></div><div class="stat"><span class="label">Food</span><b>-${lostF}</b></div><div class="stat"><span class="label">Knocked out</span><b>${hurt.length}</b></div></div>
       ${ended.cloneLoot?`<div class="muted" style="font-size:12px">The clone monster escaped with ${money(ended.cloneLoot)}. Catch clones sooner next time!</div>`:''}
       <div class="muted" style="font-size:12px">Tip: more turrets, upgrades, and Barracks defenders with weapons and armor. Armor adds to the base shield.</div>`;
@@ -3659,6 +3703,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='m-quit'){closeSheet();closeMission();renderWorld()}
   else if(a==='fight'){const D=DIFFS.find(x=>x.k===b.dataset.d);if(!D||S.res.ap<D.ap) return;S.res.ap-=D.ap;startBattle(makeWave(D.k),false,D)}
   else if(a==='fstep'){const L=+b.dataset.l;if(L>(S.raidLv||1)||S.res.ap<1) return;S.res.ap--;startBattle(makeWave('normal',L),false,DIFFS[1],L)}
+  else if(a==='dsheet') dragonSheet();
+  else if(a==='dfight'){const o=DRAGON_RAID.find(x=>x.k===b.dataset.k);if(!o||S.res.ap<o.ap) return;S.res.ap-=o.ap;startBattle([dragonFoe(o,dragonCal(o)*rnd(DRAGON_JIT[0],DRAGON_JIT[1]))],false,{k:'dragon',name:o.name,rew:o.rew},level(),true,{minR:0,dragon:o.name})}
   else if(a==='frand'){if(S.res.ap<1) return;S.res.ap--;const L=ri(1,(S.raidLv||1)+3),D=pick(DIFFS.filter(d=>!d.boss)),dk=Math.random()<.15?'boss':D.k,DD=DIFFS.find(d=>d.k===dk);toast(`Random raid: Level ${L}, ${DD.name}!`,DD.rew>=1.8?'bad':'');startBattle(makeWave(dk,L),false,DD,L,true)}
   else if(a==='btab'){battleTab=b.dataset.t;battlePreview()}
   else if(a==='eplan') planSheet(b.dataset.b);
