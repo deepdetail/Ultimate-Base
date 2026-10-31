@@ -164,9 +164,14 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 .room{position:relative;overflow:hidden;border:1px solid rgba(201,209,217,.25);border-top-color:rgba(201,209,217,.5);text-align:left;padding:0;width:100%;background:#3a4149}
 .room .decor{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 .room .shade{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.55;background:radial-gradient(110% 70% at 50% 0%,rgba(255,231,176,.22),transparent 60%);box-shadow:inset 12px 0 12px -8px rgba(0,0,0,.55),inset -12px 0 12px -8px rgba(0,0,0,.55),inset 0 10px 10px -8px rgba(0,0,0,.55)}
-.room .rh{position:absolute;left:5px;top:5px;z-index:3;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;background:rgba(16,19,23,.78);border:1px solid rgba(201,209,217,.2);border-radius:5px;padding:2px 5px;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis}
-.room .rb{display:block;font-size:9px;color:var(--teal);font-variant-numeric:tabular-nums;letter-spacing:.02em;text-transform:none;font-weight:600}
+.room .rh{position:absolute;left:5px;top:5px;z-index:3;font-size:var(--lf,9px);font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;background:rgba(16,19,23,.78);border:1px solid rgba(201,209,217,.2);border-radius:5px;padding:2px 5px;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis}
+.room .rb{display:block;font-size:1em;color:var(--teal);font-variant-numeric:tabular-nums;letter-spacing:.02em;text-transform:none;font-weight:600}
 .room .rb.low{color:var(--warn)}
+.room .rh{padding:.2em .55em;border-radius:.55em;max-height:34%;line-height:1.25}.room .ri{display:none}
+#world.inside.lbl-icon .room .rh{padding:0;background:none;border:0;max-height:none;font-size:var(--li,14px);line-height:1}
+#world.inside.lbl-icon .room .rn,#world.inside.lbl-icon .room .rb{display:none}
+#world.inside.lbl-icon .room .ri{display:block;filter:drop-shadow(0 1px 1px rgba(0,0,0,.7))}
+#world.inside.lbl-icon .room .rh:has(.rb.low)::after{content:"";position:absolute;right:-.15em;top:-.1em;width:.38em;height:.38em;border-radius:50%;background:var(--warn);box-shadow:0 0 0 .08em rgba(0,0,0,.6)}
 .room .park{position:absolute;right:4px;top:34px;display:flex;gap:1px;font-size:16px;z-index:2;filter:drop-shadow(0 2px 1px rgba(0,0,0,.4))}
 .room.hq{border-color:rgba(46,196,201,.7)}
 .room .bars{position:absolute;inset:14px 0 0 0;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(201,209,217,.6) 9px 11px);pointer-events:none;z-index:4}
@@ -177,7 +182,7 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 
 /* surface */
 .surface{position:relative;height:156px;overflow:hidden}#world:not(.inside) .surface{overflow:visible}#wrap{touch-action:pan-x pan-y}
-#zoomctl{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:30;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45)}#zoomctl button{border:0;background:none;color:#C9D1D9;font:800 12px/1 var(--font-display,sans-serif);letter-spacing:.04em;padding:10px 0;width:44px;min-height:36px}#zoomctl button.on{background:rgba(46,196,201,.28);color:#fff}.in-mission #zoomctl,.in-map #zoomctl,body.view-in #zoomctl{display:none}
+#zoomctl{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:30;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45)}#zoomctl button{border:0;background:none;color:#C9D1D9;font:800 12px/1 var(--font-display,sans-serif);letter-spacing:.04em;padding:10px 0;width:44px;min-height:36px}#zoomctl button.on{background:rgba(46,196,201,.28);color:#fff}.in-mission #zoomctl,.in-map #zoomctl{display:none}
 .surface canvas#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
 .door{position:absolute;left:50%;bottom:24px;width:52px;height:62px;transform:translateX(-50%);border-radius:26px 26px 0 0;border:3px solid var(--steel-hi);background:linear-gradient(90deg,var(--gm-700) 0 49%,var(--gm-950) 49% 51%,var(--gm-700) 51%);box-shadow:0 0 18px rgba(46,196,201,.45),0 6px 10px rgba(0,0,0,.3)}
 .door::after{content:"";position:absolute;left:50%;top:8px;width:10px;height:4px;transform:translateX(-50%);background:var(--teal);border-radius:2px;box-shadow:0 0 8px var(--teal)}
@@ -468,7 +473,7 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
   </div>
 </div>
 
-<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><div id="zoomctl" role="group" aria-label="Zoom"><button data-act="oz" data-z=".3334">ALL</button><button data-act="oz" data-z=".5">50</button><button data-act="oz" data-z=".75">75</button><button data-act="oz" data-z=".94">100</button></div><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
+<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><div id="zoomctl" role="group" aria-label="Zoom"><button data-z=".3334" data-t="0">ALL</button><button data-z=".5" data-t=".5">50</button><button data-z=".75" data-t=".75">75</button><button data-z=".94" data-t="1">100</button></div><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
   <div id="hud">
     <div class="hud-top">
       <div class="avatar" id="h-avatar"></div>
@@ -1508,7 +1513,7 @@ function decorSVG(type,w,h,lv){
 }
 function roomHTML(k){
   const r=S.rooms[k],def=ROOMS[r.type],w=rW(k),h=rH(k),lv=rL(k),sl=+k.split(':')[1];
-  let inner=`${decorSVG(r.type,w,h,lv)}<span class="shade"></span><span class="rh">${esc(w>1?def.name:def.short)}${lv>1?`<span class="stars">${'★'.repeat(lv-1)}</span>`:''}<span class="rb" data-badge="${k}"></span></span>`;
+  let inner=`${decorSVG(r.type,w,h,lv)}<span class="shade"></span><span class="rh"><span class="ri" aria-hidden="true">${ROOM_IC[r.type]||'▪️'}</span><span class="rn">${esc(w>1?def.name:def.short)}${lv>1?`<span class="stars">${'★'.repeat(lv-1)}</span>`:''}</span><span class="rb" data-badge="${k}"></span></span>`;
   if(r.type==='hangar'){
     let start=0;for(const hk of roomsOf('hangar')){if(hk===k) break;start+=vehRoom(hk)}
     const vs=S.vehicles.slice(start,start+vehRoom(k)).map(id=>{const v=VEH.find(x=>x.id===id);return v?vehArt(v.id):''}).join('');
@@ -1620,6 +1625,27 @@ function outCam(center){
   else{wrap.scrollLeft=(worldW*z-wrap.clientWidth)/2;wrap.scrollTop=cy/oldZ*z-wrap.clientHeight/2}
   document.querySelectorAll('#zoomctl button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-OZ)<.02));
 }
+// ---------- inside camera ----------
+// IZ 0 = the whole base fits (ALL), 1 = all the way in: about one room across, with the floor above and below in view.
+// Room labels keep a readable size on screen: they shrink with the room up to a third of its height, and when that
+// would be too small to read they become just an icon (with a warning dot when the room needs crew).
+let IZ=0,IN_FIT=1;
+try{const z=+localStorage.getItem('based_iz');if(z>=0&&z<=1) IZ=z}catch(e){}
+const ROOM_IC={hq:'🏛️',quarters:'🛏️',food:'🍲',power:'⚡',tech:'🔬',fitness:'🥋',barracks:'🎯',med:'➕',hangar:'✈️',cell:'🔒',clonelab:'🧬'};
+function inCam(){
+  const w=$('#world'),wrap=$('#wrap');if(!w||!wrap||VIEW!=='in') return;
+  const fl=w.querySelector('.floor'),rm=w.querySelector('.floor .slot');if(!fl||!rm) return;
+  const pitch=fl.offsetHeight+10,roomW=rm.offsetWidth,vh=wrap.clientHeight;
+  const zMax=Math.max(IN_FIT,Math.min(.85*wrap.clientWidth/roomW,vh*.92/(3*pitch))),z=IN_FIT*Math.pow(zMax/IN_FIT,IZ);
+  const oldZ=+w.style.zoom||1,cx=(wrap.scrollLeft+wrap.clientWidth/2)/oldZ,cy=(wrap.scrollTop+vh/2)/oldZ,changed=Math.abs(oldZ-z)>.001;
+  w.style.zoom=Math.abs(z-1)<.001?'':z.toFixed(4);wrap.style.overflowX=z>IN_FIT+.001?'auto':'hidden';
+  // label size on screen: up to 12 px, never more than a third of the room's height on screen
+  const roomH=rm.offsetHeight*z,fs=Math.min(12,roomH/3/2.5);
+  w.classList.toggle('lbl-icon',fs<8.5);w.style.setProperty('--lf',(Math.max(fs,8.5)/z).toFixed(2)+'px');w.style.setProperty('--li',(Math.min(18,roomH/3.2)/z).toFixed(2)+'px');
+  if(changed){wrap.scrollLeft=cx*z-wrap.clientWidth/2;wrap.scrollTop=cy*z-vh/2}
+  document.querySelectorAll('#zoomctl button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.t-IZ)<.02));
+}
+function setIZ(z){IZ=clamp(z,0,1);try{localStorage.setItem('based_iz',IZ.toFixed(3))}catch(e){}inCam()}
 function setOZ(z,center){OZ=clamp(z,OZ_MIN,OZ_MAX);try{localStorage.setItem('based_oz',OZ.toFixed(3))}catch(e){}outCam(center)}
 function renderWorld(){
   const w=$('#world');
@@ -1654,7 +1680,7 @@ function renderWorld(){
   const need=ins?28+cols*124:0,wrap=$('#wrap');
   if(ins){const fk=frontKey(),[bx0,bx1]=FRONT_BOX[fk]||[.1,.9],cw=need/(bx1-bx0),gs=ghostSlots(fk),lo=Math.min(0,...gs.map(g=>g.fx-g.tw)),hi=Math.max(1,...gs.map(g=>g.fx+g.tw));
     const side=Math.max(bx0-lo,hi-bx1)*cw+40,worldW=Math.max(wrap.clientWidth,Math.round(need+2*side)),z=Math.min(1,wrap.clientWidth/worldW);
-    w.style.width=worldW+'px';w.style.maxWidth='none';w.style.minHeight='';w.style.zoom=z<1?z.toFixed(4):'';w.style.setProperty('--bw',(worldW>wrap.clientWidth?need:Math.max(need,worldW-2*side))+'px');wrap.style.overflowX='hidden';}
+    w.style.width=worldW+'px';w.style.maxWidth='none';w.style.minHeight='';w.style.setProperty('--bw',(worldW>wrap.clientWidth?need:Math.max(need,worldW-2*side))+'px');IN_FIT=z;inCam();}
   else outCam(true);
   const vb=$('#viewbtn');if(vb){vb.innerHTML=ins?`${icon('door')}<b>OUTSIDE</b>`:`${icon('build')}<b>BASE</b>`;vb.dataset.view=ins?'out':'in'}
   attachTur3D();
@@ -1668,13 +1694,15 @@ function renderWorld(){
 let lastW=0;
 window.addEventListener('resize',()=>{const w=$('#world');if(S&&w&&w.clientWidth!==lastW){lastW=w.clientWidth;if(VIEW!=='in') outCam(true);else paintWorld();if(T3&&$('#surface')) syncTur3D()}});
 // pinch to zoom the outside (two fingers), or ctrl + scroll wheel on a computer
-$('#zoomctl').addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(b) setOZ(+b.dataset.z,true)});
+$('#zoomctl').addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(!b) return;if(VIEW==='in') setIZ(+b.dataset.t);else setOZ(+b.dataset.z,true)});
 (()=>{const wr=$('#wrap');if(!wr) return;let d0=0,z0=OZ,raf=0;const dist=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
   const go=z=>{OZ=clamp(z,OZ_MIN,OZ_MAX);if(!raf) raf=requestAnimationFrame(()=>{raf=0;outCam(false)})};
-  wr.addEventListener('touchstart',e=>{if(e.touches.length===2&&VIEW!=='in'){d0=dist(e);z0=OZ}},{passive:true});
-  wr.addEventListener('touchmove',e=>{if(d0&&e.touches.length===2){e.preventDefault();go(z0*dist(e)/d0)}},{passive:false});
-  wr.addEventListener('touchend',e=>{if(d0&&e.touches.length<2){d0=0;setOZ(OZ,false)}},{passive:true});
-  wr.addEventListener('wheel',e=>{if(e.ctrlKey&&VIEW!=='in'){e.preventDefault();go(OZ*Math.exp(-e.deltaY*.01))}},{passive:false});})();
+  // inside, the pinch moves IZ along the same curve as the buttons
+  let i0=0,raf2=0;const goIn=z=>{IZ=clamp(z,0,1);if(!raf2) raf2=requestAnimationFrame(()=>{raf2=0;inCam()})};
+  wr.addEventListener('touchstart',e=>{if(e.touches.length===2){d0=dist(e);z0=OZ;i0=IZ}},{passive:true});
+  wr.addEventListener('touchmove',e=>{if(d0&&e.touches.length===2){e.preventDefault();const r=dist(e)/d0;if(VIEW==='in') goIn(i0+Math.log(r)*1.2);else go(z0*r)}},{passive:false});
+  wr.addEventListener('touchend',e=>{if(d0&&e.touches.length<2){d0=0;if(VIEW==='in') setIZ(IZ);else setOZ(OZ,false)}},{passive:true});
+  wr.addEventListener('wheel',e=>{if(!e.ctrlKey) return;e.preventDefault();if(VIEW==='in') goIn(IZ-e.deltaY*.004);else go(OZ*Math.exp(-e.deltaY*.01))},{passive:false});})();
 function scrollToSurface(smooth){
   const s=$('#surface'),wrap=$('#wrap'); if(!s) return;const z=outZoom();
   // zoomed out, keep the ground low on screen so the sky and landscape fill the view
