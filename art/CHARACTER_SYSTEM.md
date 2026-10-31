@@ -84,8 +84,10 @@ Six panels, all facing right: walk A (contact, left foot forward), walk B (passi
 
 Two-frame walking (A and B) fixes the "bobbling" look and tolerates small differences between AI frames better than a four-frame cycle.
 
-### D. Weapons
-Weapons stay universal: one image per weapon (already in `art/WEAPON_SHEET_RUN.md`), attached to the hold pose's hand point by the game.
+### D. Weapons and layering
+Weapons stay universal: one picture per weapon per view, attached to the hand point of each pose by the game. The current run is `art/CHROME_WEAPON_RUN.md` (standard shop angle, held side view with the grip at the image center, attack effects, 3D turnarounds). Rules: one item per picture, no hands, the katana without its sheath, one kunai and one ninja star (the game puts one in each hand), the bow alone with the arrows in a separate back quiver.
+
+The game draws a person back to front: quiver and the far hand's weapon (behind the body), the body, outfit and armor, the head again down to the chin (a collar always sits behind the chin), the near hand's weapon, then that fist again so the fingers wrap the grip. New character sheets need each pose's fist points (near and far) and chin line measured; Claude does that when the sheets land.
 
 ## 6. File names
 `char_<archetype>_<m|f>_<outfit>_sheet.png`
