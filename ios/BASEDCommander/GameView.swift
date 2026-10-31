@@ -48,12 +48,22 @@ struct GameView: UIViewRepresentable {
         let files = BundleFiles()
 
         // The game never leaves the app: only its own pages load. (A kids app must not open
-        // outside links without a parent gate, and this game has none to open.)
+        // outside links without a parent gate. The one grown-ups link is handled just below.)
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             let scheme = navigationAction.request.url?.scheme ?? ""
             let inApp = scheme == BundleFiles.scheme || scheme == "about" || scheme == "blob" || scheme == "data"
             decisionHandler(inApp ? .allow : .cancel)
+        }
+
+        // Settings, PRIVACY AND HELP, OPEN THE FULL POLICY asks a grown-ups question first, then
+        // calls window.open. Only basedcommander.com opens, in Safari; nothing else leaves the app.
+        func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
+                     for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+            if let url = navigationAction.request.url, url.scheme == "https", url.host == "basedcommander.com" {
+                UIApplication.shared.open(url)
+            }
+            return nil
         }
 
         // iOS can stop the web view's process when memory runs low. Reload; the game saves itself.

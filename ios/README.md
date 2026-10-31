@@ -25,7 +25,7 @@ Every upload needs a higher build number: raise **Build** in the target's Genera
 
 ## Kids and privacy
 - No ads, no analytics, no sign-in, and nothing leaves the phone. Saves stay in the app on the device.
-- The app never opens outside links. Apple's Kids Category requires a parental gate before outside links or purchases and does not allow third-party ads or analytics; this app has none of those.
+- The app opens one outside link: the privacy policy on basedcommander.com, in Safari, and only after a grown-ups question (a parental gate) under Settings, PRIVACY AND HELP. Apple requires the privacy policy to be reachable inside the app (guideline 5.1.1), and the Kids Category requires a parental gate before outside links or purchases and does not allow third-party ads or analytics (guideline 1.3). This app has no purchases, ads or analytics.
 - `ITSAppUsesNonExemptEncryption` is set to NO in `Info.plist`, so uploads skip the encryption question (the app does no encryption of its own).
 
 ## Moving a base into the app

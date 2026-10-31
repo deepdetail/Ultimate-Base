@@ -4,7 +4,9 @@
     python3 tools/build_exports.py
 
 Makes:
-  dist/web/                      a folder any static web host can serve (also opens by double-click)
+  dist/site/                     basedcommander.com: landing page, privacy, support, and the game at /play/
+  dist/basedcommander.com.zip    that folder, zipped flat: upload into public_html and extract
+  dist/web/                      the game alone, for any static web host (also opens by double-click)
   dist/BASED-Commander-web.zip   that folder, zipped
   ios/BASEDCommander/Web/        the game inside the Xcode project (refreshed every run)
   dist/BASED-Commander-iOS.zip   the whole Xcode project, zipped, ready to open on a Mac
@@ -19,6 +21,7 @@ SRC = os.path.join(ROOT, 'prototype', 'based.html')
 TERRAIN = os.path.join(ROOT, 'prototype', 'terrain.json')
 VENDOR = os.path.join(ROOT, 'export', 'vendor')
 ICONS = os.path.join(ROOT, 'export', 'icons')
+SITE = os.path.join(ROOT, 'export', 'site')
 WEB_README = os.path.join(ROOT, 'export', 'web', 'README.md')
 DIST = os.path.join(ROOT, 'dist')
 IOS = os.path.join(ROOT, 'ios')
@@ -42,7 +45,8 @@ def build_id():
     return (sha or 'local') + '-' + time.strftime('%Y%m%d')
 
 
-def page(app, bid):
+def page(app, bid, up=''):
+    """up is the path from the game page to the site root: '' for dist/web, '../' for the game at /play/."""
     game = open(SRC, encoding='utf-8').read()
     # the game file starts with a few head tags; the exports bring their own head instead
     game = swap(game, '<meta charset="utf-8">\n', '', 'charset meta')
@@ -80,15 +84,17 @@ def page(app, bid):
             '<meta name="mobile-web-app-capable" content="yes">',
             '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
             '<meta name="apple-mobile-web-app-title" content="BASED">',
-            '<link rel="manifest" href="manifest.webmanifest">',
-            '<link rel="apple-touch-icon" href="icons/icon-180.png">',
-            '<link rel="icon" type="image/png" href="icons/favicon-64.png">',
+            f'<link rel="manifest" href="{up}manifest.webmanifest">',
+            f'<link rel="apple-touch-icon" href="{up}icons/icon-180.png">',
+            f'<link rel="icon" type="image/png" href="{up}icons/favicon-64.png">',
         ]
     head += ['<style>html,body{margin:0;padding:0;background:#14171B}</style>', '</head>', '<body>']
     tail = ['</body>', '</html>', '']
     if not app:
         # offline play once visited (only on https hosts; double-clicked files skip it)
-        tail.insert(0, "<script>if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(function(){})</script>")
+        # (on the site, the game also asks the helper to keep its own files, so it plays offline from then on)
+        warm = ".then(function(){return navigator.serviceWorker.ready}).then(function(r){if(r.active)r.active.postMessage('play')})" if up else ''
+        tail.insert(0, f"<script>if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('{up}sw.js'){warm}.catch(function(){{}})</script>")
     return '\n'.join(head) + '\n' + game + '\n' + '\n'.join(tail)
 
 
@@ -98,8 +104,8 @@ def write(path, text):
         f.write(text)
 
 
-def common_files(dst, app, bid):
-    write(os.path.join(dst, 'index.html'), page(app, bid))
+def common_files(dst, app, bid, up=''):
+    write(os.path.join(dst, 'index.html'), page(app, bid, up))
     terrain = json.load(open(TERRAIN, encoding='utf-8'))
     write(os.path.join(dst, 'terrain.js'), 'window.BASED_TERRAIN=' + json.dumps(terrain, separators=(',', ':')) + ';\n')
     shutil.copytree(VENDOR, os.path.join(dst, 'vendor'))
@@ -112,17 +118,8 @@ def web(bid):
     os.makedirs(os.path.join(out, 'icons'))
     for n in ('icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'favicon-64.png'):
         shutil.copy(os.path.join(ICONS, n), os.path.join(out, 'icons', n))
-    write(os.path.join(out, 'manifest.webmanifest'), json.dumps({
-        'name': 'BASED Commander', 'short_name': 'BASED', 'start_url': './', 'scope': './',
-        'display': 'standalone', 'orientation': 'portrait', 'background_color': '#14171B', 'theme_color': '#14171B',
-        'icons': [
-            {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
-            {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
-            {'src': 'icons/icon-maskable-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
-        ]}, indent=2) + '\n')
-    files = ['./', 'index.html', 'terrain.js', 'manifest.webmanifest', 'vendor/three/three.min.js',
-             'vendor/three/examples/js/controls/OrbitControls.js', 'vendor/three/examples/js/objects/Reflector.js',
-             'vendor/fonts/fonts.css'] + ['vendor/fonts/' + f for f in sorted(os.listdir(os.path.join(VENDOR, 'fonts'))) if f.endswith('.woff2')]
+    write(os.path.join(out, 'manifest.webmanifest'), manifest('./'))
+    files = ['./', 'manifest.webmanifest'] + GAME_FILES + fonts()
     # network first: online players always get the newest game, offline players get the last one they loaded
     write(os.path.join(out, 'sw.js'), f"""const CACHE='based-{bid}';
 const FILES={json.dumps(files)};
@@ -132,6 +129,57 @@ self.addEventListener('fetch',e=>{{const r=e.request;if(r.method!=='GET'||new UR
   e.respondWith(fetch(r).then(res=>{{if(res.ok){{const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp))}}return res}}).catch(()=>caches.match(r).then(m=>m||caches.match('index.html'))))}});
 """)
     shutil.copy(WEB_README, os.path.join(out, 'README.md'))
+    return out
+
+
+GAME_FILES = ['index.html', 'terrain.js', 'vendor/three/three.min.js', 'vendor/three/examples/js/controls/OrbitControls.js',
+              'vendor/three/examples/js/objects/Reflector.js', 'vendor/fonts/fonts.css']
+
+
+def fonts():
+    return ['vendor/fonts/' + f for f in sorted(os.listdir(os.path.join(VENDOR, 'fonts'))) if f.endswith('.woff2')]
+
+
+def manifest(start, ident=None):
+    m = {} if ident is None else {'id': ident}
+    return json.dumps(dict(m, **{
+        'name': 'BASED Commander', 'short_name': 'BASED', 'start_url': start, 'scope': './',
+        'description': 'Build your base, recruit a crew of heroes, and defend it from raiders, bears and dragons.',
+        'display': 'standalone', 'orientation': 'portrait', 'background_color': '#14171B', 'theme_color': '#14171B',
+        'icons': [
+            {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
+            {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
+            {'src': 'icons/icon-maskable-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
+        ]}), indent=2) + '\n'
+
+
+def site(bid):
+    """basedcommander.com: the landing page, privacy and support pages, and the game at /play/."""
+    out = os.path.join(DIST, 'site')
+    shutil.rmtree(out, ignore_errors=True)
+    shutil.copytree(SITE, out, ignore=shutil.ignore_patterns('DEPLOY.md', '.DS_Store'))
+    common_files(os.path.join(out, 'play'), False, bid, up='../')
+    os.makedirs(os.path.join(out, 'icons'))
+    for n in ('icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'favicon-64.png'):
+        shutil.copy(os.path.join(ICONS, n), os.path.join(out, 'icons', n))
+    # installing from any page opens the game
+    write(os.path.join(out, 'manifest.webmanifest'), manifest('play/', '/play/'))
+    shell = ['./', 'privacy/', 'support/', 'manifest.webmanifest', 'assets/site.css', 'assets/site.js', 'assets/hero.webp',
+             'assets/dragon.webp', 'icons/icon-192.png', 'icons/favicon-64.png', 'play/vendor/fonts/fonts.css']
+    game = ['play/'] + ['play/' + f for f in GAME_FILES[1:] + fonts()]
+    # The landing page keeps only the small pages; the game's 5 MB is kept once someone opens /play/ (it posts 'play').
+    # Network first, so online players always get the newest game and offline players the last one they loaded.
+    write(os.path.join(out, 'sw.js'), f"""const CACHE='based-site-{bid}';
+const SHELL={json.dumps(shell)};
+const GAME={json.dumps(game)};
+const keep=list=>caches.open(CACHE).then(c=>Promise.all(list.map(u=>c.match(u).then(m=>m||c.add(u).catch(()=>{{}})))));
+self.addEventListener('install',e=>{{self.skipWaiting();e.waitUntil(keep(SHELL))}});
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('message',e=>{{if(e.data==='play') e.waitUntil(keep(GAME))}});
+self.addEventListener('fetch',e=>{{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==location.origin) return;
+  e.respondWith(fetch(r).then(res=>{{if(res.ok&&res.type==='basic'){{const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp))}}return res}})
+    .catch(()=>caches.match(r,{{ignoreSearch:true}}).then(m=>m||(r.mode==='navigate'?caches.match(u.pathname.indexOf('/play')>=0?'play/':'./'):null)).then(m=>m||Response.error())))}});
+""")
     return out
 
 
@@ -159,9 +207,10 @@ def main():
     os.makedirs(DIST, exist_ok=True)
     out = web(bid)
     zipdir(out, os.path.join(DIST, 'BASED-Commander-web.zip'), 'BASED-Commander-web')
+    zipdir(site(bid), os.path.join(DIST, 'basedcommander.com.zip'), '')
     ios(bid)
     zipdir(IOS, os.path.join(DIST, 'BASED-Commander-iOS.zip'), 'BASED-Commander-iOS')
-    for z in ('BASED-Commander-web.zip', 'BASED-Commander-iOS.zip'):
+    for z in ('basedcommander.com.zip', 'BASED-Commander-web.zip', 'BASED-Commander-iOS.zip'):
         print(f'{z}: {os.path.getsize(os.path.join(DIST, z)) / 1e6:.1f} MB')
     print('build', bid)
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="b092e9c-20261031">
+<meta name="based-build" content="1a784c7-20261031">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -41,7 +41,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-o
 h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance}
 
 /* ---------- Setup screen ---------- */
-#setup{height:100%;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;background:radial-gradient(120% 60% at 50% 0%,#2a3b44 0%,var(--gm-950) 70%)}
+#setup{height:100%;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));background:radial-gradient(120% 60% at 50% 0%,#2a3b44 0%,var(--gm-950) 70%)}
 .setup-inner{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .logo{display:block;width:min(300px,82vw);height:auto;margin:0 auto;overflow:visible;filter:drop-shadow(0 0 14px rgba(46,196,201,.45))}
 .logo text{font-family:var(--font-display);font-weight:800}
@@ -76,7 +76,7 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 
 /* ---------- Game shell ---------- */
 #game{height:100%;display:flex;flex-direction:column}
-#hud{flex:none;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-block:8px;z-index:20;background:linear-gradient(180deg,rgba(40,45,52,.98),rgba(26,30,35,.96));border-bottom:1px solid var(--glass-line);box-shadow:0 1px 0 rgba(46,196,201,.35),0 6px 18px rgba(0,0,0,.35)}
+#hud{flex:none;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;z-index:20;background:linear-gradient(180deg,rgba(40,45,52,.98),rgba(26,30,35,.96));border-bottom:1px solid var(--glass-line);box-shadow:0 1px 0 rgba(46,196,201,.35),0 6px 18px rgba(0,0,0,.35)}
 .hud-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .hrec{flex:none;height:34px;padding:0 12px;border-radius:10px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);color:#e6edf3;font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
 .avatar{width:40px;height:40px;border-radius:50%;flex:none;overflow:hidden;border:2px solid var(--teal);background:radial-gradient(circle at 50% 30%,#4a6a78,#1e2a33);box-shadow:0 0 10px rgba(46,196,201,.4)}
@@ -3961,6 +3961,9 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='code-copy'){const t=$('#code-box');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied!','ok'),()=>{try{document.execCommand('copy');toast('Save code copied!','ok')}catch(err){toast('Select the text and copy it by hand.')}})}
   else if(a==='code-in'){openSheet('Load a save code',`<div class="muted">Paste a save code. This replaces the base on this device${CLOUD.ready?' and updates its cloud save':''}.</div><textarea id="code-in" style="width:100%;height:120px;font-size:10px;background:#11161b;color:var(--text);border-radius:8px;border:1px solid var(--line,#333);padding:6px"></textarea><button class="btn primary" data-act="code-apply">LOAD THIS BASE</button>`)}
   else if(a==='code-apply'){try{const s0=JSON.parse(decodeURIComponent(escape(atob($('#code-in').value.trim()))));if(!(s0.v>=1&&s0.v<=3)||!s0.crew) throw 0;S=migrate(s0);save();unlock(S.cmd.name);cloudSave().finally(()=>location.reload())}catch(err){toast('That code did not work. Check you copied all of it.','bad')}}
+  else if(a==='privacy'){openSheet('Privacy and help',`<div class="muted">BASED Commander does not collect any personal information.</div><ul class="muted" style="margin:0;padding-left:18px;line-height:1.5"><li>No ads, no accounts, no trackers and no in-app purchases. Game money is pretend.</li><li>Your base is saved on this device. We can't see it.${CLOUD.ready?' On claude.ai it is also kept in the game\'s cloud save under your claude.ai sign-in.':''}</li><li>A SAVE CODE holds your base and Commander name. It only goes where you paste it.</li></ul><div class="muted">Full privacy policy: basedcommander.com/privacy<br>Questions or bugs: support@basedcommander.com</div><button class="btn" data-act="policy-gate">OPEN THE FULL POLICY (GROWN-UPS)</button>`)}
+  else if(a==='policy-gate'){const W=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];const x=13+Math.floor(Math.random()*7),y=6+Math.floor(Math.random()*4);GATE=x*y;openSheet('Grown-ups only',`<div class="muted">This opens the privacy policy on basedcommander.com. A grown-up can type the answer in numbers:</div><b style="font-size:17px">What is ${W[x]} times ${W[y]}?</b><input id="gate-ans" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Answer" style="width:100%;box-sizing:border-box;font:600 18px var(--font-body);padding:10px 12px;border-radius:10px;background:#11161b;color:var(--text);border:1px solid var(--glass-line)"><button class="btn primary" data-act="policy-open">OPEN THE POLICY</button>`)}
+  else if(a==='policy-open'){const v=(($('#gate-ans')||{}).value||'').trim();if(GATE&&v===String(GATE)){GATE=0;closeSheet();window.open('https://basedcommander.com/privacy/','_blank')}else toast('Not quite. This part is for grown-ups.','bad')}
   else if(a==='reset'){openSheet('Start over?',`<div class="muted">This clears the base on this device so you can start a new one.${CLOUD.ready?` ${esc(cmdName(S.cmd.name))} stays saved: type its name under Continue game to come back.`:' It stays on this device under its name: type the name under Continue game to come back. Make a SAVE CODE too, in case this browser gets cleared.'}</div><div class="row"><button class="btn" data-close>KEEP PLAYING</button><button class="btn danger" data-act="reset-yes">ERASE AND RESTART</button></div>`)}
 });
 $('#b-crew').onclick=crewList;
@@ -3982,11 +3985,12 @@ document.addEventListener('click',e=>{const b=e.target.closest('#mapview [data-a
   else if(a==='mfar'){const f=MAP_FAR[mapReg()][+b.dataset.i];openSheet(esc(f.name),`<div class="muted">${esc(f.note)}</div>`)}});
 $('#b-recruit').onclick=()=>{if(S) recruitSheet()};
 $('#b-gear').onclick=()=>openSheet('Settings',`<div class="muted">${esc(cmdName(S.cmd.name))} · ${esc(FACTIONS[S.faction].name)} · Battles won: ${S.wins} · Clones caught: ${S.caught} · Outposts found: ${Object.keys(S.found||{}).length}</div>
-  ${eraLadder()}<div class="muted" style="font-size:12px">BASED Commander v2.0${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
+  ${eraLadder()}<div class="muted" style="font-size:12px">BASED Commander v2.0${SANDBOX?' · SANDBOX MODE (separate test save)':''}. </div><div class="muted" style="font-size:12px">${cloudStatus()}</div>${sandboxPanel()}<div class="row"><button class="btn" data-act="code-out">SAVE CODE</button><button class="btn" data-act="code-in">LOAD CODE</button></div><button class="btn" data-act="privacy">PRIVACY AND HELP</button><button class="btn" data-act="lock">LOCK BASE (back to the start screen)</button><button class="btn danger" data-act="reset">START A NEW BASE</button>`);
 document.querySelectorAll('[data-ic]').forEach(el=>el.insertAdjacentHTML('afterbegin',icon(el.dataset.ic)));
 $('#b-gear').innerHTML=icon('gear');
 
 // ---------- cloud save: one base per Commander name, private to the signed-in account ----------
+let GATE=0; // answer to the grown-ups question in front of the privacy policy link
 const CLOUD={db:null,uid:null,ready:false,last:'',savedAt:0,busy:false,dirty:false,err:'',bases:[]};
 const cmdName=n=>/^commander\b/i.test(n)?n:'Commander '+n;
 const slug=n=>String(n||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||'commander';
