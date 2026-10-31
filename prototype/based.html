@@ -1275,7 +1275,7 @@ const FAR={"mb":[0.122,0.452],"mb@casual":[0.104,0.45],"mb@exec":[0.11,0.451],"m
 const CHIN={"mb":0.146,"mb@casual":0.123,"mb@exec":0.146,"mb@merc":0.123,"mb@recruit":0.151,"f":0.164,"f@casual":0.164,"f@exec":0.166,"f@merc":0.166,"f@recruit":0.162,"chef":0.191,"ninja":0.151,"mech":0.135,"suit":0.126,"scout":0.116,"titan":0.076,"medic":0.148};
 // weapons carried one in each hand
 const DUAL={kunai:1,shuriken:1};
-const GRIP={"slingshot":[0.546,0.78,0.24,18,0],"bb":[0.3,0.529,0.55,28,0],"kunai":[0.3,0.496,0.24,-20,0],"shuriken":[0.5,0.5,0.15,0,0],"bow":[0.51,0.5,0.6,12,0],"staff":[0.5,0.5,0.92,-72,-25],"handgun":[0.27,0.646,0.2,35,0],"katana":[0.2,0.489,0.58,-45,15],"rifle":[0.28,0.532,0.62,28,0],"assault":[0.38,0.582,0.52,28,0],"mg":[0.27,0.566,0.6,28,0],"laser":[0.37,0.569,0.58,28,0],"plasma":[0.37,0.581,0.58,28,0],"rail":[0.31,0.565,0.64,28,0]};
+const GRIP={"slingshot":[0.546,0.78,0.24,8,0],"bb":[0.397,0.437,0.55,-32,-6],"kunai":[0.3,0.496,0.24,-20,0],"shuriken":[0.5,0.5,0.15,0,0],"bow":[0.488,0.5,0.6,12,0],"staff":[0.5,0.491,0.92,-62,-30],"handgun":[0.27,0.646,0.2,38,-4],"katana":[0.2,0.489,0.58,-52,-12],"rifle":[0.417,0.464,0.62,-32,-6],"assault":[0.473,0.402,0.52,-32,-6],"mg":[0.462,0.453,0.6,-30,-6],"laser":[0.487,0.425,0.58,-32,-6],"plasma":[0.506,0.402,0.58,-32,-6],"rail":[0.479,0.415,0.64,-32,-6]};
 // armor on painted crew: where each picture's chest sits (left, right, shoulder line, waist, as fractions of the picture).
 // Armor draws over the clothes and under the held weapon, so the gun always stays on top.
 const TORSO={"mb":[0.187,0.639,0.193,0.393],"mb@casual":[0.294,0.624,0.17,0.37],"mb@exec":[0.165,0.635,0.193,0.393],"mb@merc":[0.239,0.59,0.17,0.37],"mb@recruit":[0.199,0.672,0.198,0.398],"f":[0.2,0.634,0.211,0.411],"f@casual":[0.175,0.648,0.211,0.411],"f@exec":[0.17,0.625,0.214,0.414],"f@merc":[0.171,0.645,0.214,0.414],"f@recruit":[0.183,0.623,0.209,0.409],"chef":[0.243,0.777,0.239,0.439],"ninja":[0.243,0.58,0.198,0.398],"mech":[0.253,0.619,0.182,0.382],"suit":[0.415,0.695,0.173,0.373],"scout":[0.279,0.643,0.164,0.364],"titan":[0.275,0.574,0.123,0.323],"medic":[0.234,0.706,0.195,0.395]};
@@ -1306,9 +1306,11 @@ function armorOver(c,x,top,w,h){
   if(ar==='nano') g=base('#12161a')+`<path d="M${f(X0+bw*.14)} ${f(T+bh*.14)} L${f(nx)} ${f(T+bh*.46)} L${f(X1-bw*.12)} ${f(T+bh*.14)} M${f(nx)} ${f(T+bh*.46)} V${f(Bt-bh*.04)} M${f(X0+bw*.1)} ${f(T+bh*.74)} H${f(X1-bw*.06)}" stroke="#2EC4C9" stroke-width=".55" fill="none"/>`;
   return `<g class="armor">${g}</g>`;
 }
+// One weapon sits in the character's right hand (the picture's left, FAR), drawn across the front of the body; long
+// weapons are held at their balance point, hand weapons by the handle. Paired kunai and stars keep one in each hand.
 function heldWeapon(c,x,top,w,h,far){
   const k=c.weapon,src=k&&(GSPR['held:'+k]||GSPR['weapon:'+k]);if(!k||k==='none'||!GRIP[k]||!src||(far&&!DUAL[k])) return '';
-  const [gx,gy,ln,ri,ra]=GRIP[k],hd=(far?FAR:HAND)[c.art]||(far?[.15,.5]:[.86,.51]),S=ln*h,hx=x+hd[0]*w,hy=top+hd[1]*h;
+  const R=far||!DUAL[k],[gx,gy,ln,ri,ra]=GRIP[k],hd=(R?FAR:HAND)[c.art]||(R?[.15,.5]:[.86,.51]),S=ln*h,hx=x+hd[0]*w,hy=top+hd[1]*h;
   return `<g class="held${far?' far':''}" transform="rotate(${c._aim?ra:ri} ${hx.toFixed(2)} ${hy.toFixed(2)})"><image href="${src}" x="${(hx-gx*S).toFixed(2)}" y="${(hy-gy*S).toFixed(2)}" width="${S.toFixed(2)}" height="${S.toFixed(2)}"/></g>`;
 }
 // a bow comes with a quiver slung on the back: drawn behind the body, so only the arrows over the shoulder show
@@ -1330,7 +1332,7 @@ function personSVG(c,vb){
     const tell=hasTell(c,'feet')?`<defs><clipPath id="cf${u}"><rect x="0" y="${(90.5-h*.1).toFixed(2)}" width="40" height="12"/></clipPath><filter id="gf${u}"><feColorMatrix type="matrix" values=".15 .15 0 0 0  .35 .55 .2 0 .22  .05 .1 .1 0 0  0 0 0 1 0"/></filter></defs><g clip-path="url(#cf${u})" filter="url(#gf${u})"><use href="#${pid}"/></g>`:'';
     const sw=w*.36,hw=w*.52;
     const coat=`<g class="coatg"><path d="M${20-sw} 25 Q${20-sw-1} 21.5 20 21 Q${20+sw+1} 21.5 ${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q20 80 ${20-hw} 77 L${20-sw-1.5} 46 Z" fill="#A88A5C"/><path d="M20 21.5 L${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q22 79.5 20.5 79.5 Z" fill="rgba(0,0,0,.14)"/><path d="M${20-4} 21.5 L20 33 L${20+4} 21.5 L${20+5.5} 27 L20 37 L${20-5.5} 27 Z" fill="#8F7349"/><rect x="${20-sw-1}" y="44" width="${2*sw+2}" height="2.4" rx="1" fill="#6E5636"/><path d="M20 37 L20 79" stroke="rgba(0,0,0,.28)" stroke-width=".5"/><circle cx="21.6" cy="40" r=".55" fill="#5A4428"/><circle cx="21.6" cy="52" r=".55" fill="#5A4428"/></g>`;
-    const tp=90.5-h,over=(A.dressed?'':outfitOver(c,+x,tp,w,h))+(A.armored?'':armorOver(c,+x,tp,w,h)),held=heldWeapon(c,+x,tp,w,h),back=quiverBack(c,+x,tp,w,h)+heldWeapon(c,+x,tp,w,h,true),hd=HAND[c.art]||[.86,.51];
+    const tp=90.5-h,over=(A.dressed?'':outfitOver(c,+x,tp,w,h))+(A.armored?'':armorOver(c,+x,tp,w,h)),held=heldWeapon(c,+x,tp,w,h),back=quiverBack(c,+x,tp,w,h)+heldWeapon(c,+x,tp,w,h,true),hd=DUAL[c.weapon]?(HAND[c.art]||[.86,.51]):(FAR[c.art]||[.15,.5]);
     const clips=(over?`<clipPath id="${pid}h"><rect x="-60" y="${(tp-6).toFixed(2)}" width="160" height="${((CHIN[c.art]||.12)*h+6).toFixed(2)}"/></clipPath>`:'')+(held?`<clipPath id="${pid}f"><ellipse cx="${(+x+hd[0]*w).toFixed(2)}" cy="${(tp+hd[1]*h).toFixed(2)}" rx="${(.026*h).toFixed(2)}" ry="${(.032*h).toFixed(2)}"/></clipPath>`:'');
     return `<svg viewBox="0 0 40 100" aria-hidden="true" style="overflow:visible"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${clips?`<defs>${clips}</defs>`:''}${back}${img}${tell}${over}${over?`<use href="#${pid}" clip-path="url(#${pid}h)"/>`:''}${tellX(c,tp,20+w*.05)}${coat}${held}${held?`<use href="#${pid}" clip-path="url(#${pid}f)"/>`:''}</svg>`}
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
