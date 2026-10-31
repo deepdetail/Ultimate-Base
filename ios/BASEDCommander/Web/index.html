@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="5b61adc-20261031">
+<meta name="based-build" content="d7e550f-20261031">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -1279,12 +1279,12 @@ const ROLE_LOOK={armory:'mech',food:'chef',barracks:'ninja',fitness:'titan',powe
 // (centered on each closed fist, measured from the sprites)
 const HAND={"mb":[0.853,0.543],"mb@casual":[0.917,0.535],"mb@exec":[0.841,0.54],"mb@merc":[0.865,0.541],"mb@recruit":[0.912,0.537],"f":[0.837,0.532],"f@casual":[0.835,0.526],"f@exec":[0.827,0.531],"f@merc":[0.839,0.528],"f@recruit":[0.833,0.526],"chef":[0.911,0.551],"ninja":[0.832,0.52],"mech":[0.908,0.551],"suit":[0.885,0.544],"scout":[0.887,0.535],"titan":[0.911,0.527],"medic":[0.879,0.526]};
 // the far (back) hand, for the second kunai or star, which is drawn behind the body
-const FAR={"mb":[0.122,0.452],"mb@casual":[0.104,0.45],"mb@exec":[0.11,0.451],"mb@merc":[0.14,0.468],"mb@recruit":[0.1,0.449],"f":[0.163,0.476],"f@casual":[0.147,0.453],"f@exec":[0.126,0.452],"f@merc":[0.118,0.469],"f@recruit":[0.169,0.517],"chef":[0.094,0.598],"ninja":[0.15,0.506],"mech":[0.095,0.45],"suit":[0.192,0.453],"scout":[0.103,0.455],"titan":[0.115,0.451],"medic":[0.093,0.468]};
+const FAR={"mb":[0.13,0.515],"mb@casual":[0.14,0.535],"mb@exec":[0.16,0.525],"mb@merc":[0.16,0.51],"mb@recruit":[0.155,0.53],"f":[0.115,0.515],"f@casual":[0.12,0.54],"f@exec":[0.12,0.535],"f@merc":[0.115,0.515],"f@recruit":[0.12,0.525],"chef":[0.25,0.52],"ninja":[0.115,0.495],"mech":[0.15,0.525],"suit":[0.17,0.52],"scout":[0.12,0.515],"titan":[0.15,0.5],"medic":[0.12,0.485]};
 // where the chin ends: the head above this line is drawn again over armor and outfits, so a vest collar sits behind the chin
 const CHIN={"mb":0.146,"mb@casual":0.123,"mb@exec":0.146,"mb@merc":0.123,"mb@recruit":0.151,"f":0.164,"f@casual":0.164,"f@exec":0.166,"f@merc":0.166,"f@recruit":0.162,"chef":0.191,"ninja":0.151,"mech":0.135,"suit":0.126,"scout":0.116,"titan":0.076,"medic":0.148};
 // weapons carried one in each hand
 const DUAL={kunai:1,shuriken:1};
-const GRIP={"slingshot":[0.546,0.78,0.24,8,0],"bb":[0.397,0.437,0.55,-32,-6],"kunai":[0.3,0.496,0.24,-20,0],"shuriken":[0.5,0.5,0.15,0,0],"bow":[0.488,0.5,0.6,12,0],"staff":[0.5,0.491,0.92,-62,-30],"handgun":[0.27,0.646,0.2,38,-4],"katana":[0.2,0.489,0.58,-52,-12],"rifle":[0.417,0.464,0.62,-32,-6],"assault":[0.473,0.402,0.52,-32,-6],"mg":[0.462,0.453,0.6,-30,-6],"laser":[0.487,0.425,0.58,-32,-6],"plasma":[0.506,0.402,0.58,-32,-6],"rail":[0.479,0.415,0.64,-32,-6]};
+const GRIP={"slingshot":[0.546,0.78,0.24,80,0],"bb":[0.397,0.437,0.55,8,0],"kunai":[0.3,0.496,0.24,-20,0],"shuriken":[0.5,0.5,0.15,0,0],"bow":[0.488,0.5,0.6,10,0],"staff":[0.5,0.491,0.92,4,-15],"handgun":[0.27,0.646,0.2,70,0],"katana":[0.2,0.489,0.58,28,-25],"rifle":[0.417,0.464,0.62,8,0],"assault":[0.473,0.402,0.52,8,0],"mg":[0.462,0.453,0.6,8,0],"laser":[0.487,0.425,0.58,8,0],"plasma":[0.506,0.402,0.58,8,0],"rail":[0.479,0.415,0.64,8,0]};
 // armor on painted crew: where each picture's chest sits (left, right, shoulder line, waist, as fractions of the picture).
 // Armor draws over the clothes and under the held weapon, so the gun always stays on top.
 const TORSO={"mb":[0.187,0.639,0.193,0.393],"mb@casual":[0.294,0.624,0.17,0.37],"mb@exec":[0.165,0.635,0.193,0.393],"mb@merc":[0.239,0.59,0.17,0.37],"mb@recruit":[0.199,0.672,0.198,0.398],"f":[0.2,0.634,0.211,0.411],"f@casual":[0.175,0.648,0.211,0.411],"f@exec":[0.17,0.625,0.214,0.414],"f@merc":[0.171,0.645,0.214,0.414],"f@recruit":[0.183,0.623,0.209,0.409],"chef":[0.243,0.777,0.239,0.439],"ninja":[0.243,0.58,0.198,0.398],"mech":[0.253,0.619,0.182,0.382],"suit":[0.415,0.695,0.173,0.373],"scout":[0.279,0.643,0.164,0.364],"titan":[0.275,0.574,0.123,0.323],"medic":[0.234,0.706,0.195,0.395]};
@@ -1342,7 +1342,7 @@ function personSVG(c,vb){
     const sw=w*.36,hw=w*.52;
     const coat=`<g class="coatg"><path d="M${20-sw} 25 Q${20-sw-1} 21.5 20 21 Q${20+sw+1} 21.5 ${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q20 80 ${20-hw} 77 L${20-sw-1.5} 46 Z" fill="#A88A5C"/><path d="M20 21.5 L${20+sw} 25 L${20+sw+1.5} 46 L${20+hw} 77 Q22 79.5 20.5 79.5 Z" fill="rgba(0,0,0,.14)"/><path d="M${20-4} 21.5 L20 33 L${20+4} 21.5 L${20+5.5} 27 L20 37 L${20-5.5} 27 Z" fill="#8F7349"/><rect x="${20-sw-1}" y="44" width="${2*sw+2}" height="2.4" rx="1" fill="#6E5636"/><path d="M20 37 L20 79" stroke="rgba(0,0,0,.28)" stroke-width=".5"/><circle cx="21.6" cy="40" r=".55" fill="#5A4428"/><circle cx="21.6" cy="52" r=".55" fill="#5A4428"/></g>`;
     const tp=90.5-h,over=(A.dressed?'':outfitOver(c,+x,tp,w,h))+(A.armored?'':armorOver(c,+x,tp,w,h)),held=heldWeapon(c,+x,tp,w,h),back=quiverBack(c,+x,tp,w,h)+heldWeapon(c,+x,tp,w,h,true),hd=DUAL[c.weapon]?(HAND[c.art]||[.86,.51]):(FAR[c.art]||[.15,.5]);
-    const clips=(over?`<clipPath id="${pid}h"><rect x="-60" y="${(tp-6).toFixed(2)}" width="160" height="${((CHIN[c.art]||.12)*h+6).toFixed(2)}"/></clipPath>`:'')+(held?`<clipPath id="${pid}f"><ellipse cx="${(+x+hd[0]*w).toFixed(2)}" cy="${(tp+hd[1]*h).toFixed(2)}" rx="${(.026*h).toFixed(2)}" ry="${(.032*h).toFixed(2)}"/></clipPath>`:'');
+    const clips=(over?`<clipPath id="${pid}h"><rect x="-60" y="${(tp-6).toFixed(2)}" width="160" height="${((CHIN[c.art]||.12)*h+6).toFixed(2)}"/></clipPath>`:'')+(held?`<clipPath id="${pid}f"><ellipse cx="${(+x+hd[0]*w).toFixed(2)}" cy="${(tp+hd[1]*h).toFixed(2)}" rx="${(.032*h).toFixed(2)}" ry="${(.038*h).toFixed(2)}"/></clipPath>`:'');
     return `<svg viewBox="0 0 40 100" aria-hidden="true" style="overflow:visible"${vb?` preserveAspectRatio="xMidYMin slice"`:''}>${clips?`<defs>${clips}</defs>`:''}${back}${img}${tell}${over}${over?`<use href="#${pid}" clip-path="url(#${pid}h)"/>`:''}${tellX(c,tp,20+w*.05)}${coat}${held}${held?`<use href="#${pid}" clip-path="url(#${pid}f)"/>`:''}</svg>`}
   const hs=(c.hs===undefined?Math.abs(c.id||0)%4:c.hs)%4;
   const eye=c.eye||EYES[Math.abs(c.id||0)%EYES.length];
