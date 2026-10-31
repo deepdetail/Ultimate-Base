@@ -1,6 +1,6 @@
 # BASED Commander: Character System (archetypes, base bodies, outfits, armor)
 
-Status: DRAFT for Phoenix to review. The archetype table below is a starting proposal, not a decision. Questions are in `art/PHOENIX_QUESTIONS.md`.
+Status: DECIDED with Phoenix (31 October 2026). Answers are recorded in `art/PHOENIX_QUESTIONS.md`. Copy-paste prompts for all 40 characters: `art/CREW_SHEET_RUN.md` (built by `art/tools/crew_prompts.py`).
 
 ## 1. The idea in one paragraph
 Every crew member is built from a small set of fixed **archetypes** (8 to start). Each archetype is drawn once in a plain **base layer** (a fitted future singlet), as a turnaround sheet with five views. Every uniform, class outfit and armor is then drawn **on that same body**, as the same five views, so clothes always fit that archetype's size and shape. New recruits are randomized from the archetypes (skin tone, hair color, name, small stat spread), so no two feel identical even though the art set stays manageable.
@@ -8,33 +8,59 @@ Every crew member is built from a small set of fixed **archetypes** (8 to start)
 ## 2. Why full outfit sheets, not clothing layers
 AI image tools cannot draw a jacket on its own that lines up pixel-perfectly with a separately drawn body, so "body plus clothing overlay" would slip at the shoulders and hands. Instead, each outfit is drawn as a full image of that archetype wearing it, made by editing the base sheet ("same person, same five poses, now wearing X"). The base sheet is the anchor that keeps proportions identical. This is the same method `art/WARDROBE_RUN.md` already uses with the two Commanders.
 
-## 3. Archetypes (draft, 8)
-Each one has a fixed build, a signature look and one natural boost that fits the game's existing stats (`str`, `aim`, `smarts`, mood) and room classes.
+## 3. Characters (decided)
 
-| # | Archetype | Build | Signature look | Natural boost | Fits class |
-|---|---|---|---|---|---|
-| 1 | Titan | Tall, broad, heavy muscle | Buzz cut, strong jaw | +Strength | Athlete, Defender |
-| 2 | Sharpshooter | Lean athletic, very steady stance | Short neat hair, focused eyes | +Aim | Defender |
-| 3 | Brain | Slim, slightly shorter | Glasses, messy hair | +Smarts (research) | Scientist |
-| 4 | Gearhead | Stocky, thick forearms | Bandana or goggles, grease smudge | +Repair and power output | Engineer |
-| 5 | Medic | Average build, calm posture | Neat hair, gentle face | +Healing speed in Med Bay | Medic |
-| 6 | Ace | Wiry, quick | Swept hair, aviator look | +Vehicle speed and handling | Pilot |
-| 7 | Shadow | Small, very agile | Hood-friendly short hair, sharp eyes | +Speed, better at spotting clones | Athlete, Scout |
-| 8 | Heart | Sturdy, warm | Curly hair, big smile | +Mood for roommates, +food output | Cook |
+### Natural abilities (Phoenix's list)
+| Ability | Role | What it does in the game |
+|---|---|---|
+| Strength | Athlete | More health (HP) in battles |
+| Battle | Soldier | Hits harder (AP, read here as attack power) |
+| Charisma | Leader | Keeps roommates happy and working faster |
+| IQ | Genius | Smarter, earns more in HQ |
+| Med | Healer | Knocked out crew heal faster |
+| Tech | Nerd | More power and faster repairs |
+| Scientist | Research | More tech points, better at spotting clones |
+| Driving and Pilot | Adventurer | Faster, safer missions |
+
+### 16 recruit kinds, each as a boy and a girl (32 characters)
+Two kinds per ability. Recruits are drawn with plain medium-brown hair and medium skin so the game can recolor every new recruit.
+
+| Ability | Kind 1 | Kind 2 |
+|---|---|---|
+| Strength | Bruiser (big, heavy) | Sprinter (lean runner) |
+| Battle | Trooper (square stance) | Ranger (wiry, steady) |
+| Charisma | Captain (tall, confident) | Diplomat (relaxed, friendly) |
+| IQ | Prodigy (small, round glasses) | Strategist (tall, calm, rectangular glasses) |
+| Med | Paramedic (sturdy, kind) | Caretaker (warm, curly hair) |
+| Tech | Hacker (slim, headphones) | Mechanic (stocky, goggles) |
+| Scientist | Chemist (lab goggles) | Explorer (outdoorsy, compass) |
+| Driving and Pilot | Pilot (aviator glasses) | Racer (compact, gloves) |
+
+### 8 Legendary characters (bonus, half boys and half girls)
+The first draft archetypes became the Legendary set. Each has a special name that can never be changed, fixed colors (never recolored) and a gold-seam base layer. A player can recruit one of each, at most. Names are proposals until Phoenix okays them.
+
+| Legendary | Name | Boy or girl | Ability | Look |
+|---|---|---|---|---|
+| Titan | Ironclad Rex | boy | Strength | Towering, black buzz cut, deep brown skin |
+| Sharpshooter | Nova Vex | girl | Battle | Silver-white low bun, violet eyes |
+| Heart | Sunny Valor | girl | Charisma | Bright red curls, freckles, big smile |
+| Brain | Quill Quantum | boy | IQ | Round gold glasses, blue-black hair |
+| Medic | Mercy Bloom | girl | Med | Long dark braid, calm |
+| Gearhead | Bolt Ryder | boy | Tech | Copper-red hair, goggles, grease smudge |
+| Shadow | Echo Nightshade | girl | Scientist | Black pixie cut with a teal streak, green eyes |
+| Ace | Skye Maverick | boy | Driving and Pilot | Swept blond hair, aviator glasses |
 
 The Commander stays separate (the player's own character, already in `art/commander/`).
 
-Recommended: each archetype has a boy and a girl version, so 16 base bodies. That lands inside the 8 to 16 range and lets the crew look mixed without extra archetypes.
-
 ## 4. Randomizing new recruits
 When a new person joins:
-1. Pick an archetype (weighted toward what the base needs, or random).
+1. Pick one of the 16 recruit kinds (weighted toward what the base needs, or random). Rarely, offer a Legendary the player does not have yet.
 2. Pick boy or girl.
 3. Pick a skin tone and hair color from the presets, applied at runtime with the tint masks in `art/CHARACTER_CUSTOMIZATION.md` (5 skin tones x 7 hair colors).
 4. Give a random name and a small stat spread around the archetype's boost.
 5. The outfit comes from their job and faction, so the same archetype looks different by role.
 
-That gives 16 bodies x 35 color combos = 560 looks before outfits, from 16 base drawings.
+That gives 32 recruit bodies x 35 color combos = 1,120 looks before outfits. Legendary characters are never recolored or renamed, and each can be recruited once per player.
 
 ## 5. Image types
 
@@ -68,17 +94,16 @@ Weapons stay universal: one image per weapon (already in `art/WEAPON_SHEET_RUN.m
 - Example: `char_titan_f_fac_icr_sheet.png`.
 - Drive folder: BASED Art/Characters/<archetype>.
 
-## 7. How many images, in phases
-| Phase | What | Images (16 bodies) | Images (8 bodies) |
-|---|---|---|---|
-| 1 | Base sheets | 16 | 8 |
-| 2 | Action sheets | 16 | 8 |
-| 3 | 4 faction uniforms | 64 | 32 |
-| 4 | 10 class outfits | 160 | 80 |
-| 5 | 3 armor tiers | 48 | 24 |
-| | Total | 304 | 152 |
+## 7. How many images, in phases (40 characters)
+| Phase | What | Images |
+|---|---|---|
+| 1 and 2 | Master sheets (turnaround plus action poses) | 40 |
+| 3 | 4 faction uniforms | 160 |
+| 4 | 10 class outfits | 400 |
+| 5 | 3 armor tiers | 120 |
+| | Total | 720 |
 
-At a few dozen ChatGPT images a day, Phase 1 and 2 take a day or two. The full set is several weeks, so do Phases 1 to 3 first and check them in the game before committing to Phase 4.
+Phase 1 and 2 first (40 chats, `art/CREW_SHEET_RUN.md`), check them in the game, then decide how many outfits each character really needs before Phase 3.
 
 ## 8. Prompt templates
 

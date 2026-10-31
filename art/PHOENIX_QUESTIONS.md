@@ -27,3 +27,11 @@ Here's a starting list. Change anything:
 4. When a new person joins, should their skin and hair colors be random?
 5. Any legendary outfits you want? Who can get them?
 6. Should hidden clones sometimes carry a rare item, so catching one is a reward?
+
+## Phoenix's answers (31 October 2026)
+1. 16 kinds, each as a boy and a girl: 32 characters.
+2. Yes, every kind comes as a boy and a girl.
+3. Yes, natural abilities, a variety of these: Strength (Athlete, HP), Battle (Soldier, AP), Charisma (Leader), IQ (Genius), Med (Healer), Tech (Nerd), Scientist (Research), Driving and Pilot (Adventurer).
+Plus: the first 8 draft characters become 8 Legendary bonus characters, half boys and half girls. Each has its own special name that cannot be changed, and a player can recruit one of each.
+
+Still open: questions 4 to 6 (random colors, legendary outfits, clones carrying rare items), and an okay on the Legendary names in art/CHARACTER_SYSTEM.md.
