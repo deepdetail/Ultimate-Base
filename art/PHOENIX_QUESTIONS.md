@@ -31,7 +31,7 @@ Here's a starting list. Change anything:
 ## Phoenix's answers (31 October 2026)
 1. 16 kinds, each as a boy and a girl: 32 characters.
 2. Yes, every kind comes as a boy and a girl.
-3. Yes, natural abilities, a variety of these: Strength (Athlete, HP), Battle (Soldier, AP), Charisma (Leader), IQ (Genius), Med (Healer), Tech (Nerd), Scientist (Research), Driving and Pilot (Adventurer).
+3. Yes, natural abilities, a variety of these: Strength (Athlete, HP = health points), Battle (Soldier, AP = attack points), Charisma (Leader), IQ (Genius), Med (Healer), Tech (Nerd), Scientist (Research), Driving and Pilot (Adventurer).
 Plus: the first 8 draft characters become 8 Legendary bonus characters, half boys and half girls. Each has its own special name that cannot be changed, and a player can recruit one of each.
 
-Still open: questions 4 to 6 (random colors, legendary outfits, clones carrying rare items), and an okay on the Legendary names in art/CHARACTER_SYSTEM.md.
+Still open: questions 4 to 6 (random colors, legendary outfits, clones carrying rare items), and an okay on the Legendary names and their Legendary armor in art/CHARACTER_SYSTEM.md and art/CHROME_CREW_ARMOR_RUN.md.

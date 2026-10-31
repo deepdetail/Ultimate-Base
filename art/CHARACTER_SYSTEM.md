@@ -1,6 +1,6 @@
 # BASED Commander: Character System (archetypes, base bodies, outfits, armor)
 
-Status: DECIDED with Phoenix (31 October 2026). Answers are recorded in `art/PHOENIX_QUESTIONS.md`. Copy-paste prompts for all 40 characters: `art/CREW_SHEET_RUN.md` (built by `art/tools/crew_prompts.py`).
+Status: DECIDED with Phoenix (31 October 2026). House style: Marvel meets anime, futuristic. Claude in Chrome run for these characters plus Armory armor art: `art/CHROME_CREW_ARMOR_RUN.md`. Answers are recorded in `art/PHOENIX_QUESTIONS.md`. Copy-paste prompts for all 40 characters: `art/CREW_SHEET_RUN.md` (built by `art/tools/crew_prompts.py`).
 
 ## 1. The idea in one paragraph
 Every crew member is built from a small set of fixed **archetypes** (8 to start). Each archetype is drawn once in a plain **base layer** (a fitted future singlet), as a turnaround sheet with five views. Every uniform, class outfit and armor is then drawn **on that same body**, as the same five views, so clothes always fit that archetype's size and shape. New recruits are randomized from the archetypes (skin tone, hair color, name, small stat spread), so no two feel identical even though the art set stays manageable.
@@ -13,8 +13,8 @@ AI image tools cannot draw a jacket on its own that lines up pixel-perfectly wit
 ### Natural abilities (Phoenix's list)
 | Ability | Role | What it does in the game |
 |---|---|---|
-| Strength | Athlete | More health (HP) in battles |
-| Battle | Soldier | Hits harder (AP, read here as attack power) |
+| Strength | Athlete | HP (health points): more health in battles |
+| Battle | Soldier | AP (attack points): hits harder in battles |
 | Charisma | Leader | Keeps roommates happy and working faster |
 | IQ | Genius | Smarter, earns more in HQ |
 | Med | Healer | Knocked out crew heal faster |
@@ -39,16 +39,16 @@ Two kinds per ability. Recruits are drawn with plain medium-brown hair and mediu
 ### 8 Legendary characters (bonus, half boys and half girls)
 The first draft archetypes became the Legendary set. Each has a special name that can never be changed, fixed colors (never recolored) and a gold-seam base layer. A player can recruit one of each, at most. Names are proposals until Phoenix okays them.
 
-| Legendary | Name | Boy or girl | Ability | Look |
-|---|---|---|---|---|
-| Titan | Ironclad Rex | boy | Strength | Towering, black buzz cut, deep brown skin |
-| Sharpshooter | Nova Vex | girl | Battle | Silver-white low bun, violet eyes |
-| Heart | Sunny Valor | girl | Charisma | Bright red curls, freckles, big smile |
-| Brain | Quill Quantum | boy | IQ | Round gold glasses, blue-black hair |
-| Medic | Mercy Bloom | girl | Med | Long dark braid, calm |
-| Gearhead | Bolt Ryder | boy | Tech | Copper-red hair, goggles, grease smudge |
-| Shadow | Echo Nightshade | girl | Scientist | Black pixie cut with a teal streak, green eyes |
-| Ace | Skye Maverick | boy | Driving and Pilot | Swept blond hair, aviator glasses |
+| Legendary | Name | Boy or girl | Ability | Look | Legendary armor |
+|---|---|---|---|---|---|
+| Titan | Ironclad Rex | boy | Strength | Towering, black buzz cut, deep brown skin | Titan Bulwark |
+| Sharpshooter | Nova Vex | girl | Battle | Silver-white low bun, violet eyes | Starfall Ranger |
+| Heart | Sunny Valor | girl | Charisma | Bright red curls, freckles, big smile | Sunburst Captain |
+| Brain | Quill Quantum | boy | IQ | Round gold glasses, blue-black hair | Quantum Lab Rig |
+| Medic | Mercy Bloom | girl | Med | Long dark braid, calm | Bloom Guardian |
+| Gearhead | Bolt Ryder | boy | Tech | Copper-red hair, goggles, grease smudge | Overclock Mech Suit |
+| Shadow | Echo Nightshade | girl | Scientist | Black pixie cut with a teal streak, green eyes | Nightshade Scout Suit |
+| Ace | Skye Maverick | boy | Driving and Pilot | Swept blond hair, aviator glasses | Maverick Flight Armor |
 
 The Commander stays separate (the player's own character, already in `art/commander/`).
 
