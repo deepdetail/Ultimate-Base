@@ -176,7 +176,8 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 @keyframes bubble{from{transform:translateY(0);opacity:1}to{transform:translateY(-30px);opacity:0}}
 
 /* surface */
-.surface{position:relative;height:156px;overflow:hidden}
+.surface{position:relative;height:156px;overflow:hidden}#world:not(.inside) .surface{overflow:visible}#wrap{touch-action:pan-x pan-y}
+#zoomctl{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:30;display:flex;flex-direction:column;border-radius:12px;overflow:hidden;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45)}#zoomctl button{border:0;background:none;color:#C9D1D9;font:800 12px/1 var(--font-display,sans-serif);letter-spacing:.04em;padding:10px 0;width:44px;min-height:36px}#zoomctl button.on{background:rgba(46,196,201,.28);color:#fff}.in-mission #zoomctl,.in-map #zoomctl,body.view-in #zoomctl{display:none}
 .surface canvas#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
 .door{position:absolute;left:50%;bottom:24px;width:52px;height:62px;transform:translateX(-50%);border-radius:26px 26px 0 0;border:3px solid var(--steel-hi);background:linear-gradient(90deg,var(--gm-700) 0 49%,var(--gm-950) 49% 51%,var(--gm-700) 51%);box-shadow:0 0 18px rgba(46,196,201,.45),0 6px 10px rgba(0,0,0,.3)}
 .door::after{content:"";position:absolute;left:50%;top:8px;width:10px;height:4px;transform:translateX(-50%);background:var(--teal);border-radius:2px;box-shadow:0 0 8px var(--teal)}
@@ -467,7 +468,7 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
   </div>
 </div>
 
-<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
+<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><div id="zoomctl" role="group" aria-label="Zoom"><button data-act="oz" data-z=".3334">ALL</button><button data-act="oz" data-z=".5">50</button><button data-act="oz" data-z=".75">75</button><button data-act="oz" data-z=".94">100</button></div><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
   <div id="hud">
     <div class="hud-top">
       <div class="avatar" id="h-avatar"></div>
@@ -1412,7 +1413,10 @@ function paintWorld(){
     const gr=g.createLinearGradient(0,gy,0,gy+24);gr.addColorStop(0,'#8fcf6a');gr.addColorStop(1,'#5a9a4a');g.fillStyle=gr;g.fillRect(0,gy,W,24);
     for(let i=0;i<60;i++){const x=r()*W,y=gy+3+r()*18;g.strokeStyle='rgba(40,90,40,.6)';g.lineWidth=1;g.beginPath();g.moveTo(x,y+4);g.lineTo(x+1.5,y);g.stroke()}
     // outside: no underground. The painting's own rocky foreground carries on below the grass instead of dirt.
-    if(!ins){const s2=W/bd.naturalWidth,fh=bd.naturalHeight*.12,top2=gy+24;g.drawImage(bd,0,bd.naturalHeight*.88,bd.naturalWidth,fh,0,top2,W,Math.max(H-top2,fh*s2));return}
+    if(!ins){const s2=W/bd.naturalWidth,fh=bd.naturalHeight*.12,top2=gy+24,dh=Math.max(0,H-top2),th=fh*s2;
+      // the painting's foreground strip repeats downward, mirrored each time so the seams match, instead of stretching blurry
+      for(let y=top2,k=0;y<H;y+=th,k++){if(k%2){g.save();g.translate(0,y+th);g.scale(1,-1);g.drawImage(bd,0,bd.naturalHeight*.88,bd.naturalWidth,fh,0,0,W,th);g.restore()}else g.drawImage(bd,0,bd.naturalHeight*.88,bd.naturalWidth,fh,0,y,W,th)}
+      return}
   } else {
   const sk=g.createLinearGradient(0,0,0,gy);
   if(desert){sk.addColorStop(0,'#3f8fd8');sk.addColorStop(.55,'#9fd6e8');sk.addColorStop(1,'#ffe3c2')}
@@ -1584,9 +1588,28 @@ const LASP={futur:.304,vintage:.407,antique:.426,modern:.458,luxe:.456,billion:.
 // outside view: only the approved painted front of the building; rooftops are their own layer and are not stacked here
 function exteriorHTML(){return ''}
 function setView(v,anim){if(VIEW===v) return;
-  const go=()=>{VIEW=v;renderWorld();if(v==='out'){const w=$('#world');w.classList.add('closing');setTimeout(()=>w.classList.remove('closing'),340);$('#wrap').scrollLeft=0;scrollToSurface(true)}else{const w=$('#world'),wr=$('#wrap');wr.scrollLeft=Math.max(0,(w.offsetWidth-wr.clientWidth)/2);w.classList.add('zoomin');setTimeout(()=>w.classList.remove('zoomin'),400)}};
+  const go=()=>{VIEW=v;renderWorld();if(v==='out'){const w=$('#world');w.classList.add('closing');setTimeout(()=>w.classList.remove('closing'),340);outCam(true)}else{const w=$('#world'),wr=$('#wrap');wr.scrollLeft=Math.max(0,(w.offsetWidth-wr.clientWidth)/2);w.classList.add('zoomin');setTimeout(()=>w.classList.remove('zoomin'),400)}};
   const fa=[];
   if(v==='in'&&anim&&fa.length){fa.forEach(el=>el.classList.add('leaving'));setTimeout(go,260)}else go()}
+// ---------- outside camera ----------
+// The painted landscape is BG_X times as wide as the base, so the base is a small part of a big scene (about 1/32 of
+// its area). OZ is how much of the screen width the base fills: 1 = edge to edge, BG_X inverse = the whole landscape.
+// Presets 50, 75, 100 and ALL, plus pinch (or ctrl + scroll on a computer) anywhere in between.
+const BG_X=3,OZ_MIN=1/BG_X,OZ_MAX=.94;let OZ=.75;
+try{const z=+localStorage.getItem('based_oz');if(z>=OZ_MIN&&z<=OZ_MAX) OZ=z}catch(e){}
+const outZoom=()=>{const w=$('#world');return w&&VIEW!=='in'?(+w.style.zoom||1):1};
+function outCam(center){
+  const w=$('#world'),wrap=$('#wrap'),s=$('#surface');if(!w||!wrap||!s||VIEW==='in') return;
+  const LB=lobbyDims(lobbyTier()),W0=LB.W,baseW=LB.w*W0,worldW=Math.max(W0,Math.round(BG_X*baseW)),z=Math.max(.2,OZ*wrap.clientWidth/baseW);
+  const cy=wrap.scrollTop+wrap.clientHeight/2,oldZ=+w.style.zoom||1;
+  w.style.maxWidth='none';w.style.width=worldW+'px';w.style.zoom=z.toFixed(4);w.style.minHeight=Math.ceil(wrap.clientHeight/z)+'px';
+  s.style.width=W0+'px';s.style.margin='0 auto';wrap.style.overflowX='auto';
+  paintWorld();
+  if(center){wrap.scrollLeft=(worldW*z-wrap.clientWidth)/2;scrollToSurface(false)}
+  else{wrap.scrollLeft=(worldW*z-wrap.clientWidth)/2;wrap.scrollTop=cy/oldZ*z-wrap.clientHeight/2}
+  document.querySelectorAll('#zoomctl button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.z-OZ)<.02));
+}
+function setOZ(z,center){OZ=clamp(z,OZ_MIN,OZ_MAX);try{localStorage.setItem('based_oz',OZ.toFixed(3))}catch(e){}outCam(center)}
 function renderWorld(){
   const w=$('#world');
   let h=`<canvas id="bg"></canvas><div class="layer sky pad-x">`;
@@ -1620,8 +1643,8 @@ function renderWorld(){
   const need=ins?28+cols*124:0,wrap=$('#wrap');
   if(ins){const fk=frontKey(),[bx0,bx1]=FRONT_BOX[fk]||[.1,.9],cw=need/(bx1-bx0),gs=ghostSlots(fk),lo=Math.min(0,...gs.map(g=>g.fx-g.tw)),hi=Math.max(1,...gs.map(g=>g.fx+g.tw));
     const side=Math.max(bx0-lo,hi-bx1)*cw+40,worldW=Math.max(wrap.clientWidth,Math.round(need+2*side)),z=Math.min(1,wrap.clientWidth/worldW);
-    w.style.width=worldW+'px';w.style.maxWidth='none';w.style.zoom=z<1?z.toFixed(4):'';w.style.setProperty('--bw',(worldW>wrap.clientWidth?need:Math.max(need,worldW-2*side))+'px');wrap.style.overflowX='hidden';}
-  else{w.style.width='';w.style.zoom='';w.style.maxWidth=wmax()+'px';wrap.style.overflowX='hidden';}
+    w.style.width=worldW+'px';w.style.maxWidth='none';w.style.minHeight='';w.style.zoom=z<1?z.toFixed(4):'';w.style.setProperty('--bw',(worldW>wrap.clientWidth?need:Math.max(need,worldW-2*side))+'px');wrap.style.overflowX='hidden';}
+  else outCam(true);
   const vb=$('#viewbtn');if(vb){vb.innerHTML=ins?`${icon('door')}<b>OUTSIDE</b>`:`${icon('build')}<b>BASE</b>`;vb.dataset.view=ins?'out':'in'}
   attachTur3D();
   if(B){const box=$('#enemies');B.enemies.forEach(e=>{if(e.el)box.appendChild(e.el)});renderShield()}
@@ -1632,10 +1655,20 @@ function renderWorld(){
   updateHUD(true);
 }
 let lastW=0;
-window.addEventListener('resize',()=>{const w=$('#world');if(S&&w&&w.clientWidth!==lastW){lastW=w.clientWidth;paintWorld();if(T3&&$('#surface')) syncTur3D()}});
+window.addEventListener('resize',()=>{const w=$('#world');if(S&&w&&w.clientWidth!==lastW){lastW=w.clientWidth;if(VIEW!=='in') outCam(true);else paintWorld();if(T3&&$('#surface')) syncTur3D()}});
+// pinch to zoom the outside (two fingers), or ctrl + scroll wheel on a computer
+$('#zoomctl').addEventListener('click',e=>{const b=e.target.closest('[data-z]');if(b) setOZ(+b.dataset.z,true)});
+(()=>{const wr=$('#wrap');if(!wr) return;let d0=0,z0=OZ,raf=0;const dist=e=>Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  const go=z=>{OZ=clamp(z,OZ_MIN,OZ_MAX);if(!raf) raf=requestAnimationFrame(()=>{raf=0;outCam(false)})};
+  wr.addEventListener('touchstart',e=>{if(e.touches.length===2&&VIEW!=='in'){d0=dist(e);z0=OZ}},{passive:true});
+  wr.addEventListener('touchmove',e=>{if(d0&&e.touches.length===2){e.preventDefault();go(z0*dist(e)/d0)}},{passive:false});
+  wr.addEventListener('touchend',e=>{if(d0&&e.touches.length<2){d0=0;setOZ(OZ,false)}},{passive:true});
+  wr.addEventListener('wheel',e=>{if(e.ctrlKey&&VIEW!=='in'){e.preventDefault();go(OZ*Math.exp(-e.deltaY*.01))}},{passive:false});})();
 function scrollToSurface(smooth){
-  const s=$('#surface'),wrap=$('#wrap'); if(!s) return;
-  wrap.scrollTo({top:s.offsetTop-wrap.clientHeight/2+s.offsetHeight/2,behavior:smooth?'smooth':'auto'});
+  const s=$('#surface'),wrap=$('#wrap'); if(!s) return;const z=outZoom();
+  // zoomed out, keep the ground low on screen so the sky and landscape fill the view
+  const bottom=(s.offsetTop+s.offsetHeight)*z,mid=(s.offsetTop+s.offsetHeight/2)*z;
+  wrap.scrollTo({top:VIEW==='in'?mid-wrap.clientHeight/2:bottom-wrap.clientHeight*.8,behavior:smooth?'smooth':'auto'});
 }
 
 // ---------- HUD ----------
@@ -2586,7 +2619,7 @@ function battleLoop(now){
     B.tracers=B.tracers.filter(tr=>(tr.t-=dt)>0); g.lineCap='round';
     for(const tr of B.tracers){g.lineWidth=tr.w||2.5;g.strokeStyle=tr.c;g.globalAlpha=clamp(tr.t/.12,0,1);g.beginPath();g.moveTo(tr.x1,tr.y1);g.lineTo(tr.x2,tr.y2);g.stroke()}
     B.fires=(B.fires||[]).filter(f=>(f.t-=dt)>0&&f.e.el&&f.e.state==='go');const cr=cv.getBoundingClientRect();
-    for(const f of B.fires){const r=f.e.el.querySelector('.dfr .fb');if(!r) continue;const q=r.getBoundingClientRect(),fl=f.e.dir<0,x1=q.left-cr.left+q.width*(fl?1-DRAGON_MOUTH[0]:DRAGON_MOUTH[0]),y1=q.top-cr.top+q.height*DRAGON_MOUTH[1],a=clamp(f.t/.15,0,1),grow=clamp((.6-f.t)/.2,0,1);
+    for(const f of B.fires){const r=f.e.el.querySelector('.dfr .fb');if(!r) continue;const q=r.getBoundingClientRect(),sc=cr.width/W||1,fl=f.e.dir<0,x1=(q.left-cr.left+q.width*(fl?1-DRAGON_MOUTH[0]:DRAGON_MOUTH[0]))/sc,y1=(q.top-cr.top+q.height*DRAGON_MOUTH[1])/sc,a=clamp(f.t/.15,0,1),grow=clamp((.6-f.t)/.2,0,1);
       g.globalCompositeOperation='lighter';for(let j=0;j<18;j++){const u=j/17*grow,px=x1+(f.x2-x1)*u+rnd(-3,3),py=y1+(f.y2-y1)*u+rnd(-3,3),rr=4+u*16;g.globalAlpha=a*(1-u*.4);g.fillStyle=u<.25?'#fff3b0':u<.6?'#ffab2e':'#ff5a1f';g.beginPath();g.arc(px,py,rr,0,7);g.fill()}
       g.globalCompositeOperation='source-over'}
     B.flashes=B.flashes.filter(f=>(f.t-=dt)>0);for(const f of B.flashes){g.globalAlpha=1;g.fillStyle='#fff3c4';g.beginPath();g.arc(f.x,f.y,3.2,0,7);g.fill()}
