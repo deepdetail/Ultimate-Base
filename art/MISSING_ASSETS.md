@@ -2,17 +2,18 @@
 
 Every picture the game still draws in code, borrows from something else, or does not have yet, and what makes it. Checked against the game code (build ebd3438) and a Drive search on November 2.
 
-## 1. Fix first: the wrong picture shows in battles now
+## 1. Fixed November 2: enemies that showed as the Raider
 
-Five enemies have no picture of their own, so the game shows the Raider instead. Raid Level 1 is Phoenix's 4 Girl Thieves and 4 crows, so it currently shows as 8 Raiders. Paintings for most of them are already in Drive, so this is wiring, not new art.
+Five enemies had no picture of their own, so battles showed the Raider instead (Raid Level 1, Phoenix's 4 Girl Thieves and 4 crows, showed as 8 Raiders). Their paintings were already in Drive (the October 20 monster art) and are now in the game.
 
-| Enemy | Shows now | In Drive (folder of October 20 monster art) | Next step |
-|---|---|---|---|
-| Girl Thief | Raider | "Stealthy Purple-Hooded Rogue Operative.png" (check it is the girl) | Wire it |
-| Coyote | Raider | "Stalking Coyote on Green Screen.png" | Wire it |
-| Raven, and the Crow that borrows it | Raider | "Iridescent Raven in Flight.png" | Wire it |
-| Black Bear, and the Mutant Bear, Bear Rider and Yeti that borrow it | Raider | "Grumpy Black Bear on Green Background.png" | Wire it |
-| Soldier | Raider | "enemy_l3_merc_ops_01.png" (a special ops merc) | Wire it, or paint a soldier |
+| Enemy | Now uses | From Drive |
+|---|---|---|
+| Girl Thief | Her own painting | "Stealthy Purple-Hooded Rogue Operative.png" |
+| Coyote | Its own painting | "Stalking Coyote on Green Screen.png" |
+| Raven, and the Crow | The raven painting | "Iridescent Raven in Flight.png" |
+| Black Bear, and the Mutant Bear, Bear Rider and Yeti | The black bear painting | "Grumpy Black Bear on Green Background.png" |
+| Soldier | The Merc painting, recolored olive | The Merc already uses "enemy_l3_merc_ops_01.png", so a soldier of its own is still worth painting |
+| Female Raider (new) | Every other Raider in a group | "Post-Apocalyptic Desert Mercenary.png" (the enemy_l1_raider_f_01 picture from `MONSTER_RUN.md`) |
 
 These borrow another enemy's picture, tinted:
 
@@ -23,7 +24,7 @@ These borrow another enemy's picture, tinted:
 | Dinosaur | T. rex | Low priority |
 | Dragon Rider | Dragon, with the Merc as rider | Low priority |
 
-Also listed in `MONSTER_RUN.md` but not found in Drive: the female Raider (enemy_l1_raider_f_01).
+Still worth painting: a Soldier of its own (it borrows the Merc, recolored).
 
 ## 2. Paintings waiting on a Chrome run
 
