@@ -1,3 +1,5 @@
+> **Replaced** by `CHROME_COCKPIT_WIDE_RUN.md` (wide cockpits for sideways missions, with controls that move). Do not run this one.
+
 Paste everything below this line into the Claude in Chrome side panel.
 
 ---

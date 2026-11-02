@@ -33,6 +33,7 @@ Still worth painting: a Soldier of its own (it borrows the Merc, recolored).
 | `CHROME_WORLD_RUN.md` | Moab base backdrop, Sierras raid backdrop, mission skies, mission cards, the underground, Raider Buggy and Dirt Bike | 15 | BASED Art/World, BASED Art/Vehicles2 | Not run |
 | `CHROME_ROOMS_LAYERED_RUN.md` | Every room built from layers: shells, era furniture, level items, hangar, stairs, elevator | 263 | BASED Art/Rooms2 | Not run |
 | `CHROME_EXTERIOR_RUN.md` | One base front per Level, 1 to 60 | 60 | BASED Art/Exteriors2 | Not run |
+| `CHROME_COCKPIT_WIDE_RUN.md` | Wide cockpits for all 22 vehicles (windows magenta, control left out) plus 15 controls that turn with your steering | 37 | BASED Art/Cockpits2 | Not run |
 | `CHROME_ROOMS_V2_RUN.md`, vehicles section only | Side views of 20 vehicles (only the Cybertruck has a painting now) | 20 | BASED Art/Vehicles2 | Not run |
 | Recruit sheets | The Sprinter girl in the merc outfit (every other recruit outfit is in) | 1 | BASED Art 2.0 | Missing |
 
@@ -51,7 +52,7 @@ Still worth painting: a Soldier of its own (it borrows the Merc, recolored).
 |---|---|---|
 | Ninja Stars shop icon | Downloaded with the October 31 weapon art (shop_shuriken.png) | Drawn icon |
 | Pets: dog, cat, fox, hawk, wolf, crow, dragon | `PET_RUN.md`; Drive not checked | Emoji |
-| Cockpits for the other aircraft and the cars | `COCKPIT_RUN.md`; Drive not checked | Drawn cockpit frame (only the Cessna and L-39 are painted) |
+| Cockpits for the other aircraft and the cars | Replaced by `CHROME_COCKPIT_WIDE_RUN.md` (section 2), since sideways missions need wide cockpits and movable controls | Drawn cockpit frame (only the Cessna and L-39 are painted, both tall) |
 | Icons and home emblems | `ICON_RUN_CHROME.md` (88 icons); Drive not checked | Drawn vector icons |
 | Great White Shark, two neon bears | Drive, October 20 monster art | Not used yet: the shark suits Bahamas ocean raids |
 
