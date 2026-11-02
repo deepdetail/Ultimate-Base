@@ -1,5 +1,8 @@
 # Claude in Chrome: room interiors (12 rooms, Levels 1, 3 and 5)
 
+> **Replaced** by `CHROME_ROOMS_LAYERED_RUN.md` (rooms built from shells, era furniture and level items). Do not run this one.
+
+
 What this makes in ChatGPT: a painted interior for every room in the base, at three upgrade levels each. That is 36 images, so ChatGPT's daily image limit will stop it partway; it reports where to pick up.
 
 How the game uses these (why the rules below matter): each room picture fills its room box in the cutaway base, and the crew are drawn standing on top of it. The box is wider or narrower depending on the screen, so the picture gets trimmed at the sides and top, never the bottom. So: no people in the pictures, the floor runs across the bottom, the important furniture sits in the middle, and the lower third stays mostly open floor for the crew to stand on. A room shows its Level 1 picture at Levels 1 and 2, its Level 3 picture at Level 3, and its Level 5 picture at Levels 4 and 5.

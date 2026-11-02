@@ -1,0 +1,654 @@
+{
+ "eras": [
+  "modern",
+  "vintage",
+  "antique",
+  "futur",
+  "brutal",
+  "luxe",
+  "billion"
+ ],
+ "shells": [
+  "sq",
+  "wide",
+  "tall",
+  "grand"
+ ],
+ "rooms": {
+  "hq": {
+   "name": "Headquarters",
+   "main": [
+    {
+     "k": "desk",
+     "w": 2.2,
+     "h": 1.3,
+     "place": "floor"
+    },
+    {
+     "k": "statue",
+     "w": 0.9,
+     "h": 2.2,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "mapboard",
+     "w": 1.0,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "radio",
+     "w": 0.8,
+     "h": 1.0,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "screens",
+     "w": 2.0,
+     "h": 1.0,
+     "place": "wall",
+     "lv": 3
+    },
+    {
+     "k": "holotable",
+     "w": 1.6,
+     "h": 1.2,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "curvewall",
+     "w": 3.0,
+     "h": 1.4,
+     "place": "wall",
+     "lv": 5
+    }
+   ]
+  },
+  "quarters": {
+   "name": "Sleeping Quarters",
+   "main": [
+    {
+     "k": "bunk",
+     "w": 2.0,
+     "h": 1.8,
+     "place": "floor"
+    },
+    {
+     "k": "lounge",
+     "w": 1.4,
+     "h": 1.4,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "locker",
+     "w": 0.9,
+     "h": 0.5,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "shelf",
+     "w": 1.2,
+     "h": 0.6,
+     "place": "wall",
+     "lv": 2
+    },
+    {
+     "k": "plant",
+     "w": 0.6,
+     "h": 1.3,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "painting",
+     "w": 1.2,
+     "h": 0.9,
+     "place": "wall",
+     "lv": 4
+    },
+    {
+     "k": "marble",
+     "w": 0.8,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "food": {
+   "name": "Food Hall",
+   "main": [
+    {
+     "k": "table",
+     "w": 2.2,
+     "h": 1.1,
+     "place": "floor"
+    },
+    {
+     "k": "kitchen",
+     "w": 2.4,
+     "h": 1.8,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "cans",
+     "w": 1.0,
+     "h": 1.2,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "fridge",
+     "w": 0.9,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "pots",
+     "w": 1.4,
+     "h": 0.8,
+     "place": "ceiling",
+     "lv": 3
+    },
+    {
+     "k": "printer",
+     "w": 1.0,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "garden",
+     "w": 1.6,
+     "h": 1.6,
+     "place": "wall",
+     "lv": 5
+    }
+   ]
+  },
+  "power": {
+   "name": "Power Core",
+   "main": [
+    {
+     "k": "core",
+     "w": 2.0,
+     "h": 2.4,
+     "place": "floor"
+    },
+    {
+     "k": "console",
+     "w": 1.4,
+     "h": 1.3,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "drums",
+     "w": 1.2,
+     "h": 1.0,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "breaker",
+     "w": 0.9,
+     "h": 1.4,
+     "place": "wall",
+     "lv": 2
+    },
+    {
+     "k": "batteries",
+     "w": 1.6,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "cell",
+     "w": 1.0,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "rings",
+     "w": 2.4,
+     "h": 2.6,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "tech": {
+   "name": "Tech Center",
+   "main": [
+    {
+     "k": "bench",
+     "w": 2.0,
+     "h": 1.4,
+     "place": "floor"
+    },
+    {
+     "k": "compdesk",
+     "w": 1.6,
+     "h": 1.4,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "whiteboard",
+     "w": 1.2,
+     "h": 1.7,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "servers",
+     "w": 0.7,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "printer3d",
+     "w": 0.8,
+     "h": 1.0,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "robotarm",
+     "w": 1.2,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "quantum",
+     "w": 1.2,
+     "h": 2.2,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "fitness": {
+   "name": "Fitness Dojo",
+   "main": [
+    {
+     "k": "weights",
+     "w": 1.8,
+     "h": 1.6,
+     "place": "floor"
+    },
+    {
+     "k": "dummy",
+     "w": 0.7,
+     "h": 1.8,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "bag",
+     "w": 0.6,
+     "h": 1.8,
+     "place": "ceiling",
+     "lv": 1
+    },
+    {
+     "k": "mats",
+     "w": 1.4,
+     "h": 0.4,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "pullup",
+     "w": 1.4,
+     "h": 2.2,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "climb",
+     "w": 1.6,
+     "h": 2.4,
+     "place": "wall",
+     "lv": 4
+    },
+    {
+     "k": "holotarget",
+     "w": 0.8,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "armory": {
+   "name": "Armory",
+   "main": [
+    {
+     "k": "rack",
+     "w": 2.0,
+     "h": 1.8,
+     "place": "floor"
+    },
+    {
+     "k": "armorstand",
+     "w": 0.8,
+     "h": 1.9,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "vestcrate",
+     "w": 1.0,
+     "h": 0.8,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "vise",
+     "w": 1.6,
+     "h": 1.1,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "forge",
+     "w": 1.2,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "assembly",
+     "w": 1.4,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "blueprint",
+     "w": 1.4,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "barracks": {
+   "name": "Barracks",
+   "main": [
+    {
+     "k": "lockers",
+     "w": 2.0,
+     "h": 2.0,
+     "place": "floor"
+    },
+    {
+     "k": "briefing",
+     "w": 1.8,
+     "h": 1.0,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "sandbags",
+     "w": 1.6,
+     "h": 0.9,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "target",
+     "w": 0.9,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "lane",
+     "w": 2.0,
+     "h": 1.2,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "cleaning",
+     "w": 1.2,
+     "h": 1.2,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "holorange",
+     "w": 1.6,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "med": {
+   "name": "Med Bay",
+   "main": [
+    {
+     "k": "medbed",
+     "w": 2.0,
+     "h": 1.2,
+     "place": "floor"
+    },
+    {
+     "k": "cabinet",
+     "w": 1.2,
+     "h": 1.9,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "firstaid",
+     "w": 1.0,
+     "h": 1.0,
+     "place": "wall",
+     "lv": 1
+    },
+    {
+     "k": "curtain",
+     "w": 1.6,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "monitor",
+     "w": 0.6,
+     "h": 1.7,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "pod",
+     "w": 1.0,
+     "h": 2.1,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "helper",
+     "w": 1.2,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "jail": {
+   "name": "Holding Cell",
+   "main": [
+    {
+     "k": "cellfront",
+     "w": 2.2,
+     "h": 2.4,
+     "place": "floor"
+    },
+    {
+     "k": "guarddesk",
+     "w": 1.4,
+     "h": 1.2,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "bench",
+     "w": 1.4,
+     "h": 0.5,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "lamp",
+     "w": 0.4,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "cot",
+     "w": 2.0,
+     "h": 0.6,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "camera",
+     "w": 0.5,
+     "h": 0.4,
+     "place": "wall",
+     "lv": 4
+    },
+    {
+     "k": "forcefield",
+     "w": 2.2,
+     "h": 2.4,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "clonelab": {
+   "name": "Clone Lab",
+   "main": [
+    {
+     "k": "pod",
+     "w": 1.0,
+     "h": 2.2,
+     "place": "floor"
+    },
+    {
+     "k": "labconsole",
+     "w": 1.4,
+     "h": 1.3,
+     "place": "floor"
+    }
+   ],
+   "items": [
+    {
+     "k": "tank",
+     "w": 0.9,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "pipes",
+     "w": 1.6,
+     "h": 1.2,
+     "place": "wall",
+     "lv": 2
+    },
+    {
+     "k": "scanner",
+     "w": 1.4,
+     "h": 2.2,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "arms",
+     "w": 1.2,
+     "h": 1.8,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "helix",
+     "w": 0.8,
+     "h": 2.0,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  },
+  "hangar": {
+   "name": "Hangar",
+   "main": [],
+   "items": [
+    {
+     "k": "toolchest",
+     "w": 1.0,
+     "h": 1.0,
+     "place": "floor",
+     "lv": 1
+    },
+    {
+     "k": "lift",
+     "w": 2.4,
+     "h": 0.4,
+     "place": "floor",
+     "lv": 2
+    },
+    {
+     "k": "fuelpump",
+     "w": 0.7,
+     "h": 1.6,
+     "place": "floor",
+     "lv": 3
+    },
+    {
+     "k": "crane",
+     "w": 1.6,
+     "h": 2.6,
+     "place": "floor",
+     "lv": 4
+    },
+    {
+     "k": "gantry",
+     "w": 2.0,
+     "h": 2.8,
+     "place": "floor",
+     "lv": 5
+    }
+   ]
+  }
+ }
+}

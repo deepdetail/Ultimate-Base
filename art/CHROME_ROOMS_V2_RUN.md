@@ -1,5 +1,8 @@
 # Claude in Chrome: rooms by size and level, the hangar, stairs and elevators, and every vehicle
 
+> **Rooms and hangar replaced** by `CHROME_ROOMS_LAYERED_RUN.md`. Only the VEHICLES section (the 20 side views at the end) is still the one to run.
+
+
 What this makes in ChatGPT: 105 room pictures (each room in the shapes it can grow into, at Levels 1, 3 and 5), 9 hangar pictures, 6 stairs, elevator and hangar-door pictures, and 20 vehicle side views. That is 140 images, so it takes several days of ChatGPT limits; the run reports where to pick up. It replaces the rooms part of `CHROME_ROOM_RUN.md` (if that run already made some `room_*` pictures, keep them: they become the Level pictures for the long shape).
 
 How the game uses these: rooms are a grid of cells, 1 to 4 wide and 1 to 3 high (2 high needs at least 2 wide, 3 high needs 4 wide). ChatGPT only makes square and 3:2 pictures, so each room gets one picture per SHAPE, and the game trims it to the exact size: the square picture serves 1x1 and 2x2, the long picture serves 1x2, 1x3 and 1x4, the tall picture serves 2x3 and 2x4, and the grand picture serves 3x4. Pictures are trimmed at the sides and top, never the bottom. The crew are drawn standing on top, so no people in any picture.
