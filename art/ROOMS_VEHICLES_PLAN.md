@@ -81,6 +81,8 @@ Each room's picture changes with its size (by shape) and with its Level (1, 3, 5
 
 ## 3. Room production (new)
 
+Built with shorter timers than these first guesses, because the game only counts time while it is open. The Status section at the top has the numbers now in the game.
+
 - **Armory makes weapons.** Every cycle (about 40 minutes at Level 1, down to 15 at Level 5) it adds one weapon to the Arsenal, picked from the tiers its Level allows. It stops when storage is full. Armorers working there speed it up.
 - **Tech Center makes advanced gear.** From Level 3, a research cycle (about 2 hours, faster with scientists) awards an energy weapon: laser, plasma or rail. At Level 5 it can also finish a small mech or a turret upgrade.
 - **Small vehicles.** At Level 3 or higher, the Armory and the Hangar together slowly build small vehicles (a dirt bike, a buggy, a drone) when a bay is free.
