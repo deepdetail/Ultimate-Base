@@ -61,7 +61,7 @@ Still worth painting: a Soldier of its own (it borrows the Merc, recolored).
 |---|---|---|---|
 | Moab to Las Vegas | 8 towns: Green River to Las Vegas | Real elevation, lakes and state lines | Done (ebd3438) |
 | Lake Tahoe to Las Vegas | 6 towns across Nevada | Same | Done, used by Sierras bases |
-| Las Vegas to the Sierras, for Moab bases | The Nevada towns in reverse, ending at Lake Tahoe | Reuses the Tahoe map | To build |
+| Las Vegas to the Sierras, for Moab bases (and Las Vegas to Moab, for Sierras bases) | The other region's towns in reverse; a plane that reaches the far home town opens Hangar missions there | Reuses the other region's map | Done (November 2) |
 | Moab to the Bahamas | Long-range hops across the southern states to Nassau | A new relief map from the same real data | To build |
 | Sky Vegas | The floating city above Las Vegas | Needs a design and painted art | Later |
 | 3D mission terrain | The Sierras and Moab exist; the Bahamas and Las Vegas do not | Real elevation data | Later |

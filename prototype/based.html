@@ -150,6 +150,7 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 @keyframes mpulse{50%{box-shadow:0 0 0 6px rgba(255,226,122,.25)}}
 #mapview .mplane{position:absolute;width:28px;height:28px;pointer-events:none;filter:drop-shadow(0 2px 2px #000)}#mapview .mplane svg{width:28px;height:28px;stroke:#fff}
 #mapview .mfar{position:absolute;background:rgba(10,12,15,.7);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;font-weight:700;font-size:12px}
+#mapview .mfar.go{border-color:#7FF0F3;background:rgba(20,62,64,.88);color:#c9fbfc}
 #mapview .mfoot{font-size:10px;padding:4px 12px calc(env(safe-area-inset-bottom,0px) + 6px)}
 #viewbtn b{font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:.14em;background:linear-gradient(180deg,#fff,#C9D1D9 45%,#8A939E 55%,#e6edf3);-webkit-background-clip:text;background-clip:text;color:transparent}
 .in-mission #viewbtn{display:none}
@@ -2417,12 +2418,16 @@ function pilotFor(){
   for(const k of roomsOf('hangar')){const c=crewIn(k).find(c=>!c.hurt);if(c) return c}
   return null;
 }
+// where Hangar missions can fly: your home, plus any home region your planes have reached by road
+const missionRegions=()=>[mapKey(),...Object.keys((S.map&&S.map.reach)||{}).filter(r=>r!==mapKey()&&ROUTES[r])];
+const missionKey=()=>{const r=S.mreg;return r&&missionRegions().includes(r)?r:mapKey()};
+const regionTabs=vid=>{const R=missionRegions();return R.length>1?`<div class="tabs">${R.map(r=>`<button data-act="mreg" data-r="${r}" data-v="${vid}" class="${r===missionKey()?'on':''}">${esc(REGION_NAME[r]||r)}</button>`).join('')}</div>`:''};
 function missionSheet(vid){
   if(vCond(vid)<25){const v0=VEH.find(x=>x.id===vid);openSheet('Needs repairs',`<div class="muted">The ${esc(v0?v0.name:'vehicle')} is wrecked. It repairs while parked in the Hangar, or use Repair Now (Hangar Level 2).</div><button class="btn" data-close>OKAY</button>`);return}
   if(S.exp&&S.exp.veh===vid){openSheet('Vehicle is away',`<div class="muted">This vehicle is out on a raid with your squad. It will be back in ${fmtT(S.exp.end-S.t)}.</div><button class="btn" data-close>OKAY</button>`);return}
-  const v=VEH.find(x=>x.id===vid),mk=mapKey(),route=ROUTES[mk][v.cat];
+  const v=VEH.find(x=>x.id===vid),mk=missionKey(),route=ROUTES[mk][v.cat];
   const pilot=pilotFor();
-  if(!route){openSheet('No water route here',`<div class="muted">Moab has no big lake for boats. Boat missions run at Lake Tahoe. Try an aircraft or the Cybertruck here.</div><button class="btn" data-close>OKAY</button>`);return}
+  if(!route){openSheet('No water route here',`${regionTabs(vid)}<div class="muted">Moab has no big lake for boats. Boat missions run at Lake Tahoe. Try an aircraft or the Cybertruck here.</div><button class="btn" data-close>OKAY</button>`);return}
   const type=missionType(v);
   const title={strike:'Strike Run',recon:'Recon Flight',rally:'Road Rally'}[type]+(v.cat==='sea'?' on the Lake':'');
   const what={
@@ -2430,7 +2435,7 @@ function missionSheet(vid){
     recon:'You have no weapons, so this is a spy job. Fly close to each Badlands Gang camp, line it up inside the camera frame, and tap PHOTO. Snap their drones too for extra intel. Finish by photographing their secret outpost.',
     rally:'Race through every glowing ring. The last ring leads to the Badlands Gang outpost.'}[type];
   const done=S.found&&S.found[mk+':'+v.cat];
-  openSheet(title,`
+  openSheet(title,`${regionTabs(vid)}
     <div class="muted">${what}</div>
     <div class="route">${route.map((n,i)=>`<div class="${i===route.length-1?'fin':''}"><i></i>${esc(n)}${i===route.length-1?' · secret outpost':''}</div>`).join('')}</div>
     <div class="muted" style="font-size:12px">Badlands ${v.cat==='ground'?'raider trucks':'drones'} will chase you. ${isArmed(v)?'Shoot them with your '+esc(VWEAPONS[vUp(v).wpn].name)+' for a bonus, or outrun them.':v.cat==='air'?'Photograph them for an intel bonus, or outrun them.':'Outrun them!'}${v.cat==='ground'?'':` A drone that reaches you blows up, and this ${esc(v.name)} can take about ${droneHitsOk(v)} hits.`} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
@@ -2696,15 +2701,29 @@ const ROUTE={tahoe:[
   {id:'stgeorge',where:'St. George',lat:37.096,lon:-113.568,name:'Red Cliffs Clone Works',fac:'Clone Syndicate',pow:165,loot:240000,art:'clonebear'},
   {id:'mesquite',where:'Mesquite',lat:36.806,lon:-114.067,name:'Virgin River Outpost',fac:'Raider Kings',pow:200,loot:320000,art:'scorpion'},
   {id:'mvegas',where:'Las Vegas',lat:36.17,lon:-115.14,name:'Gateway to Sky Vegas',fac:'Raider Kings',pow:240,loot:400000,art:'dragon',gate:'Sky Vegas'}]};
-const MAP_FAR={tahoe:[{name:'Moab, Utah',dir:'east',note:'Another home region. Reached past Las Vegas in a later update.'},{name:'The Bahamas',dir:'southeast',note:'Far across the sea. Needs a long range aircraft later.'}],
-  moab:[{name:'Lake Tahoe, California',dir:'west',note:'Another home region. Reached past Las Vegas in a later update.'},{name:'The Bahamas',dir:'southeast',note:'Far across the sea. Needs a long range aircraft later.'}]};
+const MAP_FAR={tahoe:[{name:'Moab, Utah',dir:'east',region:'moab',note:'Another home region. Capture Las Vegas to open the road there.'},{name:'The Bahamas',dir:'southeast',note:'Far across the sea. Needs a long range aircraft later.'}],
+  moab:[{name:'Lake Tahoe, California',dir:'west',region:'tahoe',note:'Another home region. Capture Las Vegas to open the road there.'},{name:'The Bahamas',dir:'southeast',note:'Far across the sea. Needs a long range aircraft later.'}]};
 const RANGE=110;
 EBASES.route=Object.values(ROUTE).flat().map(n=>({id:'rt_'+n.id,node:n.id,name:n.name,fac:n.fac,where:n.where,pow:n.pow,loot:n.loot,art:n.art,route:true}));
 const mstate=()=>S.map||(S.map={found:{},own:{},recon:null});
 const miles=(a,b)=>{const R=3959,t=Math.PI/180,dl=(b.lat-a.lat)*t,dn=(b.lon-a.lon)*t,x=Math.sin(dl/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
-const mapReg=()=>ROUTE[mapKey()]?mapKey():null;
-const mapNodes=()=>ROUTE[mapReg()]||[];
-const mapOwned=()=>[MAP_HOME[mapReg()],...mapNodes().filter(n=>mstate().own[n.id])];
+// the road past Las Vegas: once your Las Vegas outpost is yours, the other home region's towns follow in reverse on its own map,
+// ending at that region's home town. A plane that reaches it opens Hangar missions there (pick the region on the mission card).
+const ONWARD={moab:'tahoe',tahoe:'moab'},REGION_NAME={tahoe:'Lake Tahoe',moab:'Moab'};
+const ARRIVE={tahoe:{id:'arr_tahoe',where:'South Lake Tahoe',lat:38.94,lon:-120.01,name:'Lake Tahoe',arrive:'tahoe'},moab:{id:'arr_moab',where:'Moab',lat:38.573,lon:-109.55,name:'Moab',arrive:'moab'}};
+let mapPage=0;
+const mapHomeKey=()=>ROUTE[mapKey()]?mapKey():null;
+const homeGate=()=>(ROUTE[mapHomeKey()]||[]).find(n=>n.gate);
+const roadOpen=()=>{const g=homeGate();return !!(g&&ONWARD[mapHomeKey()]&&mstate().own[g.id])};
+const onPage2=()=>mapPage===1&&roadOpen();
+const onwardNodes=()=>{const O=ONWARD[mapHomeKey()];return O&&ROUTE[O]?[...ROUTE[O].filter(n=>!n.gate).reverse(),ARRIVE[O]]:[]};
+const reached=r=>!!(S.map&&S.map.reach&&S.map.reach[r]);
+const mapReg=()=>onPage2()?ONWARD[mapHomeKey()]:mapHomeKey();
+const mapNodes=()=>onPage2()?onwardNodes():(ROUTE[mapHomeKey()]||[]);
+const allMapNodes=()=>[...(ROUTE[mapHomeKey()]||[]),...(roadOpen()?onwardNodes():[])];
+const mapStart=()=>onPage2()?Object.assign({},homeGate(),{name:'Your outpost'}):MAP_HOME[mapHomeKey()];
+const nodeOwned=n=>n.arrive?reached(n.arrive):!!mstate().own[n.id];
+const mapOwned=()=>[mapStart(),...mapNodes().filter(nodeOwned)];
 const nodeFrom=n=>{let best=null,bd=1e9;for(const o of mapOwned()){const d=miles(o,n);if(d<bd){bd=d;best=o}}return {from:best,dist:bd}};
 const inRange=n=>nodeFrom(n).dist<=RANGE;
 const reconTime=d=>Math.round(15+d*.8);
@@ -2712,20 +2731,21 @@ function ll2f(lat,lon){const M=MAPIMG[mapReg()],n=2**M.z*256,x=(lon+180)/360*n,r
 const reconPlane=()=>S.vehicles.map(id=>VEH.find(v=>v.id===id)).filter(v=>v&&v.cat==='air'&&!v.locked).sort((a,b)=>(a.id==='cessna'?-1:0)-(b.id==='cessna'?-1:0))[0];
 let mapZoom=1,mapRAF=0;
 function mapHTML(){
-  const R=mapReg(),M=MAPIMG[R],st=mstate(),home=MAP_HOME[R],nodes=mapNodes();
+  const R=mapReg(),M=MAPIMG[R],st=mstate(),home=mapStart(),nodes=mapNodes();
   const pos=n=>ll2f(n.lat,n.lon).map(v=>(v*100).toFixed(2)+'%');
   const ring=o=>{const [x,y]=ll2f(o.lat,o.lon),[,y2]=ll2f(o.lat+RANGE/69,o.lon),ry=(y-y2)*M.h,rx=ry;return `<ellipse cx="${(x*M.W).toFixed(1)}" cy="${(y*M.H).toFixed(1)}" rx="${(rx*M.W/M.w).toFixed(1)}" ry="${(ry*M.H/M.h).toFixed(1)}"/>`};
   const line=[home,...nodes].map(n=>{const [x,y]=ll2f(n.lat,n.lon);return (x*M.W).toFixed(1)+','+(y*M.H).toFixed(1)}).join(' ');
-  const pins=nodes.map(n=>{const own=st.own[n.id],found=st.found[n.id],rng=inRange(n),[l,t]=pos(n),cls=own?'own':found?'found':rng?'scan':'far';
-    return `<button class="mpin ${cls}" data-act="mnode" data-n="${n.id}" style="left:${l};top:${t}"><span class="dot">${own?icon('target'):found?enemyArt(n.art):'?'}</span><span class="lbl">${esc(n.where)}${found&&!own?` · Power ${basePow(findBase('rt_'+n.id))}`:''}${own?' · Outpost':''}</span></button>`}).join('');
+  const pins=nodes.map(n=>{const own=nodeOwned(n),found=!n.arrive&&st.found[n.id],rng=inRange(n),[l,t]=pos(n),cls=own?'own':found?'found':rng?'scan':'far';
+    return `<button class="mpin ${cls}" data-act="mnode" data-n="${n.id}" style="left:${l};top:${t}"><span class="dot">${own?icon('target'):found?enemyArt(n.art):'?'}</span><span class="lbl">${esc(n.where)}${found&&!own?` · Power ${basePow(findBase('rt_'+n.id))}`:''}${own?(n.arrive?' · Open for missions':' · Outpost'):''}</span></button>`}).join('');
   const [hl,ht]=pos(home);
-  return `<div class="mtop"><b>${esc(FACTIONS[S.faction].place)}</b><span class="muted">Range ${RANGE} mi from your base and each outpost</span><button class="btn" data-act="mzoom" data-z="-1">−</button><button class="btn" data-act="mzoom" data-z="1">+</button><button class="btn primary" data-act="mclose">BASE</button></div>
+  return `<div class="mtop"><b>${onPage2()?'Road to '+esc(REGION_NAME[R]):esc(FACTIONS[S.faction].place)}</b><span class="muted">Range ${RANGE} mi from your base and each outpost</span><button class="btn" data-act="mzoom" data-z="-1">−</button><button class="btn" data-act="mzoom" data-z="1">+</button><button class="btn primary" data-act="mclose">BASE</button></div>
   <div class="mscroll" id="mscroll"><div class="mcanvas" id="mcanvas" style="width:${Math.round(M.W*mapZoom)}px;height:${Math.round(M.H*mapZoom)}px">
     <img src="${M.src}" alt="Map of the ${R==='moab'?'Moab':'Lake Tahoe'} to Las Vegas region">
     <svg viewBox="0 0 ${M.W} ${M.H}" preserveAspectRatio="none"><g class="rings">${mapOwned().map(ring).join('')}</g><polyline class="road" points="${line}"/></svg>
     <div class="mpin home" style="left:${hl};top:${ht}"><span class="dot">${icon('door')}</span><span class="lbl">${esc(home.name)} · ${esc(home.where)}</span></div>
     ${pins}<div id="mplane" class="mplane" hidden>${icon('plane')}</div>
-    ${(MAP_FAR[R]||[]).map((f,i)=>`<button class="mfar" data-act="mfar" data-i="${i}" style="${f.dir==='east'?'right:6px;top:38%':f.dir==='west'?'left:6px;top:38%':'right:6px;bottom:6px'}">${f.dir==='west'?'◂ ':''}${esc(f.name)}${f.dir==='west'?'':' ▸'}</button>`).join('')}
+    ${(MAP_FAR[R]||[]).map((f,i)=>{const go=!!f.region&&(onPage2()?f.region===mapHomeKey():f.region===ONWARD[mapHomeKey()]&&roadOpen()),pos=f.dir==='east'?'right:6px;top:38%':f.dir==='west'?'left:6px;top:38%':'right:6px;bottom:6px',lb=go?(onPage2()?'Back to '+REGION_NAME[f.region]:'Road to '+REGION_NAME[f.region]):f.name;
+      return `<button class="mfar${go?' go':''}" data-act="${go?'mpage':'mfar'}" data-i="${i}" data-p="${onPage2()?0:1}" style="${pos}">${f.dir==='west'?'◂ ':''}${esc(lb)}${f.dir==='west'?'':' ▸'}</button>`}).join('')}
   </div></div><div class="mfoot muted">Elevation: AWS Terrain Tiles (USGS, SRTM). Lakes: Natural Earth. State lines: US Census via us-atlas.</div>`;
 }
 function openMap(){
@@ -2733,18 +2753,25 @@ function openMap(){
   if(!mapReg()){toast('The '+FACTIONS[S.faction].place+' map is coming in a later update.','warn');return}
   let ov=$('#mapview');if(!ov){ov=document.createElement('div');ov.id='mapview';document.body.appendChild(ov)}
   ov.innerHTML=mapHTML();ov.hidden=false;document.body.classList.add('in-map');
-  const sc=$('#mscroll'),[hx,hy]=ll2f(MAP_HOME[mapReg()].lat,MAP_HOME[mapReg()].lon),cv=$('#mcanvas');
+  const sc=$('#mscroll'),m0=mapStart(),[hx,hy]=ll2f(m0.lat,m0.lon),cv=$('#mcanvas');
   sc.scrollLeft=Math.max(0,hx*cv.offsetWidth-sc.clientWidth*.3);sc.scrollTop=Math.max(0,hy*cv.offsetHeight-sc.clientHeight*.35);
   cancelAnimationFrame(mapRAF);mapRAF=requestAnimationFrame(mapLoop);
 }
 function closeMap(){const ov=$('#mapview');if(ov) ov.hidden=true;document.body.classList.remove('in-map');cancelAnimationFrame(mapRAF)}
 function mapLoop(){const ov=$('#mapview');if(!ov||ov.hidden) return;const st=mstate(),pl=$('#mplane');
-  if(pl){const r=st.recon;if(r){const n=mapNodes().find(x=>x.id===r.id),o=r.from;const f=clamp((S.t+(performance.now()-tickAt)/1000-r.start)/(r.end-r.start),0,1),go=f<.5?f*2:2-f*2;
+  if(pl){const r=st.recon,n=r&&mapNodes().find(x=>x.id===r.id);if(r&&n){const o=r.from;const f=clamp((S.t+(performance.now()-tickAt)/1000-r.start)/(r.end-r.start),0,1),go=f<.5?f*2:2-f*2;
       const [x0,y0]=ll2f(o.lat,o.lon),[x1,y1]=ll2f(n.lat,n.lon);pl.hidden=false;pl.style.left=((x0+(x1-x0)*go)*100)+'%';pl.style.top=((y0+(y1-y0)*go)*100)+'%';pl.style.transform=`translate(-50%,-50%) rotate(${Math.atan2(y1-y0,x1-x0)*57.3+(f<.5?0:180)+45}deg)`}else pl.hidden=true}
   mapRAF=requestAnimationFrame(mapLoop)}
 function mapNodeSheet(id){
   const n=mapNodes().find(x=>x.id===id);if(!n) return;const st=mstate(),{from,dist}=nodeFrom(n),b=findBase('rt_'+n.id),pl=reconPlane();
-  let body=`<div class="muted">${esc(n.where)} is ${Math.round(miles(MAP_HOME[mapReg()],n))} miles from your base${from&&from!==MAP_HOME[mapReg()]?`, ${Math.round(dist)} miles from your ${esc(from.where)} outpost`:''}.</div>`;
+  let body=`<div class="muted">${esc(n.where)} is ${Math.round(miles(mapStart(),n))} miles from your ${onPage2()?'Las Vegas outpost':'base'}${from&&from!==mapStart()&&!(from.lat===mapStart().lat&&from.lon===mapStart().lon)?`, ${Math.round(dist)} miles from your ${esc(from.where)} outpost`:''}.</div>`;
+  if(n.arrive){
+    if(reached(n.arrive)) body+=`<div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Open for missions</b><span>Your crew can fly Hangar missions at ${esc(n.name)} now. Pick ${esc(n.name)} at the top of any mission card.</span></span></div>`;
+    else if(st.recon) body+=`<div class="muted">Your ${esc(VEH.find(v=>v.id===st.recon.veh).name)} is already flying recon. Back in ${fmtT(st.recon.end-S.t)}.</div>`;
+    else if(!inRange(n)) body+=`<div class="muted">Out of range: ${Math.round(dist)} miles from your nearest base, and planes reach ${RANGE}. Capture a closer town first.</div>`;
+    else if(!pl) body+=`<div class="muted">You need an airplane in the Hangar to fly there.</div>`;
+    else body+=`<div class="muted">Fly a plane to ${esc(n.name)} to open it for Hangar missions.</div><button class="btn primary" data-act="mrecon" data-n="${n.id}">SEND ${esc(pl.name.toUpperCase())} TO ${esc(n.name.toUpperCase())} · ${fmtT(reconTime(dist))}</button>`;
+    openSheet(esc(n.name),body);return}
   if(st.own[n.id]) body+=`<div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Your outpost</b><span>You do not build here, but it lets recon and raids reach ${RANGE} miles farther.${n.gate?' The road to '+esc(n.gate)+' is open!':''}</span></span></div>`;
   else if(st.found[n.id]) body+=`<div class="li"><span class="wv">${enemyArt(n.art)}</span><span class="grow"><b>${esc(n.name)}</b><span>${esc(n.fac)} · Power ${basePow(b)} · Loot ${money(n.loot)}</span></span></div>
     ${S.exp?`<div class="muted">A squad is already out. Wait for them to come home.</div>`:`<button class="btn danger" data-act="mcap" data-n="${n.id}">CAPTURE THIS BASE</button>`}<div class="muted" style="font-size:12px">Win the raid and it becomes your outpost.</div>`;
@@ -2756,8 +2783,9 @@ function mapNodeSheet(id){
 }
 function startRecon(id){const n=mapNodes().find(x=>x.id===id),st=mstate(),pl=reconPlane();if(!n||st.recon||!pl||!inRange(n)) return;
   const {from,dist}=nodeFrom(n);st.recon={id,veh:pl.id,from:{lat:from.lat,lon:from.lon},start:S.t,end:S.t+reconTime(dist)};closeSheet();save();toast(`The ${pl.name} took off toward ${n.where}!`,'ok')}
-function reconTick(){const st=S.map;if(!st||!st.recon||S.t<st.recon.end) return;const n=mapNodes().find(x=>x.id===st.recon.id);st.recon=null;if(!n) return;
-  st.found[n.id]=true;S.xp+=25;toast(`Recon back from ${n.where}: found the ${n.fac} at ${n.name}! Open the map to capture it.`,'ok');const ov=$('#mapview');if(ov&&!ov.hidden){const sc=$('#mscroll'),l=sc.scrollLeft,t=sc.scrollTop;ov.innerHTML=mapHTML();$('#mscroll').scrollLeft=l;$('#mscroll').scrollTop=t}}
+function reconTick(){const st=S.map;if(!st||!st.recon||S.t<st.recon.end) return;const n=allMapNodes().find(x=>x.id===st.recon.id);st.recon=null;if(!n) return;
+  if(n.arrive){st.reach=st.reach||{};st.reach[n.arrive]=true;S.xp+=60;toast(`Your plane made it to ${n.name}! The Hangar can fly missions there now: pick ${n.name} on any mission.`,'ok')}
+  else{st.found[n.id]=true;S.xp+=25;toast(`Recon back from ${n.where}: found the ${n.fac} at ${n.name}! Open the map to capture it.`,'ok')}const ov=$('#mapview');if(ov&&!ov.hidden){const sc=$('#mscroll'),l=sc.scrollLeft,t=sc.scrollTop;ov.innerHTML=mapHTML();$('#mscroll').scrollLeft=l;$('#mscroll').scrollTop=t}}
 const findBase=id=>Object.values(EBASES).flat().find(b=>b.id===id);
 const fmtT=sec=>{sec=Math.max(0,Math.ceil(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')};
 function baseState(b){S.eb=S.eb||{};return S.eb[b.id]||(S.eb[b.id]={beat:0,until:0})}
@@ -3235,7 +3263,7 @@ function groundColor(mk,m,ny,wet,noise){
   return c;
 }
 function startMission(vid){
-  const v=VEH.find(x=>x.id===vid),mk=mapKey(),route=ROUTES[mk][v.cat];
+  const v=VEH.find(x=>x.id===vid),mk=missionKey(),route=ROUTES[mk][v.cat];
   const pilot=pilotFor(); if(!pilot||!route||S.res.power<20||M) return;
   closeSheet();
   const root=$('#mission'); root.hidden=false; root.className=mk==='moab'?'moab':'';
@@ -4047,6 +4075,7 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='defup'){const k=b.dataset.k;if(!DEFS[k]||defLv(k)>=defMax()) return;const c=defCost(k);if(S.res.credits<c){toast('Not enough cash.','warn');return}S.res.credits-=c;S.def=S.def||{};S.def[k]=defLv(k)+1;updateHUD();save();toast(`${DEFS[k].name} is now Level ${S.def[k]}!`,'ok');defenseSheet()}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
   else if(a==='mrecon') startRecon(b.dataset.n);
+  else if(a==='mreg'){S.mreg=b.dataset.r;save();missionSheet(b.dataset.v)}
   else if(a==='mcap'){closeMap();planSheet('rt_'+b.dataset.n)}
   else if(a==='mfar'){const f=MAP_FAR[mapReg()][+b.dataset.i];openSheet(esc(f.name),`<div class="muted">${esc(f.note)}</div>`)}
   else if(a==='deny'){const c=S.crew.find(x=>x.id===id);if(!c) return;const out=!c.room&&!isGuard(c);
@@ -4140,6 +4169,7 @@ $('#mapbtn').onclick=()=>openMap();
 $('#defbtn').onclick=()=>{if(S&&!B) defenseSheet()};
 document.addEventListener('click',e=>{const b=e.target.closest('#mapview [data-act]');if(!b) return;const a=b.dataset.act;
   if(a==='mclose') closeMap();
+  else if(a==='mpage'){mapPage=+b.dataset.p;openMap()}
   else if(a==='mzoom'){const sc=$('#mscroll'),cx=(sc.scrollLeft+sc.clientWidth/2)/sc.scrollWidth,cy=(sc.scrollTop+sc.clientHeight/2)/sc.scrollHeight;mapZoom=clamp(mapZoom*(+b.dataset.z>0?1.4:1/1.4),Math.min(1,Math.max(sc.clientWidth/MAPIMG[mapReg()].W,sc.clientHeight/MAPIMG[mapReg()].H)),2.2);$('#mapview').innerHTML=mapHTML();const s2=$('#mscroll');s2.scrollLeft=cx*s2.scrollWidth-s2.clientWidth/2;s2.scrollTop=cy*s2.scrollHeight-s2.clientHeight/2}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
   else if(a==='mfar'){const f=MAP_FAR[mapReg()][+b.dataset.i];openSheet(esc(f.name),`<div class="muted">${esc(f.note)}</div>`)}});
