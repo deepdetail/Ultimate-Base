@@ -2,28 +2,29 @@
 
 Every picture the game still draws in code, borrows from something else, or does not have yet, and what makes it. Checked against the game code (build ebd3438) and a Drive search on November 2.
 
-## 1. Fix first: the wrong picture shows in battles now
+## 1. Enemy pictures in battles (rechecked in a browser, November 2)
 
-Five enemies have no picture of their own, so the game shows the Raider instead. Raid Level 1 is Phoenix's 4 Girl Thieves and 4 crows, so it currently shows as 8 Raiders. Paintings for most of them are already in Drive, so this is wiring, not new art.
+Correction: the first version of this list said five enemies show the Raider. Only the Soldier did. The Girl Thief, Coyote, Raven and Black Bear paintings have been in the game since October 22: they are added on their own lines right after `const ESPR` (`ESPR.raven`, `ESPR.coyote`, `ESPR.rogue`, `ESPR.blackbear`), which is easy to miss when reading only the `const ESPR` line. A headless test of the live build ebd3438 starts Raid Level 1 as 4 Girl Thieves and 4 crows and shows the Girl Thief and raven paintings, with no Raider on the field.
 
-| Enemy | Shows now | In Drive (folder of October 20 monster art) | Next step |
+| Enemy | Picture in battle | File | Status |
 |---|---|---|---|
-| Girl Thief | Raider | "Stealthy Purple-Hooded Rogue Operative.png" (check it is the girl) | Wire it |
-| Coyote | Raider | "Stalking Coyote on Green Screen.png" | Wire it |
-| Raven, and the Crow that borrows it | Raider | "Iridescent Raven in Flight.png" | Wire it |
-| Black Bear, and the Mutant Bear, Bear Rider and Yeti that borrow it | Raider | "Grumpy Black Bear on Green Background.png" | Wire it |
-| Soldier | Raider | "enemy_l3_merc_ops_01.png" (a special ops merc) | Wire it, or paint a soldier |
+| Girl Thief | Her own painting (the purple-hooded rogue, a girl) | `art/enemies/rogue.webp` | Done since October 22 |
+| Coyote | Its own painting | `art/enemies/coyote.webp` | Done since October 22 |
+| Raven, and the Crow that borrows it | Raven painting | `art/enemies/raven.webp` | Done since October 22 |
+| Black Bear, and the Mutant Bear (tinted), Bear Rider and Yeti that borrow it | Black Bear painting | `art/enemies/blackbear.webp` | Done since October 22 |
+| Soldier | The Raider Kings Merc (it showed the Raider until November 2) | `enemy_l3_merc_ops_01.png` | Wired. A soldier painting of his own is still open; none is in Drive |
 
-These borrow another enemy's picture, tinted:
+These borrow another enemy's picture:
 
 | Enemy | Borrows | Status |
 |---|---|---|
+| Soldier | Raider Kings Merc | Paint a soldier of his own |
 | Superbear | Giant Grizzly, gold glow | Low priority |
 | Radioactive Crocodile | Glow Gator, green glow | Low priority |
 | Dinosaur | T. rex | Low priority |
 | Dragon Rider | Dragon, with the Merc as rider | Low priority |
 
-Also listed in `MONSTER_RUN.md` but not found in Drive: the female Raider (enemy_l1_raider_f_01).
+Also listed in `MONSTER_RUN.md` but not found in Drive: the female Raider (enemy_l1_raider_f_01). A second Drive search on November 2 found only the male Raider (`enemy_l1_raider_m_01.png` and two copies of `enemy_raider_m_master_sheet.png`) and no soldier painting.
 
 ## 2. Paintings waiting on a Chrome run
 
@@ -42,7 +43,7 @@ Also listed in `MONSTER_RUN.md` but not found in Drive: the female Raider (enemy
 | Rail Gun and Plasma Cannon turrets | 6 of the 8 turrets are painted | Drawn turret shapes |
 | Lab Coat and Suit outfit icons | 4 of the 6 outfits have icons | Drawn icon |
 | Base fronts for Levels 61 to 100 | The exterior run covers Levels 1 to 60 | The era painting |
-| Distinct art for the tinted enemies above | They borrow another enemy | Tinted stand-in |
+| Distinct art for the enemies that borrow, in section 1 (the Soldier included) | They borrow another enemy | A borrowed or tinted stand-in |
 
 ## 4. Made earlier, but not in the game yet (find in Drive, then wire)
 
