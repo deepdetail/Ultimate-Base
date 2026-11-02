@@ -7,6 +7,8 @@ What this makes in ChatGPT: 37 pictures, so the flight and driving missions can 
   - The control is left out of each one.
 - **15 controls painted on their own,** for numbers 23 to 37: yokes, sticks, steering wheels, levers, handlebars and helms. The game lays each one over its cockpit and turns or tilts it live as you steer.
 
+Style: the game's comic look, but realistic: true-to-life shapes, instruments and materials, with clean line art and cel shading. The photo-style Cessna and L-39 cockpits now in the game get repainted to match.
+
 This replaces `COCKPIT_RUN.md`. That run's pictures were tall, with the controls painted in, so they couldn't move. Only the Cessna and L-39 from it are in the game now.
 
 | Vehicle | Cockpit | Control |
@@ -50,12 +52,12 @@ ORDER: numbers 1 to 37. Start a NEW chat for each group below and send its STYLE
 
 COCKPIT LOCK (send first in each cockpit chat, numbers 1 to 22):
 ```
-I'm making cockpit views for a mobile game played with the phone held SIDEWAYS. Every image is PHOTOREALISTIC, like a modern flight or racing simulator: a real photograph look, real materials (worn paint, leather, rubber, glass, carbon fiber, brushed metal), soft natural daylight. Size: LANDSCAPE 1536 x 1024. Camera: the driver's or pilot's eye point, looking straight ahead, level. Layout: the dashboard or instrument panel runs across the bottom third; the windshield and side windows fill the top two thirds. Rules: EVERY window, windshield and canopy glass area is SOLID FLAT MAGENTA #FF00FF: no sky, no ground, no scenery, no reflections, no glare, no gradient in the magenta. Window frames, pillars and canopy bows stay painted in front of the magenta. Leave OUT the steering control: no steering wheel, no yoke, no control stick grip, no handlebars, no ship's wheel. Show only the bare column, hub or base where it mounts. No people, no hands, no brand names, no logos, no readable words (gauge tick marks are fine), no watermarks, no borders. Reply with just the image.
+I'm making cockpit views for a mobile game played with the phone held SIDEWAYS. STYLE: semi-realistic anime game art with a bold Marvel comic-book edge, but REALISTIC: true-to-life proportions, accurate instruments and switches, real materials (worn paint, leather, rubber, glass, carbon fiber, brushed metal), clean dark line art, cel shading, strong highlights, light from the upper left. Size: LANDSCAPE 1536 x 1024. Camera: the driver's or pilot's eye point, looking straight ahead, level. Layout: the dashboard or instrument panel runs across the bottom third; the windshield and side windows fill the top two thirds. Rules: EVERY window, windshield and canopy glass area is SOLID FLAT MAGENTA #FF00FF: no sky, no ground, no scenery, no reflections, no glare, no gradient in the magenta. Window frames, pillars and canopy bows stay painted in front of the magenta. Leave OUT the steering control: no steering wheel, no yoke, no control stick grip, no handlebars, no ship's wheel. Show only the bare column, hub or base where it mounts. No people, no hands, no brand names, no logos, no readable words (gauge tick marks are fine), no watermarks, no borders. Reply with just the image.
 ```
 
 CONTROL LOCK (send first in each control chat, numbers 23 to 37):
 ```
-I'm making steering CONTROLS for a mobile game. The game turns or tilts each one live as the player steers, so each picture is the control ALONE. STYLE: PHOTOREALISTIC, a real photograph look, real materials, soft studio light. Size: SQUARE 1024 x 1024. Background: SOLID FLAT PURE GREEN #00FF00 everywhere, with no shadow, no floor, no gradient. Camera: straight on, as the driver or pilot sees it from the seat. Wheels, yokes and helms face the camera squarely, perfectly round or symmetrical, with the hub EXACTLY in the center of the image. Sticks and levers stand upright, and the point where they meet their base sits at the BOTTOM CENTER of the image, with the base itself left out. No hands, no people, no brand names, no logos, no readable words, no watermarks, no borders. Reply with just the image.
+I'm making steering CONTROLS for a mobile game. The game turns or tilts each one live as the player steers, so each picture is the control ALONE. STYLE: the same semi-realistic comic style as the cockpits: realistic shapes and materials, clean dark line art, cel shading, strong highlights, light from the upper left. Size: SQUARE 1024 x 1024. Background: SOLID FLAT PURE GREEN #00FF00 everywhere, with no shadow, no floor, no gradient. Camera: straight on, as the driver or pilot sees it from the seat. Wheels, yokes and helms face the camera squarely, perfectly round or symmetrical, with the hub EXACTLY in the center of the image. Sticks and levers stand upright, and the point where they meet their base sits at the BOTTOM CENTER of the image, with the base itself left out. No hands, no people, no brand names, no logos, no readable words, no watermarks, no borders. Reply with just the image.
 ```
 
 CHECK every image against its lock. If it fails, send the matching fix line ONCE, then move on and note it:
@@ -63,7 +65,8 @@ CHECK every image against its lock. If it fails, send the matching fix line ONCE
 - The control is painted into a cockpit: "Same cockpit, but remove the [steering wheel / yoke / stick / handlebars]; keep only its bare column, hub or base."
 - Wrong shape: "Same image as a [LANDSCAPE 1536 x 1024 / SQUARE 1024 x 1024] picture."
 - People or hands: "Same image with no people and no hands."
-- Cartoon or 3D-render look: "Make it look like a real photograph."
+- Too cartoony or simplified: "Same image, more realistic: true-to-life shapes and detail, still in the comic style."
+- Looks like a photo or a 3D render: "Same image in the game's comic style: clean dark line art and cel shading."
 - Words, brand names or logos: "Same image with no words, brand names or logos anywhere."
 - A control off center, tilted, or with a shadow or floor: "Same control, centered as the lock says, facing straight on, on flat pure green #00FF00 with no shadow."
 
