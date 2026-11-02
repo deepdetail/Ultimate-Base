@@ -24,8 +24,8 @@ Real places, shown as stylized maps (our own artwork based on the real geography
 
 | Level | Real place | Twist | Builds | Ruling faction | Unlock |
 |---|---|---|---|---|---|
-| Desert | Moab and Arches, Utah | Red rock canyons, base built into the arches | Down into rock, up the cliff face | New United States (proposed) | Start option |
-| Mountain | Lake Tahoe and Truckee | Snowy peaks, base carved into the mountain | Down into the mountain, up the peak | Independent California Republic (proposed) | Start option |
+| Desert | Moab and Arches, Utah | Red rock canyons, base built into the arches | Down into rock, up the cliff face | None for now (names on hold) | Start option |
+| Mountain | Lake Tahoe and Truckee | Snowy peaks, base carved into the mountain | Down into the mountain, up the peak | None for now (names on hold) | Start option |
 | Ocean | The Bahamas | Sea levels rose; the whole area is underwater. Atlantis legends are real-ish | Down to the sea floor, up toward the surface | Atlantis | Unlock later |
 | Sky | New Las Vegas | Airships, floating buildings, ultra tall towers above old Vegas | Down means below the clouds, up means space | Sky Vegas | Unlock later |
 
@@ -35,8 +35,8 @@ Each level also has one or two **roaming factions** from the Badlands and the no
 
 | Faction | Home | Flavor | Signature vehicles |
 |---|---|---|---|
-| New United States | Moab, Utah (proposed) | Classic military, eagles, stars | Tanks, F-16, F-22, Mustangs |
-| Independent California Republic | Tahoe and Truckee (proposed) | High tech, eco, bear flag look | Electric trucks, drones, mountain mechs |
+| Moab home (name on hold) | Moab, Utah | Classic military, eagles, stars | Tanks, F-16, F-22, Mustangs |
+| Sierras home (name on hold) | Tahoe and Truckee | High tech, eco, mountain look | Electric trucks, drones, mountain mechs |
 | Atlantis | The Bahamas | Ocean tech, glowing coral, domes | Subs, speedboats, hover skimmers |
 | Sky Vegas | New Las Vegas | Neon, airships, showbiz | Airships, sky yachts, jet packs |
 | Roaming factions (several) | Badlands | Patched together, junk tech | Dune buggies, junk jets |
@@ -187,7 +187,7 @@ Each level gets its own accent on top of the gunmetal look: rust red rock (Deser
 
 ## 16. Decisions from round 2
 
-1. Faction homes confirmed: New United States in Moab, Independent California Republic in Tahoe and Truckee.
+1. Homes confirmed: Moab, and Tahoe and Truckee. Their faction names are on hold for now (November 2), so the game shows only the place names.
 2. Wrong IDENTIFY: the innocent crew member answers with a short, mood based comeback (Warcraft 3 "yes, my lord" and SimCity advisor energy) and their mood drops.
 3. Clone garble: take a normal sentence and stretch the first or last word with extra vowels ("Nice base! Is there a job for maaeee?").
 4. First roaming faction: the Badlands Gang.

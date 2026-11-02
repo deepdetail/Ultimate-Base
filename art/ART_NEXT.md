@@ -54,7 +54,7 @@ bg_tahoe_day, bg_tahoe_night, bg_moab_day, bg_moab_night. Painted panorama skies
 ## 5. Icons and badges (GREEN, 512 x 512, centered, simple and readable when tiny)
 - **Resources:** icon_cash, icon_food, icon_power, icon_tech, icon_adventure (a star token).
 - **Results:** badge_victory (trophy), badge_defeat (dizzy stars), badge_levelup, badge_clone_caught.
-- **Faction emblems:** fac_nus (New United States), fac_icr (Independent California Republic), fac_atlantis, fac_skyvegas, fac_badlands, fac_clones, fac_raiderkings. These are original symbols, not real flags.
+- **Faction emblems:** fac_nus (the Moab home), fac_icr (the Sierras home), fac_atlantis, fac_skyvegas, fac_badlands, fac_clones, fac_raiderkings. These are original symbols, not real flags.
 - **Gear:** wpn_slingshot, wpn_bb, wpn_kunai, wpn_bow, wpn_staff, wpn_handgun, wpn_katana, wpn_rifle, wpn_assault, wpn_mg, wpn_laser, wpn_plasma, wpn_rail (all toy-safe stun tech), armor_padded, armor_kevlar, armor_plate, armor_power, armor_nano, outfit_jumpsuit, outfit_gi, outfit_flight, outfit_labcoat, outfit_tactical, outfit_suit.
 
 ## 6. Enemy bases to raid (FULL SCENE, 1024 x 640, a distant view of the camp)

@@ -93,8 +93,8 @@ RESULTS AND BADGES
 74. badge_parachute: a parachute (safe eject)
 
 FACTION EMBLEMS (original shield badges, not real flags)
-75. fac_nus: New United States: a red rock arch over a star
-76. fac_icr: Independent California Republic: a mountain and pine over a lake
+75. fac_nus: the Moab home: a red rock arch over a star
+76. fac_icr: the Sierras home: a mountain and pine over a lake
 77. fac_atlantis: Atlantis: a trident over waves
 78. fac_skyvegas: Sky Vegas: a floating city on clouds
 79. fac_badlands: Badlands Gang: crossed wrenches and a skull-free goggles mask

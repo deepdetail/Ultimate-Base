@@ -22,10 +22,10 @@ CHECK each image. If it fails, send the matching fix line ONCE, then move on and
 SAVE: download each accepted image with ChatGPT's download arrow. Tell me the downloaded file name next to the name it should get (below), so I can rename them and drop them into the Drive folder BASED Art/Wardrobe.
 
 PART A: FACTION UNIFORMS (the everyday uniform for each home)
-1. fac_icr_m.png: M. Independent California Republic (Sierras, Lake Tahoe): a forest green and slate gray alpine field jacket, a quilted vest, cargo pants, hiking boots, a pine tree shoulder patch with no letters, a teal trim line.
-2. fac_icr_f.png: F. The same ICR uniform.
-3. fac_nus_m.png: M. New United States (Moab, Utah): a sand and red-rock rust desert uniform, a light scarf at the neck, a wide-brim hat clipped to the back, tan desert boots, a stone arch patch with no letters.
-4. fac_nus_f.png: F. The same NUS uniform.
+1. fac_icr_m.png: M. Sierras home (Lake Tahoe): a forest green and slate gray alpine field jacket, a quilted vest, cargo pants, hiking boots, a pine tree shoulder patch with no letters, a teal trim line.
+2. fac_icr_f.png: F. The same Sierras uniform.
+3. fac_nus_m.png: M. Moab home (Moab, Utah): a sand and red-rock rust desert uniform, a light scarf at the neck, a wide-brim hat clipped to the back, tan desert boots, a stone arch patch with no letters.
+4. fac_nus_f.png: F. The same Moab uniform.
 5. fac_atlantis_m.png: M. Atlantis (an underwater city): a sleek deep-blue diving suit with glowing aqua seams, a small rebreather on the chest, flipper-style boots folded at the ankle.
 6. fac_atlantis_f.png: F. The same Atlantis uniform.
 7. fac_skyvegas_m.png: M. Sky Vegas (a city in the clouds): a white and gold flight suit with a short cape-style jacket, mirrored visor glasses pushed up on the head, polished boots.

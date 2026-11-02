@@ -411,14 +411,14 @@ A parachute (safe eject).
 
 75. `fac_nus.png`
 ```
-New United States: a red rock arch over a star.
+The Moab home: a red rock arch over a star.
 ```
 
 **Start a new chat here.**
 
 76. `fac_icr.png`
 ```
-Independent California Republic: a mountain and pine over a lake.
+The Sierras home: a mountain and pine over a lake.
 ```
 
 77. `fac_atlantis.png`
@@ -644,9 +644,9 @@ PROMPTS (target file name: prompt)
 72. badge_clone_caught.png: A handcuff ring around a green DNA strand.
 73. badge_outpost_found.png: A flag planted on a hill.
 74. badge_parachute.png: A parachute (safe eject).
-75. fac_nus.png: New United States: a red rock arch over a star.
+75. fac_nus.png: The Moab home: a red rock arch over a star.
 (fresh chat)
-76. fac_icr.png: Independent California Republic: a mountain and pine over a lake.
+76. fac_icr.png: The Sierras home: a mountain and pine over a lake.
 77. fac_atlantis.png: Atlantis: a trident over waves.
 78. fac_skyvegas.png: Sky Vegas: a floating city on clouds.
 79. fac_badlands.png: Badlands Gang: crossed wrenches and a skull-free goggles mask.
