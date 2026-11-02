@@ -17,11 +17,11 @@ Build it with `python3 tools/build_exports.py`. That makes `dist/basedcommander.
 ## Put it online with cPanel (Spaceship hosting)
 
 1. Open Spaceship, then Hosting Manager, then cPanel for basedcommander.com. (Never paste a cPanel address into a chat or email: it carries your logged-in session.)
-2. In cPanel open **File Manager**, then **public_html**. Under **Settings** (top right) tick **Show Hidden Files (dotfiles)**, so you can see `.htaccess`.
-3. Delete any placeholder page the host put there (for example `index.html` or `default.html`). Leave `cgi-bin` and `.well-known` alone.
-4. Click **Upload**, choose `basedcommander.com.zip`, wait for 100%, then go back to public_html.
-5. Right-click the zip, choose **Extract**, keep the path `/public_html`, and extract. Then delete the zip.
-6. Check that `index.html`, `play`, `privacy`, `support` and `.htaccess` now sit directly inside public_html, not inside another folder.
+2. In cPanel open **File Manager**, then the **basedcommander.com** folder in your home folder (next to public_html, not inside it). That folder is the site's web root on this account: Spaceship makes basedcommander.com an addon domain, and public_html belongs to the account's internal placeholder domain, so files put in public_html never show on basedcommander.com. Under **Settings** (top right) tick **Show Hidden Files (dotfiles)**, so you can see `.htaccess`.
+3. Delete any placeholder page the host put there (for example `default.html`) and any old zip. Leave `cgi-bin` and `.well-known` alone if they are there.
+4. Click **Upload**, choose `basedcommander.com.zip`, wait for 100%, then go back to the basedcommander.com folder.
+5. Right-click the zip, choose **Extract**, keep the path `/basedcommander.com`, and extract. Then delete the zip: anything left in this folder can be downloaded by anyone.
+6. Check that `index.html`, `play`, `privacy`, `support` and `.htaccess` now sit directly inside the basedcommander.com folder, not inside another folder. Then open https://basedcommander.com/sw.js: its first line should carry the build id of the zip you just uploaded.
 7. HTTPS: in cPanel open **SSL/TLS Status** and run **AutoSSL** if basedcommander.com does not show a valid certificate yet. A new domain can take a while to get one.
 8. Once the certificate is valid, open **Domains** and turn on **Force HTTPS Redirect** for basedcommander.com.
 9. Email: create `support@basedcommander.com` under **Email Accounts**, or forward it to your own inbox under **Forwarders**. Send it a test email. The site, the privacy policy and the game all point people there.

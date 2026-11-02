@@ -5,7 +5,7 @@
 
 Makes:
   dist/site/                     basedcommander.com: landing page, privacy, support, and the game at /play/
-  dist/basedcommander.com.zip    that folder, zipped flat: upload into public_html and extract
+  dist/basedcommander.com.zip    that folder, zipped flat: upload into the basedcommander.com folder (the site's web root, not public_html) and extract
   dist/web/                      the game alone, for any static web host (also opens by double-click)
   dist/BASED-Commander-web.zip   that folder, zipped
   ios/BASEDCommander/Web/        the game inside the Xcode project (refreshed every run)
