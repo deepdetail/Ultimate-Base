@@ -1,6 +1,37 @@
 # BASED Commander: rooms, hangar, vehicles and battles, the plan
 
-The design for the next round of updates, from the November 2 brief. The art for it comes from `CHROME_ROOMS_V2_RUN.md`.
+The design for the next round of updates, from the November 2 brief.
+
+## Status (November 2)
+
+**Built and live:**
+- **Armory forge:** one weapon every 20 minutes of play at Level 1, down to 8 at Level 5, faster with crew working there. Higher Levels unlock better weapons. It waits when the racks are full.
+- **Tech Center research:**
+  - From Level 3, an energy weapon every 45, 35 or 25 minutes of play.
+  - At Level 5 it can also upgrade a turret or finish a Titan Mech.
+- **Small vehicles:**
+  - An Armory at Level 3 plus a Hangar at Level 2 build a small vehicle about every hour of play.
+  - The first two are the Raider Buggy and the Dirt Bike, also buyable for $25,000 and $12,000.
+- **Vehicle condition, Wrecked to Mint:**
+  - Bought vehicles arrive Mint. Battle prizes arrive at 30 to 50%, mission captures at 25 to 55%, and vehicles raiders leave behind at 15 to 40%. Existing vehicles stay Mint.
+  - Parked vehicles repair: a full repair takes about 60 minutes of play at Hangar Level 1, down to 15 at Level 5, plus 25% faster for each crew member in a Hangar.
+  - Wrecked vehicles can't go on missions. Worn ones are slower, take more damage, and sell for less.
+  - Repair Now unlocks at Hangar Level 2, vehicle upgrades at Hangar Level 4.
+- **Elevator:** a new room, unlocked at base Level 5.
+- **Barracks travel time:** Barracks defenders reach the fight after 0.3 seconds plus 0.5 seconds per floor by stairs. An Elevator cuts that to 0.35 seconds per floor at Level 1, down to 0.12 at Level 5. They show faded until they arrive. Guards stationed outside fight from the start.
+- **Balance check:** on Phoenix's base, the raid ladder still wins 60 of 60 simulated battles at raid Levels 1 to 6.
+- **Roof quick fix:** the Fortress Tech and Sky Citadel fronts (the eras formerly called Ultra Modern and Luxury Futuristic) fade at the cut-off top, and turrets no longer mount on the cut edge.
+
+**Art runs replacing section 1's per-shape pictures:**
+- `CHROME_ROOMS_LAYERED_RUN.md`: rooms built from layers, with `art/room_kit.json`.
+- `CHROME_EXTERIOR_RUN.md`: one exterior painting per base Level.
+
+**Still to build:**
+- The room layout engine, once the layered art lands.
+- Stairs drawn at the far right of each floor.
+- The hangar beside the base at 2x4, 2x6 and 2x8, with vehicles at true scale and the departure animation.
+- Breaching.
+- The landscape missions.
 
 ## 1. Room sizes
 
