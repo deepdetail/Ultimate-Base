@@ -137,3 +137,9 @@ When everything is done, list any FAIL items again so I can redo them.
   - The mission screen gets a sideways layout: stick zone on the left, throttle and fire on the right, objective top left, map top right, respecting the notch.
   - Until this art lands, code-drawn controls stand in.
 - **Size budget:** about 22 cockpits at 100 to 150 KB plus 15 controls at about 25 KB, roughly 3 to 4 MB added to the game. That's still well under the artifact limit.
+
+## Wiring status (the code side is done)
+- **Sideways missions are in:** the iPhone app turns to landscape for missions and back for the base; the website asks phones held upright to turn (with a PLAY UPRIGHT button); Android locks landscape in fullscreen; the mission screen has its sideways layout.
+- **Stand-ins:** all 22 cockpits and all 15 controls are drawn in code in the same 1536 x 1024 frame and 1024 control square this run uses, so painted art lines up with no other changes. The old photo cockpits (Cessna, L-39) are retired from the game; their files stay in `art/cockpits/`.
+- **Dropping the art in:** put the downloaded PNGs (keep the save names, such as `cpw_cessna.png` and `ctl_yoke.png`) in one folder and run `python3 tools/wire_cockpits.py FOLDER`. It keys the magenta and green, saves WebP, trims each control while recording its trim box, and writes the results into `CKART` and `CTLART` in `prototype/based.html`. Pictures can arrive a few at a time; anything missing stays drawn in code.
+- **After wiring:** fly or drive each vehicle once. If a painted control mount or eye level sits elsewhere than the drawn one, adjust that vehicle's row in `CKW` (`mx`, `my` the pivot; `ms` the control's size; `cy` eye level; `gl` the glare shield). Then run `python3 tools/build_exports.py`.

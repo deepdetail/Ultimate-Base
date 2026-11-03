@@ -21,6 +21,9 @@ struct GameView: UIViewRepresentable {
         let js = "(function(){var s=document.createElement('style');s.textContent='\(css)';document.documentElement.appendChild(s);})();"
         config.userContentController.addUserScript(
             WKUserScript(source: js, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
+        // The game calls window.webkit.messageHandlers.orientation.postMessage('landscape' or 'portrait')
+        // when a mission starts and ends. (Weak hop, so the web view and the coordinator don't keep each other alive.)
+        config.userContentController.add(WeakMessages(context.coordinator), name: "orientation")
 
         let web = WKWebView(frame: .zero, configuration: config)
         let background = UIColor(named: "LaunchBackground") ?? .black
@@ -44,8 +47,19 @@ struct GameView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
         let files = BundleFiles()
+
+        // Missions play sideways: landscape while one runs, portrait back at the base.
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.name == "orientation", let want = message.body as? String else { return }
+            ScreenTurn.set(landscape: want == "landscape", in: message.webView)
+        }
+
+        // If the web view's process restarts mid-mission, the game reloads at the base, so go back upright.
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            ScreenTurn.set(landscape: false, in: webView)
+        }
 
         // The game never leaves the app: only its own pages load. (A kids app must not open
         // outside links without a parent gate. The one grown-ups link is handled just below.)
@@ -145,5 +159,15 @@ final class BundleFiles: NSObject, WKURLSchemeHandler {
         case "txt", "md": return "text/plain; charset=utf-8"
         default: return "application/octet-stream"
         }
+    }
+}
+
+/// Passes script messages on without holding the coordinator strongly
+/// (WKUserContentController keeps its handlers alive).
+final class WeakMessages: NSObject, WKScriptMessageHandler {
+    private weak var target: WKScriptMessageHandler?
+    init(_ target: WKScriptMessageHandler) { self.target = target }
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        target?.userContentController(controller, didReceive: message)
     }
 }

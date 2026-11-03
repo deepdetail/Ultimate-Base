@@ -1,6 +1,6 @@
 # BASED Commander for iPhone (Xcode project)
 
-A small native iPhone app (SwiftUI and WKWebView) that runs the game bundled inside it from the `BASEDCommander/Web` folder. It plays offline, keeps saves on the phone, and runs in portrait on iPhone, iOS 16 or newer.
+A small native iPhone app (SwiftUI and WKWebView) that runs the game bundled inside it from the `BASEDCommander/Web` folder. It plays offline, keeps saves on the phone, and runs upright on iPhone, turning sideways on its own for flight and driving missions, iOS 16 or newer.
 
 ## 1. Run it on your own iPhone (free, no $99 needed)
 1. Unzip, then double-click `BASEDCommander.xcodeproj` to open it in Xcode.
@@ -40,7 +40,7 @@ The game lives in `BASEDCommander/Web`. After the game changes, run `python3 too
 | Bundle ID | `com.deepdetail.basedcommander` | Target > Signing & Capabilities |
 | Name under the icon | BASED | Target > General > Display Name |
 | Version / build | 2.0 / 1 | Target > General |
-| Devices | iPhone, portrait | Target > General > Supported Destinations |
+| Devices | iPhone; portrait at the base, landscape in missions | Target > General > Supported Destinations (keep landscape ticked: the app itself decides when to turn) |
 | Minimum iOS | 16.0 | Target > General > Minimum Deployments |
 
-Code: `BASEDCommanderApp.swift` starts the app; `GameView.swift` holds the web view and the small file server that hands it the `Web` folder at `based://game/`.
+Code: `BASEDCommanderApp.swift` starts the app and holds `ScreenTurn`, which turns the screen; `GameView.swift` holds the web view, the small file server that hands it the `Web` folder at `based://game/`, and the `orientation` message hook the game calls when a mission starts (landscape) and ends (portrait).
