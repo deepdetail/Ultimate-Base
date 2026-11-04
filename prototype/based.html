@@ -338,6 +338,13 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .fire.photo{border-color:#c9f6f8;background:radial-gradient(circle at 35% 30%,#bff8fa,#1c979c);color:#04282a}
 .fire .ic{width:24px;height:24px}
 .fire.solo{right:max(18px,env(safe-area-inset-right,0px))}
+.boost{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:54px;height:124px;border-radius:18px;border:3px solid #ffd27a;background:linear-gradient(180deg,#ffb347,#d9661f);color:#2a1400;font:800 11px/1 var(--font-display);letter-spacing:.04em;writing-mode:vertical-rl;text-orientation:upright;box-shadow:0 4px 10px rgba(0,0,0,.4);touch-action:none;user-select:none;-webkit-user-select:none}
+.pedals{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;align-items:flex-end;gap:12px}
+.pedal{border-radius:14px;font:800 13px/1 var(--font-display);letter-spacing:.06em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);box-shadow:0 4px 10px rgba(0,0,0,.4);touch-action:none;user-select:none;-webkit-user-select:none}
+.pedal.gas{width:72px;height:124px;border:3px solid #9ff2b8;background:linear-gradient(180deg,#3ddc97,#1c8c5c)}
+.pedal.brake{width:92px;height:78px;border:3px solid #ffb3ba;background:linear-gradient(180deg,#ff7682,#b0283a)}
+.boost.on,.pedal.on{filter:brightness(1.3);transform:scale(.95)}
+.m-ctl.drive .fire.solo{right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 156px)}
 .m-side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .m-btns{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 /* sideways phones: stick on the left, throttle and fire on the right, objective top left, map top right, clear of the notch */
@@ -354,6 +361,10 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
   .stick-hint{left:max(16px,env(safe-area-inset-left,0px));right:auto;width:34%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
   .thr{height:min(72%,210px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
   .fire{width:70px;height:70px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
+  .boost{height:min(62%,150px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
+  .pedals{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
+  .pedal.gas{height:min(30vh,118px)}.pedal.brake{height:min(19vh,74px)}
+  .m-ctl.drive .fire.solo{bottom:calc(env(safe-area-inset-bottom,0px) + 140px)}
   .m-photos{top:calc(env(safe-area-inset-top,0px) + 98px);flex-direction:row}
   .m-photos canvas{width:52px;height:36px;border-bottom-width:7px}
   body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 8px);left:auto;transform:none;right:calc(max(10px,env(safe-area-inset-right,0px)) + 196px);width:min(30vw,300px)}
@@ -3775,12 +3786,12 @@ function buildMission(v,mk,route,pilot){
       <div class="m-obj"><b id="m-obj">Loading</b><span>${esc(pilot.name)} · ${esc(v.name)}</span>
         <div class="m-gauges"><span>${v.cat==='air'?'KT':v.cat==='sea'?'KT':'MPH'} <b id="m-spd">0</b></span><span>ALT <b id="m-alt">0</b></span><span>HDG <b id="m-hdg">0</b></span>${armed?'<span>KO <b id="m-ko">0</b></span>':''}</div>
         <div class="m-hull"><i id="m-hull" style="width:100%"></i></div></div>
-      <div class="m-side"><canvas id="minimap" width="160" height="160"></canvas><div class="m-btns"><button class="m-btn" id="m-cam">VIEW: COCKPIT</button>${v.cat==='air'?`<button class="m-btn" id="m-assist">ASSIST: ${(S.assist||'casual').toUpperCase()}</button>`:''}</div></div>
+      <div class="m-side"><canvas id="minimap" width="160" height="160"></canvas><div class="m-btns"><button class="m-btn" id="m-cam">VIEW: COCKPIT</button>${v.cat==='air'?`<button class="m-btn" id="m-assist">MODE: ${MODE_NAME[S.assist||'casual']}</button>`:''}</div></div>
     </div>
-    <div class="m-ctl" id="m-ctl">
+    <div class="m-ctl${v.cat==='air'?'':' drive'}" id="m-ctl">
       <div class="stick-zone" id="m-stick"><div class="stick-base" id="m-sbase" hidden><div class="stick-knob" id="m-knob"></div></div></div>
-      <div class="stick-hint" id="m-hint">${v.cat==='air'?(FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Up pulls the nose up, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'')):'Drag here. Up is gas, down is brake, sideways steers.'}</div>
-      ${v.cat==='air'?'<div class="thr" id="m-thr"><span>THROTTLE</span><i id="m-thri" style="height:60%"></i></div>':''}
+      <div class="stick-hint" id="m-hint">${ctlHint(v,FM)}</div>
+      ${v.cat==='air'?'<div class="thr" id="m-thr"><span>THROTTLE</span><i id="m-thri" style="height:60%"></i></div><button class="boost" id="m-boost">BOOST</button>':'<div class="pedals"><button class="pedal brake" id="m-brake">BRAKE</button><button class="pedal gas" id="m-gas">GAS</button></div>'}
       ${armed?`<button class="fire ${v.cat==='air'?'':'solo'}" id="m-fire">${icon('target')}FIRE</button>`:type==='recon'?`<button class="fire photo" id="m-fire">${icon('camera')}PHOTO</button>`:''}
     </div>`;
 
@@ -3968,6 +3979,10 @@ function ckCtl(dt,ix,iy,force){const K=M&&M.ck;if(!K||(M.cam!=='cockpit'&&!force
     else if(mo==='mech') t=`rotate(${x*20}deg) scale(${1+pull*.05},${1-pull*.12})`;
     else t=`translateX(${x*4}%) rotate(${x*14}deg)`;
     k.el.style.transform=t})}
+// flying modes: Starfighter (the default) swaps the throttle for a BOOST button; Assisted and Real pilot keep the throttle
+const MODE_NAME={casual:'STARFIGHTER',assisted:'ASSISTED',pro:'REAL PILOT'};
+const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Drag sideways to turn, up to climb, down to dive. Hold BOOST to go faster.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Up pulls the nose up, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'');
+function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint');if(t) t.hidden=star;if(b) b.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
 function bindMissionInput(){
   const zone=$('#m-stick'),base=$('#m-sbase'),knob=$('#m-knob');let sid=null,ox=0,oy=0;
   zone.addEventListener('pointerdown',e=>{sid=e.pointerId;try{zone.setPointerCapture(sid)}catch(err){}const r=zone.getBoundingClientRect();ox=e.clientX;oy=e.clientY;base.hidden=false;base.style.left=(e.clientX-r.left)+'px';base.style.top=(e.clientY-r.top)+'px';knob.style.transform='';$('#m-hint').hidden=true});
@@ -3977,21 +3992,26 @@ function bindMissionInput(){
   const thr=$('#m-thr');if(thr){const setT=e=>{if(!M) return;const r=thr.getBoundingClientRect();M.P.thr=clamp(1-(e.clientY-r.top)/r.height,0,1)};let tid=null;
     thr.addEventListener('pointerdown',e=>{tid=e.pointerId;try{thr.setPointerCapture(tid)}catch(err){}setT(e)});thr.addEventListener('pointermove',e=>{if(e.pointerId===tid)setT(e)});
     thr.addEventListener('pointerup',()=>{tid=null});thr.addEventListener('pointercancel',()=>{tid=null})}
+  // hold-down buttons: BOOST for planes, GAS and BRAKE for cars and boats
+  const hold=(id,key)=>{const b=$('#'+id);if(!b) return;b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(err){}if(M) M.input[key]=true;b.classList.add('on')});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,()=>{if(M) M.input[key]=false;b.classList.remove('on')}))};
+  hold('m-boost','boost');hold('m-gas','gas');hold('m-brake','brake');
   const fire=$('#m-fire');
   if(fire&&M.armed){fire.addEventListener('pointerdown',e=>{e.preventDefault();if(M)M.input.fire=true});['pointerup','pointercancel','pointerleave'].forEach(t=>fire.addEventListener(t,()=>{if(M)M.input.fire=false}))}
   else if(fire) fire.addEventListener('pointerdown',e=>{e.preventDefault();takePhoto()});
   $('#m-exit').onclick=()=>{ if(!M||M.done) return; M.paused=true; openSheet('Leave mission?',`<div class="muted">You will head home with no reward. Nothing is lost.</div><div class="row"><button class="btn" data-act="m-resume">KEEP GOING</button><button class="btn danger" data-act="m-quit">GO HOME</button></div>`,true)};
-  const ab=$('#m-assist');if(ab) ab.onclick=()=>{const o=['casual','assisted','pro'];S.assist=o[(o.indexOf(S.assist||'casual')+1)%3];ab.textContent='ASSIST: '+S.assist.toUpperCase();
-    toast(S.assist==='casual'?'Casual: the plane levels itself and the guns help aim.':S.assist==='assisted'?'Assisted: auto-level stays on, but you can stall and you aim with the lead marker.':'Pro: full control. Stalls, G-forces and crashes are real.','ok')};
+  const ab=$('#m-assist');if(ab) ab.onclick=()=>{const o=['casual','assisted','pro'];S.assist=o[(o.indexOf(S.assist||'casual')+1)%3];ab.textContent='MODE: '+MODE_NAME[S.assist];ctlModeUI();
+    toast(S.assist==='casual'?'Starfighter: tilt sideways to turn, up and down to climb or dive. It levels itself, never stalls, pulls up near the ground, and the guns help aim.':S.assist==='assisted'?'Assisted: real flying with a throttle. It levels itself, but you can stall and you aim with the lead marker.':'Real pilot: full control. Stalls, G-forces and crashes are real.','ok')};
   $('#m-cam').onclick=()=>{if(!M) return;M.cam=M.cam==='cockpit'?'chase':'cockpit';$('#m-cam').textContent='VIEW: '+(M.cam==='cockpit'?'COCKPIT':'CHASE');$('#m-cockpit').hidden=M.cam!=='cockpit';ckLook()};
   M.onKey=e=>{if(!M) return;const d=e.type==='keydown';M.keys[e.key.toLowerCase()]=d;if(e.key===' '){e.preventDefault();if(M.armed) M.input.fire=d;else if(d&&!e.repeat) takePhoto()}if(d&&e.key.toLowerCase()==='c') $('#m-cam').click()};
   window.addEventListener('keydown',M.onKey);window.addEventListener('keyup',M.onKey);
+  ctlModeUI();
 }
-function advanceStop(){
+function advanceStop(missed){
   const st=M.stops[M.idx];st.beam.visible=false;if(st.ring) st.ring.visible=false;
   if(st.final) return finishMission(true);
   M.idx++;const nx=M.stops[M.idx];nx.beam.visible=true;if(nx.ring) nx.ring.material=M.ringNext;
-  toast(`Stop cleared! Next: ${nx.name}`,'ok');
+  toast(missed?`Missed ${st.name}. Keep going! Next: ${nx.name}`:`Stop cleared! Next: ${nx.name}`,missed?'warn':'ok');
   if(!M.spawned){M.spawned=true;spawnDrones()}
 }
 function takePhoto(){
@@ -4023,10 +4043,30 @@ function flightModel(v){
   return {rotor:!!sp.rotor,ab:!!sp.ab,vmax,vs:(sp.stall||0)*KT,tw,cd:tw*GRAV/(vmax*vmax),roll:(sp.roll||90)*Math.PI/180,pitch:(sp.pitch||30)*Math.PI/180,
     gmax:sp.g||4,ceil:sp.ceil||20000,acc:sp.acc||4,yaw:(sp.yaw||50)*Math.PI/180,climb:(sp.climb||1500)*.00508,jet:sp.ek==='jet'||sp.ek==='future'};
 }
+// STARFIGHTER flying (the default mode): tilt the stick sideways and it turns right away, up and down climbs or dives,
+// and it levels itself when you let go. Speed is automatic; hold BOOST to go faster. It can't stall, it looks ahead and
+// pulls up near the ground, and if you drift far off the course it eases back toward the next checkpoint.
+// Nimbler aircraft (a higher G limit) turn faster: about 35 degrees a second for the Cessna, about 55 for a fighter.
+function starStep(dt,ix,iy){
+  const T=window.THREE,P=M.P,F=M.FM,k=M.keys||{};
+  const agile=clamp(.35+(F.gmax||4)*.07,.55,1),turn=ix*agile;
+  P.yaw-=turn*dt;if(M.offCourse) P.yaw+=M.offCourse*dt;
+  P.sbank=(P.sbank||0)+(ix*.7-(P.sbank||0))*Math.min(1,dt*4);
+  const look=Math.max(60,P.speed*1.6),ax=P.x-Math.sin(P.yaw)*look,az=P.z-Math.cos(P.yaw)*look;
+  const agl=P.y-Math.max(M.heightAt(P.x,P.z),M.heightAt(ax,az),M.heightAt((P.x+ax)/2,(P.z+az)/2));
+  let tp=iy*.6;if(agl<40) tp=Math.max(tp,clamp((40-agl)/40,0,1)*.6);
+  P.spitch=(P.spitch||0)+(tp-(P.spitch||0))*Math.min(1,dt*2.2);
+  const boost=M.input.boost||k['shift']||k['e'];
+  P.vr+=(F.vmax*(boost?(F.ab?1.08:1):.72)-P.vr)*Math.min(1,dt*.9);P.speed=comp(P.vr);P.thr=boost?1:.72;
+  P.q.setFromEuler(new T.Euler(P.spitch,P.yaw,-P.sbank,'YXZ'));
+  const f=new T.Vector3(0,0,-1).applyQuaternion(P.q);
+  P.x+=f.x*P.speed*dt;P.z+=f.z*P.speed*dt;P.y+=f.y*P.speed*dt;P.g=1+Math.abs(turn)*.6;P.sink=0;P.vy=0;
+}
 function flyStep(dt,ix,iy,k){
   const T=window.THREE,P=M.P,F=M.FM,mode=S.assist||'casual';
   const altFt=(P.y/(M.VEX*MWS)*10+M.minElev)*3.281,thin=clamp(1-altFt/F.ceil,.05,1);
-  if(F.rotor){
+  if(mode==='casual') starStep(dt,ix,iy);
+  else if(F.rotor){
     P.vr+=(iy*F.acc-F.acc*.25*(P.vr/F.vmax)*(P.vr/F.vmax)*4)*dt;P.vr=clamp(P.vr,0,F.vmax);
     const climb=(P.thr-.5)*2*F.climb;P.vy+=(climb-P.vy)*Math.min(1,dt*1.5);
     P.yaw-=ix*F.yaw*dt;const bank=ix*.4,pv=-clamp(iy,-1,1)*.18;
@@ -4116,6 +4156,8 @@ function missionLoop(now){
   let ix=M.input.x,iy=M.input.y;
   if(k['arrowleft']||k['a']) ix=-1; if(k['arrowright']||k['d']) ix=1;
   if(k['arrowup']||k['w']) iy=1; if(k['arrowdown']||k['s']) iy=-1;
+  // driving: the stick only steers; GAS and BRAKE (or the up and down keys) drive
+  if(v.cat!=='air'){const gas=M.input.gas||k['arrowup']||k['w'],brk=M.input.brake||k['arrowdown']||k['s'];iy=(gas?1:0)-(brk?1:0)}
   ckCtl(dt,ix,iy);
   if(v.cat==='air'){
     if(k['shift']||k['e']) P.thr=Math.min(1,P.thr+dt*.6); if(k['control']||k['q']) P.thr=Math.max(0,P.thr-dt*.6);
@@ -4153,10 +4195,19 @@ function missionLoop(now){
   // current stop
   const st=M.stops[M.idx];
   const dx=st.x-P.x,dz=st.z-P.z,dist=Math.hypot(dx,dz);
+  // checkpoints are forgiving: a plane counts within about a quarter mile (a tenth of a mile is a bullseye), a car within about 0.15 mile
+  const air=v.cat==='air',dyS=air?Math.abs(st.y-P.y):0,near=air?100:60,bull=air?40:28;
   if(st.kind==='ring'){
     st.ring.rotation.y=Math.atan2(P.x-st.x,P.z-st.z);
-    if(dist<(v.cat==='air'?40:28)&&(v.cat!=='air'||Math.abs(st.y-P.y)<48)) return advanceStop();
+    if(Math.hypot(dist,dyS)<near){if(dist<bull&&dyS<48){M.bulls=(M.bulls||0)+1;toast('Bullseye! Right through the ring: +$1,000','ok')}return advanceStop()}
   } else if(st.kind==='targets'&&st.targets.every(t=>!t.alive)) return advanceStop();
+  // the course runs from the last checkpoint to this one. Go well past a checkpoint and it counts as missed while the next one
+  // takes over; drift far off the line and the plane eases back (in Starfighter mode) or the game points you back.
+  {const A=M.idx>0?M.stops[M.idx-1]:(M.start||(M.start={x:P.x,z:P.z})),ux=st.x-A.x,uz=st.z-A.z,L=Math.hypot(ux,uz)||1,along=((P.x-A.x)*ux+(P.z-A.z)*uz)/L,off=Math.abs((P.x-A.x)*uz-(P.z-A.z)*ux)/L,tg=st.kind==='targets';
+    if(!st.final&&along>L+(tg?300:150)&&dist>(tg?250:near)){M.missed=(M.missed||0)+1;return advanceStop(true)}
+    M.offCourse=0;
+    if(off>(air?200:260)&&dist>near){warn(air?'BACK TO THE COURSE!':'HEAD FOR THE ARROW!',.6);
+      if(air&&(S.assist||'casual')==='casual'){let want=Math.atan2(-dx,-dz)-P.yaw;while(want>Math.PI)want-=2*Math.PI;while(want<-Math.PI)want+=2*Math.PI;M.offCourse=clamp(want,-1,1)*.5}}}
   st.targets.forEach(t=>{if(t.alive&&t.label==='Supply balloon') t.g.position.y+=Math.sin(M.t*1.5)*.05});
   // drones
   for(const d of M.drones){
@@ -4284,25 +4335,26 @@ function hudMission(st,dist){
 }
 function finishMission(won){
   if(!M||M.done) return; M.done=true;
-  const v=M.v,mk=M.mk,ko=M.ko,stops=M.idx+(won?1:0),type=M.type,hits=M.hits,photos=M.photos,intel=M.intel||0;
+  const v=M.v,mk=M.mk,ko=M.ko,stops=M.idx+(won?1:0),type=M.type,hits=M.hits,photos=M.photos,intel=M.intel||0,bulls=M.bulls||0,missed=M.missed||0;
   warn(won?'OUTPOST FOUND!':'MAYDAY!',2);
   setTimeout(()=>{
     closeMission();
     if(won){
       const key=mk+':'+v.cat;S.found=S.found||{};const firstTime=!S.found[key];S.found[key]=true;
-      const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*stops;
-      const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0)+2000*intel;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
+      const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*Math.max(0,stops-missed);
+      const cr=Math.round((base+1500*ko)*(1+.03*level()))+(firstTime?25000:0)+2000*intel+1000*bulls;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
       S.mwins=(S.mwins||0)+1;let prize='';
       if(PRIZES[S.mwins]) prize=grantPrize(VEH.find(x=>x.id===PRIZES[S.mwins]),'Mission '+S.mwins+' prize');
       else{const diff=Math.min(.3,.06+.02*(v.spd||1)+(type==='strike'?.04:0));
         if(Math.random()<diff){const pool=VEH.filter(x=>!x.locked&&!x.tech&&(!x.level||level()>=x.level)&&x.cost<=Math.max(450000,v.cost*1.5));if(pool.length) prize=grantPrize(pick(pool),'Bonus prize')}}
       const np=nextPrize();
-      const detail=type==='strike'?`<div class="stat"><span class="label">Targets</span><b>${hits}</b></div>`:type==='recon'?`<div class="stat"><span class="label">Photos</span><b>${photos}</b></div>`:`<div class="stat"><span class="label">Rings</span><b>${stops}</b></div>`;
+      const detail=type==='strike'?`<div class="stat"><span class="label">Targets</span><b>${hits}</b></div>`:type==='recon'?`<div class="stat"><span class="label">Photos</span><b>${photos}</b></div>`:`<div class="stat"><span class="label">Rings</span><b>${Math.max(0,stops-missed)}</b></div>`;
       openSheet('Mission complete!',`${badge(firstTime?'map':'flag')}
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost at '+esc(ROUTES[mk][v.cat].slice(-1)[0])+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
         <div class="stats"><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div>${detail}<div class="stat"><span class="label">${type==='recon'?'Drone intel':'Drones KO'}</span><b>${type==='recon'?intel:ko}</b></div></div>
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
+        ${bulls?`<div class="muted" style="font-size:12px">Bullseye rings: ${bulls} (+${money(1000*bulls)})</div>`:''}${missed?`<div class="muted" style="font-size:12px">Missed checkpoints: ${missed}. Go through each one for the full reward.</div>`:''}
         ${prize}${np?`<div class="muted" style="font-size:12px">Mission wins: ${S.mwins}. Next prize: ${esc(np.v.name)} in ${np.left} more win${np.left>1?'s':''}.</div>`:''}
         <button class="btn primary" data-close>BACK TO BASE</button>`);
     } else {
