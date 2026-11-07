@@ -39,7 +39,10 @@ Output is a Drive folder of numbered public domain images plus a sources sheet f
      --out content/<theme>/<topic>/images
    ```
    The script keeps only files Commons tags public domain or CC0 and writes `manifest.csv`.
-   Run it in the background: Wikimedia throttles shared cloud IPs (HTTP 429, Retry-After up to 600s).
+   Run it in the background. Known issue (November 7, 2026): from the Claude Code cloud sandbox,
+   `upload.wikimedia.org` answered HTTP 429 to every file request for over 40 minutes, while the
+   Commons metadata API worked. The shared cloud IP is throttled. So run this step on the user's own
+   computer (Claude Code desktop or terminal), or use the Make.com route in step 7, which skips it.
 5. **Create the Drive folders** with the Google Drive connector (`create_file`,
    mimeType `application/vnd.google-apps.folder`), searching first so nothing is duplicated.
 6. **Create a sources sheet in the topic folder** named `<Topic> <MM.DD.YY> Image Sources`
