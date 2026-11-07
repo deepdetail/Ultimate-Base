@@ -1,0 +1,20 @@
+# Tchaikovsky's Sugar Momma: image picks, in the source doc's order.
+# Source doc: https://claude.ai/artifact/Tcb7LHxRn29Wf4yzaVut7n
+# Format: Commons file | script beat
+File:Nadezhda von Meck.jpeg | Hook: von Meck portrait
+File:La famiglia Von Meck.JPG | Hook: von Meck family, about 1875 (she is at left)
+File:Karl von Meck.jpg | Patron: "had lost her husband" (railway builder Karl von Meck)
+File:Tchaikovsky in 1859 at Imperial School of Jurisprudence.gif | Origin: law school graduation year
+File:Twentieth graduating class of the Imperial School of Jurisprudence (Saint Petersburg, 1859).gif | Origin: 1859 graduating class
+File:Tchaikovsky in 1860 as Ministry of Justice employee.gif | Origin: Ministry of Justice
+File:Ciaikovskij nel 1866.JPG | Origin: 1866, starts teaching in Moscow
+File:Der junge Tschaikowski cropped.jpg | Origin: young Tchaikovsky
+File:Nikolai Rubinstein 1872.jpg | Concerto: "his boss in Moscow"
+File:Old Music Hall, Winter St. & Hamilton Place, Boston, by James Wallace Black, June 9, 1874, from the Digital Commonwealth - commonwealth 2801pj91z.jpg | Concerto: "Boston loved it" (Boston Music Hall, 1874)
+File:Miranda - The Tempest JWW.jpg | Patron: The Tempest (Waterhouse, Miranda)
+File:Kotek iosif.jpg | Patron: house violinist Iosif Kotek
+File:G c1877kotek.jpg | Patron: Kotek and Tchaikovsky, 1877
+File:Tchaikovsky with wife Antonina Miliukova.jpg | Wedding: honeymoon, July 1877
+File:Peter Ilich Tchaikovsky, head-and-shoulders portrait, facing slightly left LCCN99615569.jpg | Closer: 1880s portrait, large enough for a slow zoom
+File:Tchaikovsky by Reutlinger.jpg | Closer: Reutlinger cabinet card, 1888
+File:Onegin Premiera Afisha.jpg | Closer: Eugene Onegin premiere poster
