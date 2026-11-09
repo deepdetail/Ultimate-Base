@@ -23,8 +23,8 @@ Phoenix's ideas, approved November 3: missions become arcade courses instead of 
 | Phase | What | Size | Status |
 |---|---|---|---|
 | 1 | Starfighter flying, BOOST, forgiving checkpoints, missed checkpoints that hand over to the next, off-course help, cars steered on the stick with GAS and BRAKE | About half a session | **Shipped** (see below) |
-| 2 | Auto-targeting: point roughly at a target, it locks in about half a second, aim drifts toward it and shots curve in. Photo missions snap automatically when the camp is close and roughly in view | About a quarter session | Next |
-| 3 | Courses: a real road ribbon on the terrain with soft edges and checkpoint arches; sky lanes of rings with chevrons; obstacles and bad guys along the way (rocks, roadblocks, raider trucks, drones crossing, cliff turrets) | About a full session | Planned |
+| 2 | Auto-targeting: point roughly at a target, it locks in about half a second, aim drifts toward it and shots curve in. Photo missions snap automatically when the camp is close and roughly in view | About a quarter session | **Shipped** (lock-on brackets, curving shots, laser auto-aim, auto photo) |
+| 3 | Courses: a real road ribbon on the terrain with soft edges and checkpoint arches; sky lanes of rings with chevrons; obstacles and bad guys along the way (rocks, roadblocks, raider trucks, drones crossing, cliff turrets) | About a full session | **Shipped** (see below; cliff turrets and rock obstacles still to come) |
 | 4 | Course layouts for each region, tuned from Phoenix's play | About half a session | Planned |
 
 ### Phase 1, as shipped
@@ -71,3 +71,22 @@ Phoenix's ideas, approved November 3: missions become arcade courses instead of 
   - The game runs three.js r128 in a web view. That can show a few high-quality models well.
   - A full Metal Storm-style dogfight may eventually need a native engine.
   - Prove it with one licensed model in the hangar first.
+
+## Arcade missions (November 8 and 9), Phoenix's second round
+Asked for: shorter trips, obvious targets, Star Fox barrel rolls, easy enemies early, celebrations, the outside view, faster planes, and waypoint boxes like Flight Simulator 2024.
+- **Short hops:** three checkpoints about 30 seconds apart (measured 29 to 33 seconds for every vehicle in a headless simulation), heading out toward the region's landmarks. Fast planes on small maps fly a loop around the landmarks so hops stay about 30 seconds.
+- **Planes:** about 1.75 times faster in Starfighter mode (capped near F-22 speed), BOOST about 1.5 times on top with speed streaks and a wider view.
+- **Waypoint boxes:** a tunnel of floating boxes about 1.3 seconds apart; the next three glow pink. With the stick level the plane eases to the boxes' height. The final target sits right on the path and the boxes dive at it: the simulated approach comes in about 5 degrees off the target.
+- **Barrel roll (Starfighter mode only):** double tap the left or right side of the screen (a mouse double click works too), or flick the stick twice. One spin with a slide; an orb that reaches you mid-roll bounces back. Normal flying never banks past about 40 degrees.
+- **Roads:** a road cut into the terrain between landmarks. Let go of the stick and the car follows the road back to the middle; the edges are soft bumpers. Gems along the road.
+- **Challenge picker on the mission sheet:** ROOKIE (drones only from the front, one hit, fade once passed, barely hurt), PILOT (slow orbs, some two-hit drones, oncoming trucks), ACE (enemy jets that turn and chase, trucks from behind). The default follows mission wins; any can be picked for testing.
+- **Every vehicle can shoot on a mission:** with no weapon upgrade it gets a basic stun blaster. Weapon upgrades hit harder. (Decision for the owner to confirm.)
+- **Celebrations:** comic fireballs that stay visible at a distance, BOOM and POW words, points with combos up to x4, lock-on brackets, CHECKPOINT and PERFECT LINE banners, a little repair at each checkpoint, screen shake, a red flash when hit, stars on the results. Synthesized sound effects (no sound files) with a SOUND button.
+- **Outside view by default:** each mission opens with about three seconds in the cockpit and a line from the tower, then the camera swoops outside. Tap to skip.
+- **The helicopter is out of the game for now:** owners get its full price back ($1,200,000). The prize at 12 wins is now the L-39, and the armored SUV is the prize at 16.
+- **3D roster:** `art/MISSION_3D_ROSTER.md` lists the bad guys, targets, obstacles and bosses to build in 3D, with a handover spec so models drop in.
+
+### Still to come
+- Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
+- Recorded voice lines and music (the sound effects are code-made for now).
+- Bonus targets and obstacles from the roster (comms towers, turrets, rock arches, cables) placed along the courses.

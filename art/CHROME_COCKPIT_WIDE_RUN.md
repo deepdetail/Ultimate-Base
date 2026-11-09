@@ -2,10 +2,10 @@
 
 What this makes in ChatGPT: 37 pictures, so the flight and driving missions can be played with the phone held sideways.
 
-- **22 wide cockpits,** one per vehicle, for numbers 1 to 22.
+- **21 wide cockpits,** one per vehicle, for numbers 1 to 22 (number 3, the helicopter, is skipped: it's out of the game for now).
   - The windows are flat magenta so the game can show the 3D world through them.
   - The control is left out of each one.
-- **15 controls painted on their own,** for numbers 23 to 37: yokes, sticks, steering wheels, levers, handlebars and helms. The game lays each one over its cockpit and turns or tilts it live as you steer.
+- **14 controls painted on their own,** for numbers 23 to 37 (number 26, the helicopter cyclic, is skipped): yokes, sticks, steering wheels, levers, handlebars and helms. The game lays each one over its cockpit and turns or tilts it live as you steer.
 
 Style: the game's comic look, but realistic: true-to-life shapes, instruments and materials, with clean line art and cel shading. The photo-style Cessna and L-39 cockpits now in the game get repainted to match.
 
@@ -15,7 +15,6 @@ This replaces `COCKPIT_RUN.md`. That run's pictures were tall, with the controls
 |---|---|---|
 | Cessna 182 | cpw_cessna | ctl_yoke |
 | Aero L-39 Albatros | cpw_l39 | ctl_stick_center |
-| Huey Helicopter | cpw_huey | ctl_cyclic |
 | F-16 Fighting Falcon | cpw_f16 | ctl_stick_side |
 | MiG-29 | cpw_mig | ctl_stick_center |
 | F/A-18 Hornet | cpw_f18 | ctl_stick_center |
@@ -77,7 +76,7 @@ REPORT every 6 images, or as soon as ChatGPT hits a usage limit: a table of save
 AIRCRAFT COCKPITS (chat 1: numbers 1 to 5; chat 2: numbers 6 to 10)
 1. cpw_cessna.png: a four-seat high-wing prop plane: a classic analog six-gauge panel, a radio stack in the middle, throttle, prop and mixture knobs, a tan and gray interior, the high wing's struts outside the side windows. The yoke is left out; show the bare yoke shaft coming out of the panel in front of the left seat.
 2. cpw_l39.png: a two-seat trainer jet, front seat: a gray panel of round analog gauges, a throttle on the left console, a bubble canopy frame overhead. The control stick is left out; show only its black rubber boot on the floor between the knees.
-3. cpw_huey.png: a classic military utility helicopter, left pilot seat: a wide olive drab panel of round gauges, an overhead console, chin bubble windows down low (magenta too). The cyclic stick is left out; show only its boot on the floor.
+3. SKIP (the helicopter is out of the game for now). Was cpw_huey.png: a classic military utility helicopter, left pilot seat: a wide olive drab panel of round gauges, an overhead console, chin bubble windows down low (magenta too). The cyclic stick is left out; show only its boot on the floor.
 4. cpw_f16.png: a single-seat fighter jet with a bubble canopy and almost no frame in front: a clear head-up display glass (magenta behind it), two square multifunction displays (blank), a throttle on the left console. The side stick is left out; show only its short base on the right console.
 5. cpw_mig.png: a twin-engine fighter with a blue-green panel of round analog gauges and a heavy canopy frame. The control stick is left out; show only its boot on the floor.
 6. cpw_f18.png: a twin-engine carrier fighter: three glowing multifunction displays (blank), a clear head-up display glass, a throttle on the left. The control stick is left out; show only its boot on the floor.
@@ -104,7 +103,7 @@ CONTROLS (chat 5: numbers 23 to 30; chat 6: numbers 31 to 37)
 23. ctl_yoke.png: a classic airplane control yoke with two curved horns and a center hub, black with silver trim, facing straight on, hub in the center.
 24. ctl_stick_center.png: a fighter jet center stick: a molded black grip with a trigger and small thumb buttons on a short metal shaft, standing upright, the bottom of the shaft at the bottom center.
 25. ctl_stick_side.png: a fighter jet side-stick grip: a short angled black grip with a trigger and thumb buttons, standing upright, its bottom at the bottom center.
-26. ctl_cyclic.png: a helicopter cyclic stick: a long black shaft with a grip on top full of small buttons, standing upright, the bottom of the shaft at the bottom center.
+26. SKIP (the helicopter is out of the game for now). Was ctl_cyclic.png: a helicopter cyclic stick: a long black shaft with a grip on top full of small buttons, standing upright, the bottom of the shaft at the bottom center.
 27. ctl_stick_future.png: a year-2526 joystick: a smooth white grip with glowing teal rings and buttons on a slim shaft, standing upright, the bottom of the shaft at the bottom center.
 28. ctl_wheel_ship.png: a ship's wheel of polished wood with brass fittings and eight spoke handles, facing straight on, hub in the center.
 29. ctl_wheel_classic.png: a 1960s three-spoke steering wheel with a thin wood rim and chrome spokes, facing straight on, hub in the center.

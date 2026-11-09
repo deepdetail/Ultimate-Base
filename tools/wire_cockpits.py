@@ -20,10 +20,10 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.join(ROOT, 'prototype', 'based.html')
-CONTROLS = {'ctl_yoke', 'ctl_stick_center', 'ctl_stick_side', 'ctl_cyclic', 'ctl_stick_future', 'ctl_wheel_ship',
+CONTROLS = {'ctl_yoke', 'ctl_stick_center', 'ctl_stick_side', 'ctl_stick_future', 'ctl_wheel_ship',
             'ctl_wheel_classic', 'ctl_wheel_truck', 'ctl_wheel_sport', 'ctl_wheel_offroad', 'ctl_lever_tank',
             'ctl_stick_mech', 'ctl_handlebars', 'ctl_helm', 'ctl_yoke_sub'}
-VEHICLES = {'cessna', 'l39', 'huey', 'f16', 'mig', 'f18', 'f22', 'hover', 'rocket', 'airship', 'mustang', 'cyber',
+VEHICLES = {'cessna', 'l39', 'f16', 'mig', 'f18', 'f22', 'hover', 'rocket', 'airship', 'mustang', 'cyber',
             'ferrari', 'rezvani', 'lambo', 'revuelto', 'tank', 'mech', 'rbuggy', 'dirtbike', 'speedboat', 'sub'}
 
 
