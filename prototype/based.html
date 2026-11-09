@@ -2073,6 +2073,7 @@ function bdImg(k){if(!BACKDROP[k]) return null;if(!BDIMG[k]){const im=new Image(
 function paintWorld(){
   const w=$('#world'),cv=$('#bg'),surf=$('#surface'); if(!cv||!surf) return;
   const W=w.clientWidth,H=w.scrollHeight,gy=surf.offsetTop+surf.offsetHeight-24;
+  if(W<=0||gy<=0) return; // the base is hidden (not laid out): nothing to paint, and the next render repaints it
   const dpr=Math.min(2,window.devicePixelRatio||1);
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+'px';
   const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);
