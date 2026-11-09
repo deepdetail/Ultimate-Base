@@ -29,8 +29,8 @@ Phoenix's ideas, approved November 3: missions become arcade courses instead of 
 
 ### Phase 1, as shipped
 - **Starfighter flying:**
-  - Stick sideways turns right away: about 35 degrees a second for the Cessna, about 55 for fighters.
-  - Up and down climbs or dives, and the plane levels itself when you let go.
+  - Stick sideways turns, gently at first (see the controls update of November 9): at the full rate about 35 degrees a second for the Cessna, about 55 for fighters.
+  - Pull the stick back (down on the screen) to climb and push it forward to dive, and the plane levels itself when you let go.
   - It can't stall, looks ahead and pulls up near the ground, and BOOST goes faster.
 - **Checkpoints:**
   - A ring counts within about a quarter mile, and a bullseye (a tenth of a mile) adds $1,000.
@@ -77,7 +77,7 @@ Asked for: shorter trips, obvious targets, Star Fox barrel rolls, easy enemies e
 - **Short hops:** three checkpoints about 30 seconds apart (measured 29 to 33 seconds for every vehicle in a headless simulation), heading out toward the region's landmarks. Fast planes on small maps fly a loop around the landmarks so hops stay about 30 seconds.
 - **Planes:** about 1.75 times faster in Starfighter mode (capped near F-22 speed), BOOST about 1.5 times on top with speed streaks and a wider view.
 - **Waypoint boxes:** a tunnel of floating boxes about 1.3 seconds apart; the next three glow pink. With the stick level the plane eases to the boxes' height. The final target sits right on the path and the boxes dive at it: the simulated approach comes in about 5 degrees off the target.
-- **Barrel roll (Starfighter mode only):** double tap the left or right side of the screen (a mouse double click works too), or flick the stick twice. One spin with a slide; an orb that reaches you mid-roll bounces back. Normal flying never banks past about 40 degrees.
+- **Barrel roll (Starfighter mode only):** double tap the left or right side of the screen (a mouse double click works too). The stick flick was taken out on November 9 because quick steering kept setting it off. One spin with a slide; an orb that reaches you mid-roll bounces back. Normal flying never banks past about 30 degrees.
 - **Roads:** a road cut into the terrain between landmarks. Let go of the stick and the car follows the road back to the middle; the edges are soft bumpers. Gems along the road.
 - **Challenge picker on the mission sheet:** ROOKIE (drones only from the front, one hit, fade once passed, barely hurt), PILOT (slow orbs, some two-hit drones, oncoming trucks), ACE (enemy jets that turn and chase, trucks from behind). The default follows mission wins; any can be picked for testing.
 - **Every vehicle can shoot on a mission:** with no weapon upgrade it gets a basic stun blaster. Weapon upgrades hit harder. (Decision for the owner to confirm.)
@@ -85,6 +85,23 @@ Asked for: shorter trips, obvious targets, Star Fox barrel rolls, easy enemies e
 - **Outside view by default:** each mission opens with about three seconds in the cockpit and a line from the tower, then the camera swoops outside. Tap to skip.
 - **The helicopter is out of the game for now:** owners get its full price back ($1,200,000). The prize at 12 wins is now the L-39, and the armored SUV is the prize at 16.
 - **3D roster:** `art/MISSION_3D_ROSTER.md` lists the bad guys, targets, obstacles and bosses to build in 3D, with a handover spec so models drop in.
+
+### Controls update (November 9)
+Asked for: turns that bank only 10 to 15 degrees at first, pull back to climb like Star Fox and Metal Storm, and no rolling unless you double tap.
+- **Gentle turns (Starfighter mode):**
+  - The stick all the way over banks about 12 degrees and turns at three quarters of the plane's best rate.
+  - Held all the way over for more than about a second, the turn tightens to the full rate and the bank deepens to about 30 degrees.
+  - Quick back and forth steering stays under about 11 degrees.
+  - Assisted and Real pilot still roll to turn, like a real plane: if the MODE button reads ASSISTED or REAL PILOT, sideways rolls on purpose.
+- **Pull back to climb, in every flying mode:**
+  - Drag the stick down (or press the down key) to climb, and push it up to dive.
+  - The drawn cockpit yoke moves toward the pilot when you pull.
+  - The hover's Assisted and Real pilot modes keep a helicopter stick, where pushing forward flies forward.
+- **Up and down blend with the boxes:** let go and the plane follows the boxes' height. A small nudge now adds to that height instead of replacing it, so the nose always moves the way you pushed. Before, a small push could pull the plane out of a dive.
+- **Rolls only on a double tap:** double tap the left or right side of the screen, or double tap a turn key on a keyboard. Wiggling the stick never rolls.
+- **Measured in the headless simulation:**
+  - Every plane still finished with full health and no missed targets, with the same 30 second hops.
+  - The fast jets flew through more boxes: the F-16 got 63 of 70 on Tahoe, up from 56.
 
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
