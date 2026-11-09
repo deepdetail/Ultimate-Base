@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="606cefd-20261109">
+<meta name="based-build" content="1381e43-20261109">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -4036,12 +4036,13 @@ function foeKit(T,renderer){
   };
 }
 
-// ---------- barrel roll: flick the stick sideways twice, quickly (or double tap a turn key) ----------
-// Starfighter mode only. The plane spins once around its nose and slides sideways, and for that moment drones and
-// orbs bounce off. Ordinary flying never rolls past a gentle bank.
+// ---------- barrel roll: double tap the screen on the left or right (or double tap a turn key) ----------
+// Starfighter mode only, and only on a double tap: steering never rolls the plane, however fast you wiggle the stick.
+// It spins once around its nose and slides sideways, and for that moment drones and orbs bounce off.
 const ROLL_T=.6,ROLL_SLIDE=26;
 function barrelRoll(dir){if(!M||!M.FM||M.done||M.intro>0||(S.assist||'casual')!=='casual') return;const P=M.P;
   if(P.rollT>0||M.t-(P.rollAt||-9)<.3) return;P.rollT=ROLL_T;P.rollDir=dir;P.rollAt=M.t;P.shieldT=ROLL_T+.15;M.rolls=(M.rolls||0)+1;sfx('roll');popAt(null,'','BARREL ROLL!')}
+// a turn key tapped twice quickly (keyboards only: the touch stick never starts a roll)
 function flickIn(x){if(!M) return;const f=M.flick||(M.flick={side:0,dir:0,at:-9}),s=x>.7?1:x<-.7?-1:0,now=performance.now()/1000;
   if(s&&s!==f.side){if(f.dir===s&&now-f.at<.45){barrelRoll(s);f.dir=0;f.at=-9}else{f.dir=s;f.at=now}}
   if(Math.abs(x)<.35) f.side=0;else if(s) f.side=s}
@@ -4239,7 +4240,7 @@ function buildMission(v,mk,route,pilot){
   M.raf=requestAnimationFrame(missionLoop);
   setCam('cockpit');M.camSnap=true;laneTint();
   {const b=$('#m-brief'),who=String(pilot.name||'Pilot').split(' ')[0];
-    b.innerHTML=`<small>TOWER</small>${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Blast the drones!'}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right to barrel roll.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
+    b.innerHTML=`<small>TOWER</small>${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right to barrel roll.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
   root.addEventListener('pointerdown',()=>{if(M&&M.intro>0) M.intro=.001},true);
 }
 function missionResize(){if(!M) return;const r=M.root;M.renderer.setSize(r.clientWidth,r.clientHeight);M.camera.aspect=r.clientWidth/r.clientHeight;ckLook();turnCheck()}
@@ -4292,7 +4293,7 @@ function ckLook(){if(!M) return;const cam=M.camera,W=M.root.clientWidth,H=M.root
 // move the control with the steering, eased so it glides instead of snapping. pull: toward the pilot (stick back, brakes)
 function ckCtl(dt,ix,iy,force){const K=M&&M.ck;if(!K||(M.cam!=='cockpit'&&!force)) return;
   const e=1-Math.exp(-dt*9);K.x+=(clamp(ix,-1,1)-K.x)*e;K.y+=(clamp(iy,-1,1)-K.y)*e;
-  const x=K.x,y=K.y,mo=K.c.mo,pull=M.v.cat==='air'?y:-y;
+  const x=K.x,y=K.y,mo=K.c.mo,pull=M.v.cat==='air'?(M.FM&&M.FM.rotor&&(S.assist||'casual')!=='casual'?-y:y):-y;
   K.ctls.forEach(k=>{let t;
     if(mo==='wheel') t=`rotate(${x*90}deg)`;
     else if(mo==='yoke') t=`translateY(${pull*6}%) scale(${1+pull*.06}) rotate(${x*35}deg)`;
@@ -4303,13 +4304,13 @@ function ckCtl(dt,ix,iy,force){const K=M&&M.ck;if(!K||(M.cam!=='cockpit'&&!force
     k.el.style.transform=t})}
 // flying modes: Starfighter (the default) swaps the throttle for a BOOST button; Assisted and Real pilot keep the throttle
 const MODE_NAME={casual:'STARFIGHTER',assisted:'ASSISTED',pro:'REAL PILOT'};
-const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes. Drag sideways to turn, up to climb, down to dive. Hold BOOST to go faster. Double tap left or right to barrel roll.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Up pulls the nose up, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'');
+const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes. Drag sideways to turn. Pull the stick down to climb, push it up to dive. Hold BOOST to go faster. Double tap left or right to barrel roll.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Pull down to raise the nose, push up to lower it, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'');
 function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint');if(t) t.hidden=star;if(b) b.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
 function bindMissionInput(){
   const zone=$('#m-stick'),base=$('#m-sbase'),knob=$('#m-knob');let sid=null,ox=0,oy=0;
   zone.addEventListener('pointerdown',e=>{sid=e.pointerId;try{zone.setPointerCapture(sid)}catch(err){}const r=zone.getBoundingClientRect();ox=e.clientX;oy=e.clientY;base.hidden=false;base.style.left=(e.clientX-r.left)+'px';base.style.top=(e.clientY-r.top)+'px';knob.style.transform='';$('#m-hint').hidden=true});
-  zone.addEventListener('pointermove',e=>{if(e.pointerId!==sid||!M) return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=48;if(d>R){dx*=R/d;dy*=R/d}knob.style.transform=`translate(${dx}px,${dy}px)`;M.input.x=dx/R;M.input.y=-dy/R;flickIn(M.input.x)});
-  const up=e=>{if(e.pointerId!==sid) return;sid=null;base.hidden=true;if(M){M.input.x=0;M.input.y=0;flickIn(0)}};
+  zone.addEventListener('pointermove',e=>{if(e.pointerId!==sid||!M) return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=48;if(d>R){dx*=R/d;dy*=R/d}knob.style.transform=`translate(${dx}px,${dy}px)`;M.input.x=dx/R;M.input.y=-dy/R});
+  const up=e=>{if(e.pointerId!==sid) return;sid=null;base.hidden=true;if(M){M.input.x=0;M.input.y=0}};
   zone.addEventListener('pointerup',up);zone.addEventListener('pointercancel',up);
   const thr=$('#m-thr');if(thr){const setT=e=>{if(!M) return;const r=thr.getBoundingClientRect();M.P.thr=clamp(1-(e.clientY-r.top)/r.height,0,1)};let tid=null;
     thr.addEventListener('pointerdown',e=>{tid=e.pointerId;try{thr.setPointerCapture(tid)}catch(err){}setT(e)});thr.addEventListener('pointermove',e=>{if(e.pointerId===tid)setT(e)});
@@ -4331,7 +4332,7 @@ function bindMissionInput(){
   else if(fire) fire.addEventListener('pointerdown',e=>{e.preventDefault();takePhoto()});
   $('#m-exit').onclick=()=>{ if(!M||M.done) return; M.paused=true; openSheet('Leave mission?',`<div class="muted">You will head home with no reward. Nothing is lost.</div><div class="row"><button class="btn" data-act="m-resume">KEEP GOING</button><button class="btn danger" data-act="m-quit">GO HOME</button></div>`,true)};
   const ab=$('#m-assist');if(ab) ab.onclick=()=>{const o=['casual','assisted','pro'];S.assist=o[(o.indexOf(S.assist||'casual')+1)%3];ab.textContent='MODE: '+MODE_NAME[S.assist];ctlModeUI();
-    toast(S.assist==='casual'?'Starfighter: tilt sideways to turn, up and down to climb or dive. It levels itself, never stalls, pulls up near the ground, and the guns help aim.':S.assist==='assisted'?'Assisted: real flying with a throttle. It levels itself, but you can stall and you aim with the lead marker.':'Real pilot: full control. Stalls, G-forces and crashes are real.','ok')};
+    toast(S.assist==='casual'?'Starfighter: tilt sideways to turn, pull down to climb and push up to dive. It levels itself, never stalls, pulls up near the ground, and the guns help aim.':S.assist==='assisted'?'Assisted: real flying with a throttle. It levels itself, but you can stall and you aim with the lead marker.':'Real pilot: full control. Stalls, G-forces and crashes are real.','ok')};
   $('#m-cam').onclick=()=>{if(!M) return;setCam(M.cam==='cockpit'?'chase':'cockpit')};
   const sb=$('#m-snd');if(sb) sb.onclick=()=>{S.sound=S.sound===false;sb.textContent='SOUND: '+(S.sound===false?'OFF':'ON');if(S.sound!==false){sfxInit();sfx('ring')}};
   M.onKey=e=>{if(!M) return;const d=e.type==='keydown',kk=e.key.toLowerCase();
@@ -4371,23 +4372,34 @@ function flightModel(v){
   return {rotor:!!sp.rotor,ab:!!sp.ab,vmax,vs:(sp.stall||0)*KT,tw,cd:tw*GRAV/(vmax*vmax),roll:(sp.roll||90)*Math.PI/180,pitch:(sp.pitch||30)*Math.PI/180,
     gmax:sp.g||4,ceil:sp.ceil||20000,acc:sp.acc||4,yaw:(sp.yaw||50)*Math.PI/180,climb:(sp.climb||1500)*.00508,jet:sp.ek==='jet'||sp.ek==='future'};
 }
-// STARFIGHTER flying (the default mode): tilt the stick sideways and it turns right away, up and down climbs or dives,
-// and it levels itself when you let go. Speed is automatic; hold BOOST to go faster. It can't stall, it looks ahead and
-// pulls up near the ground, and if you drift far off the course it eases back toward the next checkpoint.
-// Nimbler aircraft (a higher G limit) turn faster: about 35 degrees a second for the Cessna, about 55 for a fighter.
+// STARFIGHTER flying (the default mode): tilt the stick sideways to turn, pull it back (drag down) to climb and push it
+// forward to dive, and it levels itself when you let go. Speed is automatic; hold BOOST to go faster. It can't stall, it
+// looks ahead and pulls up near the ground, and if you drift far off the course it eases back toward the next checkpoint.
+// Turns start gentle: the stick all the way over banks only about 12 degrees and turns at three quarters of the plane's
+// best rate. Keep it all the way over for more than about a second and the turn tightens to the full rate while the
+// bank deepens to about 30 degrees. Nimbler aircraft (a higher G limit) turn faster: at the full rate about 35 degrees a
+// second for the Cessna, about 55 for a fighter. Steering never rolls the plane over: only a double tap does that.
+const STAR_BANK0=12*Math.PI/180,STAR_BANK1=30*Math.PI/180,STAR_TURN0=.75,STAR_HARD0=.8,STAR_HARD1=1.2;
 function starStep(dt,ix,iy){
   const T=window.THREE,P=M.P,F=M.FM,k=M.keys||{};
-  const agile=clamp(.35+(F.gmax||4)*.07,.55,1),turn=ix*agile*(P.rollT>0?.25:1);
+  // how hard the turn is: 0 for ordinary steering, easing up to 1 once the stick has been held all the way over
+  const hs=ix>.8?1:ix<-.8?-1:0;
+  if(hs&&hs!==P.hardDir){P.hardDir=hs;P.hardT=0}else P.hardT=hs?(P.hardT||0)+dt:Math.max(0,(P.hardT||0)-dt*3);
+  let hard=clamp(((P.hardT||0)-STAR_HARD0)/STAR_HARD1,0,1);hard=hard*hard*(3-2*hard);P.hard=hard;
+  const agile=clamp(.35+(F.gmax||4)*.07,.55,1),turn=ix*agile*(STAR_TURN0+(1-STAR_TURN0)*hard)*(P.rollT>0?.25:1);
   P.yaw-=turn*dt;if(M.offCourse) P.yaw+=M.offCourse*dt;
-  P.sbank=(P.sbank||0)+(ix*.7-(P.sbank||0))*Math.min(1,dt*4);
+  P.sbank=(P.sbank||0)+(ix*(STAR_BANK0+(STAR_BANK1-STAR_BANK0)*hard)-(P.sbank||0))*Math.min(1,dt*4);
   const look=Math.max(60,P.speed*1.6),ax=P.x-Math.sin(P.yaw)*look,az=P.z-Math.cos(P.yaw)*look;
   const agl=P.y-Math.max(M.heightAt(P.x,P.z),M.heightAt(ax,az),M.heightAt((P.x+ax)/2,(P.z+az)/2));
-  let tp=iy*.6;if(Math.abs(iy)<.15&&M.course){const q=coursePoint(M.course.pts,(M.prog||0)+150);tp=clamp((q.y-P.y)/70,-.4,.4)}
+  // up and down: let go and it follows the height of the guide boxes ahead. Pull or push and the stick blends in on top,
+  // so even a small nudge moves the nose the way you pushed it; all the way over is full control (about 34 degrees)
+  const hold=M.course?clamp((coursePoint(M.course.pts,(M.prog||0)+150).y-P.y)/70,-.4,.4):0,u=Math.max(0,Math.abs(iy)-.15)/.85;
+  let tp=hold*(1-u)+Math.sign(iy)*u*.6;
   if(agl<40) tp=Math.max(tp,clamp((40-agl)/40,0,1)*.6);
   P.spitch=(P.spitch||0)+(tp-(P.spitch||0))*Math.min(1,dt*2.2);
   const boost=M.input.boost||k['shift']||k['e'];P.boostK=(P.boostK||0)+((boost?1:0)-(P.boostK||0))*Math.min(1,dt*3);
   P.vr+=(F.vmax*(boost?(F.ab?1.08:1):.72)-P.vr)*Math.min(1,dt*.9);P.speed=Math.min(comp(P.vr)*STAR_K,STAR_MAX)*(1+.35*P.boostK);P.thr=boost?1:.72;
-  // barrel roll (two quick flicks): one spin around the nose and a slide sideways, with a moment of shield
+  // barrel roll (a double tap): one spin around the nose and a slide sideways, with a moment of shield
   P.shieldT=Math.max(0,(P.shieldT||0)-dt);
   if(P.rollT>0){P.rollT=Math.max(0,P.rollT-dt);const u=1-P.rollT/ROLL_T;P.rollA=P.rollDir*Math.PI*2*(u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2);
     const lat=P.rollDir*ROLL_SLIDE*Math.PI/(2*ROLL_T)*Math.sin(Math.PI*u)*dt;P.x+=Math.cos(P.yaw)*lat;P.z-=Math.sin(P.yaw)*lat}else P.rollA=0;
@@ -4494,6 +4506,10 @@ function missionLoop(now){
   let ix=M.input.x,iy=M.input.y;
   if(k['arrowleft']||k['a']) ix=-1; if(k['arrowright']||k['d']) ix=1;
   if(k['arrowup']||k['w']) iy=1; if(k['arrowdown']||k['s']) iy=-1;
+  // flying: pull the stick back (drag down, or the down key) to climb and push it forward to dive, like a real plane and
+  // like Star Fox. From here on iy is the climb command. The hover's real-flying modes keep a helicopter stick instead,
+  // where pushing forward flies forward.
+  if(v.cat==='air'&&!(M.FM&&M.FM.rotor&&(S.assist||'casual')!=='casual')) iy=-iy;
   // driving: the stick only steers; GAS and BRAKE (or the up and down keys) drive
   if(v.cat!=='air'){const gas=M.input.gas||k['arrowup']||k['w'],brk=M.input.brake||k['arrowdown']||k['s'];iy=(gas?1:0)-(brk?1:0)}
   // the intro: a few seconds in the cockpit with the tower's briefing while the autopilot drives, then the outside view
