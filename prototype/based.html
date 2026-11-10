@@ -343,6 +343,14 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .pedal{border-radius:14px;font:800 13px/1 var(--font-display);letter-spacing:.06em;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);box-shadow:0 4px 10px rgba(0,0,0,.4);touch-action:none;user-select:none;-webkit-user-select:none}
 .pedal.gas{width:72px;height:124px;border:3px solid #9ff2b8;background:linear-gradient(180deg,#3ddc97,#1c8c5c)}
 .pedal.brake{width:92px;height:78px;border:3px solid #ffb3ba;background:linear-gradient(180deg,#ff7682,#b0283a)}
+.ap{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:8px;z-index:2;display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:14px;border:2px solid rgba(255,255,255,.45);background:rgba(23,26,30,.62);color:#fff;font:800 11px/1 var(--font-display);letter-spacing:.05em;box-shadow:0 3px 8px rgba(0,0,0,.35);touch-action:none}
+.ap i{width:10px;height:10px;border-radius:50%;background:#5b626b}
+.ap b{color:#9aa3ad}
+.ap.on{border-color:#7ff0f3;background:rgba(16,92,96,.8)}
+.ap.on i{background:#7ff0f3;box-shadow:0 0 8px #7ff0f3}
+.ap.on b{color:#c9fbfc}
+.ap.on.fly i{animation:apBlink .9s steps(2,start) infinite}
+@keyframes apBlink{50%{opacity:.25}}
 .boost.on,.pedal.on{filter:brightness(1.3);transform:scale(.95)}
 .m-ctl.drive .fire.solo{right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 156px)}
 .m-side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
@@ -1645,6 +1653,9 @@ function migrate(s){
   // the helicopter is out of the game for now (November 2026): owners get its full price back
   if(s.vehicles&&s.vehicles.includes('huey')){s.vehicles=s.vehicles.filter(id=>id!=='huey');if(!s.vehicles.length) s.vehicles.push('cessna');s.res.credits+=1200000;s.hueyRefund=1;if(s.vup) delete s.vup.huey;if(s.vcond) delete s.vcond.huey}
   if(s.exp&&s.exp.veh==='huey') s.exp.veh=s.vehicles[0]||'cessna';
+  // November 2026: BOOST, barrel rolls and the autopilot live in Starfighter mode, so every pilot flies Starfighter again,
+  // once. The realistic modes stay one tap away under MODE, and picking one there is never undone
+  if(!s.starMode1){s.starMode1=1;if(s.assist&&s.assist!=='casual'){s.assist='casual';s.starReset=1}}
   if(!s.lab) s.lab=[];
   if(!s.arsenal) s.arsenal=[];
   if(!s.cols) s.cols=3;   // bases from before widening were 3 wide
@@ -2884,7 +2895,7 @@ function missionSheet(vid){
     <div class="label">Challenge</div>
     <div class="tabs">${MTIERS.map((tt,i)=>`<button data-act="mtier" data-t="${i}" data-v="${v.id}" class="${i===ti?'on':''}">${tt.name}</button>`).join('')}</div>
     <div class="muted" style="font-size:12px">${esc(MTIERS[ti].desc)}${ti!==tierAuto()?` Picked for testing: your mission wins suggest ${MTIERS[tierAuto()].name}.`:''}</div>
-    <div class="muted" style="font-size:12px">Heading out toward ${esc(route[0])}. You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right for a barrel roll: it dodges enemy shots and bounces them back.':''} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    <div class="muted" style="font-size:12px">Heading out toward ${esc(route[0])}. You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right (or flick the stick twice) for a barrel roll: it dodges enemy shots, bounces them back and smashes bad guys close by. AUTOPILOT can fly you back on course.':''} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
     ${(()=>{const np=nextPrize();return np?`<div class="li"><span class="veh">${vehArt(np.v.id)}</span><span class="grow"><b>Prize ladder: ${esc(np.v.name)}</b><span>Win ${np.left} more mission${np.left>1?'s':''} to earn it. Sell it for about ${money(Math.round(np.v.cost*.6))}, or keep it.</span></span></div>`:''})()}
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
@@ -3763,7 +3774,7 @@ const STUN={name:'Stun Blaster',cal:'stun bolt',mv:700,rpm:300,dmg:4,rate:.2,cos
 const misWpn=v=>{const w=vUp(v).wpn;return w?VWEAPONS[w]:STUN};
 // points for everything you hit or fly through
 const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25};
-const KILLW={drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!']};
+const KILLW={spin:['SPIN SMASH!','WHIRLWIND!','ROLL ATTACK!'],drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!']};
 function polyLen(p){let L=0;for(let i=1;i<p.length;i++) L+=Math.hypot(p[i].x-p[i-1].x,p[i].z-p[i-1].z);return L}
 function chaikin(p,it){for(let k=0;k<it;k++){if(p.length<3) return p;const q=[p[0]];for(let i=0;i+1<p.length;i++){const a=p[i],b=p[i+1];q.push({x:a.x*.75+b.x*.25,z:a.z*.75+b.z*.25},{x:a.x*.25+b.x*.75,z:a.z*.25+b.z*.75})}q.push(p[p.length-1]);p=q}return p}
 function resample(p,step){const out=[{x:p[0].x,z:p[0].z,s:0}];let since=0,s=0;
@@ -3939,13 +3950,13 @@ function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,
 function foeShoot(from,dmg,speed){if(M.orbs.length>24) return;const T=window.THREE,P=M.P,m=new T.Mesh(M.orbGeo,M.orbMat);m.position.copy(from);M.scene.add(m);
   const to=new T.Vector3(P.x,P.y,P.z).sub(from).normalize().multiplyScalar(speed||32);M.orbs.push({m,v:to,life:6,dmg});sfx('orb')}
 function foeHit(e,n){if(e.state!=='live') return;e.hp-=n;spark(e.p,0xffe27a,5);sfx('tick');if(e.hp<=0) foeKill(e,'shot');else popAt(e.p,'','HIT!')}
-function foeKill(e,how){if(e.state!=='live') return;M.ko++;const pts=PTS[e.kind]||100,big=e.kind==='jet'||e.kind==='truck';
+function foeKill(e,how){if(e.state!=='live') return;M.ko++;if(how==='spin') M.spinKO=(M.spinKO||0)+1;const pts=PTS[e.kind]||100,big=e.kind==='jet'||e.kind==='truck';
   fxBlast(e.p.clone(),big?2:e.kind==='balloon'?.7:1.2,e.kind==='balloon'?0xff6fae:e.kind==='mine'?0x7fd6ff:0xffa24a);
-  const word=how==='deflect'?'DEFLECTED!':how==='reflect'?'RETURN TO SENDER!':how==='ram'?(e.kind==='block'?'SMASH!':e.kind==='balloon'?'POP!':'BONK!'):pick(KILLW[e.kind]||KILLW.drone);
+  const word=how==='spin'?pick(KILLW.spin):how==='deflect'?'DEFLECTED!':how==='reflect'?'RETURN TO SENDER!':how==='ram'?(e.kind==='block'?'SMASH!':e.kind==='balloon'?'POP!':'BONK!'):pick(KILLW[e.kind]||KILLW.drone);
   score(how==='ram'&&e.kind!=='balloon'?Math.round(pts*.5):pts,e.p,word,big);
   if(e.kind==='drone'||e.kind==='jet'){e.state='ko';e.vy=e.kind==='jet'?-6:-2;e.t=0}else if(e.kind==='truck'){e.state='wreck';e.t=0}else{e.state='gone';M.scene.remove(e.g)}
   const ko=$('#m-ko');if(ko) ko.textContent=M.ko}
-function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat==='air',fl=Math.hypot(fwd.x,fwd.z)||1,fx=fwd.x/fl,fz=fwd.z/fl,shield=(P.shieldT||0)>0;
+function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat==='air',fl=Math.hypot(fwd.x,fwd.z)||1,fx=fwd.x/fl,fz=fwd.z/fl,shield=(P.shieldT||0)>0,spin=(P.rollT||0)>0;
   for(const e of M.foes){if(e.state==='gone') continue;const g=e.g;e.t+=dt;
     if(e.state==='fade'){e.fade-=dt;g.scale.setScalar(Math.max(.001,e.sc0*e.fade/.5));if(e.fade<=0){e.state='gone';M.scene.remove(g)}continue}
     if(e.state==='ko'){e.vy=Math.max(e.vy-14*dt,-30);g.position.y+=e.vy*dt;if(e.vel) g.position.addScaledVector(e.vel,dt*.6);g.rotation.z+=dt*5;g.rotation.x+=dt*2;
@@ -3981,6 +3992,8 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
     // shooting orbs (Pilot and Ace drones and bots), only while they are in front of you
     const rx=e.p.x-P.x,ry=e.p.y-P.y,rz=e.p.z-P.z,dist=Math.hypot(rx,ry,rz),ahead=rx*fx+rz*fz;
     if(e.cd!=null&&e.kind!=='jet'){e.cd-=dt;if(e.cd<=0&&ahead>70&&dist<520){e.cd=rnd(2.8,4.2);foeShoot(e.p.clone(),tier.orb,e.kind==='bot'?26:32)}}
+    // a barrel roll's spin smashes drones, jets and balloons close by (it dodges them at the same time)
+    if(spin&&air&&dist<ROLL_REACH&&(e.kind==='drone'||e.kind==='jet'||e.kind==='balloon')){foeKill(e,'spin');continue}
     // bumping into it
     if(dist<e.cr+(air?5:3)){
       if(e.kind==='balloon') foeKill(e,'ram');
@@ -3996,7 +4009,7 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
   // orbs: slow glowing shots you can dodge. A barrel roll bounces them back, and a bounced orb can knock out a bad guy
   for(const o of M.orbs){o.life-=dt;o.m.position.addScaledVector(o.v,dt);o.m.scale.setScalar(1+Math.sin(o.life*18)*.15);
     if(o.good){for(const e of M.foes) if(e.state==='live'&&e.p.distanceTo(o.m.position)<e.r+2){foeKill(e,'reflect');o.life=0;break}}
-    else{const d=Math.hypot(o.m.position.x-P.x,o.m.position.y-P.y,o.m.position.z-P.z);if(d<(air?6.5:5)){
+    else{const d=Math.hypot(o.m.position.x-P.x,o.m.position.y-P.y,o.m.position.z-P.z);if(d<(air?((P.rollT||0)>0?ROLL_REACH*.5:6.5):5)){
       if((P.shieldT||0)>0){o.good=true;o.m.material=M.orbGood;o.v.multiplyScalar(-1.7);o.life=3;sfx('deflect');popAt(o.m.position,'DEFLECTED!','')}
       else{o.life=0;puff(o.m.position,0xffa24a,2,.5,2);hurt(o.dmg,'HIT BY AN ORB!')}}}
     if(o.m.position.y<M.heightAt(o.m.position.x,o.m.position.z)) o.life=0;
@@ -4027,12 +4040,15 @@ function foeKit(T,renderer){
   };
 }
 
-// ---------- barrel roll: double tap the screen on the left or right (or double tap a turn key) ----------
-// Starfighter mode only, and only on a double tap: steering never rolls the plane, however fast you wiggle the stick.
-// It spins once around its nose and slides sideways, and for that moment drones and orbs bounce off.
-const ROLL_T=.6,ROLL_SLIDE=26;
+// ---------- barrel roll: double tap the left or right of the screen, double flick the stick, or double tap a turn key ----------
+// Starfighter mode only. It starts the instant the second tap lands: one fast spin around the nose that begins at full
+// speed, with a quick slide sideways. While it spins, drones and orbs bounce off, orbs close by fly back at the bad guys,
+// and the spin smashes any drone, jet or balloon within ROLL_REACH. Holding the stick and wiggling it never rolls.
+const ROLL_T=.45,ROLL_SLIDE=34,ROLL_REACH=30;
 function barrelRoll(dir){if(!M||!M.FM||M.done||M.intro>0||(S.assist||'casual')!=='casual') return;const P=M.P;
-  if(P.rollT>0||M.t-(P.rollAt||-9)<.3) return;P.rollT=ROLL_T;P.rollDir=dir;P.rollAt=M.t;P.shieldT=ROLL_T+.15;M.rolls=(M.rolls||0)+1;sfx('roll');popAt(null,'','BARREL ROLL!')}
+  if(P.rollT>0) return;P.rollT=ROLL_T;P.rollDir=dir;P.rollAt=M.t;P.rollE=0;P.shieldT=ROLL_T+.15;M.rolls=(M.rolls||0)+1;sfx('roll');popAt(null,'','BARREL ROLL!');
+  // the spin hits everything in reach the moment it starts, on either side (foeStep keeps smashing whatever comes close while it spins)
+  for(const e of M.foes) if(e.state==='live'&&(e.kind==='drone'||e.kind==='jet'||e.kind==='balloon')&&Math.hypot(e.p.x-P.x,e.p.y-P.y,e.p.z-P.z)<ROLL_REACH) foeKill(e,'spin')}
 // a turn key tapped twice quickly (keyboards only: the touch stick never starts a roll)
 function flickIn(x){if(!M) return;const f=M.flick||(M.flick={side:0,dir:0,at:-9}),s=x>.7?1:x<-.7?-1:0,now=performance.now()/1000;
   if(s&&s!==f.side){if(f.dir===s&&now-f.at<.45){barrelRoll(s);f.dir=0;f.at=-9}else{f.dir=s;f.at=now}}
@@ -4085,7 +4101,7 @@ function buildMission(v,mk,route,pilot){
     </div>
     <div class="m-ctl${v.cat==='air'?'':' drive'}" id="m-ctl">
       <div class="stick-zone" id="m-stick"><div class="stick-base" id="m-sbase" hidden><div class="stick-knob" id="m-knob"></div></div></div>
-      <div class="stick-hint" id="m-hint">${ctlHint(v,FM)}</div>
+      <div class="stick-hint" id="m-hint">${ctlHint(v,FM)}</div>${v.cat==='air'?`<button class="ap${S.autopilot?' on':''}" id="m-ap"><i></i>AUTOPILOT <b>${S.autopilot?'ON':'OFF'}</b></button>`:''}
       ${v.cat==='air'?'<div class="thr" id="m-thr"><span>THROTTLE</span><i id="m-thri" style="height:60%"></i></div><button class="boost" id="m-boost">BOOST</button>':'<div class="pedals"><button class="pedal brake" id="m-brake">BRAKE</button><button class="pedal gas" id="m-gas">GAS</button></div>'}
       <button class="fire ${v.cat==='air'?'':'solo'}" id="m-fire">${icon('target')}FIRE</button>
     </div>`;
@@ -4231,7 +4247,7 @@ function buildMission(v,mk,route,pilot){
   M.raf=requestAnimationFrame(missionLoop);
   setCam('cockpit');M.camSnap=true;laneTint();
   {const b=$('#m-brief'),who=String(pilot.name||'Pilot').split(' ')[0];
-    b.innerHTML=`<small>TOWER</small>${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right to barrel roll.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
+    b.innerHTML=`<small>TOWER</small>${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
   root.addEventListener('pointerdown',()=>{if(M&&M.intro>0) M.intro=.001},true);
 }
 function missionResize(){if(!M) return;const r=M.root;M.renderer.setSize(r.clientWidth,r.clientHeight);M.camera.aspect=r.clientWidth/r.clientHeight;ckLook();turnCheck()}
@@ -4295,40 +4311,56 @@ function ckCtl(dt,ix,iy,force){const K=M&&M.ck;if(!K||(M.cam!=='cockpit'&&!force
     k.el.style.transform=t})}
 // flying modes: Starfighter (the default) swaps the throttle for a BOOST button; Assisted and Real pilot keep the throttle
 const MODE_NAME={casual:'STARFIGHTER',assisted:'ASSISTED',pro:'REAL PILOT'};
-const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes. Drag sideways to turn. Pull the stick down to climb, push it up to dive. Hold BOOST to go faster. Double tap left or right to barrel roll.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Pull down to raise the nose, push up to lower it, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'');
-function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint');if(t) t.hidden=star;if(b) b.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
+const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes. Drag sideways to turn, down to climb, up to dive. Tap or hold BOOST to go faster. Double tap a side of the screen, or flick the stick twice, to barrel roll: it dodges and smashes close bad guys. AUTOPILOT flies you back on course.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Pull down to raise the nose, push up to lower it, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'');
+function apUI(){const b=$('#m-ap');if(!b) return;b.classList.toggle('on',!!S.autopilot);const t=b.querySelector('b');if(t) t.textContent=S.autopilot?'ON':'OFF'}
+function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint'),ap=$('#m-ap');if(t) t.hidden=star;if(b) b.hidden=!star;if(ap) ap.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
 function bindMissionInput(){
   const zone=$('#m-stick'),base=$('#m-sbase'),knob=$('#m-knob');let sid=null,ox=0,oy=0;
-  zone.addEventListener('pointerdown',e=>{sid=e.pointerId;try{zone.setPointerCapture(sid)}catch(err){}const r=zone.getBoundingClientRect();ox=e.clientX;oy=e.clientY;base.hidden=false;base.style.left=(e.clientX-r.left)+'px';base.style.top=(e.clientY-r.top)+'px';knob.style.transform='';$('#m-hint').hidden=true});
+  zone.addEventListener('pointerdown',e=>{sid=e.pointerId;if(M) M.stickDown=true;try{zone.setPointerCapture(sid)}catch(err){}const r=zone.getBoundingClientRect();ox=e.clientX;oy=e.clientY;base.hidden=false;base.style.left=(e.clientX-r.left)+'px';base.style.top=(e.clientY-r.top)+'px';knob.style.transform='';$('#m-hint').hidden=true});
   zone.addEventListener('pointermove',e=>{if(e.pointerId!==sid||!M) return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=48;if(d>R){dx*=R/d;dy*=R/d}knob.style.transform=`translate(${dx}px,${dy}px)`;M.input.x=dx/R;M.input.y=-dy/R});
-  const up=e=>{if(e.pointerId!==sid) return;sid=null;base.hidden=true;if(M){M.input.x=0;M.input.y=0}};
+  const up=e=>{if(e.pointerId!==sid) return;sid=null;base.hidden=true;if(M){M.input.x=0;M.input.y=0;M.stickDown=false}};
   zone.addEventListener('pointerup',up);zone.addEventListener('pointercancel',up);
   const thr=$('#m-thr');if(thr){const setT=e=>{if(!M) return;const r=thr.getBoundingClientRect();M.P.thr=clamp(1-(e.clientY-r.top)/r.height,0,1)};let tid=null;
     thr.addEventListener('pointerdown',e=>{tid=e.pointerId;try{thr.setPointerCapture(tid)}catch(err){}setT(e)});thr.addEventListener('pointermove',e=>{if(e.pointerId===tid)setT(e)});
     thr.addEventListener('pointerup',()=>{tid=null});thr.addEventListener('pointercancel',()=>{tid=null})}
-  // hold-down buttons: BOOST for planes, GAS and BRAKE for cars and boats
+  // BOOST: hold it to keep boosting, or tap it for a few seconds of boost (handy while your thumb is busy on FIRE)
+  {const b=$('#m-boost');if(b){let t0=0,down=false;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(err){}down=true;t0=performance.now();if(M) M.input.boost=true});
+    const off=e=>{if(!down) return;down=false;if(!M) return;M.input.boost=false;if(e.type!=='pointercancel'&&performance.now()-t0<260) M.boostT=BOOST_TAP};
+    ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,off))}}
+  // hold-down buttons: GAS and BRAKE for cars and boats
   const hold=(id,key)=>{const b=$('#'+id);if(!b) return;b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(err){}if(M) M.input[key]=true;b.classList.add('on')});
     ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,()=>{if(M) M.input[key]=false;b.classList.remove('on')}))};
-  hold('m-boost','boost');hold('m-gas','gas');hold('m-brake','brake');
-  // barrel roll: double tap with either thumb anywhere off the buttons: the left half rolls left, the right half rolls right (a mouse double click works too)
-  {const ctl=$('#m-ctl'),taps={};
-    ctl.addEventListener('pointerdown',e=>{if(e.target.closest('button,.thr')) return;taps[e.pointerId]={x:e.clientX,y:e.clientY,t:performance.now()}});
-    ctl.addEventListener('pointercancel',e=>{delete taps[e.pointerId]});
-    ctl.addEventListener('pointerup',e=>{const d=taps[e.pointerId];delete taps[e.pointerId];if(!d||!M) return;const now=performance.now();
-      if(now-d.t>280||Math.hypot(e.clientX-d.x,e.clientY-d.y)>20) return;
-      const side=e.clientX<M.root.getBoundingClientRect().left+M.root.clientWidth/2?-1:1,last=M.lastTap;
-      if(last&&last.side===side&&now-last.t<450){M.lastTap=null;barrelRoll(side)}else M.lastTap={side,t:now}})}
+  hold('m-gas','gas');hold('m-brake','brake');
+  // barrel roll, two ways, and it starts the moment the second touch lands (no waiting for the thumb to lift):
+  //  - double tap anywhere off the buttons: the left half rolls left, the right half rolls right (a mouse double click works too)
+  //  - double flick the stick: two quick sideways flicks the same way, lifting the thumb in between. Holding the stick and
+  //    wiggling it never rolls, because the thumb never lifts
+  {const ctl=$('#m-ctl'),g={},TAP_MS=280,TAP_PX=20,TAP_GAP=380,TAP_NEAR=90,FLICK_MS=300,FLICK_PX=26,FLICK_GAP=400;let last=null;
+    const sideOf=x=>x<M.root.getBoundingClientRect().left+M.root.clientWidth/2?-1:1,flick=(dx,dy)=>Math.abs(dx)>=FLICK_PX&&Math.abs(dx)>1.5*Math.abs(dy);
+    ctl.addEventListener('pointerdown',e=>{if(!M||e.target.closest('button,.thr')) return;const now=performance.now(),o=g[e.pointerId]={x:e.clientX,y:e.clientY,t:now,stick:!!e.target.closest('#m-stick'),done:false};
+      if(last&&last.kind==='tap'&&now-last.t<TAP_GAP&&Math.hypot(e.clientX-last.x,e.clientY-last.y)<TAP_NEAR&&sideOf(e.clientX)===last.dir){last=null;o.done=true;barrelRoll(sideOf(e.clientX))}});
+    ctl.addEventListener('pointermove',e=>{const o=g[e.pointerId];if(!o||o.done||!M||!o.stick||!last||last.kind!=='flick') return;const dx=e.clientX-o.x,dy=e.clientY-o.y;
+      if(performance.now()-o.t<=FLICK_MS&&o.t-last.t<FLICK_GAP&&flick(dx,dy)&&Math.sign(dx)===last.dir){last=null;o.done=true;barrelRoll(Math.sign(dx))}});
+    ctl.addEventListener('pointercancel',e=>{delete g[e.pointerId]});
+    ctl.addEventListener('pointerup',e=>{const o=g[e.pointerId];delete g[e.pointerId];if(!o||!M||o.done) return;const now=performance.now(),dx=e.clientX-o.x,dy=e.clientY-o.y;
+      if(now-o.t<=TAP_MS&&Math.hypot(dx,dy)<=TAP_PX) last={kind:'tap',dir:sideOf(o.x),x:o.x,y:o.y,t:now};
+      else if(o.stick&&now-o.t<=FLICK_MS&&flick(dx,dy)) last={kind:'flick',dir:Math.sign(dx),t:now}})}
   const fire=$('#m-fire');
   if(fire&&M.armed){fire.addEventListener('pointerdown',e=>{e.preventDefault();if(M)M.input.fire=true});['pointerup','pointercancel','pointerleave'].forEach(t=>fire.addEventListener(t,()=>{if(M)M.input.fire=false}))}
   else if(fire) fire.addEventListener('pointerdown',e=>{e.preventDefault();takePhoto()});
   $('#m-exit').onclick=()=>{ if(!M||M.done) return; M.paused=true; openSheet('Leave mission?',`<div class="muted">You will head home with no reward. Nothing is lost.</div><div class="row"><button class="btn" data-act="m-resume">KEEP GOING</button><button class="btn danger" data-act="m-quit">GO HOME</button></div>`,true)};
-  const ab=$('#m-assist');if(ab) ab.onclick=()=>{const o=['casual','assisted','pro'];S.assist=o[(o.indexOf(S.assist||'casual')+1)%3];ab.textContent='MODE: '+MODE_NAME[S.assist];ctlModeUI();
-    toast(S.assist==='casual'?'Starfighter: tilt sideways to turn, pull down to climb and push up to dive. It levels itself, never stalls, pulls up near the ground, and the guns help aim.':S.assist==='assisted'?'Assisted: real flying with a throttle. It levels itself, but you can stall and you aim with the lead marker.':'Real pilot: full control. Stalls, G-forces and crashes are real.','ok')};
+  // MODE opens a picker and pauses, so a stray tap can't switch the flying mode in the middle of a run
+  const ab=$('#m-assist');if(ab) ab.onclick=()=>{if(!M||M.done) return;M.paused=true;const cur=S.assist||'casual',opt=(k,d)=>`<button class="opt${cur===k?' on':''}" data-act="m-mode" data-k="${k}"><b>${MODE_NAME[k]}${k==='casual'?' (best for missions)':''}</b><span>${d}</span></button>`;
+    openSheet('Flying mode',`<div class="list">${opt('casual','Arcade flying like Star Fox: BOOST, barrel rolls and AUTOPILOT. It levels itself, never stalls, and the guns help aim.')}${opt('assisted','Real flying with a throttle: sideways rolls the plane and you pull to turn. It levels itself, but it can stall. No BOOST, barrel rolls or autopilot.')}${opt('pro','Full control: stalls, G-forces and crashes are real. No BOOST, barrel rolls or autopilot.')}</div>`,true)};
+  // AUTOPILOT: when it is on, let go of the stick and the plane flies itself along the boxes; touch the stick any time to take over
+  const apb=$('#m-ap');if(apb) apb.onclick=()=>{if(!M) return;S.autopilot=!S.autopilot;save();apUI();
+    toast(S.autopilot?'Autopilot on: let go of the stick and it flies you along the boxes. Steer any time to take over.':'Autopilot off: you are flying.','ok')};
   $('#m-cam').onclick=()=>{if(!M) return;setCam(M.cam==='cockpit'?'chase':'cockpit')};
   const sb=$('#m-snd');if(sb) sb.onclick=()=>{S.sound=S.sound===false;sb.textContent='SOUND: '+(S.sound===false?'OFF':'ON');if(S.sound!==false){sfxInit();sfx('ring')}};
   M.onKey=e=>{if(!M) return;const d=e.type==='keydown',kk=e.key.toLowerCase();
     if(d&&!e.repeat){if(kk==='a'||kk==='arrowleft'){flickIn(-1);flickIn(0)}else if(kk==='d'||kk==='arrowright'){flickIn(1);flickIn(0)}if(M.intro>0) M.intro=.001}
-    M.keys[kk]=d;if(e.key===' '){e.preventDefault();M.input.fire=d}if(d&&kk==='c') $('#m-cam').click()};
+    M.keys[kk]=d;if(e.key===' '){e.preventDefault();M.input.fire=d}if(d&&kk==='c') $('#m-cam').click();if(d&&!e.repeat&&kk==='p'){const b=$('#m-ap');if(b&&!b.hidden) b.click()}};
   window.addEventListener('keydown',M.onKey);window.addEventListener('keyup',M.onKey);
   ctlModeUI();
 }
@@ -4366,18 +4398,25 @@ function flightModel(v){
 // STARFIGHTER flying (the default mode): tilt the stick sideways to turn, pull it back (drag down) to climb and push it
 // forward to dive, and it levels itself when you let go. Speed is automatic; hold BOOST to go faster. It can't stall, it
 // looks ahead and pulls up near the ground, and if you drift far off the course it eases back toward the next checkpoint.
-// Turns start gentle: the stick all the way over banks only about 12 degrees and turns at three quarters of the plane's
-// best rate. Keep it all the way over for more than about a second and the turn tightens to the full rate while the
-// bank deepens to about 30 degrees. Nimbler aircraft (a higher G limit) turn faster: at the full rate about 35 degrees a
-// second for the Cessna, about 55 for a fighter. Steering never rolls the plane over: only a double tap does that.
-const STAR_BANK0=12*Math.PI/180,STAR_BANK1=30*Math.PI/180,STAR_TURN0=.75,STAR_HARD0=.8,STAR_HARD1=1.2;
+// Turning: the stick all the way over banks only about 12 degrees at first but turns hard right away: about 44 degrees a
+// second for the Cessna, about 70 for a fighter (nimbler aircraft, with a higher G limit, turn faster). Keep it all the
+// way over for more than about a second and the turn tightens by another third while the bank deepens to about 30
+// degrees. The middle of the stick is gentler, for lining up on the boxes. Steering never rolls the plane over: only a
+// double tap does that.
+const STAR_BANK0=12*Math.PI/180,STAR_BANK1=30*Math.PI/180,STAR_TURN=1.25,STAR_TURN_HARD=.35,STAR_HARD0=.8,STAR_HARD1=1.2;
+// AUTOPILOT steering: aim at the course about 0.7 seconds ahead, like a pilot following the boxes (past the end, keep the
+// last heading). Aiming that close keeps fast jets from cutting the corners: in the headless sim the F-16 flew through 66
+// of 70 boxes this way, against 53 when it aimed 1.6 seconds ahead
+const AP_GAIN=3,AP_WAIT=.35,BOOST_TAP=3;
+function apSteer(){const P=M.P,pts=M.course.pts,end=pts[pts.length-1],la=(M.prog||0)+Math.max(60,P.speed*.7),q=coursePoint(pts,la),over=Math.max(0,la-end.s);
+  let d=Math.atan2(-(q.x+q.dx*over-P.x),-(q.z+q.dz*over-P.z))-P.yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return clamp(-d*AP_GAIN,-1,1)}
 function starStep(dt,ix,iy){
   const T=window.THREE,P=M.P,F=M.FM,k=M.keys||{};
   // how hard the turn is: 0 for ordinary steering, easing up to 1 once the stick has been held all the way over
   const hs=ix>.8?1:ix<-.8?-1:0;
   if(hs&&hs!==P.hardDir){P.hardDir=hs;P.hardT=0}else P.hardT=hs?(P.hardT||0)+dt:Math.max(0,(P.hardT||0)-dt*3);
   let hard=clamp(((P.hardT||0)-STAR_HARD0)/STAR_HARD1,0,1);hard=hard*hard*(3-2*hard);P.hard=hard;
-  const agile=clamp(.35+(F.gmax||4)*.07,.55,1),turn=ix*agile*(STAR_TURN0+(1-STAR_TURN0)*hard)*(P.rollT>0?.25:1);
+  const agile=clamp(.35+(F.gmax||4)*.07,.55,1),sh=ix*(.45+.55*Math.abs(ix)),turn=sh*agile*STAR_TURN*(1+STAR_TURN_HARD*hard)*(P.rollT>0?.25:1);
   P.yaw-=turn*dt;if(M.offCourse) P.yaw+=M.offCourse*dt;
   P.sbank=(P.sbank||0)+(ix*(STAR_BANK0+(STAR_BANK1-STAR_BANK0)*hard)-(P.sbank||0))*Math.min(1,dt*4);
   const look=Math.max(60,P.speed*1.6),ax=P.x-Math.sin(P.yaw)*look,az=P.z-Math.cos(P.yaw)*look;
@@ -4388,12 +4427,13 @@ function starStep(dt,ix,iy){
   let tp=hold*(1-u)+Math.sign(iy)*u*.6;
   if(agl<40) tp=Math.max(tp,clamp((40-agl)/40,0,1)*.6);
   P.spitch=(P.spitch||0)+(tp-(P.spitch||0))*Math.min(1,dt*2.2);
-  const boost=M.input.boost||k['shift']||k['e'];P.boostK=(P.boostK||0)+((boost?1:0)-(P.boostK||0))*Math.min(1,dt*3);
+  M.boostT=Math.max(0,(M.boostT||0)-dt);const boost=M.input.boost||M.boostT>0||k['shift']||k['e'];
+  if(M.boostOn!==!!boost){M.boostOn=!!boost;const bb=$('#m-boost');if(bb) bb.classList.toggle('on',M.boostOn)}P.boostK=(P.boostK||0)+((boost?1:0)-(P.boostK||0))*Math.min(1,dt*3);
   P.vr+=(F.vmax*(boost?(F.ab?1.08:1):.72)-P.vr)*Math.min(1,dt*.9);P.speed=Math.min(comp(P.vr)*STAR_K,STAR_MAX)*(1+.35*P.boostK);P.thr=boost?1:.72;
-  // barrel roll (a double tap): one spin around the nose and a slide sideways, with a moment of shield
+  // barrel roll (a double tap): one fast spin around the nose that starts at full speed, a quick slide sideways, and a moment of shield
   P.shieldT=Math.max(0,(P.shieldT||0)-dt);
-  if(P.rollT>0){P.rollT=Math.max(0,P.rollT-dt);const u=1-P.rollT/ROLL_T;P.rollA=P.rollDir*Math.PI*2*(u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2);
-    const lat=P.rollDir*ROLL_SLIDE*Math.PI/(2*ROLL_T)*Math.sin(Math.PI*u)*dt;P.x+=Math.cos(P.yaw)*lat;P.z-=Math.sin(P.yaw)*lat}else P.rollA=0;
+  if(P.rollT>0){P.rollT=Math.max(0,P.rollT-dt);const u=1-P.rollT/ROLL_T,e=1-Math.pow(1-u,2.4);P.rollA=P.rollDir*Math.PI*2*e;
+    const lat=P.rollDir*ROLL_SLIDE*(e-(P.rollE||0));P.rollE=e;P.x+=Math.cos(P.yaw)*lat;P.z-=Math.sin(P.yaw)*lat}else P.rollA=0;
   P.q.setFromEuler(new T.Euler(P.spitch,P.yaw,-(P.sbank+P.rollA),'YXZ'));
   const f=new T.Vector3(0,0,-1).applyQuaternion(P.q);
   P.x+=f.x*P.speed*dt;P.z+=f.z*P.speed*dt;P.y+=f.y*P.speed*dt;P.g=1+Math.abs(turn)*.6;P.sink=0;P.vy=0;
@@ -4505,6 +4545,13 @@ function missionLoop(now){
   if(v.cat!=='air'){const gas=M.input.gas||k['arrowup']||k['w'],brk=M.input.brake||k['arrowdown']||k['s'];iy=(gas?1:0)-(brk?1:0)}
   // the intro: a few seconds in the cockpit with the tower's briefing while the autopilot drives, then the outside view
   if(M.intro>0){M.intro-=dt;ix=0;iy=v.cat==='air'?0:1;if(M.intro<=0) introEnd()}
+  // AUTOPILOT (Starfighter): with it on, let go of the stick and it steers along the boxes (the plane already holds their
+  // height on its own). A thumb on the stick or a steering key hands control back; it takes over again a moment after you let go
+  else if(v.cat==='air'&&S.autopilot&&(S.assist||'casual')==='casual'&&M.course){
+    const hands=M.stickDown||Math.abs(ix)>.08||Math.abs(iy)>.08;M.apWait=hands?AP_WAIT:Math.max(0,(M.apWait||0)-dt);
+    if(!hands&&M.apWait<=0){ix=apSteer();iy=0;M.apOn=true}else M.apOn=false}
+  else M.apOn=false;
+  if(M.apShown!==!!M.apOn){M.apShown=!!M.apOn;const b=$('#m-ap');if(b) b.classList.toggle('fly',M.apShown)}
   ckCtl(dt,ix,iy);
   if(v.cat==='air'){
     if(k['shift']||k['e']) P.thr=Math.min(1,P.thr+dt*.6); if(k['control']||k['q']) P.thr=Math.max(0,P.thr-dt*.6);
@@ -5013,6 +5060,8 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='launch') missionSheet(b.dataset.v);
   else if(a==='go') startMission(b.dataset.v);
   else if(a==='m-resume'){closeSheet();if(M){M.paused=false;M.last=performance.now()}}
+  else if(a==='m-mode'){S.assist=b.dataset.k;S.starMode1=1;save();closeSheet();if(M){M.paused=false;M.last=performance.now();const ab=$('#m-assist');if(ab) ab.textContent='MODE: '+MODE_NAME[S.assist];ctlModeUI();
+    toast(S.assist==='casual'?'Starfighter: BOOST, barrel rolls and AUTOPILOT are ready.':S.assist==='assisted'?'Assisted: real flying with a throttle. Roll and pull to turn; it levels itself, but you can stall.':'Real pilot: full control. Stalls, G-forces and crashes are real.','ok')}}
   else if(a==='m-quit'){closeSheet();closeMission();renderWorld()}
   else if(a==='fight'){const D=DIFFS.find(x=>x.k===b.dataset.d);if(!D||S.res.ap<D.ap) return;S.res.ap-=D.ap;startBattle(makeWave(D.k),false,D)}
   else if(a==='fstep'){const L=+b.dataset.l;if(L>(S.raidLv||1)||S.res.ap<1) return;S.res.ap--;startBattle(makeWave('normal',L),false,DIFFS[1],L)}
@@ -5166,6 +5215,7 @@ function startGame(fresh){
   $('#setup').hidden=true; $('#game').hidden=false;
   S.found=S.found||{};S.upg=S.upg||{};S.floorH=S.floorH||{};if(SANDBOX){S.sandbox=true;sandboxFill()}
   if(S.hueyRefund){delete S.hueyRefund;setTimeout(()=>toast('The helicopter is out of the game for now, so you got its full price back: $1,200,000.','ok'),1500)}
+  if(S.starReset){delete S.starReset;setTimeout(()=>toast('Flying is back on STARFIGHTER: BOOST, barrel rolls and the new AUTOPILOT. The realistic modes are under MODE in a mission.','ok'),3200)}
   renderWorld(); lastW=$('#world').clientWidth; requestAnimationFrame(()=>{paintWorld();scrollToSurface(false)});
   if(fresh){ toast(`Welcome, ${S.cmd.name}! Tap rooms, crew, and the build spots.`,'ok'); setTimeout(()=>toast('Open the Hangar, tap a vehicle to see it in 3D, then launch a mission!'),4000) }
   setInterval(tick,1000);

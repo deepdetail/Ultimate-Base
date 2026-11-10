@@ -29,7 +29,7 @@ Phoenix's ideas, approved November 3: missions become arcade courses instead of 
 
 ### Phase 1, as shipped
 - **Starfighter flying:**
-  - Stick sideways turns, gently at first (see the controls update of November 9): at the full rate about 35 degrees a second for the Cessna, about 55 for fighters.
+  - Stick sideways turns (see the flying update of November 10): all the way over, about 44 degrees a second for the Cessna and about 70 for fighters right away, and about a third more when held over.
   - Pull the stick back (down on the screen) to climb and push it forward to dive, and the plane levels itself when you let go.
   - It can't stall, looks ahead and pulls up near the ground, and BOOST goes faster.
 - **Checkpoints:**
@@ -77,7 +77,7 @@ Asked for: shorter trips, obvious targets, Star Fox barrel rolls, easy enemies e
 - **Short hops:** three checkpoints about 30 seconds apart (measured 29 to 33 seconds for every vehicle in a headless simulation), heading out toward the region's landmarks. Fast planes on small maps fly a loop around the landmarks so hops stay about 30 seconds.
 - **Planes:** about 1.75 times faster in Starfighter mode (capped near F-22 speed), BOOST about 1.5 times on top with speed streaks and a wider view.
 - **Waypoint boxes:** a tunnel of floating boxes about 1.3 seconds apart; the next three glow pink. With the stick level the plane eases to the boxes' height. The final target sits right on the path and the boxes dive at it: the simulated approach comes in about 5 degrees off the target.
-- **Barrel roll (Starfighter mode only):** double tap the left or right side of the screen (a mouse double click works too). The stick flick was taken out on November 9 because quick steering kept setting it off. One spin with a slide; an orb that reaches you mid-roll bounces back. Normal flying never banks past about 30 degrees.
+- **Barrel roll (Starfighter mode only):** double tap the left or right side of the screen (a mouse double click works too). The stick flick was taken out on November 9 because quick steering kept setting it off. A deliberate double flick, lifting the thumb in between, came back on November 10. One spin with a slide; an orb that reaches you mid-roll bounces back. Normal flying never banks past about 30 degrees.
 - **Roads:** a road cut into the terrain between landmarks. Let go of the stick and the car follows the road back to the middle; the edges are soft bumpers. Gems along the road.
 - **Challenge picker on the mission sheet:** ROOKIE (drones only from the front, one hit, fade once passed, barely hurt), PILOT (slow orbs, some two-hit drones, oncoming trucks), ACE (enemy jets that turn and chase, trucks from behind). The default follows mission wins; any can be picked for testing.
 - **Every vehicle can shoot on a mission:** with no weapon upgrade it gets a basic stun blaster. Weapon upgrades hit harder. (Decision for the owner to confirm.)
@@ -89,7 +89,7 @@ Asked for: shorter trips, obvious targets, Star Fox barrel rolls, easy enemies e
 ### Controls update (November 9)
 Asked for: turns that bank only 10 to 15 degrees at first, pull back to climb like Star Fox and Metal Storm, and no rolling unless you double tap.
 - **Gentle turns (Starfighter mode):**
-  - The stick all the way over banks about 12 degrees and turns at three quarters of the plane's best rate.
+  - The stick all the way over banks about 12 degrees and turns at three quarters of the plane's best rate. (On November 10 the turn became strong from the start, while the bank stays gentle.)
   - Held all the way over for more than about a second, the turn tightens to the full rate and the bank deepens to about 30 degrees.
   - Quick back and forth steering stays under about 11 degrees.
   - Assisted and Real pilot still roll to turn, like a real plane: if the MODE button reads ASSISTED or REAL PILOT, sideways rolls on purpose.
@@ -102,6 +102,39 @@ Asked for: turns that bank only 10 to 15 degrees at first, pull back to climb li
 - **Measured in the headless simulation:**
   - Every plane still finished with full health and no missed targets, with the same 30 second hops.
   - The fast jets flew through more boxes: the F-16 got 63 of 70 on Tahoe, up from 56.
+
+### Flying update (November 10)
+Asked for: an autopilot you can switch on and off, a BOOST button, better turning, and an instant barrel roll from a double tap on either side or on the stick that dodges and attacks.
+- **Why BOOST seemed to be missing:**
+  - BOOST, barrel rolls and the new autopilot are Starfighter features.
+  - The MODE button in a mission used to switch modes on every tap. A stray tap could leave a pilot in Assisted, where a throttle replaces BOOST, sideways rolls the plane, and double taps do nothing.
+  - Every save is switched back to Starfighter once, with a message.
+  - MODE now opens a picker that pauses the mission and explains each mode. Picking a mode there is never undone.
+- **AUTOPILOT button:**
+  - It sits on the left above the stick (the P key does the same).
+  - When it's on, let go of the stick and the plane steers itself along the boxes and holds their height.
+  - A thumb on the stick hands control back, and the autopilot takes over again a third of a second after you let go.
+  - It stays on between missions until you turn it off. Starfighter only.
+- **BOOST:** hold it as long as you like, or tap it for three seconds of boost so your thumb can go back to FIRE. The button glows while you boost.
+- **Turning:**
+  - The stick all the way over now turns 1.25 times as fast as before, right away: about 44 degrees a second for the Cessna, about 70 for fighters.
+  - Held over for about a second, it turns about 1.7 times as fast as before.
+  - The first second still banks only about 12 degrees, then deepens to 30.
+  - The middle of the stick is gentler, for lining up on the boxes.
+- **Instant barrel roll:**
+  - Double tap either side of the screen, or double flick the stick: two quick flicks the same way, lifting the thumb in between.
+  - It starts the moment the second touch lands and spins at full speed from the start, taking 0.45 seconds instead of 0.6.
+  - It slides farther: 34 instead of 26.
+  - Holding the stick and wiggling it never rolls.
+- **Roll attack and dodge:**
+  - The spin smashes any drone, jet or balloon within 30 for full points (SPIN SMASH!, WHIRLWIND!, ROLL ATTACK!), both when it starts and while it spins.
+  - It bounces back orbs within 15 instead of 6.5.
+- **Measured in the headless simulation:**
+  - With the autopilot flying hands-free, every plane finished with full health and no missed targets, and the legs stayed about 30 seconds.
+  - It flew through 56 to 70 boxes per run. The F-16 got 66 of 70 on Tahoe and 70 of 71 on Moab.
+  - From 70 degrees off course, it was back on the line within 8 seconds.
+  - Double taps and double flicks rolled on the second touch. Holding and wiggling the stick, slow double flicks, and flicks in opposite directions never rolled.
+  - A roll smashed a drone 25 to one side and one 15 behind on the other side, and left one 45 away alone.
 
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
