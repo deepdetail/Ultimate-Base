@@ -52,7 +52,7 @@ The game already has stand-in versions of most of these, built in code from simp
 ## Obstacles and scenery that make courses fun
 | Name | File | What it is |
 |---|---|---|
-| Rock arch | `prop_rock_arch.glb` | A natural red-rock arch in Moab that the waypoint boxes fly you through. |
+| Rock arch | `prop_rock_arch.glb` | A natural red-rock arch in Moab that the waypoint boxes fly you through. In the game now as a stand-in on every Moab low-level run: an opening about 125 to 135 units wide. |
 | Cable line | `prop_cable.glb` | Power cables strung across a canyon; fly under them for bonus points. |
 | Wind turbine | `prop_turbine.glb` | Sierras hilltop turbines with turning blades to weave between. |
 | Billboard | `prop_billboard.glb` | Sky Vegas neon billboards (pictures only, no words) along the Vegas run. |

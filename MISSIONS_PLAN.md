@@ -136,6 +136,60 @@ Asked for: an autopilot you can switch on and off, a BOOST button, better turnin
   - Double taps and double flicks rolled on the second touch. Holding and wiggling the stick, slow double flicks, and flicks in opposite directions never rolled.
   - A roll smashed a drone 25 to one side and one 15 behind on the other side, and left one 45 away alone.
 
+## Low-level runs (November 16), Phoenix's third round
+Asked for:
+- Missions as one short, fairly straight trip (like Donner Lake to Emerald Bay) instead of a circle around the lake.
+- Flying low, under the gang's radar, which is why the boxes are low.
+- The terrain shaping the course: gaps between trees, and canyons.
+- The same for Utah, with a flight under an arch.
+- Slightly smaller planes, without overcorrecting.
+
+- **One run, one trip:**
+  - Every plane mission is now a run from one real place to another. Missions no longer start at the base, and fast planes no longer loop around the lake to fill time.
+  - The game picks a run that takes this plane roughly 40 to 100 seconds, so slow planes get the short runs and jets the long ones.
+  - Each run keeps three stops: two checkpoints on the way and the gang outpost at the end.
+- **The runs:**
+  - Tahoe, short: Truckee River Canyon (Truckee to Tahoe City) and West Shore (Tahoe City to Emerald Bay).
+  - Tahoe, long: Donner Lake to Emerald Bay (down the Truckee River canyon, then along the west shore) and East Shore (Incline Village to South Lake Tahoe).
+  - Moab: Arches Run (Moab to Delicate Arch), River to Balanced Rock, and Colorado River Gorge (River Bend to the Fiery Furnace).
+  - Donner Lake was missing from the map data, so the flat ground at its level is now filled in as water.
+- **How a run is found:**
+  - The game searches the real height map for the cheapest path between the two places, where high ground costs more. That makes runs follow valleys, river canyons and shorelines.
+  - A gentle pull keeps runs from wandering far from the straight line.
+  - Over Lake Tahoe, water far from shore costs more, so runs hug the shoreline with trees on one side.
+  - Bends are smoothed only as much as each plane's turning allows.
+- **Flying low:**
+  - The boxes sit about 17 units above the ground for the Cessna and 24 for fast jets, above the trees on the corridor's edges.
+  - They climb early for hills, no steeper than about 19 degrees, and come down gently, at about 13 degrees.
+  - The plane holds the boxes' height a short way ahead, so it follows the ground.
+  - Ground avoidance steps in only very close to the ground. A bump costs a little health instead of a big hit.
+  - There's no TOO LOW warning on these runs.
+- **The radar line:**
+  - It sits about 60 to 76 units above the boxes.
+  - Climb above it and you get a red glow around the screen, RADAR HIGH! in the HUD, a beeping warning and a red laser grid at the line. A meter starts to fill.
+  - If the meter fills you're SPOTTED: a squad of drones scrambles from the ground ahead. There are five seconds before it can happen again.
+  - Finish without being spotted for a GHOST RUN bonus (+1000).
+- **Trees and canyons:**
+  - In the Sierra, the run cuts a gap through the forest, lined with two ragged rows of tall pines.
+  - In Moab, the canyon walls are the real terrain, and sandstone pillars stand along the run's edges.
+  - Clipping a tree or pillar costs a little health and bumps you up, with a "stay in the gap" warning.
+- **The arch:** every Moab run passes under a giant red rock arch, built by the game until the GLB model arrives. Flying under it pays +500 (UNDER THE ARCH!).
+- **Smaller planes:** planes are drawn 15% smaller, and the chase camera sits a little closer.
+- **Measured in the headless simulation (autopilot, hands off):**
+  - Every run finished with full health. No radar spots, no tree or pillar hits, no ground bumps.
+  - It flew through 78 to 95 percent of the boxes, and went under the arch on every Moab run.
+  - Times:
+    - Cessna: Truckee River Canyon 65 s, West Shore 76 s, Arches Run 80 s.
+    - F-16: Donner Lake to Emerald Bay 52 s, Colorado River Gorge 38 s.
+    - L-39: East Shore 64 s, Arches Run 49 s.
+    - Rocket: Donner Lake to Emerald Bay 46 s.
+  - A 4 second pull-up got spotted, and a swerving test hit the trees, so both checks work.
+
+### Next for low-level runs
+- More runs per region from your ideas, and obstacles inside the corridor, such as a lone spire or a fallen tree the boxes weave around.
+- The arch and pillars as real GLB models (see `art/MISSION_3D_ROSTER.md`).
+- Moab's runs are short for jets (about 30 to 40 seconds), because the map is only 32 km across.
+
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
 - Recorded voice lines and music (the sound effects are code-made for now).
