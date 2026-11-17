@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="907afed-20261117">
+<meta name="based-build" content="3413e80-20261117">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -413,6 +413,7 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
   .m-photos canvas{width:52px;height:36px;border-bottom-width:7px}
   body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 8px);left:auto;transform:none;right:calc(max(10px,env(safe-area-inset-right,0px)) + 196px);width:min(30vw,300px)}
   .m-warn{top:24%}
+  #mission .m-feed{top:calc(env(safe-area-inset-top,0px) + 154px);max-width:32vw}
 }
 /* phones held upright on the website: ask to turn the phone (pages can't rotate an iPhone themselves) */
 .m-turn{position:fixed;inset:0;z-index:76;display:grid;place-items:center;text-align:center;padding:24px;background:rgba(14,16,19,.9);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -423,6 +424,16 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .m-turn b{display:block;font-family:var(--font-display);font-size:18px;letter-spacing:.08em}
 .m-turn small{display:block;color:var(--muted);margin:10px auto 20px;max-width:300px;font-size:13px;line-height:1.45}
 .m-fxl{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden}
+/* the status readout (round 6): combos, kills, checkpoints and bonuses scroll by in small lines on the far left instead of
+   comic pop-ups in the middle of the screen */
+.m-feed{position:absolute;left:max(12px,env(safe-area-inset-left,0px));top:30%;z-index:5;display:flex;flex-direction:column;gap:3px;pointer-events:none;max-width:46vw}
+.m-feed .fl{font:600 12px/1.25 var(--font-body);color:#e9f1f5;text-shadow:0 1px 2px rgba(0,0,0,.9);background:rgba(10,14,18,.45);border-left:3px solid #7ff0f3;padding:2px 8px 2px 6px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:flIn .16s ease-out,flOut .6s ease-in 2.4s forwards}
+.m-feed .fl b{font:800 11px/1.25 var(--font-display);letter-spacing:.05em;margin-right:6px;color:#fff}
+.m-feed .fl.combo{border-left-color:#ffc845}.m-feed .fl.combo b{color:#ffd76a}
+.m-feed .fl.bad{border-left-color:#ff4d5e}.m-feed .fl.bad b{color:#ff8a94}
+.m-feed .fl.good{border-left-color:#3ddc97}.m-feed .fl.good b{color:#9ff2c4}
+@keyframes flIn{from{opacity:0;transform:translateX(-10px)}}
+@keyframes flOut{to{opacity:0}}
 /* arcade celebrations: comic words where you hit something, big banners, the tower's briefing, a red flash when you're hit */
 .pop{position:absolute;transform:translate(-50%,-50%);text-align:center;white-space:nowrap;animation:popin 1.05s cubic-bezier(.2,1.5,.4,1) forwards}
 .pop b{display:block;font:900 24px/1 var(--font-display);color:#ffe14a;letter-spacing:.03em;transform:rotate(-7deg);text-shadow:2px 2px 0 #1a1205,-2px 2px 0 #1a1205,2px -2px 0 #1a1205,-2px -2px 0 #1a1205,0 5px 0 #b8400c}
@@ -1593,7 +1604,8 @@ function grantPrize(v,why,cond){
   return `<div class="li"><span class="veh">${vehArt(v.id)}</span><span class="grow"><b>${why}: ${esc(v.name)}</b><span>${S.vehicles.includes(v.id)?'You already own one':'Your Hangar is full'}, so it was sold for you: +${money(cash)}.</span></span></div>`;
 }
 const isArmed=v=>!v.locked&&vUp(v).wpn>0;
-const missionType=v=>isArmed(v)?'strike':v.cat==='air'?'recon':'rally';
+// round 6 (J and Phoenix): every plane flies strike runs that end at the enemy outpost (recon flights used to end with a camp photo)
+const missionType=v=>v.cat==='air'||isArmed(v)?'strike':'rally';
 const ENEMIES={
   desert:[
     {name:'Badlands Gang Buggy',art:'buggy',hp:30,speed:38,dmg:6},
@@ -2942,7 +2954,7 @@ function missionSheet(vid){
   const title={strike:'Strike Run',recon:'Recon Flight',rally:'Road Rally'}[type]+(v.cat==='sea'?' on the Lake':'');
   const what=v.cat==='sea'?'Three quick hops across the lake. Follow the rings on the water, blast the drones and floating mines, and reach the Badlands outpost.'
     :v.cat==='ground'?(type==='strike'?'Three quick hops down the road. Blast the road bots and road blocks, grab the gems, then knock out the radar at the Badlands outpost.':'Three quick hops down the road. Blast the road bots with your stun blaster, grab the gems, and drive through the last gate at the Badlands outpost.')
-    :(type==='strike'?'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar. Blast the drones, gang trucks and balloons, then destroy the enemy outpost at the end: it takes three missiles or a long burst from the guns.':'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar, blasting drones and gang trucks with your wing guns. At the end the boxes lead you over the Badlands camp, and your camera snaps the photo by itself.');
+    :(type==='strike'?'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar. Blast drones, gang convoys, forts with bunkers and turrets, a recon plane and supply balloons, then destroy the enemy outpost at the end: it takes three missiles or a long burst from the guns.':'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar, blasting drones and gang trucks with your wing guns. At the end the boxes lead you over the Badlands camp, and your camera snaps the photo by itself.');
   const ti=tierOf();
   const done=S.found&&S.found[mk+':'+v.cat];
   openSheet(title,`${regionTabs(vid)}
@@ -3870,8 +3882,9 @@ const GUN_BURST=4,GUN_GAP=.55,GUN_TRACER=3,gunCadence=W=>clamp(W.rate*.9,.06,.11
 const MILE=402,MSL_LOCK_T=3,MSL_FREE_CONE=.9,MSL_FREE_R=420,MSL_HARD=.4,lockTime=v=>MSL_LOCK_T,lockRange=cruise=>clamp(cruise*4.5,MILE,MILE*1.5);
 const mslCount=v=>v.cat==='air'?(MSL_N[v.id]||4):0;
 // points for everything you hit or fly through
-const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500,outpost:1500,dodge:50};
-const KILLW={spin:['SPIN SMASH!','WHIRLWIND!','ROLL ATTACK!'],drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!'],missile:['DIRECT HIT!','KABOOM!','SPLASH ONE!','MISSILE HIT!']};
+const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500,outpost:1500,dodge:50,recon:200,bunker:300,dish:150,turret:200,wall:60,barricade:60};
+const KILLW={spin:['SPIN SMASH!','WHIRLWIND!','ROLL ATTACK!'],drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!'],pickup:['TECHNICAL DOWN!','TRUCK STOPPED!'],buggy:['BUGGY BUSTED!'],suv:['SUV STOPPED!'],recon:['RECON PLANE DOWN!','SPLASH ONE!'],
+  bunker:['BUNKER BUSTED!','KABOOM!'],dish:['DISH DOWN!','NO SIGNAL!'],turret:['TURRET DOWN!','SILENCED!'],wall:['WALL DOWN!','CRUMBLE!'],barricade:['BARRICADE BUSTED!'],missile:['DIRECT HIT!','KABOOM!','SPLASH ONE!','MISSILE HIT!']};
 function polyLen(p){let L=0;for(let i=1;i<p.length;i++) L+=Math.hypot(p[i].x-p[i-1].x,p[i].z-p[i-1].z);return L}
 function chaikin(p,it){for(let k=0;k<it;k++){if(p.length<3) return p;const q=[p[0]];for(let i=0;i+1<p.length;i++){const a=p[i],b=p[i+1];q.push({x:a.x*.75+b.x*.25,z:a.z*.75+b.z*.25},{x:a.x*.25+b.x*.75,z:a.z*.25+b.z*.75})}q.push(p[p.length-1]);p=q}return p}
 function resample(p,step){const out=[{x:p[0].x,z:p[0].z,s:0}];let since=0,s=0;
@@ -4039,6 +4052,11 @@ function sfx(kind){const c=SFX.ctx;if(!c||S.sound===false||c.state!=='running') 
   else if(kind==='seek'){tone('square',1180,1180,.035,.04);tone('square',1400,1400,.035,.04,.05)}
   else if(kind==='seekb') tone('sine',1040,1040,.045,.07);
   else if(kind==='obst'){tone('square',520,520,.07,.05);tone('square',390,390,.07,.05,.09)}
+  else if(kind==='zap'){hiss(6000,1800,.12,.35,2,'highpass');tone('square',1400,300,.1,.06);tone('sawtooth',220,80,.15,.08,.04)}
+  else if(kind==='crack'){hiss(3200,500,.18,.6,1.2,'bandpass');tone('sine',140,50,.2,.35)}
+  else if(kind==='pop'){tone('sine',900,180,.08,.25);hiss(4000,1500,.06,.3,1,'highpass')}
+  else if(kind==='splash'){hiss(2000,200,.7,.6,.7,'lowpass');tone('sine',90,40,.3,.3)}
+  else if(kind==='crunch'){hiss(1400,250,.35,.7,1.5,'bandpass');tone('sine',110,40,.25,.35)}
   else if(kind==='msl'){hiss(500,3500,.55,.55,1.2,'bandpass');tone('sawtooth',160,70,.35,.07)}
   else if(kind==='tick') tone('triangle',700,500,.05,.08);
   else if(kind==='boom'){hiss(1600,90,.7,.9);tone('sine',110,38,.45,.7)}
@@ -4056,36 +4074,65 @@ function sfx(kind){const c=SFX.ctx;if(!c||S.sound===false||c.state!=='running') 
 }
 
 // ---------- celebrations: blasts, comic words, points and combos ----------
-function fxBlast(pos,size,col){if(!M) return;const T=window.THREE,sz=(size||1)*Math.max(1,pos.distanceTo(M.camera.position)/160);
-  // a solid comic fireball (orange outside, yellow inside) that reads against bright sky and water, a white flash and a shockwave ring
+function fxBlast(pos,size,col){fxBall(pos,size,{col})}
+// a blast, built from parts: a solid fireball (orange outside, yellow inside) that reads against bright sky and water, a white
+// flash, a shockwave ring, flying bits, sparks and smoke. o: col and core (the fireball's colors; fire:false for none), flash,
+// ring, ringCol and ringR, bits and bitCol, sparks and sparkCol, smoke, snd (a sound, or false) and shake
+function fxBall(pos,size,o){if(!M) return;o=o||{};const T=window.THREE,sz=(size||1)*Math.max(1,pos.distanceTo(M.camera.position)/160);
   const add=(geo,c,s0,s1,dur,op,face,glow)=>{const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:c,transparent:true,opacity:op,blending:glow?T.AdditiveBlending:T.NormalBlending,depthWrite:false,side:T.DoubleSide}));
     m.position.copy(pos);if(face) m.lookAt(M.camera.position);m.scale.setScalar(s0);M.scene.add(m);M.fx.push({m,t:0,dur,s0,s1,op})};
-  add(M.fxSph,col||0xff7a1a,3*sz,12*sz,.7,.95);
-  add(M.fxSph,0xffd23a,2*sz,8*sz,.5,.95);
-  add(M.fxSph,0xffffff,1.5*sz,4*sz,.12,.9,false,true);
-  add(M.fxRing,0xfff1b0,2*sz,18*sz,.4,.7,true,true);
-  boom(pos);spark(pos,0xffd27a,8);puff(pos,0x3a3a3a,3*sz,1.1,4);puff(pos,0x555555,2.2*sz,.9,6);
-  const d=pos.distanceTo(M.camera.position);M.shake=Math.max(M.shake||0,clamp(1.2*(size||1)-d/400,0,1.2));sfx((size||1)>1.6?'big':'boom')}
+  if(o.fire!==false){add(M.fxSph,o.col||0xff7a1a,3*sz,12*sz,.7,.95);add(M.fxSph,o.core||0xffd23a,2*sz,8*sz,.5,.95)}
+  if(o.flash!==false) add(M.fxSph,0xffffff,1.5*sz,4*sz,.12,.9,false,true);
+  if(o.ring!==false) add(M.fxRing,o.ringCol||0xfff1b0,2*sz,(o.ringR||18)*sz,.4,.7,true,true);
+  chunks(pos,o.bitCol||0x9a6a3a,o.bits==null?10:o.bits,14,1.3,1);
+  if(o.sparks!==0) spark(pos,o.sparkCol||0xffd27a,o.sparks||8);
+  if(o.smoke!==false){puff(pos,0x3a3a3a,3*sz,1.1,4);puff(pos,0x555555,2.2*sz,.9,6)}
+  const d=pos.distanceTo(M.camera.position);M.shake=Math.max(M.shake||0,clamp((o.shake||1.2)*(size||1)-d/400,0,1.2));if(o.snd!==false) sfx(o.snd||((size||1)>1.6?'big':'boom'))}
+// flying bits with gravity (debris, tires, rotor parts, concrete, confetti), colored per blast
+function chunks(pos,col,n,spd,life,sc){if(!n) return;const T=window.THREE;M.chunkMat=M.chunkMat||{};const mt=M.chunkMat[col]||(M.chunkMat[col]=toonMat(T,col));
+  for(let i=0;i<n;i++){const b=new T.Mesh(M.bitGeo,mt);b.position.copy(pos);b.scale.setScalar(sc*rnd(.6,1.2));M.scene.add(b);M.bits.push({m:b,v:new T.Vector3(rnd(-spd,spd),rnd(spd*.55,spd*1.6),rnd(-spd,spd)),life:life*rnd(.8,1.2)})}}
+// round 6 (J and Phoenix): every kind of bad guy goes out its own way
+function foeBoom(e){const T=window.THREE,p=e.p.clone(),k=e.kind,V=(x,y,z)=>p.clone().add(new T.Vector3(x,y,z));
+  if(k==='drone'){fxBall(p,.7,{col:0xff9a3a,core:0xfff1b0,ring:false,bits:6,bitCol:0x1b1f24,sparks:14,sparkCol:0x9fe8ff,snd:'zap'});spark(p,0xffffff,6)}
+  else if(k==='jet') fxBall(p,2,{col:0xff6a10,bits:12,bitCol:0x6a2a2a,snd:'big'});
+  else if(k==='recon'){fxBall(p,1.2,{col:0xff8a2a,ring:false,bits:10,bitCol:0x7a6a48,snd:'boom'});puff(p,0xe8ecef,3,1.6,2)}
+  else if(k==='truck'){fxBall(p,e.model==='buggy'?1.3:1.9,{col:0xff5a10,core:0xffc23a,ringCol:0xffd9a0,bits:12,bitCol:0x222222,snd:'big'});puff(p,0xff8a2a,4,.8,10);puff(p,0x222222,4.5,2,7)}
+  else if(k==='bot') fxBall(p,.8,{ring:false,bits:8,bitCol:0x6e7884,sparks:12,snd:'crack'});
+  else if(k==='balloon'){fxBall(p,.5,{fire:false,ring:false,bits:0,sparks:0,smoke:false,snd:'pop'});for(const c of [0xff4d5e,0xffe27a,0x7ff0f3,0xff6fae,0x9ff2b8]) chunks(p,c,5,9,2.2,.3)}
+  else if(k==='mine'){fxBall(p,.6,{fire:false,ring:false,bits:0,sparks:0,smoke:false,snd:'splash'});for(let i=0;i<6;i++) puff(V(rnd(-2,2),i*1.5,rnd(-2,2)),0xf2fbff,rnd(2.5,4),1.2,18);chunks(p,0xcff4ff,14,10,1.2,.35)}
+  else if(k==='block'||k==='wall'||k==='barricade'){fxBall(p,.6,{fire:false,ring:false,flash:false,bits:0,sparks:k==='barricade'?8:0,smoke:false,snd:'crunch'});
+    for(let i=0;i<5;i++) puff(V(rnd(-6,6),rnd(0,2),rnd(-6,6)),k==='block'?0xc9b28a:0xb8b2a6,rnd(3,5),1.3,2);chunks(p,k==='block'?0x9a6a3a:k==='wall'?0x9a9890:0x4a525c,14,13,1.4,.8)}
+  else if(k==='dish') fxBall(p,.8,{col:0xffa24a,ring:false,bits:8,bitCol:0xc9d1d9,sparks:16,sparkCol:0x9fe8ff,snd:'crack'});
+  else if(k==='bunker'){fxBall(p,1.6,{col:0xff7a1a,ringCol:0xd8c8a8,ringR:24,bits:16,bitCol:0x8f8d86,snd:'big',shake:1.4});for(let i=0;i<4;i++) puff(V(rnd(-7,7),0,rnd(-7,7)),0x9a9488,rnd(4,6),1.6,3)}
+  else if(k==='turret'){fxBall(p,1.1,{bits:8,bitCol:0x2b3036,sparks:10,snd:'boom'});chunks(p,0x4a525c,1,16,1.8,2.2)}
+  else fxBall(p,1.2,{})}
+// what's left standing: a flattened bunker, a toppled dish, a turret with its gun blown off, a tipped-over truck
+function wreckLook(e){const g=e.g,u=g.userData;
+  if(e.kind==='bunker') g.scale.y*=.45;
+  else if(e.kind==='dish'&&u.dish){u.dish.rotation.x+=1.1;u.dish.position.y-=2.5}
+  else if(e.kind==='turret'&&u.head) u.head.visible=false;
+  else if(e.kind==='truck'){g.rotation.z=(Math.random()<.5?-1:1)*.2;if(u.head) u.head.visible=false}}
 function fxStep(dt){for(const f of M.fx){f.t+=dt;const u=Math.min(1,f.t/f.dur);f.m.scale.setScalar(f.s0+(f.s1-f.s0)*(1-(1-u)*(1-u)));f.m.material.opacity=f.op*(1-u);if(u>=1){M.scene.remove(f.m);f.m.material.dispose()}}
   M.fx=M.fx.filter(f=>f.t<f.dur)}
-// comic words where something was hit (or in the middle of the screen)
-function popAt(pos,word,sub,big){if(!M) return;const L=$('#m-fxl');if(!L) return;while(L.children.length>7) L.firstChild.remove();
-  let x=M.root.clientWidth/2,y=M.root.clientHeight*.36;if(pos){const q=pos.clone().project(M.camera);if(q.z<1&&Math.abs(q.x)<1.1&&Math.abs(q.y)<1.1){x=(q.x+1)/2*M.root.clientWidth;y=(1-q.y)/2*M.root.clientHeight}}
-  const now=performance.now(),recent=[...L.querySelectorAll('.pop')].filter(e=>now-(+e.dataset.t)<450).length;
-  const d=document.createElement('div');d.className='pop'+(big?' big':'');d.dataset.t=now;d.style.left=clamp(x+(recent%2?26:-26)*Math.min(1,recent),70,M.root.clientWidth-70)+'px';d.style.top=clamp(y-recent*34,90,M.root.clientHeight-60)+'px';
-  d.innerHTML=(word?`<b>${esc(word)}</b>`:'')+(sub?`<i>${esc(sub)}</i>`:'');L.appendChild(d);setTimeout(()=>d.remove(),1100)}
+// the STATUS READOUT (round 6, J and Phoenix: the big comic pop-ups were distracting mid-flight): combos, kills, checkpoints and
+// bonuses scroll by in small lines on the far left, newest on top, and fade after a few seconds. Only GO! and the end of the
+// mission still get a big banner in the middle
+function feed(word,sub,kind){if(!M) return;const L=$('#m-feed');if(!L) return;while(L.children.length>=4) L.lastChild.remove();
+  const d=document.createElement('div');d.className='fl'+(kind?' '+kind:'');d.innerHTML=(word?`<b>${esc(word)}</b>`:'')+(sub?esc(sub):'');L.prepend(d);setTimeout(()=>d.remove(),3100)}
+// (the older calls) words for what just happened now go to the readout, wherever they happened
+function popAt(pos,word,sub,big){feed(word,sub,big?'good':'')}
 function banner(word,sub,kind){if(!M) return;const L=$('#m-fxl');if(!L) return;L.querySelectorAll('.m-banner').forEach(b=>b.remove());
   const d=document.createElement('div');d.className='m-banner'+(kind?' '+kind:'');d.innerHTML=`<span class="burst"></span><b>${esc(word)}</b>${sub?`<i>${esc(sub)}</i>`:''}`;L.appendChild(d);setTimeout(()=>d.remove(),1700)}
 // points: kills chain into combos (x2, x3, up to x4) when they come within three seconds of each other
 function score(pts,pos,word,big){M.combo=M.t-(M.lastKill||-9)<3?Math.min(4,(M.combo||1)+1):1;M.lastKill=M.t;const got=Math.round(pts*M.combo);M.score+=got;
-  popAt(pos,word,'+'+got+(M.combo>1?'  x'+M.combo+' COMBO':''),big);if(M.combo>=3&&M.combo!==M.comboShown){M.comboShown=M.combo;banner('COMBO x'+M.combo+'!','','combo')}
+  feed(word,'+'+got+(M.combo>1?' (x'+M.combo+')':''),big?'good':'');if(M.combo>=2&&M.combo!==M.comboShown){M.comboShown=M.combo;feed('COMBO x'+M.combo,'','combo')}else if(M.combo<2) M.comboShown=0;
   const e=$('#m-score');if(e) e.textContent=M.score.toLocaleString()}
-function gain(pts,pos,sub){M.score+=pts;popAt(pos,'',sub||'+'+pts);const e=$('#m-score');if(e) e.textContent=M.score.toLocaleString()}
+function gain(pts,pos,sub){M.score+=pts;if(sub) feed(sub,'','good');const e=$('#m-score');if(e) e.textContent=M.score.toLocaleString()}
 function hurt(n,why){const P=M.P;P.hull-=n*M.armMul;M.combo=1;M.shake=Math.max(M.shake||0,.9);sfx('hurt');const h=$('#m-hurt');if(h){h.style.transition='none';h.style.opacity=.6;requestAnimationFrame(()=>{h.style.transition='opacity .45s';h.style.opacity=0})}if(why) warn(why,.9)}
 
 // ---------- bad guys: drones, road bots, raider trucks, mines, balloons, road blocks and enemy jets ----------
 function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,sc=M.course.pts;
-  const CR={drone:5,balloon:9,bot:2.5,block:4.5,mine:2.5,truck:3.5,jet:6};
+  const CR={drone:5,balloon:9,bot:2.5,block:4.5,mine:2.5,truck:3.5,jet:6,recon:6,bunker:6,dish:5,turret:3,wall:3,barricade:3};
   const at=s=>coursePoint(sc,s),add=(kind,g,o)=>{M.scene.add(g);const e=Object.assign({kind,g,p:g.position.clone(),r:9,cr:CR[kind]||4,hp:1,state:'live',t:0,ph:Math.random()*6},o||{});M.foes.push(e);return e};
   if(en.kind==='drones'){for(let k=0;k<en.n;k++){const s=en.s+k*rnd(10,40),p=at(s),lat=(k-(en.n-1)/2)*rnd(20,30)+rnd(-6,6),x=p.x+p.nx*lat,z=p.z+p.nz*lat;
       const tough=tier.hp>1&&k%2===1,g=K.drone(tough),gy=M.heightAt(x,z),y1=en.low?p.y+rnd(5,9):p.y+rnd(-10,12),y0=en.low?y1:Math.min(y1,gy+6);
@@ -4105,26 +4152,47 @@ function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,
       add('jet',g,{r:10,hp:2,vel:new T.Vector3(-p.dx,0,-p.dz),mode:'in',cd:rnd(1,2)})}}
   // planes: a gang convoy of trucks driving up the valley toward you on the ground beside the flight line (never on water).
   // Strafe them or lock a missile on from far out. PILOT and ACE trucks have a gun that lobs orbs
+  // round 6: a mix of gang vehicles: a pickup with a gun in the back, a truck, a fast buggy and a tough SUV
   else if(en.kind==='convoy'){const sd=Math.random()<.5?-1:1,lats=[22,32,44,14].map(x=>x*sd).concat([22,32,44].map(x=>-x*sd));
-    for(let k=0;k<en.n;k++){const s=en.s+k*rnd(26,38),p=at(s),lat=lats.find(l=>!M.waterAt(p.x+p.nx*l,p.z+p.nz*l));if(lat==null) continue;const g=K.truck(),x=p.x+p.nx*lat,z=p.z+p.nz*lat;
-      g.scale.multiplyScalar(1.6);g.position.set(x,M.heightAt(x,z),z);add('truck',g,{r:9,cr:4.5,off:3.5,hp:tier.hp>1?4:3,s,lat,dir:-1,air:true,cd:tier.orb?rnd(1.5,3):null})}}
+    for(let k=0;k<en.n;k++){const s=en.s+k*rnd(26,38),p=at(s),lat=lats.find(l=>!M.waterAt(p.x+p.nx*l,p.z+p.nz*l));if(lat==null) continue;
+      const md=['pickup','truck','buggy','suv'][(k+(en.v||0))%4],g=K[md](),x=p.x+p.nx*lat,z=p.z+p.nz*lat,hp=md==='suv'?(tier.hp>1?5:4):md==='buggy'?2:(tier.hp>1?4:3);
+      g.scale.multiplyScalar(1.6);g.position.set(x,M.heightAt(x,z),z);add('truck',g,{r:9,cr:4.5,off:3.5,hp,s,lat,dir:-1,air:true,model:md,wk:md==='truck'?null:md,spd:md==='buggy'?15:9,cd:tier.orb&&md==='pickup'?rnd(1.5,3):null})}}
+  // a slow gang recon plane a few seconds ahead, a little above the flight line, flying the same way: catch it from behind
+  else if(en.kind==='recon'){const s=(M.prog||0)+Math.max(260,M.cruise*3.2),p=at(s),lat=(Math.random()<.5?-1:1)*rnd(8,18),g=K.recon();
+    g.position.set(p.x+p.nx*lat,p.y+rnd(16,24),p.z+p.nz*lat);add('recon',g,{r:10,hp:tier.hp>1?3:2,s,lat,vel:new T.Vector3(p.dx,0,p.dz),y1:rnd(16,24)})}
+  // a gang fort beside the flight line, on dry ground on whichever side has room: a concrete bunker, mini turrets that swing toward
+  // you, a satellite dish, a row of concrete barriers and a sandbag barricade with steel hedgehogs. On PILOT and ACE the bunker
+  // and the turrets shoot orbs
+  else if(en.kind==='fort'){let sd=0,L0=34;for(const s1 of (Math.random()<.5?[1,-1]:[-1,1])) for(const L of [34,44,26]){if(sd) break;
+      if([[0,L],[30,L+22],[-18,L+10]].every(([ds,l])=>{const q=at(en.s+ds);return !M.waterAt(q.x+q.nx*l*s1,q.z+q.nz*l*s1)})){sd=s1;L0=L}}
+    if(!sd) return;
+    const put=(kind,g,ds,l,o)=>{const q=at(en.s+ds),x=q.x+q.nx*l*sd,z=q.z+q.nz*l*sd;g.position.set(x,M.heightAt(x,z)-.3,z);g.rotation.y=Math.atan2(q.dx,q.dz)+(sd>0?0:Math.PI);return add(kind,g,Object.assign({s:en.s+ds,lat:l*sd},o))};
+    put('bunker',K.bunker(),0,L0,{r:8,off:3,hp:tier.hp>1?6:4,cd:tier.orb?rnd(2,3.5):null});
+    put('dish',K.dish(),30,L0+22,{r:8,off:8,hp:3});
+    put('turret',K.turret(),-18,L0+10,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
+    if(tier.group>2) put('turret',K.turret(),20,L0+6,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
+    put('wall',K.wall(),4,L0-12,{r:9,off:1,hp:2});
+    put('barricade',K.barricade(),-34,L0-4,{r:7,off:1,hp:2})}
 }
 function foeShoot(from,dmg,speed){if(M.orbs.length>24) return;const T=window.THREE,P=M.P,m=new T.Mesh(M.orbGeo,M.orbMat);m.position.copy(from);M.scene.add(m);
   const to=new T.Vector3(P.x,P.y,P.z).sub(from).normalize().multiplyScalar(speed||32);M.orbs.push({m,v:to,life:6,dmg});sfx('orb')}
-function foeHit(e,n,how){if(e.state!=='live') return;e.hp-=n;spark(e.p,0xffe27a,5);sfx('tick');if(e.hp<=0) foeKill(e,how||'shot');else popAt(e.p,'','HIT!')}
-function foeKill(e,how){if(e.state!=='live') return;M.ko++;if(how==='spin') M.spinKO=(M.spinKO||0)+1;const pts=PTS[e.kind]||100,big=e.kind==='jet'||e.kind==='truck';
-  fxBlast(e.p.clone(),big?2:e.kind==='balloon'?.7:1.2,e.kind==='balloon'?0xff6fae:e.kind==='mine'?0x7fd6ff:0xffa24a);
-  const word=how==='missile'?pick(KILLW.missile):how==='spin'?pick(KILLW.spin):how==='deflect'?'DEFLECTED!':how==='reflect'?'RETURN TO SENDER!':how==='ram'?(e.kind==='block'?'SMASH!':e.kind==='balloon'?'POP!':'BONK!'):pick(KILLW[e.kind]||KILLW.drone);
+function foeHit(e,n,how){if(e.state!=='live') return;e.hp-=n;spark(e.p,0xffe27a,5);sfx('tick');if(e.hp<=0) foeKill(e,how||'shot')}
+function foeKill(e,how){if(e.state!=='live') return;M.ko++;if(how==='spin') M.spinKO=(M.spinKO||0)+1;const pts=PTS[e.kind]||100,big=e.kind==='jet'||e.kind==='truck'||e.kind==='bunker';
+  foeBoom(e);
+  const word=how==='missile'?pick(KILLW.missile):how==='spin'?pick(KILLW.spin):how==='deflect'?'DEFLECTED!':how==='reflect'?'RETURN TO SENDER!':how==='ram'?(e.kind==='block'?'SMASH!':e.kind==='balloon'?'POP!':'BONK!'):pick(KILLW[e.wk||e.kind]||KILLW.drone);
   score(how==='ram'&&e.kind!=='balloon'?Math.round(pts*.5):pts,e.p,word,big);
-  if(e.kind==='drone'||e.kind==='jet'){e.state='ko';e.vy=e.kind==='jet'?-6:-2;e.t=0}else if(e.kind==='truck'){e.state='wreck';e.t=0}else{e.state='gone';M.scene.remove(e.g)}
+  if(e.kind==='drone'||e.kind==='jet'||e.kind==='recon'){e.state='ko';e.vy=e.kind==='drone'?-2:-6;e.t=0}
+  else if(e.kind==='truck'||e.kind==='bunker'||e.kind==='dish'||e.kind==='turret'){e.state='wreck';e.t=0;wreckLook(e)}else{e.state='gone';M.scene.remove(e.g)}
   const ko=$('#m-ko');if(ko) ko.textContent=M.ko}
 function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat==='air',fl=Math.hypot(fwd.x,fwd.z)||1,fx=fwd.x/fl,fz=fwd.z/fl,shield=(P.shieldT||0)>0,spin=(P.rollT||0)>0;
   for(const e of M.foes){if(e.state==='gone') continue;const g=e.g;e.t+=dt;
     if(e.state==='fade'){e.fade-=dt;g.scale.setScalar(Math.max(.001,e.sc0*e.fade/.5));if(e.fade<=0){e.state='gone';M.scene.remove(g)}continue}
     if(e.state==='ko'){e.vy=Math.max(e.vy-14*dt,-30);g.position.y+=e.vy*dt;if(e.vel) g.position.addScaledVector(e.vel,dt*.6);g.rotation.z+=dt*5;g.rotation.x+=dt*2;
       e.smk=(e.smk||0)-dt;if(e.smk<=0){e.smk=.07;puff(g.position,0x333333,1.6,1.1,3)}
-      if(g.position.y<M.heightAt(g.position.x,g.position.z)+.5||e.t>5){if(e.kind==='jet') fxBlast(g.position.clone(),1.2);e.state='gone';M.scene.remove(g)}continue}
-    if(e.state==='wreck'){e.smk=(e.smk||0)-dt;if(e.smk<=0){e.smk=.25;puff(e.p,0x4a4a4a,1.8,1.6,5)}if(e.t>6){e.state='gone';M.scene.remove(g)}continue}
+      if(g.position.y<M.heightAt(g.position.x,g.position.z)+.5||e.t>5){if(e.kind==='jet'||e.kind==='recon') fxBlast(g.position.clone(),1.2);e.state='gone';M.scene.remove(g)}continue}
+    // wrecks smoke for a while: burning vehicles (black smoke and flames), a dusty bunker, a sparking dish
+    if(e.state==='wreck'){e.smk=(e.smk||0)-dt;if(e.smk<=0){e.smk=e.kind==='truck'?.18:.3;puff(e.p,e.kind==='bunker'?0x6f6d66:0x2e2e2e,e.kind==='truck'?2.2:1.8,1.7,5);
+        if(e.kind==='truck'&&Math.random()<.45) puff(e.p,0xff7a2a,1.2,.35,4);if(e.kind==='dish'&&Math.random()<.4) spark(e.p,0x9fe8ff,3)}if(e.t>6){e.state='gone';M.scene.remove(g)}continue}
     // movement
     if(e.kind==='drone'){
       if(e.rise>0){e.rise=Math.max(0,e.rise-dt);const u=1-e.rise/1.4;g.position.y=e.y0+(e.y1-e.y0)*u*u*(3-2*u)}
@@ -4135,7 +4203,7 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
     else if(e.kind==='bot'){const toward=-Math.sign(e.lat)*3.4*dt;if(Math.abs(e.lat)>2.5){e.lat+=toward;const p=coursePoint(M.course.pts,e.s);g.position.set(p.x+p.nx*e.lat,0,p.z+p.nz*e.lat)}
       g.position.y=M.heightAt(g.position.x,g.position.z);g.rotation.y=Math.atan2(P.x-g.position.x,P.z-g.position.z);
       const sw=Math.sin(e.t*9)*.6;if(g.userData.legs){g.userData.legs[0].rotation.x=sw;g.userData.legs[1].rotation.x=-sw}e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
-    else if(e.kind==='truck'){const sp=e.air?9:e.chase?(M.prog-e.s>40?Math.min(M.maxS*1.08,Math.max(P.speed,0)+14):Math.max(P.speed,0)):M.cruise*.55;
+    else if(e.kind==='truck'){const sp=e.air?(e.spd||9):e.chase?(M.prog-e.s>40?Math.min(M.maxS*1.08,Math.max(P.speed,0)+14):Math.max(P.speed,0)):M.cruise*.55;
       if(e.chase&&e.t>20){e.s+=Math.max(0,P.speed*.6)*dt;if(M.prog-e.s>260){e.state='fade';e.fade=.5;e.sc0=g.scale.x;continue}}
       else{const s1=e.s+e.dir*sp*dt;if(e.air){const q=coursePoint(M.course.pts,s1);if(!M.waterAt(q.x+q.nx*e.lat,q.z+q.nz*e.lat)) e.s=s1}else e.s=s1}
       if(e.chase) e.lat+=((M.off||0)-e.lat)*Math.min(1,dt*.8);
@@ -4143,6 +4211,11 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
     else if(e.kind==='mine'){g.position.y=e.y0+Math.sin(e.t*2+e.ph)*.4;g.rotation.y+=dt*.6;e.p.copy(g.position)}
     else if(e.kind==='balloon'){g.position.y+=Math.sin(e.t*1.5+e.ph)*.05;e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
     else if(e.kind==='block'){e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
+    // the slow recon plane: same way as you at about 40 percent of your cruise speed, weaving a little
+    else if(e.kind==='recon'){e.s+=M.cruise*.42*dt;const p=coursePoint(M.course.pts,e.s),lat=e.lat+Math.sin(e.t*.7+e.ph)*6,x=p.x+p.nx*lat,z=p.z+p.nz*lat;
+      g.position.set(x,Math.max(p.y+e.y1+Math.sin(e.t*.5+e.ph)*3,M.heightAt(x,z)+20),z);g.lookAt(x-p.dx,g.position.y,z-p.dz);g.rotateZ(Math.cos(e.t*.7+e.ph)*.3);spinParts(g,dt);e.vel.set(p.dx,0,p.dz);e.p.copy(g.position)}
+    // forts stand still; the turrets swing their guns toward you
+    else if(e.kind==='bunker'||e.kind==='dish'||e.kind==='wall'||e.kind==='barricade'||e.kind==='turret'){e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
     else if(e.kind==='jet'){const to=new T.Vector3(P.x-g.position.x,P.y-g.position.y,P.z-g.position.z),d=to.length()||1,ahead0=-(to.x*fx+to.z*fz);
       if(e.mode==='in'){e.vel.lerp(to.clone().multiplyScalar(1/d),Math.min(1,dt*.4)).normalize();if(ahead0<-90){e.mode='turn';e.tt=0}}
       else if(e.mode==='turn'){e.tt+=dt;e.vel.lerp(to.clone().multiplyScalar(1/d),Math.min(1,dt*1.3)).normalize();if(e.tt>2.4) e.mode='chase'}
@@ -4152,6 +4225,9 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
       const floor=M.heightAt(g.position.x,g.position.z)+25;if(g.position.y<floor) g.position.y=floor;
       g.lookAt(g.position.x-e.vel.x,g.position.y-e.vel.y,g.position.z-e.vel.z);e.p.copy(g.position);
       e.cd-=dt;if(e.cd<=0&&d<560&&e.vel.dot(to)/d>.85&&e.mode!=='leave'){e.cd=rnd(1.8,2.6);foeShoot(g.position.clone().addScaledVector(e.vel,6),tier.orb+2,46)}}
+    // turrets and the pickups' guns swing toward you
+    if(g.userData.head){const h=g.userData.head,dx=P.x-g.position.x,dz=P.z-g.position.z;h.rotation.y=Math.atan2(dx,dz)-g.rotation.y;
+      if(h.userData.barrels) h.userData.barrels.rotation.x=-clamp(Math.atan2(P.y-g.position.y,Math.hypot(dx,dz)),-.1,1.2)}
     // shooting orbs (Pilot and Ace drones and bots), only while they are in front of you
     const rx=e.p.x-P.x,ry=e.p.y-P.y,rz=e.p.z-P.z,dist=Math.hypot(rx,ry,rz),ahead=rx*fx+rz*fz;
     if(e.cd!=null&&e.kind!=='jet'){e.cd-=dt;if(e.cd<=0&&ahead>70&&dist<520){e.cd=rnd(2.8,4.2);foeShoot(e.p.clone(),tier.orb,e.kind==='bot'?26:32)}}
@@ -4194,7 +4270,33 @@ function foeKit(T,renderer){
   const mineG=mergeColored(T,[{g:new T.SphereGeometry(1.7,14,10),c:0x2b3036},{g:new T.CylinderGeometry(.9,1.3,.5,12).translate(0,-1.4,0),c:0xd9773f},{g:new T.SphereGeometry(.35,8,6).translate(0,1.75,0),c:0xff4d5e},
     ...[0,1,2,3,4,5].map(i=>{const a=i/6*Math.PI*2;return {g:new T.ConeGeometry(.28,.9,6).rotateZ(-Math.PI/2).translate(1.9,0,0).rotateY(a),c:0x8a939e}})]);
   const truckDef=Object.assign({},VEH.find(x=>x.id==='cyber'),{col:0x5d4b3b}),jetDef=Object.assign({},VEH.find(x=>x.id==='mig'),{col:0x6a2a2a});
+  // round 6: more kinds of bad guys. A slow gang recon plane, pickups with a gun in the back, buggies and SUVs, and gang forts:
+  // a concrete bunker, mini turrets that swing toward you, a satellite dish, concrete barriers, sandbags and steel hedgehogs
+  const recDef=Object.assign({},VEH.find(x=>x.id==='cessna'),{col:0x7a6a48}),pickDef=Object.assign({},VEH.find(x=>x.id==='cyber'),{col:0x58603f}),
+    bugDef=Object.assign({},VEH.find(x=>x.id==='rbuggy'),{col:0x8a5a2e}),suvDef=Object.assign({},VEH.find(x=>x.id==='rezvani'),{col:0x30353b});
+  const conc=toonMat(T,0x9a9890),concD=toonMat(T,0x6f6d66),sandM=toonMat(T,0xb59a6a),steel=toonMat(T,0x4a525c),dark=toonMat(T,0x1b1f24),dishM=toonMat(T,0xd9dde1,{side:T.DoubleSide});
+  const mesh=(geo,mat,x,y,z,par)=>{const o=new T.Mesh(geo,mat);o.position.set(x,y,z);par.add(o);return o};
+  // a gun on a little turntable that swings toward you: twin barrels along +z
+  const gunHead=(par,x,y,z,sc)=>{const h=new T.Group();h.position.set(x,y,z);h.scale.setScalar(sc||1);par.add(h);mesh(new T.BoxGeometry(2.2,1.2,2.2),steel,0,.6,0,h);
+    const b=new T.Group();b.position.set(0,.8,0);h.add(b);[-.45,.45].forEach(bx=>{const c=mesh(new T.CylinderGeometry(.14,.16,3.2,6),dark,bx,0,1.6,b);c.rotation.x=Math.PI/2});h.userData.barrels=b;return h};
+  const veh=def=>{const g=buildVehicle(T,def,false,{env:vehEnv(T,renderer)});g.scale.setScalar(VEH_S);g.rotation.order='YXZ';return g};
   return {
+    recon:()=>{const g=buildVehicle(T,recDef,false,{env:vehEnv(T,renderer),msl:0});g.scale.setScalar(VEH_S*1.2);return g},
+    pickup:()=>{const g=veh(pickDef);g.userData.head=gunHead(g,0,1.9,2.7,.9);return g},
+    buggy:()=>veh(bugDef),
+    suv:()=>veh(suvDef),
+    dish:()=>{const g=new T.Group();mesh(new T.BoxGeometry(7,1,7),concD,0,.5,0,g);mesh(new T.CylinderGeometry(.6,.9,6.5,8),steel,0,4,0,g);
+      const d=new T.Group();d.position.set(0,7.6,0);g.add(d);const bowl=mesh(new T.SphereGeometry(5,20,10,0,Math.PI*2,0,Math.PI/3.2),dishM,0,5,0,d);bowl.rotation.x=Math.PI;
+      mesh(new T.CylinderGeometry(.1,.1,2.6,5),dark,0,1.3,0,d);mesh(new T.BoxGeometry(.6,.6,.6),steel,0,2.7,0,d);d.rotation.x=-.7;g.userData.dish=d;return g},
+    bunker:()=>{const g=new T.Group();mesh(new T.BoxGeometry(11,4.2,9),conc,0,2.1,0,g);mesh(new T.BoxGeometry(12.4,1,10.4),concD,0,4.7,0,g);
+      mesh(new T.BoxGeometry(.3,.9,6.5),dark,5.55,3,0,g);
+      [[7.2,-3],[7.2,0],[7.2,3],[-6.8,-2.5],[-6.8,2.5]].forEach(([x,z])=>mesh(new T.BoxGeometry(1.6,1.3,2.8),sandM,x,.65,z,g));
+      mesh(new T.CylinderGeometry(.12,.12,4,5),dark,-3,7,2.5,g);return g},
+    turret:()=>{const g=new T.Group();mesh(new T.CylinderGeometry(2.3,2.8,1.6,12),concD,0,.8,0,g);
+      [0,1,2,3].forEach(i=>{const a=i*Math.PI/2+.4;mesh(new T.BoxGeometry(1.4,1,2),sandM,Math.cos(a)*3.4,.5,Math.sin(a)*3.4,g)});g.userData.head=gunHead(g,0,1.6,0,1.25);return g},
+    wall:()=>{const g=new T.Group();for(let i=-2;i<=2;i++){mesh(new T.BoxGeometry(1.2,1.9,3.6),conc,0,.95,i*3.9,g);mesh(new T.BoxGeometry(.7,.35,3.6),concD,0,2.05,i*3.9,g)}return g},
+    barricade:()=>{const g=new T.Group();for(let i=-2;i<=2;i++){mesh(new T.BoxGeometry(1.6,1.1,2.6),sandM,0,.55,i*2.7,g);if(i%2===0) mesh(new T.BoxGeometry(1.5,1,2.4),sandM,0,1.55,i*2.7,g)}
+      [[-4.5,-4],[-4.5,4]].forEach(([x,z])=>{const hh=new T.Group();hh.position.set(x,1.4,z);g.add(hh);[[0,0],[Math.PI/2,0],[0,Math.PI/2]].forEach(([rx,ry])=>{const b=mesh(new T.BoxGeometry(.35,.35,3.6),steel,0,0,0,hh);b.rotation.set(rx,ry,0)});hh.rotation.set(.5,.3,.2)});return g},
     drone:tough=>{const g=new T.Group();g.add(new T.Mesh(dg[tough?1:0],tm));g.add(new T.Mesh(rg,rotM));g.scale.setScalar(1.25);return g},
     bot:()=>{const g=new T.Group();g.add(new T.Mesh(botBody,tm));const legs=[-.55,.55].map(x=>{const l=new T.Mesh(legG,legM);l.position.set(x,2.2,0);g.add(l);return l});g.userData.legs=legs;return g},
     mine:()=>new T.Mesh(mineG,tm),
@@ -4262,7 +4364,7 @@ function buildMission(v,mk,route,pilot){
   const root=$('#mission');
   root.innerHTML=`
     <div class="cockpit" id="m-cockpit"></div>
-    ${type==='recon'?'<div class="m-frame" id="m-frame" hidden></div>':''}<div class="m-hurt" id="m-hurt"></div>${course.low?'<div class="m-radv" id="m-radv"></div>':''}<div class="m-fxl" id="m-fxl"></div><div class="m-brief" id="m-brief" hidden></div><canvas class="m-hudc" id="m-hudc"></canvas><div class="m-gloc" id="m-gloc"></div><div class="m-cross" id="m-cross"></div><div class="m-arrow" id="m-arrow"><i></i></div><div class="m-label" id="m-label" hidden></div><div class="m-warn" id="m-warn" hidden></div>
+    ${type==='recon'?'<div class="m-frame" id="m-frame" hidden></div>':''}<div class="m-hurt" id="m-hurt"></div>${course.low?'<div class="m-radv" id="m-radv"></div>':''}<div class="m-fxl" id="m-fxl"></div><div class="m-feed" id="m-feed"></div><div class="m-brief" id="m-brief" hidden></div><canvas class="m-hudc" id="m-hudc"></canvas><div class="m-gloc" id="m-gloc"></div><div class="m-cross" id="m-cross"></div><div class="m-arrow" id="m-arrow"><i></i></div><div class="m-label" id="m-label" hidden></div><div class="m-warn" id="m-warn" hidden></div>
     <div class="m-flash" id="m-flash"></div><div class="m-photos" id="m-photos"></div>
     <div class="m-top">
       <button class="m-btn" id="m-exit">✕ EXIT</button>
@@ -4452,12 +4554,14 @@ function buildMission(v,mk,route,pilot){
     // planes (November 17 playtest): drones now and then instead of swarm after swarm, a gang convoy on the ground every hop,
     // supply balloons, and (ACE) enemy jets. The last hop ends at the enemy outpost (or the gang camp to photograph)
     if(v.cat==='air'){enc.push({s:s0+.28*H,kind:'drones',n:tier.group});if(tier.group>2&&h<2) enc.push({s:s0+.9*H,kind:'drones',n:tier.group-1});
-      enc.push({s:s0+.55*H,kind:'convoy',n:h===2?3:2});enc.push({s:s0+.68*H,kind:'balloons'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
+      // round 6: a gang fort every hop, a mixed convoy, and a slow recon plane on the middle hop (and the last one on PILOT and ACE)
+      enc.push({s:s0+.42*H,kind:'fort'});enc.push({s:s0+.58*H,kind:'convoy',n:h===2?3:2,v:h});enc.push({s:s0+.7*H,kind:'balloons'});
+      if(h===1||(h===2&&tier.group>2)) enc.push({s:s0+.2*H,kind:'recon'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
     else if(v.cat==='ground'){enc.push({s:s0+.3*H,kind:'bots',n:tier.group});enc.push({s:s0+.55*H,kind:'block'});enc.push({s:s0+.78*H,kind:'hover',n:2});
       if(tier.trucks&&h>0) enc.push({s:s0+.4*H,kind:tier.trucks>1&&h===2?'chase':'oncoming'})}
     else{enc.push({s:s0+.35*H,kind:'drones',n:tier.group,low:true});enc.push({s:s0+.66*H,kind:'mines'})}}
   enc.sort((a,b)=>a.s-b.s);
-  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:PTS.truck),0)
+  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:e.kind==='fort'?PTS.bunker+PTS.dish+PTS.turret*(tier.group>2?2:1)+PTS.wall+PTS.barricade:e.kind==='recon'?PTS.recon:PTS.truck),0)
     +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?(v.cat==='air'?PTS.outpost:PTS.radar+PTS.block):type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0)+obst.length*PTS.dodge*.6;
   const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.scale.setScalar(VEH_S*(v.cat==='air'?AIR_S:1));model.visible=false;model.rotation.order='YXZ';scene.add(model);
   const s0p=course.low?CP(0):null,o0=s0p||home,d0=CP(80);
@@ -4604,7 +4708,7 @@ function bindMissionInput(){
 function advanceStop(missed){
   const st=M.stops[M.idx];st.beam.visible=false;if(st.ring) st.ring.visible=false;
   if(!missed&&st.kind==='ring'){M.gates=(M.gates||0)+1;fxPing(new window.THREE.Vector3(st.x,st.y,st.z),0xffe27a,22);sfx('gate');M.score+=PTS.gate;const e=$('#m-score');if(e) e.textContent=M.score.toLocaleString();
-    const heal=Math.max(0,Math.min(12,100-M.P.hull));M.P.hull+=heal;if(!st.final) banner('CHECKPOINT!','+'+PTS.gate+(heal>=1?'   REPAIR +'+Math.round(heal):''),'cp')}
+    const heal=Math.max(0,Math.min(12,100-M.P.hull));M.P.hull+=heal;if(!st.final) feed('CHECKPOINT!','+'+PTS.gate+(heal>=1?', repair +'+Math.round(heal):''),'good')}
   if(st.final) return finishMission(true);
   M.idx++;const nx=M.stops[M.idx];nx.beam.visible=true;if(nx.ring) nx.ring.material=M.ringNext;
   if(missed) toast(`Missed that checkpoint. Keep going! Next: ${nx.final?'the Badlands outpost':'checkpoint '+(M.idx+1)} ${nx.name}`,'warn');
@@ -4617,13 +4721,10 @@ function takePhoto(){
   const c=document.createElement('canvas');c.width=128;c.height=88;c.getContext('2d').drawImage(M.renderer.domElement,0,0,c.width,c.height);
   const box=$('#m-photos');box.appendChild(c);while(box.children.length>4) box.firstChild.remove();
   M.photos++;tg.alive=false;M.score+=PTS.camp;const e=$('#m-score');if(e) e.textContent=M.score.toLocaleString();
-  banner('PHOTO CAPTURED!','+'+PTS.camp,'photo');
+  feed('PHOTO CAPTURED!','+'+PTS.camp,'good');
   advanceStop();
 }
-function boom(pos){
-  for(let i=0;i<10;i++){const b=new window.THREE.Mesh(M.bitGeo,M.bitMat);b.position.copy(pos);M.scene.add(b);
-    M.bits.push({m:b,v:new window.THREE.Vector3(rnd(-14,14),rnd(8,22),rnd(-14,14)),life:1.3})}
-}
+function boom(pos){chunks(pos,0x9a6a3a,10,14,1.3,1)}
 // flight 2.0: real m/s inside, squeezed into map units so a Cessna and an F-22 both fit the map (1 map unit is about 4 m).
 // AIR_PACE slows every plane in every flying mode: on November 17 the low-level runs felt a little too fast, so planes now
 // fly at 80 percent of the November 10 speed (Starfighter mode is still about 1.4 times the speed from before November 10)
@@ -4734,17 +4835,16 @@ function flyStep(dt,ix,iy,k){
 }
 // hit test for fast rounds: does the path from a to b pass within r of p
 function segHit(a,b,p,r){const ab=b.clone().sub(a),t=clamp(p.clone().sub(a).dot(ab)/Math.max(ab.lengthSq(),1e-6),0,1);return a.clone().addScaledVector(ab,t).distanceTo(p)<r}
-function hitAim(a,n0,how){const n=n0||((M.wpn.dmg||4)>=20?2:1);
+function hitAim(a,n0,how){const n=n0||((M.wpn.dmg||4)>=20?2:1);M.hitT=M.t;
   if(a.e) return foeHit(a.e,n,how);
   if(a.t&&a.t.alive){a.t.hp-=n;spark(a.p,0xffd27a,5);sfx('tick');
     if(a.t.hp<=0){a.t.alive=false;M.hits++;
       // the enemy outpost goes up in a chain of blasts and is left as flattened, smoking rubble
       if(a.t.hard){const T=window.THREE,p0=a.t.pos.clone();a.t.g.scale.y=.2;M.outpostDown=true;fxBlast(p0.clone(),2.8);
         [[13,-9,1.7],[-11,8,1.7],[6,14,1.4],[-14,-12,1.4]].forEach(([dx,dz,k],i)=>setTimeout(()=>{if(M) fxBlast(p0.clone().add(new T.Vector3(dx,0,dz)),k)},(i+1)*170));
-        score(PTS.outpost,p0,'OUTPOST DESTROYED!',true);banner('OUTPOST DESTROYED!','','win')}
+        score(PTS.outpost,p0,'OUTPOST DESTROYED!',true);feed('OUTPOST DESTROYED!','','good')}
       else{a.t.g.visible=false;fxBlast(a.t.pos.clone(),2.2);score(PTS[a.t.kind]||300,a.t.pos,'TARGET DESTROYED!',true)}}
-    else if(a.t.hard){if(n>=4) popAt(a.p,'DIRECT HIT!',Math.round(100*a.t.hp/a.t.max)+'% LEFT');else if(M.t-(a.t.popT||-9)>.6){a.t.popT=M.t;popAt(a.p,'','HIT!')}}
-    else popAt(a.p,'','HIT!')}
+    else if(a.t.hard&&n>=4) feed('DIRECT HIT!',Math.round(100*a.t.hp/a.t.max)+'% left','good')}
 }
 function spark(pos,col,n){const T=window.THREE;const mt=new T.MeshBasicMaterial({color:col,transparent:true,blending:T.AdditiveBlending,depthWrite:false});
   for(let i=0;i<n;i++){const b=new T.Mesh(M.bitGeo,mt);b.scale.setScalar(.35);b.position.copy(pos);M.scene.add(b);M.bits.push({m:b,v:new T.Vector3(rnd(-25,25),rnd(-5,25),rnd(-25,25)),life:.45})}}
@@ -4756,7 +4856,7 @@ function drawHUD(fwd,lead){
   const T=window.THREE,P=M.P,F=M.FM,C='#8dffc8';
   const bp=new T.Vector3(P.x,P.y,P.z).addScaledVector(fwd,400).project(M.camera),bx=(bp.x+1)/2*W,by=(1-bp.y)/2*H;
   const cr=$('#m-cross');if(cr){cr.style.left=bx+'px';cr.style.top=by+'px'}
-  drawLock(g,W,H);drawTgtHP(g,W,H);drawHeat(g,bx,by);
+  drawLock(g,W,H);drawTgtHP(g,W,H);drawHeat(g,bx,by);drawHitMark(g,bx,by);
   if(M.v.cat==='air'&&M.cam!=='cockpit'){const a=clamp(((P.speed||0)-70)/260,0,.35)+(P.boostK||0)*.4;if(a>.04){g.save();g.strokeStyle=`rgba(255,255,255,${a.toFixed(2)})`;g.lineWidth=2;const R=Math.max(W,H);
     for(let i=0;i<18;i++){const an=Math.random()*Math.PI*2,r0=R*(.32+Math.random()*.3),r1=r0+30+Math.random()*80*(1+(P.boostK||0));g.beginPath();g.moveTo(bx+Math.cos(an)*r0,by+Math.sin(an)*r0);g.lineTo(bx+Math.cos(an)*r1,by+Math.sin(an)*r1);g.stroke()}g.restore()}}
   g.strokeStyle=C;g.fillStyle=C;g.lineWidth=1.6;g.font='700 13px ui-monospace,Menlo,monospace';g.shadowColor='rgba(0,0,0,.85)';g.shadowBlur=1.5;
@@ -4788,6 +4888,9 @@ function drawLock(g,W,H){if(!M.lockP) return;const q=M.lockP.clone().project(M.c
     g.fillText(on?'LOCKED':'LOCKING',x,y-r-7);g.textAlign='left';g.fillText((M.lockP.distanceTo(M.camera.position)/MILE).toFixed(1)+' MI',x+r+7,y+4)}
   else if(on) g.fillText('LOCKED',x,y-s-6);
   g.restore()}
+// a hit marker: a quick white X around the gunsight when your rounds connect (it replaced the HIT! words)
+function drawHitMark(g,x,y){const a=1-(M.t-(M.hitT||-9))/.14;if(a<=0) return;g.save();g.globalAlpha=Math.min(1,a);g.strokeStyle='#fff';g.lineWidth=2.2;g.shadowColor='rgba(0,0,0,.8)';g.shadowBlur=2;
+  for(const [sx,sy] of [[1,1],[1,-1],[-1,1],[-1,-1]]){g.beginPath();g.moveTo(x+sx*6,y+sy*6);g.lineTo(x+sx*12,y+sy*12);g.stroke()}g.restore()}
 // the enemy outpost's armor bar floats over it once you're within two miles or it has taken a hit
 function drawTgtHP(g,W,H){const st=M.stops[M.idx];if(!st||st.kind!=='targets') return;
   for(const t of st.targets){if(!t.hard||!t.alive) continue;const q=t.pos.clone().project(M.camera);if(q.z>=1) continue;
@@ -4898,7 +5001,7 @@ function missionLoop(now){
     if(!M.passN&&(flewPast||M.prog>st.s+300)){M.passN=1;M.ext=true}else if(M.passN&&flewPast&&!M.ext){M.passN++;M.ext=true}
     if(M.passN){M.around=st;M.finalT=(M.finalT||0)+dt;if(M.finalT>35||dist>2600){M.missedFinal=true;return finishMission(true)}
       if(M.ext&&dist>Math.max(260,P.speed*2.6)) M.ext=false;
-      if(!M.ext&&Math.abs(want)>.35){if(M.t-(M.passT||-9)>8){M.passT=M.t;banner('COME AROUND!','THE OUTPOST IS STILL STANDING','lose')}
+      if(!M.ext&&Math.abs(want)>.35){if(M.t-(M.passT||-9)>8){M.passT=M.t;feed('COME AROUND!','the outpost is still standing','bad')}
         warn('COME AROUND FOR ANOTHER PASS!',.4);if((S.assist||'casual')==='casual') M.offCourse=clamp(want,-1,1)*.85}}
     else if(M.offD>220&&dist>near) backToCourse()}
   else if(!(M.winT>0)){
@@ -4911,7 +5014,7 @@ function missionLoop(now){
   if(air){const L=M.lane;let ch=false;while(M.lri<L.length){const r=L[M.lri],ex=P.x-r.x,ey=P.y-r.y,ez=P.z-r.z,cp=Math.cos(r.pitch),sp=Math.sin(r.pitch),along=ex*r.dx*cp+ey*sp+ez*r.dz*cp;if(along<0) break;
       const lat=ex*r.dz-ez*r.dx,ver=-ex*r.dx*sp+ey*cp-ez*r.dz*sp;ch=true;M.lri++;
       if(Math.abs(lat)<M.gw/2+4&&Math.abs(ver)<M.gh/2+4){laneHide(r);M.laneGot=(M.laneGot||0)+1;M.gateRun++;M.score+=PTS.box;const se=$('#m-score');if(se) se.textContent=M.score.toLocaleString();sfx('token');
-        if(M.gateRun%10===0){M.score+=200;banner('PERFECT LINE!','10 BOXES IN A ROW +200','cp');sfx('gate')}}else M.gateRun=0}
+        if(M.gateRun%10===0){M.score+=200;feed('PERFECT LINE!','10 boxes in a row +200','good');sfx('gate')}}else M.gateRun=0}
     if(ch) laneTint()}
   else{const L=M.lane;while(M.lri<L.length){const r=L[M.lri],ex=P.x-r.x,ey=P.y-r.y,ez=P.z-r.z,along=ex*r.dx+ez*r.dz,dd=v.cat==='ground'?Math.hypot(ex,ez):Math.hypot(ex,ey,ez),rad=v.cat==='ground'?5.5:air?21*M.ringK:13;
       if(dd<rad){laneHide(r);M.laneGot=(M.laneGot||0)+1;const rp=new T.Vector3(r.x,r.y,r.z);if(v.cat==='ground'){gain(PTS.token,rp);sfx('token')}else{gain(PTS.ring,rp);fxPing(rp,0xcffcff,air?15*M.ringK:9);sfx('ring')}M.lri++}
@@ -5111,10 +5214,10 @@ function lowStep(dt){const P=M.P,c=M.course,prog=M.prog||0,q=coursePoint(c.pts,p
   M.treeCd=Math.max(0,(M.treeCd||0)-dt);
   if(M.treeCd<=0&&treeHit(P.x,P.y,P.z)){M.treeCd=.6;M.treeHits=(M.treeHits||0)+1;hurt(3,M.mk==='moab'?'ROCKS! STAY IN THE CANYON':'TREES! STAY IN THE GAP');puff(new window.THREE.Vector3(P.x,P.y,P.z),M.mk==='moab'?0xc4643a:0x3a7d52,4,.8,6);P.y+=3}
   // the arch: pass under it for a bonus
-  const A=M.arch;if(A&&!A.done&&prog>=A.s){A.done=true;if(M.offD<A.half*.92&&P.y<A.top-3){M.archOK=true;banner('UNDER THE ARCH!','+'+PTS.arch,'cp');gain(PTS.arch,null,'+'+PTS.arch);sfx('gate')}}
+  const A=M.arch;if(A&&!A.done&&prog>=A.s){A.done=true;if(M.offD<A.half*.92&&P.y<A.top-3){M.archOK=true;feed('UNDER THE ARCH!','+'+PTS.arch,'good');gain(PTS.arch,null,'+'+PTS.arch);sfx('gate')}}
 }
 // spotted by radar: an alarm, and a squad of drones scrambles from the ground ahead (then five seconds before it can happen again)
-function spotted(){M.spotted=(M.spotted||0)+1;M.radar=0;M.spotCd=5;banner('SPOTTED!','THE RADAR SAW YOU: DRONES INCOMING','lose');sfx('hurt');
+function spotted(){M.spotted=(M.spotted||0)+1;M.radar=0;M.spotCd=5;feed('SPOTTED!','drones incoming','bad');warn('SPOTTED! DRONES INCOMING',1.4);sfx('hurt');
   foeSpawn({kind:'drones',n:Math.max(2,(M.tier.group||2)+1),s:(M.prog||0)+Math.max(260,M.P.speed*2.6)})}
 function treeHit(x,y,z){const G=M.treeGrid;if(!G) return false;const bx=Math.floor(x/40),bz=Math.floor(z/40);
   for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++){const a=G.get((bx+i)*100003+(bz+j));if(!a) continue;
@@ -5176,7 +5279,8 @@ function finishMission(won){
     if(won){
       const key=mk+':'+v.cat;S.found=S.found||{};const firstTime=!S.found[key];S.found[key]=true;
       const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*Math.max(0,3-missed);
-      const cr=Math.round((base+300*ko+3*score)*(1+.03*level())*tier.rew)+(firstTime?25000:0)+1000*bulls;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
+      // round 6 doubled the bad guys on a plane run, so knockouts and points count for less there, keeping the cash near round 5's
+      const kK=v.cat==='air'?200:300,sK=v.cat==='air'?2:3,cr=Math.round((base+kK*ko+sK*score)*(1+.03*level())*tier.rew)+(firstTime?25000:0)+1000*bulls;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
       S.mwins=(S.mwins||0)+1;let prize='';
       if(PRIZES[S.mwins]) prize=grantPrize(VEH.find(x=>x.id===PRIZES[S.mwins]),'Mission '+S.mwins+' prize');
