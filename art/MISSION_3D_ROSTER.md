@@ -59,6 +59,12 @@ The game already has stand-in versions of most of these, built in code from simp
 | Floating platform | `prop_platform.glb` | Sky Vegas sky platforms the lane weaves between. |
 | Pine and rock sets | `prop_sierras_set.glb` | A few pine and boulder shapes to swap for the game's simple trees near the course. |
 
+## Player gear (on every plane)
+| Name | File | What it is |
+|---|---|---|
+| Heat-seeking missile | `player_missile.glb` | Hangs on the wingtip rails and pylons (4 to 8 per plane) and flies after a bad guy with a smoke trail. In the game now as a stand-in: white body, red nose, four dark fins, about 2.6 units long in flight. Origin at its middle, nose toward -Z, and an empty named `flame` at the tail for the motor glow. Under 1,500 triangles. |
+| Wing cannon | `player_wing_gun.glb` | A short barrel and fairing for each wing; the two take turns firing. In the game now as a small dark tube. Muzzle toward -Z. Under 500 triangles. |
+
 ## One boss per region (for the last mission of each region)
 | Region | Boss | File | The fight |
 |---|---|---|---|

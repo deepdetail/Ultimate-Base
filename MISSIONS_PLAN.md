@@ -188,7 +188,75 @@ Asked for:
 ### Next for low-level runs
 - More runs per region from your ideas, and obstacles inside the corridor, such as a lone spire or a fallen tree the boxes weave around.
 - The arch and pillars as real GLB models (see `art/MISSION_3D_ROSTER.md`).
-- Moab's runs are short for jets (about 30 to 40 seconds), because the map is only 32 km across.
+- Moab's runs are short for jets (about 40 to 50 seconds since the November 17 slowdown), because the map is only 32 km across.
+
+## Guns, missiles and a slower pace (November 17), Phoenix's fourth round
+Asked for:
+- Cannons with rapid-firing bullets that come from each wing and overheat after 10 seconds.
+- A total of 4 to 8 heat-seeking rockets or missiles.
+- Slower gameplay: it felt a little too fast.
+
+- **Twin wing cannons (planes):**
+  - Every plane has a cannon in each wing. The hover saucer has one on each side of its rim.
+  - They take turns, left then right, aimed so the two streams cross about 300 units ahead.
+  - Each wing fires at the installed weapon's own rate, so together they shoot twice as fast:
+    - Bullets fire at least about 14 rounds a second and at most about 28.
+    - Rockets and railgun slugs keep their own slower pace.
+    - The laser pod fires a beam from each wing.
+  - Weapon upgrades in the Hangar still decide the damage, color and muzzle speed.
+  - Cars, boats and the tank keep one gun up front, with no heat.
+- **Gun heat:**
+  - Heat builds while FIRE is held, and 10 seconds straight overheats the guns. When that happens:
+    - An OVERHEATED warning shows and a sizzle plays.
+    - The FIRE button turns grey and reads HOT!.
+    - GUNS HOT shows under the crosshair.
+  - Overheated guns cool for 3 seconds, then fire again.
+  - Letting go cools them at the same rate, so short bursts never overheat. One second on and one second off peaked at 10 percent heat.
+  - Heat shows in two places: a ring around FIRE, and a curved gauge to the left of the crosshair. The gauge stays visible while a thumb covers FIRE.
+- **Heat-seeking missiles:**
+  - **Load per mission:**
+    - Cessna: 4.
+    - L-39 and hover saucer: 6.
+    - F-16, MiG-29, F/A-18, F-22 and Star Hopper: 8.
+  - They hang on the model, on wingtip rails and pylons, and disappear one by one as they fire, left then right.
+  - **The MISSILE button:**
+    - It sits above FIRE. On a keyboard, M or X fires one.
+    - It shows how many are left and pulses red while you're locked on.
+    - A lock tone beeps when the lock comes on.
+  - **Flight:**
+    - The missile drops off its pylon, lights its motor, and chases the target you're locked on to. With no lock, it chases the closest one in front of you.
+    - If its target is knocked out first, it looks for another.
+    - After 5 seconds it blows up on its own.
+  - Heat seekers look for engines, so they skip the supply balloons.
+  - On low runs the missile skims over the ground instead of flying into it. It stops skimming right at the end, so it can still hit targets on the ground.
+  - A hit knocks out the target and anything else within about 22 units, with DIRECT HIT, KABOOM or SPLASH ONE.
+  - The results screen lists missile hits.
+- **Slower pace:**
+  - Every plane flies at 80 percent of its November 10 speed, in every flying mode. Starfighter mode is still about 1.4 times the speed from before November 10.
+  - Drones and enemy jets slow down with it.
+  - Runs take about a quarter longer. The picker still gives slow planes the shorter runs.
+  - Cruise in Starfighter mode: Cessna 64, L-39 105 and F-16 177 units a second.
+- **Measured in the headless simulation (autopilot):**
+  - **Overheat:** 10.0 seconds after FIRE starts, every time, then 3.0 seconds to cool. Rounds split evenly between the wings (F-16: 397 left, 396 right).
+  - **Missile hits:**
+    - F-16, Colorado River Gorge: 7 of 8.
+    - Hover, River to Balanced Rock: 6 of 6.
+    - L-39, West Shore: 6 of 6.
+    - Cessna, Arches Run: 3 of 4.
+  - **Low runs, hands off with FIRE held:** every run finished with full health, no radar spots and no tree hits. It flew through 90 to 100 percent of the boxes, and went under the arch on every Moab run.
+  - **Times:**
+    - Cessna: Truckee River Canyon 82 s, West Shore 95 s, Arches Run 101 s.
+    - L-39: East Shore 82 s, Arches Run 61 s.
+    - F-16: Donner Lake to Emerald Bay 71 s, Colorado River Gorge 49 s.
+    - Star Hopper: Donner Lake to Emerald Bay 58 s.
+  - **Earlier controls:** turns, rolls, flicks, the roll attack, BOOST, autopilot and the mode picker all pass.
+
+### Next for weapons
+- A feel test on a phone:
+  - Is 10 seconds of heat right, and are 3 seconds of cooling too long?
+  - Should missiles reload at checkpoints?
+- A rising lock tone while the lock builds, and a missile camera.
+- Shorter runs for the Cessna: its Tahoe run is now about 80 seconds.
 
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
