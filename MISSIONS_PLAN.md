@@ -243,6 +243,7 @@ Asked for:
     - Hover, River to Balanced Rock: 6 of 6.
     - L-39, West Shore: 6 of 6.
     - Cessna, Arches Run: 3 of 4.
+    - With FIRE held at the same time, the guns often knock out a missile's target first. The missile then looks wider for another one, and blows up after 5 seconds if nothing is left. The F-16 on Colorado River Gorge still hit with 6 of 8.
   - **Low runs, hands off with FIRE held:** every run finished with full health, no radar spots and no tree hits. It flew through 90 to 100 percent of the boxes, and went under the arch on every Moab run.
   - **Times:**
     - Cessna: Truckee River Canyon 82 s, West Shore 95 s, Arches Run 101 s.
