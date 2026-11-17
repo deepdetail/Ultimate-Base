@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="8449546-20261117">
+<meta name="based-build" content="907afed-20261117">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -380,6 +380,11 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
 .ap.on.fly i{animation:apBlink .9s steps(2,start) infinite}
 @keyframes apBlink{50%{opacity:.25}}
 .boost.on,.pedal.on{filter:brightness(1.3);transform:scale(.95)}
+/* Starfighter (November 17 playtest): a thin throttle on the right edge that rests at full, with BOOST as a button right above it */
+.m-ctl.star .thr{width:30px;height:min(34%,132px);right:calc(max(14px,env(safe-area-inset-right,0px)) + 12px);border-radius:15px}
+.m-ctl.star .thr i{border-radius:12px}
+.m-ctl.star .thr span{top:auto;bottom:-15px;font-size:9px}
+.m-ctl.star .boost{height:56px;bottom:calc(env(safe-area-inset-bottom,0px) + 34px + min(34%,132px));writing-mode:horizontal-tb;text-orientation:mixed;border-radius:16px}
 .m-ctl.drive .fire.solo{right:max(14px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 156px)}
 .m-side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
 .m-btns{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
@@ -399,6 +404,8 @@ body.in-mission #toasts{top:calc(env(safe-area-inset-top,0px) + 130px)}
   .fire{width:70px;height:70px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
   .msl{width:60px;height:60px;right:calc(max(14px,env(safe-area-inset-right,0px)) + 63px);bottom:calc(env(safe-area-inset-bottom,0px) + 98px)}
   .boost{height:min(62%,150px);bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
+  .m-ctl.star .thr{height:min(40%,116px);bottom:calc(env(safe-area-inset-bottom,0px) + 18px)}
+  .m-ctl.star .boost{height:50px;bottom:calc(env(safe-area-inset-bottom,0px) + 30px + min(40%,116px))}
   .pedals{bottom:calc(env(safe-area-inset-bottom,0px) + 14px)}
   .pedal.gas{height:min(30vh,118px)}.pedal.brake{height:min(19vh,74px)}
   .m-ctl.drive .fire.solo{bottom:calc(env(safe-area-inset-bottom,0px) + 140px)}
@@ -1562,8 +1569,8 @@ function specStats(v,own){
 const VWEAPONS=[
   {name:'No weapon',dmg:0,rate:1,cost:0,color:0xffffff,mv:0},
   {name:'Marker Pod (paint rounds)',cal:'.68 cal paint',mv:250,rpm:300,dmg:4,rate:.2,cost:8000,color:0xff6fae},
-  {name:'M2 Browning .50 cal',cal:'12.7 mm',mv:890,rpm:600,dmg:6,rate:.1,cost:30000,color:0xffd27a},
-  {name:'M61A1 Vulcan 20 mm',cal:'20 mm',mv:1050,rpm:6000,dmg:5,rate:.04,cost:120000,color:0xffb347},
+  {name:'M2 Browning .50 cal',cal:'12.7 mm',mv:890,rpm:600,dmg:6,rate:.1,cost:30000,color:0xffd27a,gun:true},
+  {name:'M61A1 Vulcan 20 mm',cal:'20 mm',mv:1050,rpm:6000,dmg:5,rate:.04,cost:120000,color:0xffb347,gun:true},
   {name:'Hydra 70 Rockets',cal:'70 mm rocket',mv:740,rpm:120,dmg:30,rate:.5,cost:400000,color:0xff7f50,rocket:true,splash:16,level:8},
   {name:'High-Energy Laser Pod',cal:'60 kW beam',beam:true,dps:150,dmg:18,rate:.12,cost:1500000,tech:40,color:0x7ff0f3,level:12},
   {name:'Electromagnetic Railgun',cal:'Tungsten slug',mv:2500,rpm:100,dmg:60,rate:.6,pierce:true,cost:5000000,tech:100,color:0x9fb8ff,level:25}
@@ -2935,7 +2942,7 @@ function missionSheet(vid){
   const title={strike:'Strike Run',recon:'Recon Flight',rally:'Road Rally'}[type]+(v.cat==='sea'?' on the Lake':'');
   const what=v.cat==='sea'?'Three quick hops across the lake. Follow the rings on the water, blast the drones and floating mines, and reach the Badlands outpost.'
     :v.cat==='ground'?(type==='strike'?'Three quick hops down the road. Blast the road bots and road blocks, grab the gems, then knock out the radar at the Badlands outpost.':'Three quick hops down the road. Blast the road bots with your stun blaster, grab the gems, and drive through the last gate at the Badlands outpost.')
-    :(type==='strike'?'A low-level run from one place to another. Fly low through the pink boxes, between the trees and canyons, and stay under the radar. Blast the drones and balloons, then knock out the radar at the Badlands outpost.':'A low-level run from one place to another. Fly low through the pink boxes and stay under the radar, blasting drones with your stun blaster. At the end the boxes lead you over the Badlands camp, and your camera snaps the photo by itself.');
+    :(type==='strike'?'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar. Blast the drones, gang trucks and balloons, then destroy the enemy outpost at the end: it takes three missiles or a long burst from the guns.':'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar, blasting drones and gang trucks with your wing guns. At the end the boxes lead you over the Badlands camp, and your camera snaps the photo by itself.');
   const ti=tierOf();
   const done=S.found&&S.found[mk+':'+v.cat];
   openSheet(title,`${regionTabs(vid)}
@@ -2943,7 +2950,7 @@ function missionSheet(vid){
     <div class="label">Challenge</div>
     <div class="tabs">${MTIERS.map((tt,i)=>`<button data-act="mtier" data-t="${i}" data-v="${v.id}" class="${i===ti?'on':''}">${tt.name}</button>`).join('')}</div>
     <div class="muted" style="font-size:12px">${esc(MTIERS[ti].desc)}${ti!==tierAuto()?` Picked for testing: your mission wins suggest ${MTIERS[tierAuto()].name}.`:''}</div>
-    <div class="muted" style="font-size:12px">${v.cat==='air'?(mk==='moab'?'A low-level run up the canyons, under a giant rock arch':'A low-level run through the valleys and along the shore'):'Heading out toward '+esc(route[0])}.${v.cat==='air'?` Your ${esc(misWpn(v).name)} fires from both wings (hold FIRE 10 seconds straight and the guns overheat), and you carry ${mslCount(v)} heat-seeking missiles.`:` You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right (or flick the stick twice) for a barrel roll: it dodges enemy shots, bounces them back and smashes bad guys close by. AUTOPILOT can fly you back on course.':''} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    <div class="muted" style="font-size:12px">${v.cat==='air'?(mk==='moab'?'A low-level run up the canyons, under a giant rock arch':'A low-level run through the valleys and along the shore'):'Heading out toward '+esc(route[0])}.${v.cat==='air'?` Your ${esc(misWpn(v).name)} fire${/s$/.test(misWpn(v).name)?'':'s'} from both wings in bursts (tap FIRE for a 4 second burst, hold it for more; 10 seconds of firing and the guns overheat). You carry ${mslCount(v)} heat-seeking missiles: keep the nose on a target for 3 seconds to lock on, from up to a mile and a half away.`:` You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right (or flick the stick twice) for a barrel roll: it dodges enemy shots, bounces them back and smashes bad guys close by. AUTOPILOT can fly you back on course.':''} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
     ${(()=>{const np=nextPrize();return np?`<div class="li"><span class="veh">${vehArt(np.v.id)}</span><span class="grow"><b>Prize ladder: ${esc(np.v.name)}</b><span>Win ${np.left} more mission${np.left>1?'s':''} to earn it. Sell it for about ${money(Math.round(np.v.cost*.6))}, or keep it.</span></span></div>`:''})()}
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
@@ -3809,6 +3816,21 @@ function makeTarget(T,kind){
     add(new T.CylinderGeometry(.3,.3,14,6),m(0x333333),0,7,0);
     add(new T.PlaneGeometry(5,3),new T.MeshBasicMaterial({color:0xff4d5e,side:T.DoubleSide}),2.5,12.5,0);
     add(new T.CylinderGeometry(1.4,1.4,.6,10),m(0x3a3a3a),-1,.3,-6);
+  } else if(kind==='outpost'){
+    // the gang's ENEMY OUTPOST at the end of a strike run (November 17 playtest): a walled yard about 200 m across with a
+    // command hut, a barracks, a hangar, fuel tanks, a radar dish, an anti-air gun and a flag. It's one big, tough target.
+    // The tall parts stand on the far side (local -x), away from the flight line
+    r=26;hp=60;label='Enemy outpost';
+    const wall=m(0x8a7a64),dark=m(0x3d4248),tan=m(0xb59a72),rust=m(0x8a4a2a);
+    [[0,-24,49,1.6],[0,24,49,1.6],[-24,0,1.6,49],[24,-15,1.6,19],[24,15,1.6,19]].forEach(([x,z,w,d])=>add(new T.BoxGeometry(w,3.2,d),wall,x,1.6,z));
+    add(new T.BoxGeometry(12,7,10),tan,-7,3.5,3);add(new T.BoxGeometry(13,.9,11),dark,-7,7.4,3);
+    add(new T.BoxGeometry(7,4.6,16),rust,9,2.3,-10);add(new T.BoxGeometry(8,.8,17),dark,9,4.9,-10);
+    {const hg=add(new T.CylinderGeometry(5.5,5.5,13,14,1,false,0,Math.PI),m(0x6e7884),6,0,12);hg.rotation.z=Math.PI/2}
+    [[17,2],[17,-4]].forEach(([x,z])=>{add(new T.CylinderGeometry(2.4,2.4,4.6,14),m(0xd9dde1),x,2.3,z);add(new T.CylinderGeometry(2.5,2.5,.7,14),m(0xff4d5e),x,3.3,z)});
+    add(new T.CylinderGeometry(.6,.9,11,6),dark,-17,5.5,-13);{const dish=add(new T.SphereGeometry(4,16,8,0,Math.PI*2,0,Math.PI/3),m(0xc9d1d9),-17,12,-13);dish.rotation.x=Math.PI*.7}
+    add(new T.SphereGeometry(.7,8,6),new T.MeshBasicMaterial({color:0xff4d5e}),-17,13.6,-13);
+    add(new T.BoxGeometry(3.4,1.8,3.4),dark,-12,.9,-3);{const gun=add(new T.CylinderGeometry(.28,.28,5.5,6),dark,-12,3.2,-3);gun.rotation.z=-.7}
+    add(new T.CylinderGeometry(.15,.15,12,5),m(0x333333),-20,6,18);add(new T.PlaneGeometry(4.5,2.6),new T.MeshBasicMaterial({color:0xff4d5e,side:T.DoubleSide}),-17.75,10.7,18);
   }
   return {g:G,r,hp,max:hp,label,alive:true};
 }
@@ -3827,17 +3849,28 @@ const MTIERS=[
 ];
 const tierAuto=()=>{const w=S.mwins||0;return w<3?0:w<8?1:2};
 const tierOf=()=>S.mtier==null?tierAuto():S.mtier;
-// every vehicle can shoot on a mission: with no weapon upgrade yet, it gets a basic stun blaster
+// every vehicle can shoot on a mission: with no weapon upgrade yet, cars and boats get a basic stun blaster and planes get
+// plain wing guns (November 17 playtest: a plane's guns should look and sound like real guns, not electric bolts)
 const STUN={name:'Stun Blaster',cal:'stun bolt',mv:700,rpm:300,dmg:4,rate:.2,cost:0,color:0x7ff0f3};
-const misWpn=v=>{const w=vUp(v).wpn;return w?VWEAPONS[w]:STUN};
+const WING_GUNS={name:'Wing Guns',cal:'7.62 mm',mv:850,rpm:600,dmg:4,rate:.2,cost:0,color:0xffc94a,gun:true};
+const misWpn=v=>{const w=vUp(v).wpn;return w?VWEAPONS[w]:v.cat==='air'?WING_GUNS:STUN};
 // planes carry twin wing cannons and heat-seeking missiles. The cannons take turns firing from the left and right wing.
 // Hold FIRE for 10 seconds straight and they overheat, then they cool for 3 seconds before they fire again (short bursts
 // cool down in between, so they never overheat). Missiles: 4 to 8 per mission depending on the plane. Each one drops off
 // a pylon, lights up and chases the bad guy you're locked on to, or the closest one in front of it
 const GUN_HEAT_T=10,GUN_COOL_T=3,GUN_CROSS=300,MSL_N={cessna:4,l39:6,hover:6,f16:8,mig:8,f18:8,f22:8,rocket:8},MSL_TURN=3.4,MSL_LIFE=5,MSL_SPLASH=22;
+// November 17 playtest (J and Phoenix): the guns fire in bursts. A tap on FIRE rattles off a GUN_BURST second burst; holding
+// it fires burst after burst with a short pause between them. The rounds come at a steady clip you can count (about 9 to 11
+// a second from both wings for most guns, about 17 for the Vulcan), and most are plain gray metal: every third one is a glowing tracer
+const GUN_BURST=4,GUN_GAP=.55,GUN_TRACER=3,gunCadence=W=>clamp(W.rate*.9,.06,.11);
+// missile lock: keep the nose on something up to about a mile out (slow planes) or a mile and a half (fast jets) and the
+// targeting reticle appears on it, then builds to a full lock over MSL_LOCK_T seconds. Missiles fire with or without a lock:
+// a locked one chases that target hard, an unlocked one flies straight and only grabs what comes right in front of it.
+// lockTime is the hook for a later upgrade that shrinks the lock time. A missile knocks MSL_HARD of the armor off the enemy outpost
+const MILE=402,MSL_LOCK_T=3,MSL_FREE_CONE=.9,MSL_FREE_R=420,MSL_HARD=.4,lockTime=v=>MSL_LOCK_T,lockRange=cruise=>clamp(cruise*4.5,MILE,MILE*1.5);
 const mslCount=v=>v.cat==='air'?(MSL_N[v.id]||4):0;
 // points for everything you hit or fly through
-const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500};
+const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500,outpost:1500,dodge:50};
 const KILLW={spin:['SPIN SMASH!','WHIRLWIND!','ROLL ATTACK!'],drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!'],missile:['DIRECT HIT!','KABOOM!','SPLASH ONE!','MISSILE HIT!']};
 function polyLen(p){let L=0;for(let i=1;i<p.length;i++) L+=Math.hypot(p[i].x-p[i-1].x,p[i].z-p[i-1].z);return L}
 function chaikin(p,it){for(let k=0;k<it;k++){if(p.length<3) return p;const q=[p[0]];for(let i=0;i+1<p.length;i++){const a=p[i],b=p[i+1];q.push({x:a.x*.75+b.x*.25,z:a.z*.75+b.z*.25},{x:a.x*.25+b.x*.75,z:a.z*.25+b.z*.75})}q.push(p[p.length-1]);p=q}return p}
@@ -3999,10 +4032,13 @@ function sfx(kind){const c=SFX.ctx;if(!c||S.sound===false||c.state!=='running') 
   const hiss=(f0,f1,dur,vol,q,type)=>{const s=c.createBufferSource(),fl=c.createBiquadFilter(),gn=c.createGain();s.buffer=SFX.noise;fl.type=type||'lowpass';fl.Q.value=q||1;
     fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+dur);gn.gain.setValueAtTime(vol,t);gn.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl);fl.connect(gn);gn.connect(SFX.out);s.start(t);s.stop(t+dur+.02)};
   if(kind==='pew') tone('square',1100,320,.08,.06);
-  else if(kind==='gun'){hiss(3000,700,.05,.22,1.2,'bandpass');tone('square',190,90,.04,.05)}
+  else if(kind==='gun'){hiss(4200,1100,.035,.3,1.6,'bandpass');hiss(1000,160,.07,.3,.8);tone('triangle',150,48,.07,.2)}
   else if(kind==='hot'){hiss(5000,900,.7,.4,1,'highpass');tone('sawtooth',420,140,.5,.08)}
   else if(kind==='cool'){tone('triangle',660,990,.1,.12);tone('triangle',990,1320,.1,.1,.08)}
   else if(kind==='lock'){tone('square',1760,1760,.05,.05);tone('square',1760,1760,.05,.05,.09)}
+  else if(kind==='seek'){tone('square',1180,1180,.035,.04);tone('square',1400,1400,.035,.04,.05)}
+  else if(kind==='seekb') tone('sine',1040,1040,.045,.07);
+  else if(kind==='obst'){tone('square',520,520,.07,.05);tone('square',390,390,.07,.05,.09)}
   else if(kind==='msl'){hiss(500,3500,.55,.55,1.2,'bandpass');tone('sawtooth',160,70,.35,.07)}
   else if(kind==='tick') tone('triangle',700,500,.05,.08);
   else if(kind==='boom'){hiss(1600,90,.7,.9);tone('sine',110,38,.45,.7)}
@@ -4067,6 +4103,11 @@ function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,
       g.position.set(p.x+p.nx*lat,M.heightAt(p.x,p.z),p.z+p.nz*lat);add('truck',g,{r:8,off:3,hp:3,s,lat,dir:ch?1:-1,chase:ch})}
   else if(en.kind==='jets'){for(let k=0;k<en.n;k++){const p=at(en.s+k*80),lat=(k?1:-1)*rnd(20,40),g=K.jet();g.position.set(p.x+p.nx*lat,p.y+rnd(4,16),p.z+p.nz*lat);
       add('jet',g,{r:10,hp:2,vel:new T.Vector3(-p.dx,0,-p.dz),mode:'in',cd:rnd(1,2)})}}
+  // planes: a gang convoy of trucks driving up the valley toward you on the ground beside the flight line (never on water).
+  // Strafe them or lock a missile on from far out. PILOT and ACE trucks have a gun that lobs orbs
+  else if(en.kind==='convoy'){const sd=Math.random()<.5?-1:1,lats=[22,32,44,14].map(x=>x*sd).concat([22,32,44].map(x=>-x*sd));
+    for(let k=0;k<en.n;k++){const s=en.s+k*rnd(26,38),p=at(s),lat=lats.find(l=>!M.waterAt(p.x+p.nx*l,p.z+p.nz*l));if(lat==null) continue;const g=K.truck(),x=p.x+p.nx*lat,z=p.z+p.nz*lat;
+      g.scale.multiplyScalar(1.6);g.position.set(x,M.heightAt(x,z),z);add('truck',g,{r:9,cr:4.5,off:3.5,hp:tier.hp>1?4:3,s,lat,dir:-1,air:true,cd:tier.orb?rnd(1.5,3):null})}}
 }
 function foeShoot(from,dmg,speed){if(M.orbs.length>24) return;const T=window.THREE,P=M.P,m=new T.Mesh(M.orbGeo,M.orbMat);m.position.copy(from);M.scene.add(m);
   const to=new T.Vector3(P.x,P.y,P.z).sub(from).normalize().multiplyScalar(speed||32);M.orbs.push({m,v:to,life:6,dmg});sfx('orb')}
@@ -4094,8 +4135,9 @@ function foeStep(dt,fwd){const T=window.THREE,P=M.P,v=M.v,tier=M.tier,air=v.cat=
     else if(e.kind==='bot'){const toward=-Math.sign(e.lat)*3.4*dt;if(Math.abs(e.lat)>2.5){e.lat+=toward;const p=coursePoint(M.course.pts,e.s);g.position.set(p.x+p.nx*e.lat,0,p.z+p.nz*e.lat)}
       g.position.y=M.heightAt(g.position.x,g.position.z);g.rotation.y=Math.atan2(P.x-g.position.x,P.z-g.position.z);
       const sw=Math.sin(e.t*9)*.6;if(g.userData.legs){g.userData.legs[0].rotation.x=sw;g.userData.legs[1].rotation.x=-sw}e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
-    else if(e.kind==='truck'){const sp=e.chase?(M.prog-e.s>40?Math.min(M.maxS*1.08,Math.max(P.speed,0)+14):Math.max(P.speed,0)):M.cruise*.55;
-      if(e.chase&&e.t>20){e.s+=Math.max(0,P.speed*.6)*dt;if(M.prog-e.s>260){e.state='fade';e.fade=.5;e.sc0=g.scale.x;continue}}else e.s+=e.dir*sp*dt;
+    else if(e.kind==='truck'){const sp=e.air?9:e.chase?(M.prog-e.s>40?Math.min(M.maxS*1.08,Math.max(P.speed,0)+14):Math.max(P.speed,0)):M.cruise*.55;
+      if(e.chase&&e.t>20){e.s+=Math.max(0,P.speed*.6)*dt;if(M.prog-e.s>260){e.state='fade';e.fade=.5;e.sc0=g.scale.x;continue}}
+      else{const s1=e.s+e.dir*sp*dt;if(e.air){const q=coursePoint(M.course.pts,s1);if(!M.waterAt(q.x+q.nx*e.lat,q.z+q.nz*e.lat)) e.s=s1}else e.s=s1}
       if(e.chase) e.lat+=((M.off||0)-e.lat)*Math.min(1,dt*.8);
       const p=coursePoint(M.course.pts,e.s);g.position.set(p.x+p.nx*e.lat,M.heightAt(p.x+p.nx*e.lat,p.z+p.nz*e.lat),p.z+p.nz*e.lat);g.rotation.y=Math.atan2(-p.dx*e.dir,-p.dz*e.dir);spinParts(g,dt);e.p.set(g.position.x,g.position.y+e.off,g.position.z)}
     else if(e.kind==='mine'){g.position.y=e.y0+Math.sin(e.t*2+e.ph)*.4;g.rotation.y+=dt*.6;e.p.copy(g.position)}
@@ -4326,6 +4368,28 @@ function buildMission(v,mk,route,pilot){
       {const ap=ag.attributes.position,rr=seeded(21);for(let i=0;i<ap.count;i++) ap.setXYZ(i,ap.getX(i)*(1+(rr()-.5)*.05),ap.getY(i)*(1+(rr()-.5)*.05),ap.getZ(i)*(1+(rr()-.5)*.1));ag.computeVertexNormals()}
       const am=new T.Mesh(ag,toonMat(T,0xe0874d,{flatShading:true}));am.position.set(q.x,base,q.z);am.rotation.y=Math.atan2(q.dx,q.dz);scene.add(am);
       arch={s:sA,base,top,half:R-r,done:false}}}
+  // GIANT OBSTACLES (November 17 playtest): a huge pine (Sierra), a granite rock stack where the run is over the lake, or a
+  // sandstone tower (Moab) stands right on the flight line between checkpoints, so you can't just fly straight on autopilot.
+  // Each one leaves a wide gap on both sides (or hop over it, just under the radar line). The boxes stop short of it and pick
+  // up again after it. About one every 14 seconds of flying (2 to 6 a run), spread evenly and at least 4 seconds apart, never
+  // near the start, a checkpoint, the arch or the final run-in
+  const obst=[];
+  if(course.low){const OR=seeded(53),Ls=clamp(cruise*5,400,1200),a0=Math.max(550,cruise*7),a1=course.end-Ls-250,want=clamp(Math.round(course.end/cruise/14),2,6),gapMin=Math.max(300,cruise*4.2),cand=[],picks=[];
+    for(let s0=a0;s0<=a1;s0+=40) if(!course.cps.some(cp=>Math.abs(cp.s-s0)<Math.max(170,cruise*2.2))&&!(arch&&Math.abs(arch.s-s0)<Math.max(260,cruise*3))) cand.push(s0);
+    for(let k=0;k<want;k++){const t=a0+(k+.5)*(a1-a0)/want;let best=null;for(const c of cand) if(!picks.some(q=>Math.abs(q-c)<gapMin)&&(best==null||Math.abs(c-t)<Math.abs(best-t))) best=c;if(best!=null) picks.push(best)}
+    for(const sp of picks.sort((a,b)=>a-b)){const s0=sp+(OR()-.5)*30,
+      p=coursePoint(course.pts,s0),lat=(OR()<.5?-1:1)*(2+OR()*7),x=p.x+p.nx*lat,z=p.z+p.nz*lat,y0=heightAt(x,z)-1.5,H=Math.max(34,p.y+20+OR()*8-y0),kind=mk==='moab'?'tower':waterAt(x,z)?'stack':'pine';
+      obst.push({s:s0,x,z,lat,y0,H,R:H*(kind==='pine'?.3:kind==='stack'?.25:.2),taper:kind==='stack'?.4:.3,kind,hit:false,done:false})}
+    const geo={
+      pine:()=>mergeColored(T,[{g:new T.CylinderGeometry(.04,.06,.2,7).translate(0,.1,0),c:0x6b3f26},{g:new T.ConeGeometry(.3,.36,9).translate(0,.33,0),c:0x2a5e3d},{g:new T.ConeGeometry(.25,.32,9).translate(0,.46,0),c:0x316b45},
+        {g:new T.ConeGeometry(.19,.3,9).translate(0,.62,0),c:0x3b7b4f},{g:new T.ConeGeometry(.12,.27,8).translate(0,.82,0),c:0x4b9160},{g:new T.ConeGeometry(.05,.1,6).translate(0,.95,0),c:0x5aa36d}]),
+      tower:()=>mergeColored(T,[{g:new T.CylinderGeometry(.17,.2,.34,7).translate(0,.17,0),c:0xc4643a},{g:new T.CylinderGeometry(.15,.17,.3,7).translate(0,.48,0),c:0xd0703f},
+        {g:new T.CylinderGeometry(.13,.15,.24,7).translate(0,.75,0),c:0xb85a33},{g:new T.CylinderGeometry(.17,.14,.1,7).translate(0,.92,0),c:0xe0874d},{g:new T.IcosahedronGeometry(.1,0).scale(1,.65,1).translate(0,1,0),c:0xd9773f}]),
+      stack:()=>mergeColored(T,[{g:new T.IcosahedronGeometry(.25,0).scale(1,.8,1).translate(0,.18,0),c:0x8d939b},{g:new T.IcosahedronGeometry(.2,0).translate(.06,.45,-.03),c:0x9ca3ab},
+        {g:new T.IcosahedronGeometry(.15,0).translate(-.03,.66,.04),c:0x7c838c},{g:new T.CylinderGeometry(.015,.02,.08,5).translate(0,.76,0),c:0x5a3a26},{g:new T.ConeGeometry(.1,.26,7).translate(0,.88,0),c:0x2f6a45}])};
+    for(const kd of ['pine','tower','stack']){const L=obst.filter(o=>o.kind===kd);if(!L.length) continue;
+      const im=new T.InstancedMesh(geo[kd](),toonMat(T,0xffffff,{vertexColors:true,flatShading:kd!=='pine'}),L.length),d=new T.Object3D();
+      L.forEach((o,i)=>{d.position.set(o.x,o.y0,o.z);d.scale.setScalar(o.H);d.rotation.y=i*2.1+.4;d.updateMatrix();im.setMatrixAt(i,d.matrix)});scene.add(im)}}
   // the course on the map: a road cut into the terrain, or a lane of rings in the sky or on the water
   const CP=s=>coursePoint(course.pts,s);
   if(v.cat==='ground'){scene.add(new T.Mesh(ribbon(T,course.pts,ROAD_HALF+5,-.2,30),new T.MeshLambertMaterial({color:mk==='moab'?0xb88a5a:0x9a8566,side:T.DoubleSide})));
@@ -4343,9 +4407,10 @@ function buildMission(v,mk,route,pilot){
     const tex=new T.CanvasTexture(cv);
     radarMesh=new T.Mesh(new T.PlaneGeometry(1400,1400).rotateX(-Math.PI/2),new T.MeshBasicMaterial({map:tex,transparent:true,opacity:0,depthWrite:false,side:T.DoubleSide,fog:false}));
     radarMesh.renderOrder=3;radarMesh.visible=false;scene.add(radarMesh)}
-  // waypoint boxes about every 1.3 seconds along the sky lane (like flight simulator waypoints), rings on the water, gems on the road
+  // waypoint boxes about every 1.5 seconds along the sky lane (like flight simulator waypoints; 18 percent further apart since
+  // the November 17 playtest, with a gap around each giant obstacle), rings on the water, gems on the road
   const lane=[],ringK=v.cat==='air'?clamp(cruise/50,1,1.6):1;
-  if(v.cat==='air'){const gap=Math.max(70,cruise*1.3);for(let s0=gap*1.5;s0<course.end-20;s0+=gap){if(course.cps.some(cp=>!cp.final&&Math.abs(cp.s-s0)<gap*.6)) continue;
+  if(v.cat==='air'){const gap=Math.max(82,cruise*1.53);for(let s0=gap*1.5;s0<course.end-20;s0+=gap){if(course.cps.some(cp=>!cp.final&&Math.abs(cp.s-s0)<gap*.6)||obst.some(o=>s0>o.s-Math.max(gap*1.25,cruise*2.6)&&s0<o.s+Math.max(gap*.9,cruise*1.8))) continue;
       const p=CP(s0),q=CP(s0+14);lane.push({x:p.x,y:p.y,z:p.z,dx:p.dx,dz:p.dz,s:s0,pitch:Math.atan2(q.y-p.y,14)})}}
   else if(v.cat==='sea'){const per=Math.max(4,Math.round(course.hop/Math.max(200,cruise*3.5))-1);for(let h=0;h<3;h++) for(let k=1;k<=per;k++){const p=CP(course.hop*(h+k/(per+1)));lane.push({x:p.x,y:p.y+7,z:p.z,dx:p.dx,dz:p.dz,s:p.s})}}
   else{for(let h=0;h<3;h++) [.18,.45,.7].forEach((f,j)=>{for(let k=0;k<5;k++){const p=CP(course.hop*(h+f)+k*14),lat=(h+j)%2?4.5:-4.5;lane.push({x:p.x+p.nx*lat,y:p.y+2.2,z:p.z+p.nz*lat,dx:p.dx,dz:p.dz,s:p.s})}})}
@@ -4356,6 +4421,9 @@ function buildMission(v,mk,route,pilot){
     lane.forEach((r,i)=>{d.position.set(r.x,r.y,r.z);d.rotation.set(-(r.pitch||0),Math.atan2(r.dx,r.dz),0);d.updateMatrix();laneMesh.setMatrixAt(i,d.matrix);if(v.cat==='air') laneMesh.setColorAt(i,col);r.i=i})}
   scene.add(laneMesh);
   // checkpoints: two gates, then the Badlands outpost (a radar to blow up, a camp to photograph, or a last gate)
+  // the ENEMY OUTPOST (planes on a strike run) takes about 5 and a half (ROOKIE), 6 and a half (PILOT) or 7 and a half (ACE)
+  // seconds of steady fire from this plane's guns, or three missiles. It stands 30 units to one side of the flight line
+  const gunHz=VW.beam?1/VW.rate:VW.rocket||VW.pierce?1/clamp(VW.rate/2,.035,1):1/gunCadence(VW),outHP=Math.max(12,Math.round(gunHz*((VW.dmg||4)>=20?2:1)*[5.5,6.5,7.5][tierOf()]*.85)),outLat=(Math.random()<.5?-1:1)*30;
   const ringMat=new T.MeshBasicMaterial({color:0x2ec4c9}),ringNext=new T.MeshBasicMaterial({color:0xffe27a});
   const beamMat=new T.MeshBasicMaterial({color:0x2ec4c9,transparent:true,opacity:.22,depthWrite:false}),beamRed=new T.MeshBasicMaterial({color:0xff4d5e,transparent:true,opacity:.25,depthWrite:false});
   const stops=course.cps.map((cp,i)=>{
@@ -4364,16 +4432,16 @@ function buildMission(v,mk,route,pilot){
     const gh=v.cat==='air'?heightAt(cp.x,cp.z):p.y;
     if(kind==='ring'){const R=v.cat==='air'?24:v.cat==='sea'?15:18;st.y=v.cat==='air'?cp.y:gh+R*.6;
       st.ring=new T.Mesh(new T.TorusGeometry(R,v.cat==='air'?2.6:2.2,10,40),i===0?ringNext:ringMat);st.ring.position.set(cp.x,st.y,cp.z);scene.add(st.ring)}
-    else{const kinds=kind==='photo'?['camp']:['radar','block'];
+    else{const kinds=kind==='photo'?['camp']:v.cat==='air'?['outpost']:['radar','block'];
       // the targets sit where you pass them, a little before the outpost: the block on the road (or under the lane), the radar or camp off to the side
-      kinds.forEach(kd=>{const tg=makeTarget(T,kd);tg.kind=kd;tg.hp=tg.max=kd==='radar'?4:kd==='block'?3:1;
-        const q=atk?CP(kd==='block'?atk.sB:atk.sR):CP(cp.s-(kd==='block'?20:60)),lat=atk?0:kd==='block'?(v.cat==='ground'?0:-30):(v.cat==='ground'?ROAD_HALF+16:45),tx=q.x+q.nx*lat,tz=q.z+q.nz*lat;
+      kinds.forEach(kd=>{const tg=makeTarget(T,kd),out=kd==='outpost';tg.kind=kd;tg.hp=tg.max=kd==='radar'?4:kd==='block'?3:out?outHP:1;
+        const q=out?CP(course.end-150):atk?CP(kd==='block'?atk.sB:atk.sR):CP(cp.s-(kd==='block'?20:60)),lat=out?outLat:atk?0:kd==='block'?(v.cat==='ground'?0:-30):(v.cat==='ground'?ROAD_HALF+16:45),tx=q.x+q.nx*lat,tz=q.z+q.nz*lat;
         if(kd==='block'&&v.cat==='ground') tg.g.scale.setScalar(.7);
-        tg.g.position.set(tx,heightAt(tx,tz),tz);tg.g.rotation.y=Math.atan2(q.dx,q.dz)+(kd==='block'?Math.PI/2:Math.random()*6);scene.add(tg.g);
-        tg.pos=new T.Vector3(tx,heightAt(tx,tz)+(kd==='radar'?16:kd==='camp'?6:3),tz);st.targets.push(tg)});
+        tg.g.position.set(tx,heightAt(tx,tz),tz);tg.g.rotation.y=Math.atan2(q.dx,q.dz)+(out?(lat>0?0:Math.PI):kd==='block'?Math.PI/2:Math.random()*6);scene.add(tg.g);
+        tg.pos=new T.Vector3(tx,heightAt(tx,tz)+(kd==='radar'?16:kd==='camp'||out?6:3),tz);if(out){tg.hard=true;st.x=tx;st.z=tz}st.targets.push(tg)});
       st.y=st.targets[0].pos.y+(kind==='photo'?10:0)}
-    st.beam=new T.Mesh(new T.CylinderGeometry(3,3,700,8,1,true),kind==='ring'?beamMat:beamRed);st.beam.position.set(cp.x,gh+350,cp.z);st.beam.visible=i===0;scene.add(st.beam);
-    if(final&&v.cat!=='sea'){const op=new T.Group();const R=seeded(3);const oc=[0x8a4a2a,0x6a5a4a,0x9a7a5a];
+    st.beam=new T.Mesh(new T.CylinderGeometry(3,3,700,8,1,true),kind==='ring'?beamMat:beamRed);st.beam.position.set(st.x,gh+350,st.z);st.beam.visible=i===0;scene.add(st.beam);
+    if(final&&v.cat!=='sea'&&!(v.cat==='air'&&kind==='targets')){const op=new T.Group();const R=seeded(3);const oc=[0x8a4a2a,0x6a5a4a,0x9a7a5a];
       for(let k=0;k<6;k++){const b=new T.Mesh(new T.BoxGeometry(10+R()*14,8+R()*10,10+R()*14),toonMat(T,oc[k%3]));b.position.set((R()-.5)*50,4,(R()-.5)*50);op.add(b)}
       const ox=cp.x-p.nx*(v.cat==='ground'?75:95),oz=cp.z-p.nz*(v.cat==='ground'?75:95);op.position.set(ox,heightAt(ox,oz),oz);scene.add(op)}
     return st;
@@ -4381,13 +4449,16 @@ function buildMission(v,mk,route,pilot){
   // bad guys along the way: each group shows up a few seconds ahead of you
   const enc=[],H=course.hop;
   for(let h=0;h<3;h++){const s0=h*H;
-    if(v.cat==='air'){[.3,.62].concat(tier.group>2?[.84]:[]).forEach(f=>enc.push({s:s0+f*H,kind:'drones',n:tier.group}));enc.push({s:s0+.47*H,kind:'balloons'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
+    // planes (November 17 playtest): drones now and then instead of swarm after swarm, a gang convoy on the ground every hop,
+    // supply balloons, and (ACE) enemy jets. The last hop ends at the enemy outpost (or the gang camp to photograph)
+    if(v.cat==='air'){enc.push({s:s0+.28*H,kind:'drones',n:tier.group});if(tier.group>2&&h<2) enc.push({s:s0+.9*H,kind:'drones',n:tier.group-1});
+      enc.push({s:s0+.55*H,kind:'convoy',n:h===2?3:2});enc.push({s:s0+.68*H,kind:'balloons'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
     else if(v.cat==='ground'){enc.push({s:s0+.3*H,kind:'bots',n:tier.group});enc.push({s:s0+.55*H,kind:'block'});enc.push({s:s0+.78*H,kind:'hover',n:2});
       if(tier.trucks&&h>0) enc.push({s:s0+.4*H,kind:tier.trucks>1&&h===2?'chase':'oncoming'})}
     else{enc.push({s:s0+.35*H,kind:'drones',n:tier.group,low:true});enc.push({s:s0+.66*H,kind:'mines'})}}
   enc.sort((a,b)=>a.s-b.s);
-  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:PTS.truck),0)
-    +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?PTS.radar+PTS.block:type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0);
+  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:PTS.truck),0)
+    +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?(v.cat==='air'?PTS.outpost:PTS.radar+PTS.block):type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0)+obst.length*PTS.dodge*.6;
   const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.scale.setScalar(VEH_S*(v.cat==='air'?AIR_S:1));model.visible=false;model.rotation.order='YXZ';scene.add(model);
   const s0p=course.low?CP(0):null,o0=s0p||home,d0=CP(80);
   const P={x:o0.x,z:o0.z,y:0,yaw:Math.atan2(-(d0.x-o0.x),-(d0.z-o0.z)),pitch:0,roll:0,speed:v.cat==='air'?maxS*.6:0,hull:100,thr:FM&&FM.rotor?.5:.6,bob:0};
@@ -4396,7 +4467,9 @@ function buildMission(v,mk,route,pilot){
   M={v,mk,type,armed:true,realArmed:armed,renderer,scene,camera,stops,idx:0,P,FM,tier,cruise,course,foes:[],orbs:[],fx:[],enc,encI:0,lane,laneMesh,ringK,gw,gh,lri:0,gateRun:0,score:0,scoreMax,combo:1,ci:0,prog:0,off:0,offD:0,shake:0,drones:[],shots:[],bits:[],puffs:[],flash:0,ko:0,hits:0,photos:0,cam:'chase',intro:3.2,input:{x:0,y:0,fire:false},keys:{},t:0,last:performance.now(),done:false,spawned:false,fireCd:0,raf:0,
     maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,kit:foeKit(T,renderer),fxSph:new T.SphereGeometry(1,12,8),fxRing:new T.RingGeometry(.82,1,40),orbGeo:new T.SphereGeometry(1.5,12,8),orbMat:new T.MeshBasicMaterial({color:0xff8a2a,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),orbGood:new T.MeshBasicMaterial({color:0x7ff0f3,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),shotGeo:VW.rocket?new T.CylinderGeometry(.35,.35,2.6,8).rotateX(Math.PI/2):v.cat==='air'?new T.BoxGeometry(.45,.45,1):new T.BoxGeometry(.32,.32,1),shotMat:new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),
     puffGeo:new T.SphereGeometry(1,10,7),flashMesh:(()=>{const f=new T.Mesh(new T.SphereGeometry(1.1,8,6),new T.MeshBasicMaterial({color:0xfff1b0,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false}));f.visible=false;scene.add(f);return f})(),
-    beam:VW.beam?(()=>{const b=new T.Mesh(new T.CylinderGeometry(.25,.25,1,6,1,true).rotateX(Math.PI/2).translate(0,0,.5),new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.8,blending:T.AdditiveBlending,depthWrite:false}));b.visible=false;scene.add(b);return b})():null,wpn:VW,heat:0,hot:false,gunSide:0,guns:v.cat==='air'?model.userData.guns||null:null,msl:mslCount(v),mslMax:mslCount(v),missiles:[],mslCd:0,mslShot:0,mslHits:0,mslMesh:v.cat==='air'?mslMesh(T):null,armMul:1/(1+.25*(VU.arm-1))/condMul(v),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min,low:!!course.low,run,radarUp:42+gh,radar:0,spotted:0,arch,treeGrid:course.low?TG:null,radarMesh};
+    beam:VW.beam?(()=>{const b=new T.Mesh(new T.CylinderGeometry(.25,.25,1,6,1,true).rotateX(Math.PI/2).translate(0,0,.5),new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.8,blending:T.AdditiveBlending,depthWrite:false}));b.visible=false;scene.add(b);return b})():null,wpn:VW,heat:0,hot:false,gunSide:0,guns:v.cat==='air'?model.userData.guns||null:null,msl:mslCount(v),mslMax:mslCount(v),missiles:[],mslCd:0,mslShot:0,mslHits:0,mslMesh:v.cat==='air'?mslMesh(T):null,armMul:1/(1+.25*(VU.arm-1))/condMul(v),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min,low:!!course.low,run,radarUp:42+gh,radar:0,spotted:0,arch,treeGrid:course.low?TG:null,radarMesh,
+    obst,sthr:1,burstT:0,burstGap:0,shotN:0,lockR:lockRange(cruise),lockNeed:lockTime(v),slugGeo:VW.gun&&v.cat==='air'?new T.CylinderGeometry(.13,.17,1,6).rotateX(Math.PI/2):null,
+    slugMat:VW.gun&&v.cat==='air'?new T.MeshPhongMaterial({color:0x9aa1a8,specular:0xffffff,shininess:110,emissive:0x1e2226}):null};
   {const mm=$('#minimap'),g=mm.getContext('2d'),img=g.createImageData(160,160);
     for(let y=0;y<160;y++)for(let x=0;x<160;x++){const gi=Math.min(n-1,Math.round(y*(n-1)/159))*n+Math.min(n-1,Math.round(x*(n-1)/159));
       const c=water[gi]?hex(mk==='tahoe'?0x2f8fd0:0x4f9a8a):groundColor(mk,elev[gi],nor.getY(gi),false,.5);
@@ -4409,7 +4482,7 @@ function buildMission(v,mk,route,pilot){
   M.raf=requestAnimationFrame(missionLoop);
   setCam('cockpit');M.camSnap=true;laneTint();
   {const b=$('#m-brief'),who=String(pilot.name||'Pilot').split(' ')[0];
-    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, low-level run: ${esc(run.name)}. ${esc(run.brief)} Stay low in the pink boxes: climb above the red radar line and the gang spots you.`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
+    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, low-level run: ${esc(run.name)}. ${esc(run.brief)} Stay low in the pink boxes: climb above the red radar line and the gang spots you.${obst.length?` Giant ${mk==='moab'?'rock towers':'trees'} stand in the way: steer around them.`:''}${type==='strike'?' At the end, destroy the enemy outpost: lock on from far out and fire missiles, or keep the guns on it.':''}`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
   root.addEventListener('pointerdown',()=>{if(M&&M.intro>0) M.intro=.001},true);
 }
 function missionResize(){if(!M) return;const r=M.root;M.renderer.setSize(r.clientWidth,r.clientHeight);M.camera.aspect=r.clientWidth/r.clientHeight;ckLook();turnCheck()}
@@ -4471,18 +4544,19 @@ function ckCtl(dt,ix,iy,force){const K=M&&M.ck;if(!K||(M.cam!=='cockpit'&&!force
     else if(mo==='mech') t=`rotate(${x*20}deg) scale(${1+pull*.05},${1-pull*.12})`;
     else t=`translateX(${x*4}%) rotate(${x*14}deg)`;
     k.el.style.transform=t})}
-// flying modes: Starfighter (the default) swaps the throttle for a BOOST button; Assisted and Real pilot keep the throttle
+// flying modes: Starfighter (the default) has a thin throttle that rests at full, with a BOOST button above it; Assisted and
+// Real pilot have the big throttle and no BOOST
 const MODE_NAME={casual:'STARFIGHTER',assisted:'ASSISTED',pro:'REAL PILOT'};
-const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes. Drag sideways to turn, down to climb, up to dive. Hold FIRE for the wing guns (10 seconds straight and they overheat). Tap MISSILE for a heat seeker. Tap or hold BOOST to go faster. Double tap a side of the screen, or flick the stick twice, to barrel roll: it dodges and smashes close bad guys. AUTOPILOT flies you back on course.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Pull down to raise the nose, push up to lower it, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'')+' FIRE: wing guns. MISSILE: heat seekers.';
+const ctlHint=(v,FM)=>v.cat!=='air'?'Drag sideways to steer. Hold GAS to go, BRAKE to slow down or back up.':(S.assist||'casual')==='casual'?'Fly through the pink boxes and steer around giant obstacles. Drag sideways to turn, down to climb, up to dive. Tap FIRE for a burst. Keep the nose on a target for 3 seconds to lock on, then tap MISSILE. THROTTLE slows you down, BOOST speeds you up. Double tap a side to barrel roll. AUTOPILOT won\'t dodge obstacles.':FM&&FM.rotor?'Drag up to fly forward, sideways to turn. Throttle is up and down.':'Drag to steer. Pull down to raise the nose, push up to lower it, sideways rolls.'+(FM&&FM.ab?' Throttle up top for afterburner.':'')+' FIRE: wing guns, in bursts. MISSILE: heat seekers (keep the nose on a target 3 seconds to lock on).';
 function apUI(){const b=$('#m-ap');if(!b) return;b.classList.toggle('on',!!S.autopilot);const t=b.querySelector('b');if(t) t.textContent=S.autopilot?'ON':'OFF'}
-function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint'),ap=$('#m-ap');if(t) t.hidden=star;if(b) b.hidden=!star;if(ap) ap.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
+function ctlModeUI(){if(!M) return;const star=(S.assist||'casual')==='casual',t=$('#m-thr'),b=$('#m-boost'),h=$('#m-hint'),ap=$('#m-ap'),c=$('#m-ctl');if(c) c.classList.toggle('star',star&&M.v.cat==='air');if(t) t.hidden=false;if(b) b.hidden=!star;if(ap) ap.hidden=!star;if(h) h.textContent=ctlHint(M.v,M.FM)}
 function bindMissionInput(){
   const zone=$('#m-stick'),base=$('#m-sbase'),knob=$('#m-knob');let sid=null,ox=0,oy=0;
   zone.addEventListener('pointerdown',e=>{sid=e.pointerId;if(M) M.stickDown=true;try{zone.setPointerCapture(sid)}catch(err){}const r=zone.getBoundingClientRect();ox=e.clientX;oy=e.clientY;base.hidden=false;base.style.left=(e.clientX-r.left)+'px';base.style.top=(e.clientY-r.top)+'px';knob.style.transform='';$('#m-hint').hidden=true});
   zone.addEventListener('pointermove',e=>{if(e.pointerId!==sid||!M) return;let dx=e.clientX-ox,dy=e.clientY-oy;const d=Math.hypot(dx,dy),R=48;if(d>R){dx*=R/d;dy*=R/d}knob.style.transform=`translate(${dx}px,${dy}px)`;M.input.x=dx/R;M.input.y=-dy/R});
   const up=e=>{if(e.pointerId!==sid) return;sid=null;base.hidden=true;if(M){M.input.x=0;M.input.y=0;M.stickDown=false}};
   zone.addEventListener('pointerup',up);zone.addEventListener('pointercancel',up);
-  const thr=$('#m-thr');if(thr){const setT=e=>{if(!M) return;const r=thr.getBoundingClientRect();M.P.thr=clamp(1-(e.clientY-r.top)/r.height,0,1)};let tid=null;
+  const thr=$('#m-thr');if(thr){const setT=e=>{if(!M) return;const r=thr.getBoundingClientRect(),u=clamp(1-(e.clientY-r.top)/r.height,0,1);if((S.assist||'casual')==='casual') M.sthr=u;else M.P.thr=u};let tid=null;
     thr.addEventListener('pointerdown',e=>{tid=e.pointerId;try{thr.setPointerCapture(tid)}catch(err){}setT(e)});thr.addEventListener('pointermove',e=>{if(e.pointerId===tid)setT(e)});
     thr.addEventListener('pointerup',()=>{tid=null});thr.addEventListener('pointercancel',()=>{tid=null})}
   // BOOST: hold it to keep boosting, or tap it for a few seconds of boost (handy while your thumb is busy on FIRE)
@@ -4509,7 +4583,7 @@ function bindMissionInput(){
       if(now-o.t<=TAP_MS&&Math.hypot(dx,dy)<=TAP_PX) last={kind:'tap',dir:sideOf(o.x),x:o.x,y:o.y,t:now};
       else if(o.stick&&now-o.t<=FLICK_MS&&flick(dx,dy)) last={kind:'flick',dir:Math.sign(dx),t:now}})}
   const fire=$('#m-fire');
-  if(fire&&M.armed){fire.addEventListener('pointerdown',e=>{e.preventDefault();if(M)M.input.fire=true});['pointerup','pointercancel','pointerleave'].forEach(t=>fire.addEventListener(t,()=>{if(M)M.input.fire=false}))}
+  if(fire&&M.armed){fire.addEventListener('pointerdown',e=>{e.preventDefault();if(M){M.input.fire=true;M.fireTap=true}});['pointerup','pointercancel','pointerleave'].forEach(t=>fire.addEventListener(t,()=>{if(M)M.input.fire=false}))}
   else if(fire) fire.addEventListener('pointerdown',e=>{e.preventDefault();takePhoto()});
   const ms=$('#m-msl');if(ms) ms.addEventListener('pointerdown',e=>{e.preventDefault();if(M) M.mslReq=true});
   $('#m-exit').onclick=()=>{ if(!M||M.done) return; M.paused=true; openSheet('Leave mission?',`<div class="muted">You will head home with no reward. Nothing is lost.</div><div class="row"><button class="btn" data-act="m-resume">KEEP GOING</button><button class="btn danger" data-act="m-quit">GO HOME</button></div>`,true)};
@@ -4523,7 +4597,7 @@ function bindMissionInput(){
   const sb=$('#m-snd');if(sb) sb.onclick=()=>{S.sound=S.sound===false;sb.textContent='SOUND: '+(S.sound===false?'OFF':'ON');if(S.sound!==false){sfxInit();sfx('ring')}};
   M.onKey=e=>{if(!M) return;const d=e.type==='keydown',kk=e.key.toLowerCase();
     if(d&&!e.repeat){if(kk==='a'||kk==='arrowleft'){flickIn(-1);flickIn(0)}else if(kk==='d'||kk==='arrowright'){flickIn(1);flickIn(0)}if(M.intro>0) M.intro=.001}
-    M.keys[kk]=d;if(e.key===' '){e.preventDefault();M.input.fire=d}if(d&&kk==='c') $('#m-cam').click();if(d&&!e.repeat&&kk==='p'){const b=$('#m-ap');if(b&&!b.hidden) b.click()}if(d&&!e.repeat&&(kk==='m'||kk==='x')&&M.v.cat==='air') M.mslReq=true};
+    M.keys[kk]=d;if(e.key===' '){e.preventDefault();M.input.fire=d;if(d&&!e.repeat) M.fireTap=true}if(d&&kk==='c') $('#m-cam').click();if(d&&!e.repeat&&kk==='p'){const b=$('#m-ap');if(b&&!b.hidden) b.click()}if(d&&!e.repeat&&(kk==='m'||kk==='x')&&M.v.cat==='air') M.mslReq=true};
   window.addEventListener('keydown',M.onKey);window.addEventListener('keyup',M.onKey);
   ctlModeUI();
 }
@@ -4573,8 +4647,10 @@ const STAR_BANK0=12*Math.PI/180,STAR_BANK1=30*Math.PI/180,STAR_TURN=1.25,STAR_TU
 // last heading). Aiming that close keeps fast jets from cutting the corners: in the headless sim the F-16 flew through 66
 // of 70 boxes this way, against 53 when it aimed 1.6 seconds ahead
 const AP_GAIN=3,AP_WAIT=.35,BOOST_TAP=3;
-function apSteer(){const P=M.P,pts=M.course.pts,end=pts[pts.length-1],la=(M.prog||0)+Math.max(60,P.speed*.7),q=coursePoint(pts,la),over=Math.max(0,la-end.s);
-  let d=Math.atan2(-(q.x+q.dx*over-P.x),-(q.z+q.dz*over-P.z))-P.yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return clamp(-d*AP_GAIN,-1,1)}
+function apSteer(){const P=M.P,pts=M.course.pts,end=pts[pts.length-1],la=(M.prog||0)+Math.max(60,P.speed*.7),q=coursePoint(pts,la),over=Math.max(0,la-end.s),O=M.around;
+  // coming around for another pass at the enemy outpost: keep straight for a moment after each pass, then head for it
+  if(O&&M.ext) return 0;
+  let d=O?Math.atan2(-(O.x-P.x),-(O.z-P.z))-P.yaw:Math.atan2(-(q.x+q.dx*over-P.x),-(q.z+q.dz*over-P.z))-P.yaw;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return clamp(-d*AP_GAIN,-1,1)}
 // on a low-level run the plane aims at the boxes' height a little way ahead, so it follows the ground closely
 function lowHold(P){const L=Math.max(40,P.speed*.55),q=coursePoint(M.course.pts,(M.prog||0)+L);return clamp(Math.atan2(q.y-P.y,L),-.45,.45)}
 function starStep(dt,ix,iy){
@@ -4596,7 +4672,10 @@ function starStep(dt,ix,iy){
   P.spitch=(P.spitch||0)+(tp-(P.spitch||0))*Math.min(1,dt*(M.low?3.2:2.2));
   M.boostT=Math.max(0,(M.boostT||0)-dt);const boost=M.input.boost||M.boostT>0||k['shift']||k['e'];
   if(M.boostOn!==!!boost){M.boostOn=!!boost;const bb=$('#m-boost');if(bb) bb.classList.toggle('on',M.boostOn)}P.boostK=(P.boostK||0)+((boost?1:0)-(P.boostK||0))*Math.min(1,dt*3);
-  P.vr+=(F.vmax*(boost?(F.ab?1.08:1):.72)-P.vr)*Math.min(1,dt*.9);P.speed=Math.min(comp(P.vr)*STAR_K,STAR_MAX)*(1+.35*P.boostK);P.thr=boost?1:.72;
+  // the THROTTLE (November 17 playtest) rests at full, the normal cruise speed; slide it down to slow to as little as half
+  // speed (handy for lining up a shot or getting around an obstacle). BOOST still goes faster than full, whatever the throttle says
+  const sf=.5+.5*clamp(M.sthr==null?1:M.sthr,0,1);
+  P.vr+=(F.vmax*(boost?(F.ab?1.08:1):.72*sf*sf)-P.vr)*Math.min(1,dt*.9);P.speed=Math.min(comp(P.vr)*STAR_K,STAR_MAX)*(1+.35*P.boostK);P.thr=boost?1:.72*sf;
   // barrel roll (a double tap): one fast spin around the nose that starts at full speed, a quick slide sideways, and a moment of shield
   P.shieldT=Math.max(0,(P.shieldT||0)-dt);
   if(P.rollT>0){P.rollT=Math.max(0,P.rollT-dt);const u=1-P.rollT/ROLL_T,e=1-Math.pow(1-u,2.4);P.rollA=P.rollDir*Math.PI*2*e;
@@ -4658,7 +4737,14 @@ function segHit(a,b,p,r){const ab=b.clone().sub(a),t=clamp(p.clone().sub(a).dot(
 function hitAim(a,n0,how){const n=n0||((M.wpn.dmg||4)>=20?2:1);
   if(a.e) return foeHit(a.e,n,how);
   if(a.t&&a.t.alive){a.t.hp-=n;spark(a.p,0xffd27a,5);sfx('tick');
-    if(a.t.hp<=0){a.t.alive=false;a.t.g.visible=false;M.hits++;fxBlast(a.t.pos.clone(),2.2);score(PTS[a.t.kind]||300,a.t.pos,'TARGET DESTROYED!',true)}else popAt(a.p,'','HIT!')}
+    if(a.t.hp<=0){a.t.alive=false;M.hits++;
+      // the enemy outpost goes up in a chain of blasts and is left as flattened, smoking rubble
+      if(a.t.hard){const T=window.THREE,p0=a.t.pos.clone();a.t.g.scale.y=.2;M.outpostDown=true;fxBlast(p0.clone(),2.8);
+        [[13,-9,1.7],[-11,8,1.7],[6,14,1.4],[-14,-12,1.4]].forEach(([dx,dz,k],i)=>setTimeout(()=>{if(M) fxBlast(p0.clone().add(new T.Vector3(dx,0,dz)),k)},(i+1)*170));
+        score(PTS.outpost,p0,'OUTPOST DESTROYED!',true);banner('OUTPOST DESTROYED!','','win')}
+      else{a.t.g.visible=false;fxBlast(a.t.pos.clone(),2.2);score(PTS[a.t.kind]||300,a.t.pos,'TARGET DESTROYED!',true)}}
+    else if(a.t.hard){if(n>=4) popAt(a.p,'DIRECT HIT!',Math.round(100*a.t.hp/a.t.max)+'% LEFT');else if(M.t-(a.t.popT||-9)>.6){a.t.popT=M.t;popAt(a.p,'','HIT!')}}
+    else popAt(a.p,'','HIT!')}
 }
 function spark(pos,col,n){const T=window.THREE;const mt=new T.MeshBasicMaterial({color:col,transparent:true,blending:T.AdditiveBlending,depthWrite:false});
   for(let i=0;i<n;i++){const b=new T.Mesh(M.bitGeo,mt);b.scale.setScalar(.35);b.position.copy(pos);M.scene.add(b);M.bits.push({m:b,v:new T.Vector3(rnd(-25,25),rnd(-5,25),rnd(-25,25)),life:.45})}}
@@ -4670,7 +4756,7 @@ function drawHUD(fwd,lead){
   const T=window.THREE,P=M.P,F=M.FM,C='#8dffc8';
   const bp=new T.Vector3(P.x,P.y,P.z).addScaledVector(fwd,400).project(M.camera),bx=(bp.x+1)/2*W,by=(1-bp.y)/2*H;
   const cr=$('#m-cross');if(cr){cr.style.left=bx+'px';cr.style.top=by+'px'}
-  drawLock(g,W,H);drawHeat(g,bx,by);
+  drawLock(g,W,H);drawTgtHP(g,W,H);drawHeat(g,bx,by);
   if(M.v.cat==='air'&&M.cam!=='cockpit'){const a=clamp(((P.speed||0)-70)/260,0,.35)+(P.boostK||0)*.4;if(a>.04){g.save();g.strokeStyle=`rgba(255,255,255,${a.toFixed(2)})`;g.lineWidth=2;const R=Math.max(W,H);
     for(let i=0;i<18;i++){const an=Math.random()*Math.PI*2,r0=R*(.32+Math.random()*.3),r1=r0+30+Math.random()*80*(1+(P.boostK||0));g.beginPath();g.moveTo(bx+Math.cos(an)*r0,by+Math.sin(an)*r0);g.lineTo(bx+Math.cos(an)*r1,by+Math.sin(an)*r1);g.stroke()}g.restore()}}
   g.strokeStyle=C;g.fillStyle=C;g.lineWidth=1.6;g.font='700 13px ui-monospace,Menlo,monospace';g.shadowColor='rgba(0,0,0,.85)';g.shadowBlur=1.5;
@@ -4689,12 +4775,26 @@ function drawHUD(fwd,lead){
   if(F.ab&&P.thr>.9){g.fillStyle='#ffb347';g.fillText('AFTERBURNER',bx,by+44);g.fillStyle=C}
   g.restore();
 }
-// lock-on brackets close in on the bad guy you're pointing at, then turn red: LOCKED
-function drawLock(g,W,H){if(!M.lockP) return;const q=M.lockP.clone().project(M.camera);if(q.z>=1) return;const x=(q.x+1)/2*W,y=(1-q.y)/2*H,u=clamp((M.lockT||0)/.35,0,1),s=34-14*u,on=u>=1;
-  g.save();g.strokeStyle=on?'#ff4d5e':'#ffe27a';g.lineWidth=3;g.shadowColor='rgba(0,0,0,.75)';g.shadowBlur=3;
+// the TARGETING RETICLE. Planes: it pops up on the target at the initial lock (yellow corners and a ring that fills up over
+// MSL_LOCK_T seconds, with the range in miles), then snaps tight and turns red with a diamond: LOCKED. Cars and boats keep
+// the quick brackets
+function drawLock(g,W,H){if(!M.lockP) return;const q=M.lockP.clone().project(M.camera);if(q.z>=1) return;const x=(q.x+1)/2*W,y=(1-q.y)/2*H;if(x<-60||x>W+60||y<-60||y>H+60) return;
+  const air=M.v.cat==='air',u=M.lockU||0,on=u>=1,pop=air?Math.max(0,1-(M.lockT||0)/.2):0,s=(air?(on?21:38-13*u):34-14*u)*(1+pop*.6),col=on?'#ff4d5e':'#ffe27a';
+  g.save();g.strokeStyle=col;g.fillStyle=col;g.lineWidth=3;g.shadowColor='rgba(0,0,0,.75)';g.shadowBlur=3;
   for(const [sx,sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){g.beginPath();g.moveTo(x+sx*s,y+sy*(s-9));g.lineTo(x+sx*s,y+sy*s);g.lineTo(x+sx*(s-9),y+sy*s);g.stroke()}
-  if(on){g.fillStyle='#ff4d5e';g.font='800 11px Orbitron,system-ui,sans-serif';g.textAlign='center';g.fillText('LOCKED',x,y-s-6)}
+  g.font='800 11px Orbitron,system-ui,sans-serif';g.textAlign='center';
+  if(air){const r=s+9;g.lineWidth=2;g.globalAlpha=.3;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.stroke();g.globalAlpha=1;g.lineWidth=4;g.beginPath();g.arc(x,y,r,-Math.PI/2,-Math.PI/2+Math.PI*2*u);g.stroke();
+    if(on){g.lineWidth=2.5;g.beginPath();g.moveTo(x,y-7);g.lineTo(x+7,y);g.lineTo(x,y+7);g.lineTo(x-7,y);g.closePath();g.stroke()}
+    g.fillText(on?'LOCKED':'LOCKING',x,y-r-7);g.textAlign='left';g.fillText((M.lockP.distanceTo(M.camera.position)/MILE).toFixed(1)+' MI',x+r+7,y+4)}
+  else if(on) g.fillText('LOCKED',x,y-s-6);
   g.restore()}
+// the enemy outpost's armor bar floats over it once you're within two miles or it has taken a hit
+function drawTgtHP(g,W,H){const st=M.stops[M.idx];if(!st||st.kind!=='targets') return;
+  for(const t of st.targets){if(!t.hard||!t.alive) continue;const q=t.pos.clone().project(M.camera);if(q.z>=1) continue;
+    const on=M.lockA&&M.lockA.t===t,u=M.lockU||0,pop=Math.max(0,1-(M.lockT||0)/.2),rr=on?(u>=1?21:38-13*u)*(1+pop*.6)+9:0,x=(q.x+1)/2*W,y=(1-q.y)/2*H-(on?rr+30:48);
+    if(x<0||x>W||y<12||y>H) continue;if(t.hp>=t.max&&t.pos.distanceTo(M.camera.position)>MILE*2) continue;
+    const w=78,f=clamp(t.hp/t.max,0,1);g.save();g.fillStyle='rgba(0,0,0,.55)';g.fillRect(x-w/2-2,y-2,w+4,10);g.fillStyle=f>.5?'#ffd27a':f>.25?'#ff9a3a':'#ff4d5e';g.fillRect(x-w/2,y,w*f,6);
+    g.font='800 10px Orbitron,system-ui,sans-serif';g.textAlign='center';g.fillStyle='#fff';g.shadowColor='rgba(0,0,0,.85)';g.shadowBlur=2;g.fillText('ENEMY OUTPOST',x,y-6);g.restore()}}
 function missionLoop(now){
   if(!M) return;
   M.raf=requestAnimationFrame(missionLoop);
@@ -4716,15 +4816,19 @@ function missionLoop(now){
   // AUTOPILOT (Starfighter): with it on, let go of the stick and it steers along the boxes (the plane already holds their
   // height on its own). A thumb on the stick or a steering key hands control back; it takes over again a moment after you let go
   else if(v.cat==='air'&&S.autopilot&&(S.assist||'casual')==='casual'&&M.course){
-    const hands=M.stickDown||Math.abs(ix)>.08||Math.abs(iy)>.08;M.apWait=hands?AP_WAIT:Math.max(0,(M.apWait||0)-dt);
+    // it does NOT steer around the giant obstacles (that's your job): once you take the stick near one, it waits until you're past it
+    const hands=M.stickDown||Math.abs(ix)>.08||Math.abs(iy)>.08;if(hands&&M.obAhead) M.apTook=true;else if(!M.obAhead) M.apTook=false;
+    M.apWait=hands||M.apTook?AP_WAIT:Math.max(0,(M.apWait||0)-dt);
     if(!hands&&M.apWait<=0){ix=apSteer();iy=0;M.apOn=true}else M.apOn=false}
   else M.apOn=false;
   if(M.apShown!==!!M.apOn){M.apShown=!!M.apOn;const b=$('#m-ap');if(b) b.classList.toggle('fly',M.apShown)}
   ckCtl(dt,ix,iy);
   if(v.cat==='air'){
-    if(k['shift']||k['e']) P.thr=Math.min(1,P.thr+dt*.6); if(k['control']||k['q']) P.thr=Math.max(0,P.thr-dt*.6);
-    const ti=$('#m-thri'); if(ti) ti.style.height=(P.thr*100)+'%';
-    flyStep(dt,ix,iy,k);courseTrack(P.x,P.z);if(M.low) lowStep(dt);
+    const star=(S.assist||'casual')==='casual';
+    if(star){if(k['r']) M.sthr=Math.min(1,M.sthr+dt*.6);if(k['control']||k['q']) M.sthr=Math.max(0,M.sthr-dt*.6)}
+    else{if(k['shift']||k['e']) P.thr=Math.min(1,P.thr+dt*.6); if(k['control']||k['q']) P.thr=Math.max(0,P.thr-dt*.6)}
+    {const ti=$('#m-thri'),tv=Math.round((star?M.sthr:P.thr)*100);if(ti&&tv!==M.thrShown){M.thrShown=tv;ti.style.height=tv+'%'}}
+    flyStep(dt,ix,iy,k);courseTrack(P.x,P.z);if(M.low) lowStep(dt);if(M.obst&&M.obst.length) obstStep(dt);
   } else {
     const heavy=v.id==='mech'||v.id==='tank';
     const accel=heavy?14:26;
@@ -4779,14 +4883,29 @@ function missionLoop(now){
   } else if(st.kind==='targets'){
     // on the ground you can also smash straight through the outpost's road block
     if(!air) st.targets.forEach(t=>{if(t.alive&&t.kind==='block'&&Math.hypot(t.pos.x-P.x,t.pos.z-P.z)<8){t.alive=false;t.g.visible=false;M.hits++;fxBlast(t.pos.clone(),1.6);score(Math.round(PTS.block*.5),t.pos,'SMASH!');hurt(4,'CRASH!');P.speed*=.4}});
-    if(st.targets.every(t=>!t.alive)) return advanceStop();
+    else outpostStep(dt,st);
+    // planes: once the outpost is down, its explosions play out for a moment before the mission ends
+    if(st.targets.every(t=>!t.alive)){if(!air||(M.winT=(M.winT||0)+dt)>1.4) return advanceStop()}
   } else if(st.kind==='photo') autoPhoto(st);
-  // a missed checkpoint hands over to the next one, and passing the outpost ends the mission with fewer points: never turned around
-  if(st.final&&dist<500&&(M.finalT=(M.finalT||0)+dt)>25){M.missedFinal=true;return finishMission(true)}
-  if(M.prog>st.s+(st.final?(air?300:100):(air?150:70))&&dist>near){if(st.final){M.missedFinal=true;return finishMission(true)}M.missed=(M.missed||0)+1;return advanceStop(true)}
-  M.offCourse=0;
-  if(air&&M.offD>220&&dist>near){warn('BACK TO THE COURSE!',.6);
-    if((S.assist||'casual')==='casual'){const q=coursePoint(M.course.pts,Math.min(M.course.end,M.prog+300));let want=Math.atan2(-(q.x-P.x),-(q.z-P.z))-P.yaw;while(want>Math.PI)want-=2*Math.PI;while(want<-Math.PI)want+=2*Math.PI;M.offCourse=clamp(want,-1,1)*.5}}
+  M.offCourse=0;M.around=null;
+  if(air&&st.final&&st.kind==='targets'&&st.targets.some(t=>t.alive)){
+    // the enemy outpost: fly past it while it's still standing and you come around for another pass, like a real strafing
+    // run: keep going straight for a couple of seconds after each pass (so there's room to line up), then swing back around.
+    // In Starfighter mode the plane swings back by itself (so does the autopilot), and once the nose is on it you fly straight
+    // in. After the first pass you get 35 seconds near it, then the mission ends without it (fewer points, never a loss)
+    let want=Math.atan2(-(st.x-P.x),-(st.z-P.z))-P.yaw;while(want>Math.PI)want-=2*Math.PI;while(want<-Math.PI)want+=2*Math.PI;
+    const flewPast=dist<160&&Math.abs(want)>1.2;
+    if(!M.passN&&(flewPast||M.prog>st.s+300)){M.passN=1;M.ext=true}else if(M.passN&&flewPast&&!M.ext){M.passN++;M.ext=true}
+    if(M.passN){M.around=st;M.finalT=(M.finalT||0)+dt;if(M.finalT>35||dist>2600){M.missedFinal=true;return finishMission(true)}
+      if(M.ext&&dist>Math.max(260,P.speed*2.6)) M.ext=false;
+      if(!M.ext&&Math.abs(want)>.35){if(M.t-(M.passT||-9)>8){M.passT=M.t;banner('COME AROUND!','THE OUTPOST IS STILL STANDING','lose')}
+        warn('COME AROUND FOR ANOTHER PASS!',.4);if((S.assist||'casual')==='casual') M.offCourse=clamp(want,-1,1)*.85}}
+    else if(M.offD>220&&dist>near) backToCourse()}
+  else if(!(M.winT>0)){
+    // a missed checkpoint hands over to the next one, and passing the end of the run ends the mission with fewer points
+    if(st.final&&dist<500&&(M.finalT=(M.finalT||0)+dt)>25){M.missedFinal=true;return finishMission(true)}
+    if(M.prog>st.s+(st.final?(air?300:100):(air?150:70))&&dist>near){if(st.final){M.missedFinal=true;return finishMission(true)}M.missed=(M.missed||0)+1;return advanceStop(true)}
+    if(air&&M.offD>220&&dist>near) backToCourse()}
   st.targets.forEach(t=>{if(t.alive&&t.label==='Supply balloon') t.g.position.y+=Math.sin(M.t*1.5)*.05});
   // lane rings and road gems: fly or drive through them for points
   if(air){const L=M.lane;let ch=false;while(M.lri<L.length){const r=L[M.lri],ex=P.x-r.x,ey=P.y-r.y,ez=P.z-r.z,cp=Math.cos(r.pitch),sp=Math.sin(r.pitch),along=ex*r.dx*cp+ey*sp+ez*r.dz*cp;if(along<0) break;
@@ -4813,11 +4932,16 @@ function missionLoop(now){
   const muzzle=twin?gunAt(M.gunSide):me.clone().addScaledVector(fwd,6).addScaledVector(upB,-1.2),ownV=fwd.clone().multiplyScalar(Math.max(P.speed,0));
   M.fireCd-=dt;M.flash-=dt;M.flashMesh.visible=M.flash>0;
   if(M.beam) M.beam.visible=false;if(M.beam2) M.beam2.visible=false;
-  // gun heat (planes): it builds while you hold FIRE, and after 10 seconds straight the guns overheat. They cool down
-  // whenever you let go, and once overheated they need 3 seconds to cool before they fire again
-  const trig=M.armed&&M.input.fire&&!(M.intro>0);
-  if(air){if(trig&&!M.hot){M.heat=Math.min(1,M.heat+dt/GUN_HEAT_T);if(M.heat>=1){M.hot=true;M.hotN=(M.hotN||0)+1;warn('GUNS OVERHEATED! LET THEM COOL',GUN_COOL_T*.8);sfx('hot')}}
-    else{M.heat=Math.max(0,M.heat-dt/GUN_COOL_T);if(M.hot&&M.heat<=0){M.hot=false;sfx('cool')}}
+  // BURSTS (planes, November 17 playtest): a tap on FIRE starts a GUN_BURST second burst, and holding it fires burst after
+  // burst with a GUN_GAP second pause between them. Gun heat builds while the guns fire, and after about 10 seconds of firing
+  // they overheat; they cool whenever you're off the trigger (or overheated), and need 3 seconds to cool from hot
+  const held=M.armed&&M.input.fire&&!(M.intro>0);let trig=held;
+  if(air&&!W.beam){const press=M.fireTap||(held&&!M.fireWas);M.fireTap=false;M.fireWas=held;if(press&&!(M.burstT>0)&&!(M.intro>0)) M.fireQ=true;
+    M.burstGap=Math.max(0,M.burstGap-dt);if(M.burstT>0){M.burstT=Math.max(0,M.burstT-dt);if(M.burstT===0) M.burstGap=GUN_GAP}
+    if(M.hot) M.burstT=0;else if(M.burstT===0&&(M.fireQ||held)&&M.burstGap<=0){M.fireQ=false;M.burstT=GUN_BURST;M.bursts=(M.bursts||0)+1}
+    trig=M.burstT>0}
+  if(air){if(trig&&!M.hot){M.heat=Math.min(1,M.heat+dt/GUN_HEAT_T);if(M.heat>=1){M.hot=true;M.hotN=(M.hotN||0)+1;M.burstT=0;M.fireQ=false;warn('GUNS OVERHEATED! LET THEM COOL',GUN_COOL_T*.8);sfx('hot')}}
+    else if(M.hot||!held){M.heat=Math.max(0,M.heat-dt/GUN_COOL_T);if(M.hot&&M.heat<=0){M.hot=false;sfx('cool')}}
     heatUI()}
   if(trig&&!(air&&M.hot)){
     if(W.beam){// in Starfighter mode the beam swings onto whatever you're locked on to (planes fire one from each wing)
@@ -4827,11 +4951,14 @@ function missionLoop(now){
       if(twin&&M.beam2){show(M.beam,gunAt(0));show(M.beam2,gunAt(1))}else show(M.beam,muzzle);
       if(hitA&&M.fireCd<=0){M.fireCd=W.rate;hitAim(hitA)}}
     else if(M.fireCd<=0){
-      // each wing fires at the weapon's own rate, so together they shoot twice as fast: at least about 14 rounds a second
-      // for bullets, and never more than about 28 (rockets and railgun slugs keep their own slower pace)
-      M.fireCd=twin?clamp(W.rate/2,.035,W.rocket||W.pierce?1:.07):W.rate;const s=new T.Mesh(M.shotGeo,M.shotMat);s.position.copy(muzzle);M.scene.add(s);sfx(twin&&!W.rocket?'gun':'pew');
+      // the wings take turns at a steady clip you can count (rockets and railgun slugs keep their own slower pace). Real guns
+      // (gun:true) fire plain gray metal rounds with a glowing tracer every third round, a puff of gun smoke at the muzzle,
+      // and a sharp crack instead of a zap
+      M.fireCd=twin?(W.rocket||W.pierce?clamp(W.rate/2,.035,1):gunCadence(W)*rnd(.94,1.06)):W.rate;
+      const slug=!!M.slugMat&&M.shotN++%GUN_TRACER!==0,s=new T.Mesh(slug?M.slugGeo:M.shotGeo,slug?M.slugMat:M.shotMat);s.position.copy(muzzle);M.scene.add(s);sfx(W.gun||twin&&!W.rocket?'gun':'pew');
       const mvW=W.mv/4,aim=twin?me.clone().addScaledVector(fwd,GUN_CROSS).sub(muzzle).normalize():fwd,sv=W.rocket?aim.clone().multiplyScalar(mvW*.25).add(ownV):aim.clone().multiplyScalar(mvW).add(ownV);
-      M.shots.push({m:s,v:sv,life:Math.min(3.5,800/mvW)+(W.rocket?1.5:0),mvW,rocket:!!W.rocket,puffT:0,hit:new Set()});
+      M.shots.push({m:s,v:sv,life:Math.min(3.5,800/mvW)+(W.rocket?1.5:0),mvW,rocket:!!W.rocket,slug,puffT:0,hit:new Set()});
+      if(slug&&M.shotN%2===0) puff(muzzle.clone().addScaledVector(fwd,2),0xc9ccd0,.55,.35,1.2);
       M.flash=.05;M.flashMesh.position.copy(muzzle).addScaledVector(fwd,1.5);M.flashMesh.scale.setScalar(W.rocket?2:twin?rnd(.28,.42):rnd(.7,1.2));
       if(twin) M.gunSide^=1;
     }
@@ -4844,13 +4971,13 @@ function missionLoop(now){
     if(s.rocket){const sp=s.v.length(),tgt=Math.min(s.mvW,sp+s.mvW*1.8*dt);s.v.multiplyScalar(tgt/Math.max(sp,1e-3));s.puffT-=dt;if(s.puffT<=0){s.puffT=.03;puff(s.m.position,0xd8dde2,1.2,1.1,2)}}
     else s.v.y-=GW*dt;
     const a0=s.m.position.clone();s.m.position.addScaledVector(s.v,dt);
-    const len=s.v.length();s.m.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),s.v.clone().divideScalar(len||1));if(!s.rocket) s.m.scale.set(1,1,clamp(len*.045,2,16));
+    const len=s.v.length();s.m.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),s.v.clone().divideScalar(len||1));if(!s.rocket) s.m.scale.set(1,1,s.slug?clamp(len*.028,1.4,8):clamp(len*.045,2,16));
     for(const a of aimables){
       if(s.life<=0) break;if(s.hit.has(a)) continue;
       if(segHit(a0,s.m.position,a.p,a.r)){
         if(W.pierce){s.hit.add(a);hitAim(a);continue}
         s.life=0;
-        if(W.splash){for(const b of aimables) if(b.p.distanceTo(s.m.position)<W.splash) hitAim(b);puff(s.m.position,0xffa24a,5,.6,4)}
+        if(W.splash){hitAim(a);for(const b of aimables) if(b!==a&&b.p.distanceTo(s.m.position)<W.splash) hitAim(b);puff(s.m.position,0xffa24a,5,.6,4)}
         else hitAim(a);
       }
     }
@@ -4867,10 +4994,19 @@ function missionLoop(now){
     if(best){const mvW=W.rocket?W.mv/4*.8:W.mv/4,t=bd/(mvW+Math.max(P.speed,0)*.5);lead=best.p.clone();if(best.e&&best.e.vel) lead.addScaledVector(best.e.vel,t*M.cruise*.8);if(!W.rocket) lead.y+=.5*GW*t*t}}
   for(const b of M.bits){b.life-=dt;b.v.y-=30*dt;b.m.position.addScaledVector(b.v,dt);b.m.rotation.x+=dt*5;if(b.life<=0) M.scene.remove(b.m)}
   M.bits=M.bits.filter(b=>b.life>0);
-  // lock-on: point roughly at a bad guy and the brackets close in on it; once locked, the shots curve in
-  {let la=null,lbd=1e9;for(const a of aimables){const to=a.p.clone().sub(me),L=to.length();if(L<(air?700:460)&&to.dot(fwd)/L>.94&&L<lbd){lbd=L;la=a}}
-    if(la&&M.lockP===la.p) M.lockT=(M.lockT||0)+dt;else{M.lockT=0;M.lockP=la?la.p:null}lock=!!la&&M.lockT>.35;
-    M.lockA=la;const hl=lock&&aimHot(la);if(hl&&!M.lockOn&&air&&M.msl>0) sfx('lock');M.lockOn=hl}
+  // LOCK-ON. Planes (November 17 playtest): keep the nose on something up to a mile or a mile and a half out and the targeting
+  // reticle appears on it (the initial lock), then it builds to a full lock over MSL_LOCK_T seconds, with seeker beeps that
+  // speed up. It sticks to that target while the nose stays roughly on it, and lets go if you turn away for more than half a
+  // second. Planes only lock on to things a heat seeker can chase (not the supply balloons). Cars and boats lock on in a blink
+  {const range=air?M.lockR:460,need=air?M.lockNeed:.35;let cur=null;
+    if(M.lockK){cur=aimables.find(a=>aimKey(a)===M.lockK)||null;
+      if(cur){const to=cur.p.clone().sub(me),L=to.length()||1;if(L>range*1.15||to.dot(fwd)/L<.86){M.lockOut=(M.lockOut||0)+dt;if(M.lockOut>.5) cur=null}else M.lockOut=0}}
+    if(cur) M.lockT=(M.lockT||0)+dt;
+    else{let best=null,bs=1e9;for(const a of aimables){if(air&&!aimHot(a)) continue;const to=a.p.clone().sub(me),L=to.length();if(L<1||L>range) continue;const c=to.dot(fwd)/L;if(c<(air?.96:.94)) continue;const sc=(1-c)*12+L/range;if(sc<bs){bs=sc;best=a}}
+      cur=best;M.lockK=best?aimKey(best):null;M.lockT=0;M.lockOut=0;if(best&&air){sfx('seek');M.seekBeep=.42}}
+    M.lockP=cur?cur.p:null;M.lockA=cur;M.lockU=cur?clamp(M.lockT/need,0,1):0;lock=!!cur&&M.lockU>=1;
+    const hl=lock&&aimHot(cur);if(hl&&!M.lockOn&&air) sfx('lock');M.lockOn=hl;
+    if(air&&cur&&!lock){M.seekBeep=(M.seekBeep||0)-dt;if(M.seekBeep<=0){M.seekBeep=.42-.28*M.lockU;sfx('seekb')}}}
   $('#m-cross').classList.toggle('lock',lock);
   drawHUD(fwd,lead);
   if(P.hull<=0) return finishMission(false);
@@ -4890,22 +5026,23 @@ const aimLive=a=>a.e?a.e.state==='live':a.t?!!a.t.alive:false,aimKey=a=>a.e||a.t
 // the seeker: the closest bad guy inside its cone, counting ones straight ahead as closer. It's a heat seeker, so it
 // looks for engines: it skips the supply balloons
 function mslSeek(p,dir,aimables,cone,range){let best=null,bs=1e9;for(const a of aimables){if(!aimLive(a)||!aimHot(a)) continue;const to=a.p.clone().sub(p),L=to.length();if(L<1||L>range) continue;const c=to.dot(dir)/L;if(c<cone) continue;const sc=L*(2-c);if(sc<bs){bs=sc;best=a}}return best}
-// MISSILE: one drops off the next pylon, lights up and chases the bad guy you're locked on to (or the closest one in front
-// of you). If its target is knocked out first it looks for another; after 5 seconds it blows up on its own
+// MISSILE: one drops off the next pylon, lights up and chases the bad guy you're locked on to (FOX TWO!). Fired without a
+// full lock it flies straight and only grabs what comes right in front of it, and turns less sharply. If its target is
+// knocked out first it looks for another; after 5 seconds it blows up on its own
 function mslLaunch(aimables,fwd,me){const T=window.THREE,P=M.P,mdl=M.model,slot=(mdl.userData.msl||[])[M.mslMax-M.msl],up=new T.Vector3(0,1,0).applyQuaternion(P.q),k=mdl.scale.x;
   M.msl--;M.mslCd=.3;M.mslShot++;
   let p;if(slot){slot.visible=false;p=slot.position.clone().multiplyScalar(k).applyQuaternion(P.q).add(mdl.position)}else p=me.clone().addScaledVector(up,-1.5);
-  const tgt=M.lockOn&&M.lockA&&aimLive(M.lockA)&&aimHot(M.lockA)?M.lockA:mslSeek(me,fwd,aimables,.8,1000);
+  const locked=!!(M.lockOn&&M.lockA&&aimLive(M.lockA)&&aimHot(M.lockA)),tgt=locked?M.lockA:mslSeek(me,fwd,aimables,MSL_FREE_CONE,MSL_FREE_R);
   const m=M.mslMesh.clone();m.scale.copy(M.mslMesh.scale);m.position.copy(p);m.quaternion.setFromUnitVectors(new T.Vector3(0,0,-1),fwd);M.scene.add(m);
-  M.missiles.push({m,p:p.clone(),v:fwd.clone().multiplyScalar(Math.max(P.speed,0)).addScaledVector(up,-6),t:0,tgt,puffT:0,vmax:Math.max(330,Math.max(P.speed,0)*1.5+150)});
-  sfx('msl');popAt(p,tgt?'MISSILE AWAY!':'MISSILE!','')}
+  M.missiles.push({m,p:p.clone(),v:fwd.clone().multiplyScalar(Math.max(P.speed,0)).addScaledVector(up,-6),t:0,tgt,locked,puffT:0,vmax:Math.max(330,Math.max(P.speed,0)*1.5+150)});
+  if(locked) M.mslLocked=(M.mslLocked||0)+1;sfx('msl');popAt(p,locked?'FOX TWO!':'MISSILE!',locked?'LOCKED':'')}
 function mslStep(dt,aimables,fwd,me){const T=window.THREE,nz=new T.Vector3(0,0,-1);
   M.mslCd=Math.max(0,M.mslCd-dt);
   if(M.mslReq){M.mslReq=false;if(!(M.intro>0)&&!M.done){if(M.msl<=0){warn('NO MISSILES LEFT',.9);sfx('tick')}else if(M.mslCd<=0) mslLaunch(aimables,fwd,me)}}
   for(const s of M.missiles){s.t+=dt;const sp=s.v.length()||1,dir=s.v.clone().divideScalar(sp),fl=s.m.children[s.m.children.length-1];
     if(s.t<.18) s.v.y-=18*dt;// it drops clear of the wing first
-    else{if(s.tgt&&!aimLive(s.tgt)){s.tgt=null;s.lost=true}if(!s.tgt) s.tgt=mslSeek(s.p,dir,aimables,s.lost?.5:.82,s.lost?950:800);
-      if(s.tgt){const to=s.tgt.p.clone().sub(s.p),L=to.length()||1;to.divideScalar(L);const ang=Math.acos(clamp(dir.dot(to),-1,1));if(ang>1e-4) dir.lerp(to,Math.min(1,MSL_TURN*dt/ang)).normalize()}
+    else{if(s.tgt&&!aimLive(s.tgt)){s.tgt=null;s.lost=true}if(!s.tgt) s.tgt=s.locked?mslSeek(s.p,dir,aimables,s.lost?.5:.82,s.lost?950:800):mslSeek(s.p,dir,aimables,MSL_FREE_CONE,MSL_FREE_R);
+      if(s.tgt){const to=s.tgt.p.clone().sub(s.p),L=to.length()||1;to.divideScalar(L);const ang=Math.acos(clamp(dir.dot(to),-1,1));if(ang>1e-4) dir.lerp(to,Math.min(1,(s.locked?MSL_TURN:MSL_TURN*.7)*dt/ang)).normalize()}
       // low-level runs hug the ground, so the missile skims over it: it looks a quarter second ahead and climbs if the
       // ground comes up (except right at the end, so it can still hit something sitting on the ground)
       {const ah=Math.max(sp,60)*.25,q=s.p.clone().addScaledVector(dir,ah),gy=Math.max(M.heightAt(q.x,q.z),M.heightAt((q.x+s.p.x)/2,(q.z+s.p.z)/2)),clr=q.y-gy;
@@ -4921,7 +5058,7 @@ function mslStep(dt,aimables,fwd,me){const T=window.THREE,nz=new T.Vector3(0,0,-
 // the blast knocks out what it hit and anything else close by
 function mslBoom(s,hit,aimables){s.dead=true;M.scene.remove(s.m);fxBlast(s.p.clone(),1.4,0xffa24a);
   const near=aimables.filter(a=>aimLive(a)&&((hit&&aimKey(a)===aimKey(hit))||a.p.distanceTo(s.p)<MSL_SPLASH));
-  if(near.length) M.mslHits++;near.forEach(a=>hitAim(a,4,'missile'))}
+  if(near.length) M.mslHits++;near.forEach(a=>hitAim(a,a.t&&a.t.hard?Math.ceil(a.t.max*MSL_HARD):4,'missile'))}
 function heatUI(){const h=Math.round(M.heat*40)/40;if(h===M.heatShown&&M.hot===M.hotShown) return;M.heatShown=h;M.hotShown=M.hot;
   const r=$('#m-heat'),f=$('#m-fire'),l=$('#m-firel');
   if(r){r.style.setProperty('--hp',Math.round(h*100)+'%');r.style.setProperty('--hc',M.hot?'#ff3b30':h>.7?'#ff7a2a':'#ffd27a')}
@@ -4934,6 +5071,29 @@ function drawHeat(g,x,y){if(M.v.cat!=='air'||!(M.heat>.02||M.hot)) return;const 
   g.lineWidth=4;g.strokeStyle=M.hot?(Math.floor(M.t*6)%2?'#ff3b30':'#ffd0c8'):M.heat>.7?'#ff7a2a':'#ffd27a';g.beginPath();g.arc(x,y,r,a0,a0+span*M.heat);g.stroke();
   if(M.hot){g.font='800 11px Orbitron,system-ui,sans-serif';g.fillStyle='#ff6b5e';g.textAlign='center';g.shadowColor='rgba(0,0,0,.8)';g.shadowBlur=3;g.fillText('GUNS HOT',x,y+r+18)}
   g.restore()}
+// GIANT OBSTACLES each frame: clip one and it hurts (once per obstacle) and shoves you clear; slip past it and it's a NICE
+// DODGE. While you're lined up to hit the next one, a warning and a beep come up a couple of seconds ahead
+function obstStep(dt){const T=window.THREE,P=M.P,prog=M.prog||0;let ahead=null;
+  for(const o of M.obst){if(o.done) continue;const d=o.s-prog;
+    if(d<-40){o.done=true;if(!o.hit&&Math.abs((M.off||0)-o.lat)<120){M.dodges=(M.dodges||0)+1;gain(PTS.dodge,new T.Vector3(o.x,o.y0+o.H*.6,o.z),'NICE DODGE! +'+PTS.dodge)}continue}
+    if(!o.hit&&Math.abs(d)<o.R+30){const r=obstR(o,P.y-o.y0),dx=P.x-o.x,dz=P.z-o.z,dd=Math.hypot(dx,dz)||1;
+      if(r>0&&dd<r+2.5){o.hit=true;M.obstHits=(M.obstHits||0)+1;M.gateRun=0;hurt(M.tier.crash,o.kind==='pine'?'TIMBER! YOU CLIPPED THE GIANT TREE':'CRUNCH! YOU CLIPPED THE ROCK TOWER');
+        const push=r+3-dd;P.x+=dx/dd*push;P.z+=dz/dd*push;puff(new T.Vector3(P.x,P.y,P.z),o.kind==='pine'?0x3a7d52:o.kind==='stack'?0x9ca3ab:0xc4643a,5,1,4)}}
+    if(!ahead&&d>0&&d<Math.max(240,P.speed*2.6)) ahead=o}
+  M.obAhead=!!ahead;
+  if(ahead&&!ahead.hit&&Math.abs((M.off||0)-ahead.lat)<ahead.R+10&&P.y-ahead.y0<ahead.H+2){
+    warn((ahead.kind==='pine'?'GIANT TREE AHEAD!':'ROCK TOWER AHEAD!')+(M.apOn?' TAKE THE STICK AND STEER AROUND IT':' STEER AROUND IT'),.3);
+    M.obBeep=(M.obBeep||0)-dt;if(M.obBeep<=0){M.obBeep=.35;sfx('obst')}}}
+// how wide an obstacle is at height h above its base: the pine is a cone of branches on a short trunk, the towers taper a little
+function obstR(o,h){if(h<0||h>o.H) return -1;if(o.kind==='pine') return h<.15*o.H?.05*o.H:o.R*Math.max(.12,1-.75*(h-.15*o.H)/(.85*o.H));return o.R*(1-o.taper*h/o.H)}
+// the enemy outpost while it stands: it smokes, then burns, as it takes damage, and (PILOT and ACE) its gun lobs orbs at you
+function outpostStep(dt,st){const T=window.THREE,me=new T.Vector3(M.P.x,M.P.y,M.P.z);
+  for(const t of st.targets){if(!t.hard||!t.alive) continue;const f=t.hp/t.max;
+    if(f<.7){t.smk=(t.smk||0)-dt;if(t.smk<=0){t.smk=f<.35?.09:.18;const p=t.pos.clone().add(new T.Vector3(rnd(-15,15),rnd(-2,5),rnd(-15,15)));puff(p,f<.35?0x2b2b2b:0x5a5a5a,rnd(2.2,3.6),1.5,5);if(f<.35&&Math.random()<.5) puff(p,0xff8a2a,1.8,.35,3)}}
+    if(M.tier.orb){M.aaCd=(M.aaCd==null?1.5:M.aaCd)-dt;const L=t.pos.distanceTo(me);if(M.aaCd<=0&&L<620&&L>60){M.aaCd=rnd(1.5,2.3);foeShoot(t.pos.clone().add(new T.Vector3(0,4,0)),M.tier.orb,44)}}}}
+// far off the course: a warning, and in Starfighter mode a gentle pull back toward the course ahead
+function backToCourse(){const P=M.P;warn('BACK TO THE COURSE!',.6);
+  if((S.assist||'casual')==='casual'){const q=coursePoint(M.course.pts,Math.min(M.course.end,M.prog+300));let want=Math.atan2(-(q.x-P.x),-(q.z-P.z))-P.yaw;while(want>Math.PI)want-=2*Math.PI;while(want<-Math.PI)want+=2*Math.PI;M.offCourse=clamp(want,-1,1)*.5}}
 // LOW-LEVEL RUN checks each frame: the radar line, the ground, the trees and rock pillars, and the arch
 function lowStep(dt){const P=M.P,c=M.course,prog=M.prog||0,q=coursePoint(c.pts,prog),ceil=q.y+M.radarUp,over=P.y-ceil;
   const live=M.intro<=0&&prog>60&&prog<c.end-260&&!M.done;
@@ -4980,7 +5140,7 @@ function hudMission(st,dist){
   const left=st.targets.filter(t=>t.alive).length;
   $('#m-obj').textContent=st.kind==='ring'?(st.final?`Reach the Badlands outpost ${st.name} · ${km} km`:`${v.cat==='air'?'Fly':'Drive'} through checkpoint ${M.idx+1} ${st.name} · ${km} km`):
     st.kind==='photo'?`Fly past the gang camp ${st.name} for a photo · ${km} km`:
-    `Blast the outpost radar ${st.name} (${left} left) · ${km} km`;
+    (st.targets.some(t=>t.hard)?`Destroy the enemy outpost ${st.name} (${Math.max(0,Math.round(100*st.targets[0].hp/st.targets[0].max))}% left) · ${km} km`:`Blast the outpost radar ${st.name} (${left} left) · ${km} km`);
   const spd=v.cat==='air'?Math.round(P.vr/KT):Math.round(Math.abs(P.speed)/M.maxS*vSpec(v).top*engMul(v));
   $('#m-spd').textContent=spd;
   const alt=Math.round(P.y/(M.VEX*MWS)*10+M.minElev);
@@ -4991,8 +5151,9 @@ function hudMission(st,dist){
   const hb=$('#m-hull');hb.style.width=clamp(P.hull,0,100)+'%';hb.style.background=P.hull<30?'var(--bad)':P.hull<60?'var(--warn)':'var(--ok)';
   const T=window.THREE;const mk=new T.Vector3(st.x,st.y,st.z).project(M.camera);
   const lab=$('#m-label'),arr=$('#m-arrow');const W=M.root.clientWidth,H=M.root.clientHeight;
-  const nm=st.kind==='ring'?st.name:st.kind==='photo'?(st.final?'Outpost':'Camp')+' · '+st.name:(st.final?'Outpost radar':st.targets.find(t=>t.alive)?.label||'Target');
-  if(mk.z<1&&Math.abs(mk.x)<.95&&Math.abs(mk.y)<.95){lab.hidden=false;lab.style.left=((mk.x+1)/2*W)+'px';lab.style.top=((1-mk.y)/2*H)+'px';lab.textContent=nm+' · '+km+'km';arr.hidden=true}
+  const nm=st.kind==='ring'?st.name:st.kind==='photo'?(st.final?'Outpost':'Camp')+' · '+st.name:(st.targets.some(t=>t.hard)?'Enemy outpost':st.final?'Outpost radar':st.targets.find(t=>t.alive)?.label||'Target');
+  const onIt=!!(M.lockA&&M.lockA.t&&st.targets.includes(M.lockA.t));
+  if(mk.z<1&&Math.abs(mk.x)<.95&&Math.abs(mk.y)<.95){lab.hidden=onIt;lab.style.left=((mk.x+1)/2*W)+'px';lab.style.top=((1-mk.y)/2*H)+'px';lab.textContent=nm+' · '+km+'km';arr.hidden=true}
   else{lab.hidden=true;arr.hidden=false;let ax=mk.x,ay=mk.y;if(mk.z>1){ax=-ax;ay=-ay}arr.style.transform=`rotate(${Math.atan2(ax,ay)}rad)`}
   const g=M.mmCtx;g.putImageData(M.mmBase,0,0);
   const toM=(x,z)=>[(x/M.size+.5)*160,(z/M.size+.5)*160];
@@ -5006,10 +5167,10 @@ function finishMission(won){
   if(!M||M.done) return; M.done=true;
   // a low-level run finished without the radar ever seeing you is a ghost run
   if(won&&M.low&&!M.spotted){M.score+=PTS.ghost;popAt(null,'GHOST RUN!','+'+PTS.ghost+' NEVER SPOTTED',true)}
-  const lowRun=!!M.low,spottedN=M.spotted||0,archOK=!!M.archOK,mslShot=M.mslShot||0,mslHits=M.mslHits||0;
+  const lowRun=!!M.low,spottedN=M.spotted||0,archOK=!!M.archOK,mslShot=M.mslShot||0,mslHits=M.mslHits||0,obN=(M.obst||[]).length,dodges=M.dodges||0;
   const v=M.v,mk=M.mk,ko=M.ko,type=M.type,hits=M.hits,photos=M.photos,bulls=M.bulls||0,missed=(M.missed||0)+(M.missedFinal?1:0),score=M.score||0,tier=M.tier,outName=M.stops[M.stops.length-1].name,rings=M.laneGot||0,rolls=M.rolls||0;
   const stars=won?(score>=M.scoreMax*.7?3:score>=M.scoreMax*.4?2:1):0,starTxt='★'.repeat(stars)+'☆'.repeat(3-stars);
-  banner(won?(M.missedFinal?'MISSION DONE!':'OUTPOST FOUND!'):'MAYDAY!',won?starTxt:'',won?'win':'lose');sfx(won?'win':'lose');
+  banner(won?(M.missedFinal?'MISSION DONE!':M.outpostDown?'OUTPOST DOWN!':'OUTPOST FOUND!'):'MAYDAY!',won?starTxt:'',won?'win':'lose');sfx(won?'win':'lose');
   setTimeout(()=>{
     closeMission();
     if(won){
@@ -5026,7 +5187,7 @@ function finishMission(won){
         <div class="stars">${starTxt}</div>
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost '+esc(outName)+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
         <div class="stats"><div class="stat"><span class="label">Score</span><b>${score.toLocaleString()}</b></div><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div><div class="stat"><span class="label">Bad guys KO</span><b>${ko}</b></div></div>
-        <div class="muted" style="font-size:12px">${tier.name} challenge${tier.rew>1?` (cash x${tier.rew})`:''}. ${v.cat==='ground'?'Gems':v.cat==='air'?'Boxes':'Rings'}: ${rings}.${type==='strike'?' Targets: '+hits+'.':type==='recon'?' Photos: '+photos+'.':''}${rolls?' Barrel rolls: '+rolls+'.':''}${mslShot?' Missiles: '+mslHits+' hit'+(mslHits===1?'':'s')+' from '+mslShot+'.':''}${lowRun?(spottedN?' Spotted by radar: '+spottedN+'.':' Never spotted: ghost run!'):''}${archOK?' Flew under the arch!':''} ${stars<3?'Score more points for three stars.':'Three stars!'}</div>
+        <div class="muted" style="font-size:12px">${tier.name} challenge${tier.rew>1?` (cash x${tier.rew})`:''}. ${v.cat==='ground'?'Gems':v.cat==='air'?'Boxes':'Rings'}: ${rings}.${type==='strike'?' Targets: '+hits+'.':type==='recon'?' Photos: '+photos+'.':''}${rolls?' Barrel rolls: '+rolls+'.':''}${mslShot?' Missiles: '+mslHits+' hit'+(mslHits===1?'':'s')+' from '+mslShot+'.':''}${lowRun?(spottedN?' Spotted by radar: '+spottedN+'.':' Never spotted: ghost run!'):''}${archOK?' Flew under the arch!':''}${obN?' Giant obstacles dodged: '+dodges+' of '+obN+'.':''} ${stars<3?'Score more points for three stars.':'Three stars!'}</div>
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
         ${bulls?`<div class="muted" style="font-size:12px">Bullseye checkpoints: ${bulls} (+${money(1000*bulls)})</div>`:''}${missed?`<div class="muted" style="font-size:12px">Missed: ${missed}. Go through each checkpoint for the full reward.</div>`:''}
         ${prize}${np?`<div class="muted" style="font-size:12px">Mission wins: ${S.mwins}. Next prize: ${esc(np.v.name)} in ${np.left} more win${np.left>1?'s':''}.</div>`:''}
