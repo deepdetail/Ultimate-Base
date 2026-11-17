@@ -186,7 +186,7 @@ Asked for:
   - A 4 second pull-up got spotted, and a swerving test hit the trees, so both checks work.
 
 ### Next for low-level runs
-- More runs per region from your ideas, and obstacles inside the corridor, such as a lone spire or a fallen tree the boxes weave around.
+- More runs per region from your ideas. (Obstacles inside the corridor shipped in round 5, below.)
 - The arch and pillars as real GLB models (see `art/MISSION_3D_ROSTER.md`).
 - Moab's runs are short for jets (about 40 to 50 seconds since the November 17 slowdown), because the map is only 32 km across.
 
@@ -256,8 +256,83 @@ Asked for:
 - A feel test on a phone:
   - Is 10 seconds of heat right, and are 3 seconds of cooling too long?
   - Should missiles reload at checkpoints?
-- A rising lock tone while the lock builds, and a missile camera.
+- A missile camera. (A lock tone that speeds up while the lock builds shipped in round 5, below.)
 - Shorter runs for the Cessna: its Tahoe run is now about 80 seconds.
+
+## Playtest round 5 (November 17), J and Phoenix
+Asked for, after playing the sideways missions:
+1. Obstacles along the path between waypoints, like a large tree, so you can't just fly straight on autopilot. Avoidable, never impossible.
+2. Fly-through checkpoints about 15 to 20 percent further apart.
+3. A throttle on the right, thinner than BOOST, resting at full, with BOOST as a button above it.
+4. Cannons that feel more realistic and less electric: gray metallic tracers with the yellow streaks, more staccato, in bursts of 3 to 5 seconds.
+5. A missile lock from far out (about 1 to 1.5 miles), with a reticle that appears at the initial lock and builds to a full lock over about 3 seconds. Missiles fire with or without a lock, and upgrades can shrink the lock time later.
+6. More and better targets: drones now and then, ground targets like trucks, and an enemy outpost near the end that's targetable from far out and takes more than one missile or 5 to 7+ seconds of cannon fire.
+
+Tabled for later: an end boss, importing 3D assets (the Cessna 182 model), and deeper weapon and plane upgrades.
+
+- **Giant obstacles:**
+  - A huge pine in the Sierra, a granite rock stack where a run crosses the lake, and a sandstone tower in Moab. Each stands right on the flight line and rises about 20 to 28 units above the flight path.
+  - About one every 14 seconds of flying: 3 to 6 on every run a plane can draw. They're spread evenly, at least 4 seconds apart, and never near the start, a checkpoint, the Moab arch or the final run-in.
+  - Each leaves a wide gap on both sides (the corridor runs about 48 to 74 units each way from the middle), or you can hop over it just under the radar line.
+  - The boxes stop about 2.6 seconds before an obstacle and pick up about 1.8 seconds after it, so a dodge never costs a box.
+  - While you're lined up to hit one, a warning (GIANT TREE AHEAD! or ROCK TOWER AHEAD!) and a beep come up about 2.5 seconds ahead.
+  - Clipping one hurts once, as much as a drone crash (6 on ROOKIE, 7 on PILOT, 9 on ACE), shoves you clear and breaks the box streak. Slipping past is a NICE DODGE, +50.
+  - AUTOPILOT does not steer around them, on purpose. It tells you to take the stick, and once you do near an obstacle it waits until you're past before taking over again.
+- **Boxes 18 percent further apart:** about every 1.5 seconds instead of 1.3, and at least 82 units apart instead of 70.
+- **Throttle (Starfighter):**
+  - A thin throttle on the right edge (30 pixels wide; BOOST is 54) that rests at full, the normal cruise speed. Slide it down to slow to as little as half speed. It stays where you put it.
+  - BOOST is now a button right above it, and still goes faster than full, whatever the throttle says.
+  - On a keyboard, Q or Ctrl slows down and R speeds back up.
+  - ASSISTED and REAL PILOT keep the big throttle.
+- **Bursty guns:**
+  - Tap FIRE for a 4 second burst, so your thumb is free while it fires. Hold FIRE and the guns fire burst after burst, with about half a second between them.
+  - A steady clip you can count: about 9 to 11 rounds a second from both wings for most guns, and about 17 for the Vulcan. These replace the round 4 rates of 14 to 28 a second.
+  - Real guns fire plain gray metal rounds with a glowing tracer every third round. They puff gun smoke at the muzzle and make a sharp crack and thump instead of a zap.
+  - Planes without a weapon upgrade now have plain Wing Guns with yellow tracers instead of the electric Stun Blaster. Cars and boats keep the Stun Blaster.
+  - About 10 seconds of firing still overheats the guns: 11.2 seconds of holding FIRE, counting the pauses.
+- **Missile lock:**
+  - Keep the nose on a target (within about 16 degrees) and the reticle pops up on it: yellow corners, a ring that fills up over 3 seconds, LOCKING and the range in miles. The seeker beeps speed up as it builds.
+  - Range: 1 mile for slow planes up to 1.5 miles for fast jets (Cessna 1, L-39 about 1.2, F-16 1.5).
+  - At full lock it snaps tight and turns red with a diamond: LOCKED, a double beep, and the MISSILE button pulses.
+  - The lock stays on its target while the nose stays roughly on it, and lets go after half a second pointed away.
+  - Missiles fire with or without a lock:
+    - Locked: FOX TWO!, and it chases that target hard.
+    - Unlocked: it flies straight, only grabs what comes right in front of it (within about a mile), and turns less sharply.
+  - The lock time is one setting in the code (`lockTime`), ready for an upgrade that shrinks it.
+- **More targets:**
+  - Drones now and then: one flight per hop on ROOKIE and two on PILOT and ACE, down from two or three swarms per hop.
+  - **A gang convoy every hop:**
+    - 2 trucks, or 3 on the last hop, drive up the valley toward you on the ground beside the flight line, never on water.
+    - They take 3 hits (4 on PILOT and ACE). On PILOT and ACE they lob orbs.
+  - Supply balloons, and enemy jets on ACE, as before.
+  - **The enemy outpost (strike runs):**
+    - A walled yard about 200 m across with a command hut, a barracks, a hangar, fuel tanks, a radar dish, an anti-air gun and a flag. It stands beside the flight line at the end of the run, and replaces the old radar and road block for planes.
+    - Lockable from up to 1.5 miles, with an armor bar floating over it.
+    - Armor: about 5.5 seconds of steady fire from your plane's guns on ROOKIE, 6.5 on PILOT and 7.5 on ACE, or 3 missiles (each knocks off 40 percent).
+    - It smokes, then burns, as it takes damage. Its gun lobs orbs at you on PILOT and ACE. It goes up in a chain of blasts.
+    - Fly past it while it's still standing and you come around for another pass, like a real strafing run. The plane keeps straight for about 2.6 seconds, then swings back around (by itself in Starfighter mode and on AUTOPILOT). You get 35 seconds near it, then the mission ends without it: fewer points, never a loss.
+  - Recon flights (planes without a weapon upgrade) still end with the camp photo.
+- **Measured in the headless simulation:**
+  - **Obstacles:**
+    - A scripted pilot that steers around them dodged every one: L-39 on East Shore 6 of 6 (with 36 of 36 boxes), F-16 4 of 4, Cessna in Moab 3 of 3.
+    - Hands-off AUTOPILOT hits every one (5 of 5 on the L-39's East Shore run), as designed.
+  - **Guns:** a tap gave one 4.05 second burst of 41 rounds. Holding FIRE gave 3 bursts with 2 pauses and overheated at 11.2 seconds.
+  - **Throttle:** the L-39 flies 105 units a second at full, 79 at half, 53 at zero and 166 with BOOST.
+  - **Lock:** the initial lock came at 474 units (1.18 miles) for the L-39 and 601 units (1.5 miles) for the F-16, and the full lock 3.05 seconds later.
+  - **Outpost:** guns only (M2 .50 cal) took 5.9 seconds of firing on ROOKIE, 6.8 on PILOT and 7.8 on ACE. Missiles only took 3 hits on every tier.
+  - **The kids' saves:**
+    - Phoenix (F/A-18 with the Vulcan): the outpost went down on all three test runs, after 0, 2 and 3 come-around passes.
+    - Dude (Cessna with the M2): it went down on the first pass.
+    - Both summaries list the dodged obstacles.
+  - **Other vehicles:** cars, the tank, the boat, the hover saucer, ASSISTED and REAL PILOT run with no errors.
+
+### Next for round 5
+- **A feel test on a phone:**
+  - Do the obstacles look big enough from far away?
+  - Is a 4 second burst right?
+  - Does the 3 second lock feel fair in fast jets? An F-16 at full throttle only gets its full lock about 70 units out, so pulling the throttle back, or a second pass, matters.
+- Lock time upgrades in the Hangar.
+- Tabled by J and Phoenix: an end boss, the Cessna 182 3D model, and deeper weapon and plane upgrades.
 
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
