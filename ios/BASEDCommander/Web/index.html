@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="e816b55-20261117">
+<meta name="based-build" content="125e565-20261117">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -1651,13 +1651,14 @@ const ROUTES={
 // LOW-LEVEL RUNS for planes (November 2026): one trip from one place to another, flown low through valleys, canyons and
 // along shorelines, under the Badlands Gang's radar, instead of a loop around the map. A plane gets a run that takes it
 // about a minute: slow planes get the short ones and jets the long ones. arch: how far along a Moab run the boxes lead
-// under a giant red rock arch.
+// under a giant red rock arch. wet: the run is mostly over water, so a tunnel can't go there (a mission with one gets a
+// canyon run instead).
 const RUNS={
   tahoe:[
     {name:'Truckee River Canyon',from:'Truckee',to:'Tahoe City',brief:'Follow the Truckee River canyon south, low between the pines, to the gang hideout at Tahoe City.'},
-    {name:'West Shore',from:'Tahoe City',to:'Emerald Bay',brief:'Skim the west shore, low over the water beside the trees, down to Emerald Bay.'},
+    {name:'West Shore',from:'Tahoe City',to:'Emerald Bay',wet:true,brief:'Skim the west shore, low over the water beside the trees, down to Emerald Bay.'},
     {name:'Donner Lake to Emerald Bay',from:'Donner Lake',to:'Emerald Bay',brief:'From Donner Lake, down the Truckee River canyon and along the west shore to Emerald Bay.'},
-    {name:'East Shore',from:'Incline Village',to:'South Lake Tahoe',brief:'Down the east shore past Sand Harbor, low over the water, to South Lake Tahoe.'}],
+    {name:'East Shore',from:'Incline Village',to:'South Lake Tahoe',wet:true,brief:'Down the east shore past Sand Harbor, low over the water, to South Lake Tahoe.'}],
   moab:[
     {name:'Arches Run',from:'Moab',to:'Delicate Arch',arch:.62,brief:'Up the canyons from Moab, under a giant rock arch, to the gang lookout by Delicate Arch.'},
     {name:'River to Balanced Rock',from:'Colorado River',to:'Balanced Rock',arch:.6,brief:'Low up the canyon from the Colorado River, under a giant rock arch, to Balanced Rock.'},
@@ -2996,7 +2997,10 @@ function campTier(d){const e=Math.min(d,3);return {name:d<1?'ROOKIE':d<2?'PILOT'
 // the next plane mission from the city you fly from (once that city is cleared, a patrol to one of its stops)
 function campMission(){const C=camp(),c=C.city,ch=cityChain(),i=ch.indexOf(c),stops=cityStops(c),won=C.st[c]||0,done=won>=7,k=done?(S.mwins||0)%7:won,
   d=i+(done?1:k/7),dPrev=done?d:k?i+(k-1)/7:i-1+6/7;
-  return {city:c,i,k,won,done,stop:stops[k],stops,d,tier:campTier(d),terrain:cityTerrain(c),newFeat:done?[]:CAMP_FEATS.filter(([t])=>t<=d&&t>dPrev).map(f=>f[1])}}
+  const tr=cityTerrain(c),om=obstMenu(d,k,tr),op=obstMenu(dPrev,k?k-1:6,tr),of=[];
+  if(om.walls>op.walls) of.push(om.walls>1?'two walls to fly over':'a wall to fly over');if(om.gaps>op.gaps) of.push(om.gaps>1?'two walls with gaps':'a wall with a gap (or a bridge) to fly through');
+  if(om.tunnel&&![...Array(i*7+k)].some((_,j)=>obstMenu(Math.floor(j/7)+j%7/7,j%7,cityTerrain(ch[Math.floor(j/7)])).tunnel)) of.push('a short tunnel');
+  return {city:c,i,k,won,done,stop:stops[k],stops,d,tier:campTier(d),terrain:tr,newFeat:done?[]:[...CAMP_FEATS.filter(([t])=>t<=d&&t>dPrev).map(f=>f[1]),...of]}}
 // a plane mission that knocked out its outpost moves you one stop down the road; the seventh opens the next city
 function campAdvance(plan){const C=camp(),c=plan.city;if(plan.done||(C.st[c]||0)!==plan.k) return null;C.st[c]=plan.k+1;
   const next=cityChain()[plan.i+1];
@@ -3976,7 +3980,7 @@ const GUN_BURST=4,GUN_GAP=.55,GUN_TRACER=3,gunCadence=W=>clamp(W.rate*.9,.06,.11
 const MILE=402,MSL_LOCK_T=3,MSL_FREE_CONE=.9,MSL_FREE_R=420,MSL_HARD=.4,lockTime=v=>MSL_LOCK_T,lockRange=cruise=>clamp(cruise*4.5,MILE,MILE*1.5);
 const mslCount=v=>v.cat==='air'?(MSL_N[v.id]||4):0;
 // points for everything you hit or fly through
-const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500,outpost:1500,dodge:50,recon:200,bunker:300,dish:150,turret:200,wall:60,barricade:60};
+const PTS={box:20,drone:100,bot:150,jet:300,truck:250,mine:75,balloon:60,block:80,radar:500,camp:400,ring:50,gate:250,bull:250,token:25,ghost:1000,arch:500,outpost:1500,dodge:50,recon:200,bunker:300,dish:150,turret:200,wall:60,barricade:60,over:60,gap:100,tunnel:150};
 const KILLW={spin:['SPIN SMASH!','WHIRLWIND!','ROLL ATTACK!'],drone:['BOOM!','POW!','ZAP!','KABOOM!','BLAM!'],bot:['BONK!','ZAP!','CLANK!'],jet:['JET DOWN!','KABOOM!'],balloon:['POP!'],block:['CRUNCH!','SMASH!'],mine:['SPLOOSH!','KA-SPLASH!'],truck:['TRUCK STOPPED!'],pickup:['TECHNICAL DOWN!','TRUCK STOPPED!'],buggy:['BUGGY BUSTED!'],suv:['SUV STOPPED!'],recon:['RECON PLANE DOWN!','SPLASH ONE!'],
   bunker:['BUNKER BUSTED!','KABOOM!'],dish:['DISH DOWN!','NO SIGNAL!'],turret:['TURRET DOWN!','SILENCED!'],wall:['WALL DOWN!','CRUMBLE!'],barricade:['BARRICADE BUSTED!'],missile:['DIRECT HIT!','KABOOM!','SPLASH ONE!','MISSILE HIT!']};
 function polyLen(p){let L=0;for(let i=1;i<p.length;i++) L+=Math.hypot(p[i].x-p[i-1].x,p[i].z-p[i-1].z);return L}
@@ -4414,6 +4418,42 @@ function barrelRoll(dir){if(!M||!M.FM||M.done||M.intro>0||(S.assist||'casual')!=
 function flickIn(x){if(!M) return;const f=M.flick||(M.flick={side:0,dir:0,at:-9}),s=x>.7?1:x<-.7?-1:0,now=performance.now()/1000;
   if(s&&s!==f.side){if(f.dir===s&&now-f.at<.45){barrelRoll(s);f.dir=0;f.at=-9}else{f.dir=s;f.at=now}}
   if(Math.abs(x)<.35) f.side=0;else if(s) f.side=s}
+// ---------- round 6, ship C: rock that looks real, and the new obstacles' shapes ----------
+// J and Phoenix didn't love the Moab spires (stacked cylinders). Real Moab rock is layered sandstone: red, orange and cream bands
+// under a darker cap rock, with ragged sides. The Sierra's is gray granite
+const ROCK_PAL={sand:[0xa84a2a,0xc4643a,0xd9773f,0xe8a06a,0xc4643a,0xb5532c,0xd9773f],granite:[0x5d636a,0x8a9098,0x6e747b,0x9aa0a8,0x555b62,0x7b8189]};
+// a sandstone tower: a lathe that tapers in stepped ledges (the way layered rock weathers) up to a flat top of darker cap
+// rock, bumped by a little noise and banded like real rock. Base radius 1, height 1
+function rockGeo(T,seed){const R=seeded(seed),prof=[];for(let i=0;i<=14;i++){const y=i/14*.94;prof.push([(1-.46*y)*(i%2?.95:1.03)*(.94+R()*.12),y])}
+  prof.push([.5*(.95+R()*.1),.975],[.45,1],[0,1]);
+  const g=new T.LatheGeometry(prof.map(([r,y])=>new T.Vector2(r*(.9+R()*.18),y)),11).toNonIndexed(),P=g.attributes.position,n=P.count,col=new Float32Array(n*3),c=new T.Color(),band=ROCK_PAL.sand,jit=new Map();
+  for(let i=0;i<n;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),k=Math.round(x*400)+'_'+Math.round(y*400)+'_'+Math.round(z*400);let j=jit.get(k);if(!j){j=[1+(R()-.5)*.24,(R()-.5)*.025];jit.set(k,j)}
+    const yy=y>.015&&y<.985?y+j[1]:y;P.setXYZ(i,x*j[0],yy,z*j[0]);c.setHex(yy>.87?0x8a3f22:band[Math.floor(yy*band.length*1.3)%band.length]);col.set([c.r,c.g,c.b],i*3)}
+  g.setAttribute('color',new T.BufferAttribute(col,3));g.computeVertexNormals();return g}
+// a rock fin or ridge across the corridor (a wall to fly over): a box with a ragged top and bands. Unit size 1 by 1 by 1, centered
+function finGeo(T,pal,seed){const R=seeded(seed),g=new T.BoxGeometry(1,1,1,28,10,1).toNonIndexed(),P=g.attributes.position,n=P.count,col=new Float32Array(n*3),c=new T.Color(),band=ROCK_PAL[pal],jit=new Map();
+  for(let i=0;i<n;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),k=Math.round(x*560)+'_'+Math.round(y*560);let j=jit.get(k);if(!j){j=[(R()-.5)*.12,(R()-.5)*.3];jit.set(k,j)}
+    P.setXYZ(i,x,y>.49?y+j[0]:y,z*(1+(y>-.49?j[1]:0)));c.setHex(band[Math.floor((y+.5)*band.length*1.4)%band.length]);col.set([c.r,c.g,c.b],i*3)}
+  g.setAttribute('color',new T.BufferAttribute(col,3));g.computeVertexNormals();return g}
+// a rock spur with a tunnel through it: a ragged mound, extruded along z from 0 to L, with an arched bore at the flight line
+// (yc, measured from the mound's base). The bore is dark inside
+function tunnelGeo(T,pal,span,Ht,yc,bw,bh,L,seed){const R=seeded(seed),sh=new T.Shape(),n=10;sh.moveTo(-span,0);
+  for(let i=0;i<=n;i++){const f=i/n;sh.lineTo(-span+2*span*f,Ht*(.55+.45*Math.sin(Math.PI*f))*(.9+R()*.12))}
+  sh.lineTo(span,0);sh.lineTo(-span,0);
+  const ye=yc+bh-bw*.5,hole=new T.Path();hole.moveTo(-bw,yc-bh);hole.lineTo(bw,yc-bh);hole.lineTo(bw,ye);hole.absellipse(0,ye,bw,bw*.5,0,Math.PI,false);hole.lineTo(-bw,yc-bh);sh.holes.push(hole);
+  const g=new T.ExtrudeGeometry(sh,{depth:L,bevelEnabled:false,curveSegments:10}),P=g.attributes.position,cnt=P.count,col=new Float32Array(cnt*3),c=new T.Color(),band=ROCK_PAL[pal];
+  for(let i=0;i<cnt;i++){const x=P.getX(i),y=P.getY(i),inB=Math.abs(x)<bw+.6&&y>yc-bh-.6&&y<yc+bh+.6;c.setHex(inB?0x2b2724:band[Math.floor(y/Math.max(1,Ht)*band.length*1.6)%band.length]);col.set([c.r,c.g,c.b],i*3)}
+  g.setAttribute('color',new T.BufferAttribute(col,3));g.computeVertexNormals();return g}
+// which obstacles a mission gets, by how far along the campaign it is (J and Phoenix: mix the new ones in as it gets harder, not
+// all at once): giant trees and rock towers from the start, a wall to fly over from mission 3, a wall with a gap (a bridge
+// where the run crosses water) from mission 5, two of each later on, and a short tunnel on Lake Tahoe's fourth mission (then
+// every other Sierra mission from Las Vegas on, and some canyon missions from the middle of Las Vegas on)
+function obstBrief(obst,mk){const n=k=>obst.filter(o=>o.kind===k).length,x=[];let t='';
+  if(obst.some(o=>!o.solids)) t+=` Giant ${mk==='moab'?'rock towers':'trees'} stand in the way: steer around them.`;
+  if(n('wall')) x.push(n('wall')>1?'pull up over the walls':'pull up over the wall');if(n('gate')) x.push(n('gate')>1?'fly through the gaps in the walls':'fly through the gap in the wall');
+  if(n('bridge')) x.push('fly under the bridge');if(n('tunnel')) x.push('stay in the middle of the tunnel');
+  return t+(x.length?' Up ahead: '+x.join(', ').replace(/, ([^,]*)$/,' and $1')+'.':'')}
+function obstMenu(d,k,mk){return {walls:d<.28?0:d<1.4?1:2,gaps:d<.57?0:d<1.7?1:2,tunnel:mk==='tahoe'?(k===3||(d>=1&&k%2===1)):(d>=1.4&&k%2===0)}}
 // mission scale: map stretch, tree size and vehicle size relative to the original prototype
 const MWS=2.5,TREE_S=.38,VEH_S=.65,AIR_S=.85;
 function buildMission(v,mk,route,pilot,plan){
@@ -4453,7 +4493,8 @@ function buildMission(v,mk,route,pilot,plan){
   // planes fly a low-level run that takes about a minute at this plane's speed (slow planes get the short runs)
   const gk0=v.cat==='air'?clamp(cruise/90,1,1.7):1;let run=null;
   if(v.cat==='air'&&RUNS[mk]){const runs=RUNS[mk].map(r=>{const a=markP(r.from),b=markP(r.to);return Object.assign({},r,{a0:[a[0]/sc,a[1]/sc],b0:[b[0]/sc,b[1]/sc],secs:Math.hypot(b[0]-a[0],b[1]-a[1])*cell*1.15/cruise})});
-    const fit=runs.filter(r=>r.secs>=40&&r.secs<=100);run=fit.length?pick(fit):runs.reduce((x,y)=>Math.abs(y.secs-60)<Math.abs(x.secs-60)?y:x)}
+    const dry=plan&&obstMenu(plan.d,plan.k,mk).tunnel?runs.filter(r=>!r.wet):[],pool=dry.length?dry:runs,fit=pool.filter(r=>r.secs>=40&&r.secs<=100);
+    run=fit.length?pick(fit):pool.reduce((x,y)=>Math.abs(y.secs-60)<Math.abs(x.secs-60)?y:x)}
   const turnR0=FM?cruise/clamp(.35+(FM.gmax||4)*.07,.55,1):0;
   const course=makeCourse({v,route,run,startG,markP,snap,g2w,w2g,heightAt,water,hgt,n,cell,cruise,mk,sc,n0,elev0:dec.elev,water0:dec.water,clear:10*gk0+7,corridor:37.5*gk0+10,foot:(mk==='moab'?10:16)*gk0,
     turnR:run?turnR0/1.6:turnR0,marks:allMarks.map(m=>Object.assign({name:m.name},g2w(m.p[0]*sc,m.p[1]*sc)))});
@@ -4541,8 +4582,10 @@ function buildMission(v,mk,route,pilot,plan){
       const lt=.72+R()*.22;col.setRGB(lt*.9,lt,lt*.88);im.setColorAt(k,col);k++;tgAdd(w.x,w.z,y0,y0+w.s*3.65,w.s*1.15)}
     im.count=k;scene.add(im);}
   if(mk==='moab'){[['Delicate Arch',34],['Fiery Furnace',26]].forEach(([nm,r])=>{const p=g2w(...markP(nm));const a=new T.Mesh(new T.TorusGeometry(r,r*.22,10,24,Math.PI),toonMat(T,0xc9653c));a.position.set(p.x+40,heightAt(p.x+40,p.z)-2,p.z);a.rotation.y=.6;scene.add(a)});
-    const br=g2w(...markP('Balanced Rock'));const base=new T.Mesh(new T.CylinderGeometry(6,9,40,10),toonMat(T,0xb85a33));base.position.set(br.x+30,heightAt(br.x+30,br.z)+20,br.z);scene.add(base);
-    const top=new T.Mesh(new T.SphereGeometry(14,14,10),toonMat(T,0xd9773f));top.scale.y=.7;top.position.set(br.x+30,base.position.y+28,br.z);scene.add(top);}
+    const br=g2w(...markP('Balanced Rock')),by=heightAt(br.x+30,br.z);const base=new T.Mesh(rockGeo(T,7),toonMat(T,0xffffff,{vertexColors:true,flatShading:true}));base.scale.set(10,40,10);base.position.set(br.x+30,by,br.z);scene.add(base);
+    const bg=new T.IcosahedronGeometry(14,1),bp=bg.attributes.position,bj=new Map(),BR=seeded(9);
+    for(let i=0;i<bp.count;i++){const k=Math.round(bp.getX(i))+'_'+Math.round(bp.getY(i))+'_'+Math.round(bp.getZ(i));let f=bj.get(k);if(f==null){f=.84+BR()*.32;bj.set(k,f)}bp.setXYZ(i,bp.getX(i)*f,bp.getY(i)*f,bp.getZ(i)*f)}
+    bg.computeVertexNormals();const top=new T.Mesh(bg,toonMat(T,0xd9773f,{flatShading:true}));top.scale.set(1.1,.85,.95);top.rotation.z=.12;top.position.set(br.x+32,by+50,br.z);scene.add(top);}
   {const cv=document.createElement('canvas');cv.width=cv.height=128;const g=cv.getContext('2d');
     [[64,70,34],[40,78,24],[88,78,26],[60,52,26],[80,60,22]].forEach(([x,y,r])=>{const gr=g.createRadialGradient(x,y,r*.2,x,y,r);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.beginPath();g.arc(x,y,r,0,7);g.fill()});
     const tex=new T.CanvasTexture(cv);const R=seeded(5);const sm=new T.SpriteMaterial({map:tex,transparent:true,depthWrite:false,opacity:.95,fog:true});
@@ -4557,14 +4600,19 @@ function buildMission(v,mk,route,pilot,plan){
   if(course.low&&mk==='moab'){const HR=seeded(41),list=[];
     for(let s0=300;s0<course.end-400;s0+=140+HR()*120){const p=coursePoint(course.pts,s0),sd=HR()<.5?-1:1,lat=sd*(course.corridor+6+HR()*30),x=p.x+p.nx*lat,z=p.z+p.nz*lat;
       if(waterAt(x,z)) continue;list.push({x,z,y0:heightAt(x,z)-2,h:24+HR()*30,w:6+HR()*5,ry:HR()*6})}
-    const im2=new T.InstancedMesh(new T.CylinderGeometry(.55,1,1,7),toonMat(T,0xc4643a,{flatShading:true}),Math.max(1,list.length)),d=new T.Object3D();
-    list.forEach((o,i)=>{d.position.set(o.x,o.y0+o.h/2,o.z);d.scale.set(o.w,o.h,o.w);d.rotation.y=o.ry;d.updateMatrix();im2.setMatrixAt(i,d.matrix);tgAdd(o.x,o.z,o.y0,o.y0+o.h,o.w)});
+    const im2=new T.InstancedMesh(rockGeo(T,41),toonMat(T,0xffffff,{vertexColors:true,flatShading:true}),Math.max(1,list.length)),d=new T.Object3D();
+    list.forEach((o,i)=>{d.position.set(o.x,o.y0,o.z);d.scale.set(o.w,o.h,o.w);d.rotation.y=o.ry;d.updateMatrix();im2.setMatrixAt(i,d.matrix);tgAdd(o.x,o.z,o.y0,o.y0+o.h,o.w)});
     im2.count=list.length;scene.add(im2);
-    if(run&&run.arch){const sA=course.end*run.arch,q=coursePoint(course.pts,sA),R=Math.max(75,30*gk0*1.7),r=Math.max(12,11*gk0);
-      const gL=heightAt(q.x+q.nx*R,q.z+q.nz*R),gR=heightAt(q.x-q.nx*R,q.z-q.nz*R),base=Math.min(gL,gR)-3,top=Math.max(q.y+10*gk0+18,base+45),k2=(top-base)/(R-r);
-      const ag=new T.TorusGeometry(R,r,9,30,Math.PI);ag.scale(1,k2,1.9);
-      {const ap=ag.attributes.position,rr=seeded(21);for(let i=0;i<ap.count;i++) ap.setXYZ(i,ap.getX(i)*(1+(rr()-.5)*.05),ap.getY(i)*(1+(rr()-.5)*.05),ap.getZ(i)*(1+(rr()-.5)*.1));ag.computeVertexNormals()}
-      const am=new T.Mesh(ag,toonMat(T,0xe0874d,{flatShading:true}));am.position.set(q.x,base,q.z);am.rotation.y=Math.atan2(q.dx,q.dz);scene.add(am);
+    // round 6 (J and Phoenix: the arch felt small): a much grander arch, about 240 units across and tall enough to fly
+    // under with room to spare, in layered sandstone. In a deep canyon its feet go into the canyon walls (so it spans the
+    // canyon about 65 units over the flight line, where you can see it) instead of standing on the rims far overhead
+    if(run&&run.arch){const sA=course.end*run.arch,q=coursePoint(course.pts,sA),R=Math.max(118,30*gk0*2.5),r=Math.max(18,15*gk0);
+      const gL=heightAt(q.x+q.nx*R,q.z+q.nz*R),gR=heightAt(q.x-q.nx*R,q.z-q.nz*R),base=Math.min(gL,gR,q.y-20)-3,top=Math.max(q.y+10*gk0+46,base+90),k2=(top-base)/(R-r);
+      const ag=new T.TorusGeometry(R,r,12,44,Math.PI);ag.scale(1,k2,2.6);
+      {const ap=ag.attributes.position,rr=seeded(21),cl=new Float32Array(ap.count*3),cc=new T.Color(),band=ROCK_PAL.sand;
+        for(let i=0;i<ap.count;i++){ap.setXYZ(i,ap.getX(i)*(1+(rr()-.5)*.06),ap.getY(i)*(1+(rr()-.5)*.06),ap.getZ(i)*(1+(rr()-.5)*.14));cc.setHex(band[Math.floor(Math.max(0,ap.getY(i))/((R+r)*k2)*band.length*2.2)%band.length]);cl.set([cc.r,cc.g,cc.b],i*3)}
+        ag.setAttribute('color',new T.BufferAttribute(cl,3));ag.computeVertexNormals()}
+      const am=new T.Mesh(ag,toonMat(T,0xffffff,{vertexColors:true,flatShading:true}));am.position.set(q.x,base,q.z);am.rotation.y=Math.atan2(q.dx,q.dz);scene.add(am);
       arch={s:sA,base,top,half:R-r,done:false}}}
   // GIANT OBSTACLES (November 17 playtest): a huge pine (Sierra), a granite rock stack where the run is over the lake, or a
   // sandstone tower (Moab) stands right on the flight line between checkpoints, so you can't just fly straight on autopilot.
@@ -4572,22 +4620,71 @@ function buildMission(v,mk,route,pilot,plan){
   // up again after it. About one every 14 seconds of flying (2 to 6 a run), spread evenly and at least 4 seconds apart, never
   // near the start, a checkpoint, the arch or the final run-in
   const obst=[];
+  // Round 6, ship C (J and Phoenix): new kinds mixed in as the campaign gets harder (obstMenu). A wall across the corridor to fly
+  // over, a wall with a gap to fly through (a bridge to fly under where the run crosses water) and a short tunnel through a rock
+  // spur. Each has solid parts and a window to pass through, measured in its own frame: u across, y up, v along
   if(course.low){const OR=seeded(53),Ls=clamp(cruise*5,400,1200),a0=Math.max(550,cruise*7),a1=course.end-Ls-250,want=clamp(Math.round(course.end/cruise/14),2,6),gapMin=Math.max(300,cruise*4.2),cand=[],picks=[];
-    for(let s0=a0;s0<=a1;s0+=40) if(!course.cps.some(cp=>Math.abs(cp.s-s0)<Math.max(170,cruise*2.2))&&!(arch&&Math.abs(arch.s-s0)<Math.max(260,cruise*3))) cand.push(s0);
+    const menu=obstMenu(plan?plan.d:1,plan?plan.k:3,mk),lg=Math.max(82,cruise*1.53),span=course.corridor+45;
+    // the tunnel goes first: the straightest dry stretch in the middle of the run
+    let tun=null;if(menu.tunnel){const L=clamp(cruise*1.5,100,220);let bs=1e9;
+      for(let sm=Math.max(a0+L/2,course.end*.25);sm<=Math.min(a1-L/2,course.end*.72);sm+=40){if(course.cps.some(cp=>Math.abs(cp.s-sm)<Math.max(170,cruise*2.2)+L/2)||(arch&&Math.abs(arch.s-sm)<Math.max(260,cruise*3)+L/2)) continue;
+        const A=coursePoint(course.pts,sm-L/2),B=coursePoint(course.pts,sm+L/2),turn=Math.abs(Math.atan2(A.dx*B.dz-A.dz*B.dx,A.dx*B.dx+A.dz*B.dz));
+        if(turn>.22||[-L/2,0,L/2].some(o=>{const q=coursePoint(course.pts,sm+o);return waterAt(q.x,q.z)||waterAt(q.x+q.nx*span*.6,q.z+q.nz*span*.6)||waterAt(q.x-q.nx*span*.6,q.z-q.nz*span*.6)})) continue;
+        const sc=turn+Math.abs(sm-course.end*.5)/course.end*.3;if(sc<bs){bs=sc;tun={s0:sm-L/2,s1:sm+L/2}}}}
+    for(let s0=a0;s0<=a1;s0+=40) if(!course.cps.some(cp=>Math.abs(cp.s-s0)<Math.max(170,cruise*2.2))&&!(arch&&Math.abs(arch.s-s0)<Math.max(260,cruise*3))&&!(tun&&s0>tun.s0-gapMin*.6&&s0<tun.s1+gapMin*.6)) cand.push(s0);
     for(let k=0;k<want;k++){const t=a0+(k+.5)*(a1-a0)/want;let best=null;for(const c of cand) if(!picks.some(q=>Math.abs(q-c)<gapMin)&&(best==null||Math.abs(c-t)<Math.abs(best-t))) best=c;if(best!=null) picks.push(best)}
-    for(const sp of picks.sort((a,b)=>a-b)){const s0=sp+(OR()-.5)*30,
-      p=coursePoint(course.pts,s0),lat=(OR()<.5?-1:1)*(2+OR()*7),x=p.x+p.nx*lat,z=p.z+p.nz*lat,y0=heightAt(x,z)-1.5,H=Math.max(34,p.y+20+OR()*8-y0),kind=mk==='moab'?'tower':waterAt(x,z)?'stack':'pine';
-      obst.push({s:s0,x,z,lat,y0,H,R:H*(kind==='pine'?.3:kind==='stack'?.25:.2),taper:kind==='stack'?.4:.3,kind,hit:false,done:false})}
+    picks.sort((a,b)=>a-b);
+    const frame=p=>{const G=new T.Group();G.position.set(p.x,0,p.z);G.rotation.y=Math.atan2(p.dx,p.dz);scene.add(G);return G};
+    const box=(G,w,h,dd,x,y,z,mat)=>{const m=new T.Mesh(new T.BoxGeometry(w,h,dd),mat);m.position.set(x,y,z);G.add(m);return m};
+    // a wall to fly over, or a wall with a gap to fly through (a bridge to fly under, over water)
+    const makeSpecial=(kind,s0)=>{const p=coursePoint(course.pts,s0),yc=p.y,wet=waterAt(p.x,p.z),g0=Math.min(...[-1,-.5,0,.5,1].map(f=>heightAt(p.x+p.nx*f*span,p.z+p.nz*f*span)))-6,G=frame(p),
+        o={kind,s:s0,ox:p.x,oz:p.z,dx:p.dx,dz:p.dz,v0:-5,v1:5,sIn:s0-5,sOut:s0+5,lat:0,R:span,hit:false,done:false,sA:s0-Math.max(lg*1.25,cruise*2.6),sB:s0+Math.max(lg*.9,cruise*1.8)};
+      if(kind==='wall'){o.top=yc+16+3*gk0;o.solids=[{u0:-span,u1:span,y0:-1e9,y1:o.top}];Object.assign(o,{pts:PTS.over,msg:'OVER THE WALL!',hitMsg:'CRUNCH! YOU HIT THE WALL',warnMsg:'WALL AHEAD! PULL UP OVER IT',dust:mk==='moab'?0xc4643a:0x9ca3ab});
+        const m=new T.Mesh(finGeo(T,mk==='moab'?'sand':'granite',77+Math.round(s0)),toonMat(T,0xffffff,{vertexColors:true,flatShading:true}));m.scale.set(span*2,o.top-g0+3,10);m.position.y=(o.top+3+g0)/2;G.add(m);return o}
+      const hw=15*gk0+9;
+      if(wet){const dB=yc+10*gk0+9,dT=dB+3.5,wy=heightAt(p.x,p.z)-2;Object.assign(o,{kind:'bridge',top:dT,v0:-7,v1:7,sIn:s0-7,sOut:s0+7,pass:{u0:-hw,u1:hw,y0:-1e9,y1:dB},
+          solids:[{u0:-span,u1:span,y0:dB,y1:dT},{u0:hw,u1:hw+5.2,y0:-1e9,y1:dB},{u0:-hw-5.2,u1:-hw,y0:-1e9,y1:dB},{u0:span*.65-3,u1:span*.65+3,y0:-1e9,y1:dB},{u0:-span*.65-3,u1:-span*.65+3,y0:-1e9,y1:dB}],pts:PTS.gap,msg:'UNDER THE BRIDGE!',hitMsg:'CLANG! YOU HIT THE BRIDGE',warnMsg:'BRIDGE AHEAD! FLY UNDER IT',dust:0x8a939e});
+        const steel=toonMat(T,0x3d4651),rail=toonMat(T,0xd8d2c4),pierM=toonMat(T,0xa8a49a);box(G,span*2,dT-dB,12,0,(dB+dT)/2,0,steel);for(const zz of [-5.6,5.6]) box(G,span*2,1.6,.6,0,dT+.8,zz,rail);
+        for(const xx of [-(hw+2.6),hw+2.6,-span*.65,span*.65]){const c=new T.Mesh(new T.CylinderGeometry(2.6,3,Math.max(2,dB-wy),10),pierM);c.position.set(xx,(dB+wy)/2,0);G.add(c)}
+        return o}
+      const hh=10*gk0+8;Object.assign(o,{kind:'gate',top:yc+44,pass:{u0:-hw,u1:hw,y0:yc-hh,y1:yc+hh},pts:PTS.gap,msg:'THREADED THE GAP!',hitMsg:'BONK! AIM FOR THE GAP',warnMsg:'WALL AHEAD! FLY THROUGH THE GAP',dust:0xb9b4a8});
+      o.solids=[{u0:-span,u1:-hw,y0:-1e9,y1:o.top},{u0:hw,u1:span,y0:-1e9,y1:o.top},{u0:-hw,u1:hw,y0:yc+hh,y1:o.top},{u0:-hw,u1:hw,y0:-1e9,y1:yc-hh}];
+      const cM=toonMat(T,0xb9b4a8),cD=toonMat(T,0x8f8b80),hz=toonMat(T,0xffc845),H0=o.top-g0;
+      box(G,span-hw,H0,8,-(span+hw)/2,g0+H0/2,0,cM);box(G,span-hw,H0,8,(span+hw)/2,g0+H0/2,0,cM);box(G,2*hw,o.top-(yc+hh),8,0,(o.top+yc+hh)/2,0,cM);if(yc-hh>g0) box(G,2*hw,yc-hh-g0,8,0,(yc-hh+g0)/2,0,cM);
+      box(G,span*2,2.4,9,0,o.top+1.2,0,cD);
+      for(const zf of [-4.3,4.3]) for(const [x,y,w,h] of [[0,yc+hh+1,2*hw+4,2],[0,yc-hh-1,2*hw+4,2],[-hw-1,yc,2,2*hh+4],[hw+1,yc,2,2*hh+4]]) box(G,w,h,.6,x,y,zf,hz);
+      return o};
+    // the tunnel: flown level (the course through it is lifted to its highest point and blends back over 50 units), a bore
+    // about 46 units wide and 32 tall with lamps along the roof, through a rock spur too tall to hop over under the radar
+    const makeTunnel=(s1,s2)=>{let yc=-1e9;for(const q of course.pts) if(q.s>=s1&&q.s<=s2) yc=Math.max(yc,q.y);
+      for(const q of course.pts){const dd=q.s<s1?s1-q.s:q.s>s2?q.s-s2:0;if(dd>=50) continue;const w=1-dd/50,e=w*w*(3-2*w);q.y=q.y+Math.max(0,yc-q.y)*e}
+      const A=coursePoint(course.pts,s1),B=coursePoint(course.pts,s2),L=Math.hypot(B.x-A.x,B.z-A.z),cx=(B.x-A.x)/L,cz=(B.z-A.z)/L,bw=15*gk0+8,bh=10*gk0+6,top=yc+bh+38;
+      let g0=1e9;for(let f=0;f<=1;f+=.25) for(const u of [-1,-.5,0,.5,1]) g0=Math.min(g0,heightAt(A.x+cx*L*f-cz*u*span,A.z+cz*L*f+cx*u*span));g0=Math.min(g0,yc-bh-4)-6;
+      const o={kind:'tunnel',s:(s1+s2)/2,ox:A.x,oz:A.z,dx:cx,dz:cz,v0:0,v1:L,sIn:s1,sOut:s2,lat:0,R:span,top,yc,g0,Ht:top-g0,hit:false,done:false,sA:s1-Math.max(lg,cruise*1.6),sB:s2+Math.max(lg*.9,cruise*1.4),
+        pass:{u0:-bw,u1:bw,y0:yc-bh,y1:yc+bh},solids:[{u0:-span,u1:-bw,y0:-1e9,y1:top},{u0:bw,u1:span,y0:-1e9,y1:top},{u0:-bw,u1:bw,y0:yc+bh,y1:top},{u0:-bw,u1:bw,y0:-1e9,y1:yc-bh}],
+        pts:PTS.tunnel,msg:'THROUGH THE TUNNEL!',hitMsg:'SCRAPE! STAY IN THE MIDDLE OF THE TUNNEL',warnMsg:'TUNNEL AHEAD! STAY IN THE MIDDLE',dust:mk==='moab'?0xc4643a:0x9ca3ab};
+      const G=new T.Group();G.position.set(A.x,0,A.z);G.rotation.y=Math.atan2(cx,cz);scene.add(G);
+      const m=new T.Mesh(tunnelGeo(T,mk==='moab'?'sand':'granite',span,top-g0,yc-g0,bw,bh,L,91+Math.round(s1)),toonMat(T,0xffffff,{vertexColors:true,flatShading:true}));m.position.y=g0;G.add(m);
+      const lamp=new T.MeshBasicMaterial({color:0xffe9a8});for(let z=10;z<L-6;z+=16){const b=new T.Mesh(new T.BoxGeometry(2.4,.6,1.2),lamp);b.position.set(0,yc+bh-1.2,z);G.add(b)}
+      return o};
+    // the walls and gaps take some of the spots, from the middle out (walls only on dry ground)
+    const spec={},order=picks.map((_,i)=>i).sort((i,j)=>Math.abs(i-(picks.length-1)/2)-Math.abs(j-(picks.length-1)/2));
+    const kinds=[];for(let i=0;i<Math.max(menu.walls,menu.gaps);i++){if(i<menu.walls) kinds.push('wall');if(i<menu.gaps) kinds.push('gap')}
+    for(const kd of kinds.slice(0,Math.max(1,picks.length-1))){const i=order.find(i=>{if(spec[i]) return false;if(kd!=='wall') return true;const q=coursePoint(course.pts,picks[i]);return ![-.5,0,.5].some(f=>waterAt(q.x+q.nx*span*f,q.z+q.nz*span*f))});if(i!=null) spec[i]=kd}
+    if(tun) obst.push(makeTunnel(tun.s0,tun.s1));
+    picks.forEach((sp,i)=>{const s0=sp+(OR()-.5)*30;if(spec[i]){obst.push(makeSpecial(spec[i],s0));return}
+      const p=coursePoint(course.pts,s0),lat=(OR()<.5?-1:1)*(2+OR()*7),x=p.x+p.nx*lat,z=p.z+p.nz*lat,y0=heightAt(x,z)-1.5,H=Math.max(34,p.y+20+OR()*8-y0),kind=mk==='moab'?'tower':waterAt(x,z)?'stack':'pine';
+      obst.push({s:s0,x,z,lat,y0,H,R:H*(kind==='pine'?.3:kind==='stack'?.25:.2),taper:kind==='stack'?.4:kind==='tower'?.45:.3,kind,hit:false,done:false,sA:s0-Math.max(lg*1.25,cruise*2.6),sB:s0+Math.max(lg*.9,cruise*1.8)})});
+    obst.sort((a,b)=>a.s-b.s);
     const geo={
       pine:()=>mergeColored(T,[{g:new T.CylinderGeometry(.04,.06,.2,7).translate(0,.1,0),c:0x6b3f26},{g:new T.ConeGeometry(.3,.36,9).translate(0,.33,0),c:0x2a5e3d},{g:new T.ConeGeometry(.25,.32,9).translate(0,.46,0),c:0x316b45},
         {g:new T.ConeGeometry(.19,.3,9).translate(0,.62,0),c:0x3b7b4f},{g:new T.ConeGeometry(.12,.27,8).translate(0,.82,0),c:0x4b9160},{g:new T.ConeGeometry(.05,.1,6).translate(0,.95,0),c:0x5aa36d}]),
-      tower:()=>mergeColored(T,[{g:new T.CylinderGeometry(.17,.2,.34,7).translate(0,.17,0),c:0xc4643a},{g:new T.CylinderGeometry(.15,.17,.3,7).translate(0,.48,0),c:0xd0703f},
-        {g:new T.CylinderGeometry(.13,.15,.24,7).translate(0,.75,0),c:0xb85a33},{g:new T.CylinderGeometry(.17,.14,.1,7).translate(0,.92,0),c:0xe0874d},{g:new T.IcosahedronGeometry(.1,0).scale(1,.65,1).translate(0,1,0),c:0xd9773f}]),
+      tower:()=>rockGeo(T,59),
       stack:()=>mergeColored(T,[{g:new T.IcosahedronGeometry(.25,0).scale(1,.8,1).translate(0,.18,0),c:0x8d939b},{g:new T.IcosahedronGeometry(.2,0).translate(.06,.45,-.03),c:0x9ca3ab},
         {g:new T.IcosahedronGeometry(.15,0).translate(-.03,.66,.04),c:0x7c838c},{g:new T.CylinderGeometry(.015,.02,.08,5).translate(0,.76,0),c:0x5a3a26},{g:new T.ConeGeometry(.1,.26,7).translate(0,.88,0),c:0x2f6a45}])};
     for(const kd of ['pine','tower','stack']){const L=obst.filter(o=>o.kind===kd);if(!L.length) continue;
       const im=new T.InstancedMesh(geo[kd](),toonMat(T,0xffffff,{vertexColors:true,flatShading:kd!=='pine'}),L.length),d=new T.Object3D();
-      L.forEach((o,i)=>{d.position.set(o.x,o.y0,o.z);d.scale.setScalar(o.H);d.rotation.y=i*2.1+.4;d.updateMatrix();im.setMatrixAt(i,d.matrix)});scene.add(im)}}
+      L.forEach((o,i)=>{d.position.set(o.x,o.y0,o.z);if(kd==='tower') d.scale.set(o.R,o.H,o.R);else d.scale.setScalar(o.H);d.rotation.y=i*2.1+.4;d.updateMatrix();im.setMatrixAt(i,d.matrix)});scene.add(im)}}
   // the course on the map: a road cut into the terrain, or a lane of rings in the sky or on the water
   const CP=s=>coursePoint(course.pts,s);
   if(v.cat==='ground'){scene.add(new T.Mesh(ribbon(T,course.pts,ROAD_HALF+5,-.2,30),new T.MeshLambertMaterial({color:mk==='moab'?0xb88a5a:0x9a8566,side:T.DoubleSide})));
@@ -4608,8 +4705,11 @@ function buildMission(v,mk,route,pilot,plan){
   // waypoint boxes about every 1.5 seconds along the sky lane (like flight simulator waypoints; 18 percent further apart since
   // the November 17 playtest, with a gap around each giant obstacle), rings on the water, gems on the road
   const lane=[],ringK=v.cat==='air'?clamp(cruise/50,1,1.6):1;
-  if(v.cat==='air'){const gap=Math.max(82,cruise*1.53);for(let s0=gap*1.5;s0<course.end-20;s0+=gap){if(course.cps.some(cp=>!cp.final&&Math.abs(cp.s-s0)<gap*.6)||obst.some(o=>s0>o.s-Math.max(gap*1.25,cruise*2.6)&&s0<o.s+Math.max(gap*.9,cruise*1.8))) continue;
-      const p=CP(s0),q=CP(s0+14);lane.push({x:p.x,y:p.y,z:p.z,dx:p.dx,dz:p.dz,s:s0,pitch:Math.atan2(q.y-p.y,14)})}}
+  if(v.cat==='air'){const gap=Math.max(82,cruise*1.53);for(let s0=gap*1.5;s0<course.end-20;s0+=gap){if(course.cps.some(cp=>!cp.final&&Math.abs(cp.s-s0)<gap*.6)||obst.some(o=>s0>o.sA&&s0<o.sB)) continue;
+      const p=CP(s0),q=CP(s0+14);lane.push({x:p.x,y:p.y,z:p.z,dx:p.dx,dz:p.dz,s:s0,pitch:Math.atan2(q.y-p.y,14)})}
+    // a box in the middle of each gap, under each bridge and at each tunnel's mouth to line you up
+    for(const o of obst) if(o.kind==='gate'||o.kind==='bridge'||o.kind==='tunnel'){const s1=o.kind==='tunnel'?o.sIn-6:o.s,p=CP(s1),q=CP(s1+14);lane.push({x:p.x,y:p.y,z:p.z,dx:p.dx,dz:p.dz,s:s1,pitch:Math.atan2(q.y-p.y,14)})}
+    lane.sort((a,b)=>a.s-b.s)}
   else if(v.cat==='sea'){const per=Math.max(4,Math.round(course.hop/Math.max(200,cruise*3.5))-1);for(let h=0;h<3;h++) for(let k=1;k<=per;k++){const p=CP(course.hop*(h+k/(per+1)));lane.push({x:p.x,y:p.y+7,z:p.z,dx:p.dx,dz:p.dz,s:p.s})}}
   else{for(let h=0;h<3;h++) [.18,.45,.7].forEach((f,j)=>{for(let k=0;k<5;k++){const p=CP(course.hop*(h+f)+k*14),lat=(h+j)%2?4.5:-4.5;lane.push({x:p.x+p.nx*lat,y:p.y+2.2,z:p.z+p.nz*lat,dx:p.dx,dz:p.dz,s:p.s})}})}
   const boxGeo=()=>{const t=1.5*gk,B=(w,h,x,y)=>({g:new T.BoxGeometry(w,h,t).translate(x,y,0),c:0xffffff});return mergeColored(T,[B(gw+t,t,0,gh/2),B(gw+t,t,0,-gh/2),B(t,gh,-gw/2,0),B(t,gh,gw/2,0)])};
@@ -4658,7 +4758,7 @@ function buildMission(v,mk,route,pilot,plan){
     else{enc.push({s:s0+.35*H,kind:'drones',n:tier.group,low:true});enc.push({s:s0+.66*H,kind:'mines'})}}
   enc.sort((a,b)=>a.s-b.s);
   const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:e.kind==='fort'?PTS.bunker+PTS.wall+PTS.barricade+((tier.fort==null||tier.fort>=2)?PTS.turret*(tier.group>2?2:1):0)+((tier.fort==null||tier.fort>=3)?PTS.dish:0):e.kind==='recon'?PTS.recon:PTS.truck),0)
-    +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?(v.cat==='air'?PTS.outpost:PTS.radar+PTS.block):type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0)+obst.length*PTS.dodge*.6;
+    +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?(v.cat==='air'?PTS.outpost:PTS.radar+PTS.block):type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0)+obst.reduce((a,o)=>a+(o.pts||PTS.dodge),0)*.6;
   const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.scale.setScalar(VEH_S*(v.cat==='air'?AIR_S:1));model.visible=false;model.rotation.order='YXZ';scene.add(model);
   const s0p=course.low?CP(0):null,o0=s0p||home,d0=CP(80);
   const P={x:o0.x,z:o0.z,y:0,yaw:Math.atan2(-(d0.x-o0.x),-(d0.z-o0.z)),pitch:0,roll:0,speed:v.cat==='air'?maxS*.6:0,hull:100,thr:FM&&FM.rotor?.5:.6,bob:0};
@@ -4682,7 +4782,7 @@ function buildMission(v,mk,route,pilot,plan){
   M.raf=requestAnimationFrame(missionLoop);
   setCam('cockpit');M.camSnap=true;laneTint();
   {const b=$('#m-brief'),who=String(pilot.name||'Pilot').split(' ')[0];
-    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, ${plan?`${plan.done?'patrol':'mission '+(plan.k+1)+' of 7'} from ${esc(CITY[plan.city].name)}: ${plan.stop.assault?'the gang fortress at '+esc(CITY[plan.stop.assault].name):'the gang outpost at '+esc(plan.stop.where)}, by way of ${esc(run.name)}.`:`low-level run: ${esc(run.name)}. ${esc(run.brief)}`} Stay low in the pink boxes: climb above the red radar line and the gang spots you.${obst.length?` Giant ${mk==='moab'?'rock towers':'trees'} stand in the way: steer around them.`:''}${type==='strike'?' At the end, destroy the enemy outpost: lock on from far out and fire missiles, or keep the guns on it.':''}`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
+    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, ${plan?`${plan.done?'patrol':'mission '+(plan.k+1)+' of 7'} from ${esc(CITY[plan.city].name)}: ${plan.stop.assault?'the gang fortress at '+esc(CITY[plan.stop.assault].name):'the gang outpost at '+esc(plan.stop.where)}, by way of ${esc(run.name)}.`:`low-level run: ${esc(run.name)}. ${esc(run.brief)}`} Stay low in the pink boxes: climb above the red radar line and the gang spots you.${obstBrief(obst,mk)}${type==='strike'?' At the end, destroy the enemy outpost: lock on from far out and fire missiles, or keep the guns on it.':''}`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
   root.addEventListener('pointerdown',()=>{if(M&&M.intro>0) M.intro=.001},true);
 }
 function missionResize(){if(!M) return;const r=M.root;M.renderer.setSize(r.clientWidth,r.clientHeight);M.camera.aspect=r.clientWidth/r.clientHeight;ckLook();turnCheck()}
@@ -5273,16 +5373,42 @@ function drawHeat(g,x,y){if(M.v.cat!=='air'||!(M.heat>.02||M.hot)) return;const 
 // GIANT OBSTACLES each frame: clip one and it hurts (once per obstacle) and shoves you clear; slip past it and it's a NICE
 // DODGE. While you're lined up to hit the next one, a warning and a beep come up a couple of seconds ahead
 function obstStep(dt){const T=window.THREE,P=M.P,prog=M.prog||0;let ahead=null;
-  for(const o of M.obst){if(o.done) continue;const d=o.s-prog;
+  for(const o of M.obst){if(o.done) continue;
+    if(o.solids){obstSpecial(o,dt);if(!o.done&&!ahead){const d=o.sIn-prog;if(d>-(o.v1-o.v0)&&d<Math.max(240,P.speed*2.6)) ahead=o}continue}
+    const d=o.s-prog;
     if(d<-40){o.done=true;if(!o.hit&&Math.abs((M.off||0)-o.lat)<120){M.dodges=(M.dodges||0)+1;gain(PTS.dodge,new T.Vector3(o.x,o.y0+o.H*.6,o.z),'NICE DODGE! +'+PTS.dodge)}continue}
     if(!o.hit&&Math.abs(d)<o.R+30){const r=obstR(o,P.y-o.y0),dx=P.x-o.x,dz=P.z-o.z,dd=Math.hypot(dx,dz)||1;
       if(r>0&&dd<r+2.5){o.hit=true;M.obstHits=(M.obstHits||0)+1;M.gateRun=0;hurt(M.tier.crash,o.kind==='pine'?'TIMBER! YOU CLIPPED THE GIANT TREE':'CRUNCH! YOU CLIPPED THE ROCK TOWER');
         const push=r+3-dd;P.x+=dx/dd*push;P.z+=dz/dd*push;puff(new T.Vector3(P.x,P.y,P.z),o.kind==='pine'?0x3a7d52:o.kind==='stack'?0x9ca3ab:0xc4643a,5,1,4)}}
     if(!ahead&&d>0&&d<Math.max(240,P.speed*2.6)) ahead=o}
   M.obAhead=!!ahead;
-  if(ahead&&!ahead.hit&&Math.abs((M.off||0)-ahead.lat)<ahead.R+10&&P.y-ahead.y0<ahead.H+2){
-    warn((ahead.kind==='pine'?'GIANT TREE AHEAD!':'ROCK TOWER AHEAD!')+(M.apOn?' TAKE THE STICK AND STEER AROUND IT':' STEER AROUND IT'),.3);
+  if(ahead&&!ahead.hit&&(ahead.solids?specialRisk(ahead):Math.abs((M.off||0)-ahead.lat)<ahead.R+10&&P.y-ahead.y0<ahead.H+2)){
+    warn(ahead.solids?ahead.warnMsg+(M.apOn?' (TAKE THE STICK)':''):(ahead.kind==='pine'?'GIANT TREE AHEAD!':'ROCK TOWER AHEAD!')+(M.apOn?' TAKE THE STICK AND STEER AROUND IT':' STEER AROUND IT'),.3);
     M.obBeep=(M.obBeep||0)-dt;if(M.obBeep<=0){M.obBeep=.35;sfx('obst')}}}
+// the round 6 obstacles: where the plane is in the obstacle's frame (u across, y up, v along), whether it's inside a solid part
+// (a scrape every 0.6 seconds, and a shove up over a wall, or toward the middle of a gap, the bridge's opening or the tunnel),
+// and a bonus for getting through clean. A thin wall can be crossed between two frames, so a jump across it counts too
+function obstFrame(o){const P=M.P,ex=P.x-o.ox,ez=P.z-o.oz;return {u:-ex*o.dz+ez*o.dx,v:ex*o.dx+ez*o.dz,y:P.y}}
+// how high the tunnel's rock spur is at u across (its rounded top, a little under the lowest the rock can be)
+function tunCap(o,u){return o.g0+o.Ht*(.55+.45*Math.sin(Math.PI*clamp((u+o.R)/(2*o.R),0,1)))*.9}
+function obstSpecial(o,dt){const P=M.P,{u,v,y}=obstFrame(o),jump=o.lastV!=null&&o.lastV<o.v0&&v>o.v1;o.lastV=v;
+  if(v>o.v1+25){o.done=true;if(!o.hit&&o.okPass){M.dodges=(M.dodges||0)+1;gain(o.pts,null,o.msg+' +'+o.pts)}return}
+  if(!(v>o.v0-3&&v<o.v1+3)&&!jump) return;
+  if(o.pass&&u>o.pass.u0&&u<o.pass.u1&&y>o.pass.y0&&y<o.pass.y1) o.okPass=true;
+  if(o.kind==='wall'&&y>o.top) o.okPass=true;
+  const mg=2.5,cap=o.kind==='tunnel'?tunCap(o,u):1e9;if(!o.solids.some(b=>u>b.u0-mg&&u<b.u1+mg&&y>b.y0-mg&&y<Math.min(b.y1,cap)+mg)) return;
+  o.scrape=(o.scrape||0)-dt;if(o.scrape>0) return;o.scrape=.6;if(!o.hit){o.hit=true;M.obstHits=(M.obstHits||0)+1;M.gateRun=0}
+  hurt(o.kind==='tunnel'?Math.max(2,Math.round(M.tier.crash*.5)):M.tier.crash,o.hitMsg);puff(new window.THREE.Vector3(P.x,P.y,P.z),o.dust||0x9a9488,5,1,4);
+  if(o.kind==='wall'){P.y=o.top+4;return}
+  if(o.kind==='tunnel'&&y>o.pass.y1&&cap+4-y<y-(o.pass.y1-3)){P.y=cap+4;return}
+  const w=o.pass,cu=clamp(u,w.u0+4,w.u1-4)-u,lo=Math.max(w.y0,M.heightAt(P.x,P.z)+4)+3,cy=clamp(y,lo,Math.max(lo,w.y1-3))-y;P.x+=-o.dz*cu;P.z+=o.dx*cu;P.y+=cy}
+// is the plane lined up to hit the special obstacle ahead? (for the warning and the beep) Up close it's where the plane is;
+// further out it's where the plane will be if it keeps its height over the boxes and its distance off to the side
+function specialRisk(o){const P=M.P,w=o.pass,near=(M.prog||0)>o.sIn-12,f=obstFrame(o),u=near?f.u:M.off||0,
+    y=near?f.y:(o.yc!=null?o.yc:coursePoint(M.course.pts,o.s).y)+P.y-coursePoint(M.course.pts,M.prog||0).y;
+  if(o.kind==='wall') return y<o.top+3&&Math.abs(u)<o.R;
+  if(o.kind==='bridge') return y<o.top+3&&!(Math.abs(u)<w.u1-3&&y<w.y1-3);
+  return y<(o.kind==='tunnel'?tunCap(o,u):o.top)+3&&!(u>w.u0+3&&u<w.u1-3&&y>w.y0+3&&y<w.y1-3)}
 // how wide an obstacle is at height h above its base: the pine is a cone of branches on a short trunk, the towers taper a little
 function obstR(o,h){if(h<0||h>o.H) return -1;if(o.kind==='pine') return h<.15*o.H?.05*o.H:o.R*Math.max(.12,1-.75*(h-.15*o.H)/(.85*o.H));return o.R*(1-o.taper*h/o.H)}
 // the enemy outpost while it stands: it smokes, then burns, as it takes damage, and (PILOT and ACE) its gun lobs orbs at you
@@ -5389,7 +5515,7 @@ function finishMission(won){
         <div class="stars">${starTxt}</div>
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost '+esc(outName)+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
         <div class="stats"><div class="stat"><span class="label">Score</span><b>${score.toLocaleString()}</b></div><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div><div class="stat"><span class="label">Bad guys KO</span><b>${ko}</b></div></div>
-        <div class="muted" style="font-size:12px">${tier.name} challenge${tier.rew>1?` (cash x${tier.rew})`:''}. ${v.cat==='ground'?'Gems':v.cat==='air'?'Boxes':'Rings'}: ${rings}.${type==='strike'?' Targets: '+hits+'.':type==='recon'?' Photos: '+photos+'.':''}${rolls?' Barrel rolls: '+rolls+'.':''}${mslShot?' Missiles: '+mslHits+' hit'+(mslHits===1?'':'s')+' from '+mslShot+'.':''}${lowRun?(spottedN?' Spotted by radar: '+spottedN+'.':' Never spotted: ghost run!'):''}${archOK?' Flew under the arch!':''}${obN?' Giant obstacles dodged: '+dodges+' of '+obN+'.':''} ${stars<3?'Score more points for three stars.':'Three stars!'}</div>
+        <div class="muted" style="font-size:12px">${tier.name} challenge${tier.rew>1?` (cash x${tier.rew})`:''}. ${v.cat==='ground'?'Gems':v.cat==='air'?'Boxes':'Rings'}: ${rings}.${type==='strike'?' Targets: '+hits+'.':type==='recon'?' Photos: '+photos+'.':''}${rolls?' Barrel rolls: '+rolls+'.':''}${mslShot?' Missiles: '+mslHits+' hit'+(mslHits===1?'':'s')+' from '+mslShot+'.':''}${lowRun?(spottedN?' Spotted by radar: '+spottedN+'.':' Never spotted: ghost run!'):''}${archOK?' Flew under the arch!':''}${obN?' Obstacles cleared: '+dodges+' of '+obN+'.':''} ${stars<3?'Score more points for three stars.':'Three stars!'}</div>
         ${campDone(adv,plan,missedFin)}
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
         ${bulls?`<div class="muted" style="font-size:12px">Bullseye checkpoints: ${bulls} (+${money(1000*bulls)})</div>`:''}${missed?`<div class="muted" style="font-size:12px">Missed: ${missed}. Go through each checkpoint for the full reward.</div>`:''}
