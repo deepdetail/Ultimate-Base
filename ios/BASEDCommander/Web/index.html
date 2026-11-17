@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BASED Commander</title>
-<meta name="based-build" content="3413e80-20261117">
+<meta name="based-build" content="e816b55-20261117">
 <meta name="theme-color" content="#14171B">
 <meta name="color-scheme" content="dark">
 <link rel="stylesheet" href="vendor/fonts/fonts.css">
@@ -145,7 +145,11 @@ input[type=text],input[type=password]{width:100%;background:var(--gm-950);border
 #mapbtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 160px);z-index:30;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:14px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}
 #mapbtn svg{width:18px;height:18px;stroke:#7FF0F3}
 #defbtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 216px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;border:1.5px solid rgba(127,240,243,.7);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}#defbtn svg{width:16px;height:16px;stroke:#7FF0F3}#defbtn b{font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.12em;color:#e6edf3}
-.in-mission #defbtn,.in-battle #defbtn,.in-map #defbtn,body.view-in #defbtn{display:none}#mapbtn b{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.14em;background:linear-gradient(180deg,#fff,#C9D1D9 45%,#8A939E 55%,#e6edf3);-webkit-background-clip:text;background-clip:text;color:transparent}
+.in-mission #defbtn,.in-battle #defbtn,.in-map #defbtn,body.view-in #defbtn{display:none}
+#citybtn{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 268px);z-index:30;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;border:1.5px solid rgba(255,226,122,.75);background:linear-gradient(135deg,#4a525c,#2b3036 60%,#1e2227);box-shadow:0 6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25)}#citybtn svg{width:16px;height:16px;stroke:#FFE27A}#citybtn b{font-family:var(--font-display);font-weight:800;font-size:11px;letter-spacing:.1em;color:#e6edf3}
+.in-mission #citybtn,.in-battle #citybtn,.in-map #citybtn,body.view-in #citybtn{display:none}
+.campdots{display:flex;gap:6px;align-items:center}.campdots i{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.12)}.campdots i.on{background:var(--teal)}.campdots i.next{background:#ffe27a;box-shadow:0 0 8px rgba(255,226,122,.6)}
+#mapview .mpin.next .dot{border-color:#FFE27A;animation:mpulse 1.6s ease-in-out infinite}#mapview .mpin.ahead{opacity:.72}#mapview .mpin.ahead .dot{border-color:#8A939E;font-size:13px}#mapview .mpin.city .dot{width:36px;height:36px}#mapbtn b{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.14em;background:linear-gradient(180deg,#fff,#C9D1D9 45%,#8A939E 55%,#e6edf3);-webkit-background-clip:text;background-clip:text;color:transparent}
 .in-mission #mapbtn,.in-battle #mapbtn,.in-map #mapbtn,.in-map #viewbtn{display:none}
 #mapview{position:fixed;inset:0;z-index:80;background:#14181c;display:flex;flex-direction:column}
 #mapview .mtop{display:flex;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 8px;flex-wrap:wrap}#mapview .mtop b{font-family:var(--font-display);letter-spacing:.08em;flex:1}#mapview .mtop .muted{order:9;flex-basis:100%;font-size:11px}#mapview .mtop .btn{width:auto;padding:8px 14px;margin:0}
@@ -592,7 +596,7 @@ img.crown{height:auto;max-height:110px;object-fit:contain;object-position:50% 10
   </div>
 </div>
 
-<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><div id="zoomctl" role="group" aria-label="Zoom"><button data-z=".3334" data-t="0">ALL</button><button data-z=".5" data-t=".5">50</button><button data-z=".75" data-t=".75">75</button><button data-z=".94" data-t="1">100</button></div><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
+<div id="game" hidden><button id="viewbtn" data-view="in" aria-label="Switch view"></button><button id="mapbtn" aria-label="Open the map"><span data-ic="target"></span><b>MAP</b></button><button id="citybtn" hidden aria-label="Switch the base city your crew flies from"><span data-ic="plane"></span><b>LAKE TAHOE</b></button><div id="zoomctl" role="group" aria-label="Zoom"><button data-z=".3334" data-t="0">ALL</button><button data-z=".5" data-t=".5">50</button><button data-z=".75" data-t=".75">75</button><button data-z=".94" data-t="1">100</button></div><button id="defbtn" aria-label="Base defenses"><span data-ic="build"></span><b>DEFENSES</b></button>
   <div id="hud">
     <div class="hud-top">
       <div class="avatar" id="h-avatar"></div>
@@ -2450,7 +2454,7 @@ function scrollToSurface(smooth){
 // ---------- HUD ----------
 function setBar(id,v,max){const el=$(id);const p=clamp(v/max,0,1);el.style.width=(p*100)+'%';el.className=p<.15?'bad':p<.35?'warn':''}
 function updateHUD(full){
-  if(!S) return;
+  if(!S) return;cityBtnUI();
   const cmd=S.crew.find(c=>c.isCmd);
   if(full&&cmd) $('#h-avatar').innerHTML=personSVG(cmd,'12.5 0 15 20');
   $('#h-lv').textContent='LV '+level();
@@ -2942,8 +2946,83 @@ function pilotFor(){
 }
 // where Hangar missions can fly: your home, plus any home region your planes have reached by road
 const missionRegions=()=>[mapKey(),...Object.keys((S.map&&S.map.reach)||{}).filter(r=>r!==mapKey()&&ROUTES[r])];
-const missionKey=()=>{const r=S.mreg;return r&&missionRegions().includes(r)?r:mapKey()};
-const regionTabs=vid=>{const R=missionRegions();return R.length>1?`<div class="tabs">${R.map(r=>`<button data-act="mreg" data-r="${r}" data-v="${vid}" class="${r===missionKey()?'on':''}">${esc(REGION_NAME[r]||r)}</button>`).join('')}</div>`:''};
+// round 6: Hangar missions fly on the 3D map of the city your crew flies from (see THE CAMPAIGN just below)
+const missionKey=()=>cityTerrain(camp().city);
+const regionTabs=vid=>cityTabs(vid);
+// ---------- THE CAMPAIGN, city by city (round 6, ship B) ----------
+// J and Phoenix: instead of a random Hangar mission, and raiding towns from the map, plane missions take you down the road
+// outpost by outpost. Each city has seven missions, each a little harder, with more kinds of bad guys showing up as you go.
+// The seventh is the assault on the next city, which opens it as a base you can fly from. The cities: your home, then Las
+// Vegas, then the other home region, whose seven missions are patrols around it. Cars and boats keep their own missions,
+// flown from the same city
+const CITY={tahoe:{name:'Lake Tahoe',where:'South Lake Tahoe',lat:38.94,lon:-120.01},vegas:{name:'Las Vegas',where:'Las Vegas',lat:36.17,lon:-115.14},moab:{name:'Moab',where:'Moab',lat:38.573,lon:-109.55}};
+// places around each home region (approximate map positions): the first fills in a short road from home, the last a short road
+// from Las Vegas to that region, and the first seven are the patrols when it's your last city
+const CAMP_LOCAL={
+  tahoe:[{id:'lt_truckee',where:'Truckee',name:'Truckee River Camp',lat:39.328,lon:-120.183,art:'raider'},{id:'lt_tahoecity',where:'Tahoe City',name:'Lakeside Hideout',lat:39.172,lon:-120.14,art:'thief'},
+    {id:'lt_emerald',where:'Emerald Bay',name:'Emerald Bay Lookout',lat:38.954,lon:-120.11,art:'merc'},{id:'lt_incline',where:'Incline Village',name:'Ski Lodge Den',lat:39.25,lon:-119.95,art:'raider'},
+    {id:'lt_sandharbor',where:'Sand Harbor',name:'Sand Harbor Docks',lat:39.198,lon:-119.931,art:'thief'},{id:'lt_donner',where:'Donner Lake',name:'Donner Pass Camp',lat:39.323,lon:-120.27,art:'merc'},
+    {id:'lt_spooner',where:'Spooner Summit',name:'Summit Pass Camp',lat:39.104,lon:-119.896,art:'biker'},{id:'lt_kingsbury',where:'Kingsbury Grade',name:'Grade Road Checkpoint',lat:38.97,lon:-119.89,art:'merc'}],
+  moab:[{id:'lm_arches',where:'Delicate Arch',name:'Arch Lookout',lat:38.744,lon:-109.499,art:'raider'},{id:'lm_furnace',where:'Fiery Furnace',name:'Furnace Maze Camp',lat:38.743,lon:-109.556,art:'thief'},
+    {id:'lm_balanced',where:'Balanced Rock',name:'Balanced Rock Depot',lat:38.701,lon:-109.565,art:'merc'},{id:'lm_slickrock',where:'Slickrock',name:'Slickrock Trail Hideout',lat:38.583,lon:-109.513,art:'biker'},
+    {id:'lm_river',where:'Colorado River',name:'River Bend Docks',lat:38.61,lon:-109.578,art:'thief'},{id:'lm_canyon',where:'Canyonlands',name:'Island in the Sky Base',lat:38.46,lon:-109.82,art:'merc'},
+    {id:'lm_castle',where:'Castle Valley',name:'Castle Rock Fort',lat:38.65,lon:-109.41,art:'raider'},{id:'lm_spanish',where:'Spanish Valley',name:'South Road Checkpoint',lat:38.5,lon:-109.47,art:'biker'}]};
+const cityChain=()=>{const H=mapKey()||'tahoe';return [H,'vegas',ONWARD[H]||'moab']};
+const cityTerrain=c=>c==='vegas'?cityChain()[2]:c;
+// a city's seven missions: six outposts down the road to the next city (dropping from the middle of a long road, or adding a
+// camp near the end of a short one), then the next city itself. Your last city's seven are patrols around it
+function cityStops(c){const ch=cityChain(),i=ch.indexOf(c);
+  if(i===2) return CAMP_LOCAL[c].slice(0,7).map(n=>Object.assign({},n));
+  const six=(i===0?ROUTE[c].filter(n=>!n.gate):ROUTE[ch[2]].filter(n=>!n.gate).slice().reverse()).map(n=>Object.assign({},n));
+  while(six.length>6) six.splice(Math.floor(six.length/2),1);
+  while(six.length<6){if(i===0) six.unshift(Object.assign({},CAMP_LOCAL[c][0]));else six.push(Object.assign({},CAMP_LOCAL[ch[2]][7]))}
+  const next=ch[i+1],gate=i===0?ROUTE[c].find(n=>n.gate):ARRIVE[next];
+  return [...six,Object.assign({},gate,{where:CITY[next].name,name:CITY[next].name+' gang fortress',art:'dragon',assault:next})]}
+// campaign state: the city your crew flies from, the missions each city has won (7 = cleared) and the cities that are open.
+// Older saves start from their map progress: towns they captured count as missions won, and a region their planes reached opens
+// everything before it
+function camp(){if(!S.camp){const ch=cityChain(),st=S.map||{},own=st.own||{},reach=st.reach||{},C={city:ch[0],st:{},open:{}},road=ROUTE[ch[0]]||[],gate=road.find(n=>n.gate);
+    C.open[ch[0]]=true;C.st[ch[0]]=gate&&own[gate.id]?7:Math.min(6,road.filter(n=>!n.gate&&own[n.id]).length);
+    if(C.st[ch[0]]>=7) C.open.vegas=true;
+    if(reach[ch[2]]){C.st[ch[0]]=7;C.st.vegas=7;C.open.vegas=true;C.open[ch[2]]=true}
+    S.camp=C}
+  const C=S.camp;if(!C.open[C.city]) C.city=cityChain()[0];return C}
+// how hard a mission is: 0 at your home city's first mission, up a seventh each mission and one more each city. The new bad
+// guys roll out as it climbs (CAMP_FEATS), and the outpost's armor grows with it
+const CAMP_FEATS=[[.14,'a slow recon plane'],[.28,'gang forts and fast buggies'],[.42,'mini turrets'],[.5,'drones, bunkers and turrets that shoot back'],[.57,'satellite dishes and pickups with guns'],
+  [.85,'tougher red drones'],[1,'bigger squads, two turrets a fort and armored SUVs'],[1.28,'an enemy jet'],[2.14,'two enemy jets']];
+function campTier(d){const e=Math.min(d,3);return {name:d<1?'ROOKIE':d<2?'PILOT':'ACE',hp:d<.85?1:2,crash:Math.round(6+1.2*e),orb:d<.5?0:Math.round(4+e),drift:+(.07+.04*e).toFixed(3),rew:+(1+.3*d).toFixed(2),
+  group:d<1?2:3,jets:d<1.28?0:d<2.14?1:2,trucks:d<.5?0:d<1.5?1:2,recon:d>=.14,fort:d<.28?0:d<.42?1:d<.57?2:3,mix:d<.28?['truck']:d<.57?['truck','buggy']:d<1?['pickup','truck','buggy']:['pickup','truck','buggy','suv'],d}}
+// the next plane mission from the city you fly from (once that city is cleared, a patrol to one of its stops)
+function campMission(){const C=camp(),c=C.city,ch=cityChain(),i=ch.indexOf(c),stops=cityStops(c),won=C.st[c]||0,done=won>=7,k=done?(S.mwins||0)%7:won,
+  d=i+(done?1:k/7),dPrev=done?d:k?i+(k-1)/7:i-1+6/7;
+  return {city:c,i,k,won,done,stop:stops[k],stops,d,tier:campTier(d),terrain:cityTerrain(c),newFeat:done?[]:CAMP_FEATS.filter(([t])=>t<=d&&t>dPrev).map(f=>f[1])}}
+// a plane mission that knocked out its outpost moves you one stop down the road; the seventh opens the next city
+function campAdvance(plan){const C=camp(),c=plan.city;if(plan.done||(C.st[c]||0)!==plan.k) return null;C.st[c]=plan.k+1;
+  const next=cityChain()[plan.i+1];
+  if(C.st[c]>=7){if(next) C.open[next]=true;return {stop:plan.stop,opened:next||null,cleared:c,bonus:50000*(plan.i+1)}}
+  return {stop:plan.stop,next:cityStops(c)[C.st[c]]}}
+const campTitle=P=>P.done?`Patrol · ${P.stop.where}`:`Mission ${P.k+1} of 7 · ${P.stop.assault?'Assault on '+CITY[P.stop.assault].name:P.stop.where}`;
+function campCard(P){const city=CITY[P.city],won=Math.min(7,P.won),nxt=cityChain()[P.i+1];
+  return `<div class="campdots">${[0,1,2,3,4,5,6].map(j=>`<i class="${j<won?'on':(!P.done&&j===P.k)?'next':''}"></i>`).join('')}</div>
+    <div class="muted" style="font-size:12px">${esc(city.name)}${nxt?' to '+esc(CITY[nxt].name):' patrols'}: ${won} of 7 missions won.</div>
+    <div class="muted">${P.done?`${esc(city.name)} is cleared. Fly a patrol to keep the gang away from ${esc(P.stop.where)}.${P.i===2?' More cities come in later updates.':''}`
+      :P.stop.assault?`The big one: fly from ${esc(city.name)} and destroy the gang fortress at ${esc(CITY[P.stop.assault].name)}. Win it and ${esc(CITY[P.stop.assault].name)} opens as a base you can fly from.`
+      :`Fly from ${esc(city.name)} and destroy the gang outpost ${esc(P.stop.name)} at ${esc(P.stop.where)}. ${P.i===2?'Win all seven to clear '+esc(city.name)+'.':'Win it to move on down the road.'}`} Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar.</div>
+    <div class="label">Difficulty: ${P.tier.name}</div>${P.newFeat.length?`<div class="muted" style="font-size:12px">New this mission: ${esc(P.newFeat.join(', '))}.</div>`:''}`}
+// what a mission did for the campaign, for the summary
+function campDone(adv,plan,missed){if(!plan) return '';
+  if(adv&&adv.opened) return `<div class="li"><span class="thumb icon">${icon('plane')}</span><span class="grow"><b>${esc(CITY[adv.opened].name)} is open!</b><span>You won all 7 missions from ${esc(CITY[adv.cleared].name)} (+${money(adv.bonus)}). Fly from ${esc(CITY[adv.opened].name)} to keep going down the road.</span></span></div><button class="btn" data-act="mcity" data-c="${adv.opened}">FLY FROM ${esc(CITY[adv.opened].name.toUpperCase())}</button>`;
+  if(adv&&adv.cleared) return `<div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>${esc(CITY[adv.cleared].name)} is cleared!</b><span>All three cities are yours (+${money(adv.bonus)}). Patrols keep the gangs away until new cities come.</span></span></div>`;
+  if(adv) return `<div class="muted">${esc(adv.stop.where)} is yours! Next: mission ${camp().st[plan.city]+1} of 7, ${esc(adv.next.assault?'the assault on '+CITY[adv.next.assault].name:adv.next.where)}.</div>`;
+  if(!plan.done&&missed) return `<div class="muted">The outpost at ${esc(plan.stop.where)} is still standing: fly mission ${plan.k+1} again to take it.</div>`;
+  return ''}
+// switching the base city your crew flies from: the button on the main screen, the tabs on a mission card, or a city on the map
+const cityTabs=vid=>{const C=camp(),R=cityChain().filter(c=>C.open[c]);return R.length>1?`<div class="tabs">${R.map(c=>`<button data-act="mcity" data-c="${c}" data-v="${vid}" class="${c===C.city?'on':''}">${esc(CITY[c].name)}</button>`).join('')}</div>`:''};
+function setCity(c){const C=camp();if(!C.open[c]||C.city===c) return;C.city=c;mapPage=c===cityChain()[0]?0:1;save();cityBtnUI();toast(`Your crew now flies from ${CITY[c].name}.`,'ok')}
+function cityBtnUI(){const b=$('#citybtn');if(!b||!S) return;const C=camp(),n=cityChain().filter(c=>C.open[c]).length;b.hidden=n<2;const t=b.querySelector('b');if(t) t.textContent=CITY[C.city].name.toUpperCase()}
+function citySheet(){const C=camp(),ch=cityChain();openSheet('Base cities',`<div class="muted">Win the 7 missions from a city to open the next one. Your crew flies its plane missions from the city you pick.</div>
+  <div class="list">${ch.map((c,i)=>{const open=!!C.open[c],won=Math.min(7,C.st[c]||0);return `<button class="opt${C.city===c?' on':''}" ${open?`data-act="mcity" data-c="${c}"`:'disabled'}><b>${esc(CITY[c].name)}${C.city===c?' (flying from here)':''}</b><span>${open?(won>=7?'All 7 missions won. Patrols to fly.':won+' of 7 missions won.'):'Locked: win the 7 missions from '+esc(CITY[ch[i-1]].name)+' to open it.'}</span></button>`}).join('')}</div>`)}
 function missionSheet(vid){
   if(vCond(vid)<25){const v0=VEH.find(x=>x.id===vid);openSheet('Needs repairs',`<div class="muted">The ${esc(v0?v0.name:'vehicle')} is wrecked. It repairs while parked in the Hangar, or use Repair Now (Hangar Level 2).</div><button class="btn" data-close>OKAY</button>`);return}
   if(S.exp&&S.exp.veh===vid){openSheet('Vehicle is away',`<div class="muted">This vehicle is out on a raid with your squad. It will be back in ${fmtT(S.exp.end-S.t)}.</div><button class="btn" data-close>OKAY</button>`);return}
@@ -2957,12 +3036,13 @@ function missionSheet(vid){
     :(type==='strike'?'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar. Blast drones, gang convoys, forts with bunkers and turrets, a recon plane and supply balloons, then destroy the enemy outpost at the end: it takes three missiles or a long burst from the guns.':'A low-level run from one place to another. Fly low through the pink boxes, steer around giant trees and rock towers, and stay under the radar, blasting drones and gang trucks with your wing guns. At the end the boxes lead you over the Badlands camp, and your camera snaps the photo by itself.');
   const ti=tierOf();
   const done=S.found&&S.found[mk+':'+v.cat];
-  openSheet(title,`${regionTabs(vid)}
-    <div class="muted">${what}</div>
+  const P=v.cat==='air'?campMission():null;
+  openSheet(P?campTitle(P):title,`${regionTabs(vid)}
+    ${P?campCard(P):`<div class="muted">${what}</div>
     <div class="label">Challenge</div>
     <div class="tabs">${MTIERS.map((tt,i)=>`<button data-act="mtier" data-t="${i}" data-v="${v.id}" class="${i===ti?'on':''}">${tt.name}</button>`).join('')}</div>
-    <div class="muted" style="font-size:12px">${esc(MTIERS[ti].desc)}${ti!==tierAuto()?` Picked for testing: your mission wins suggest ${MTIERS[tierAuto()].name}.`:''}</div>
-    <div class="muted" style="font-size:12px">${v.cat==='air'?(mk==='moab'?'A low-level run up the canyons, under a giant rock arch':'A low-level run through the valleys and along the shore'):'Heading out toward '+esc(route[0])}.${v.cat==='air'?` Your ${esc(misWpn(v).name)} fire${/s$/.test(misWpn(v).name)?'':'s'} from both wings in bursts (tap FIRE for a 4 second burst, hold it for more; 10 seconds of firing and the guns overheat). You carry ${mslCount(v)} heat-seeking missiles: keep the nose on a target for 3 seconds to lock on, from up to a mile and a half away.`:` You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right (or flick the stick twice) for a barrel roll: it dodges enemy shots, bounces them back and smashes bad guys close by. AUTOPILOT can fly you back on course.':''} Pays about ${money(type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
+    <div class="muted" style="font-size:12px">${esc(MTIERS[ti].desc)}${ti!==tierAuto()?` Picked for testing: your mission wins suggest ${MTIERS[tierAuto()].name}.`:''}</div>`}
+    <div class="muted" style="font-size:12px">${v.cat==='air'?(mk==='moab'?'A low-level run up the canyons, under a giant rock arch':'A low-level run through the valleys and along the shore'):'Heading out toward '+esc(route[0])}.${v.cat==='air'?` Your ${esc(misWpn(v).name)} fire${/s$/.test(misWpn(v).name)?'':'s'} from both wings in bursts (tap FIRE for a 4 second burst, hold it for more; 10 seconds of firing and the guns overheat). You carry ${mslCount(v)} heat-seeking missiles: keep the nose on a target for 3 seconds to lock on, from up to a mile and a half away.`:` You fire your ${esc(misWpn(v).name)}${isArmed(v)?'':', the basic blaster every vehicle gets (weapon upgrades hit harder)'}.`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap the screen on the left or right (or flick the stick twice) for a barrel roll: it dodges enemy shots, bounces them back and smashes bad guys close by. AUTOPILOT can fly you back on course.':''} Pays about ${money(P?Math.round(35*P.tier.rew)*1000:type==='strike'?35000:type==='recon'?28000:22000)}. Costs 20 power for fuel.${done?' You already found this outpost, so no discovery bonus.':' First discovery bonus: $25,000.'}</div>
     ${(()=>{const np=nextPrize();return np?`<div class="li"><span class="veh">${vehArt(np.v.id)}</span><span class="grow"><b>Prize ladder: ${esc(np.v.name)}</b><span>Win ${np.left} more mission${np.left>1?'s':''} to earn it. Sell it for about ${money(Math.round(np.v.cost*.6))}, or keep it.</span></span></div>`:''})()}
     <div class="li"><span class="mini">${pilot?personHTML(pilot):''}</span><span class="grow"><b>${pilot?esc(pilot.name):'No pilot'}</b><span>${pilot?esc(titleOf(pilot)):'Put a crew member in a Hangar first.'}</span></span></div>
     <button class="btn primary" data-act="go" data-v="${v.id}" style="font-family:var(--font-display)" ${pilot&&S.res.power>=20?'':'disabled'}>${S.res.power<20?'NEED 20 POWER':'LAUNCH MISSION'}</button>
@@ -3238,14 +3318,17 @@ const ARRIVE={tahoe:{id:'arr_tahoe',where:'South Lake Tahoe',lat:38.94,lon:-120.
 let mapPage=0;
 const mapHomeKey=()=>ROUTE[mapKey()]?mapKey():null;
 const homeGate=()=>(ROUTE[mapHomeKey()]||[]).find(n=>n.gate);
-const roadOpen=()=>{const g=homeGate();return !!(g&&ONWARD[mapHomeKey()]&&mstate().own[g.id])};
+const roadOpen=()=>!!(homeGate()&&ONWARD[mapHomeKey()]&&camp().open.vegas);
 const onPage2=()=>mapPage===1&&roadOpen();
 const onwardNodes=()=>{const O=ONWARD[mapHomeKey()];return O&&ROUTE[O]?[...ROUTE[O].filter(n=>!n.gate).reverse(),ARRIVE[O]]:[]};
 const reached=r=>!!(S.map&&S.map.reach&&S.map.reach[r]);
 const mapReg=()=>onPage2()?ONWARD[mapHomeKey()]:mapHomeKey();
 const mapNodes=()=>onPage2()?onwardNodes():(ROUTE[mapHomeKey()]||[]);
 const allMapNodes=()=>[...(ROUTE[mapHomeKey()]||[]),...(roadOpen()?onwardNodes():[])];
-const mapStart=()=>onPage2()?Object.assign({},homeGate(),{name:'Your outpost'}):MAP_HOME[mapHomeKey()];
+const mapStart=()=>onPage2()?Object.assign({},homeGate(),{name:'Las Vegas base'}):MAP_HOME[mapHomeKey()];
+// the stops on this page of the map: your home city's road, or the road from Las Vegas plus the last city's patrols
+const pageStops=()=>{const ch=cityChain(),C=camp();return onPage2()?[...cityStops('vegas'),...(C.open[ch[2]]?cityStops(ch[2]):[])]:cityStops(ch[0])};
+function campStop(id){const C=camp();for(const c of cityChain()){const L=cityStops(c),j=L.findIndex(x=>x.id===id);if(j>=0){const won=C.st[c]||0,s=L[j];return {c,j,s,taken:j<won,next:j===won&&!!C.open[c],cityOpen:!!(s.assault&&C.open[s.assault])}}}return null}
 const nodeOwned=n=>n.arrive?reached(n.arrive):!!mstate().own[n.id];
 const mapOwned=()=>[mapStart(),...mapNodes().filter(nodeOwned)];
 const nodeFrom=n=>{let best=null,bd=1e9;for(const o of mapOwned()){const d=miles(o,n);if(d<bd){bd=d;best=o}}return {from:best,dist:bd}};
@@ -3254,19 +3337,22 @@ const reconTime=d=>Math.round(15+d*.8);
 function ll2f(lat,lon){const M=MAPIMG[mapReg()],n=2**M.z*256,x=(lon+180)/360*n,r=lat*Math.PI/180,y=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n;return [(x-M.ox)/M.w,(y-M.oy)/M.h]}
 const reconPlane=()=>S.vehicles.map(id=>VEH.find(v=>v.id===id)).filter(v=>v&&v.cat==='air'&&!v.locked).sort((a,b)=>(a.id==='cessna'?-1:0)-(b.id==='cessna'?-1:0))[0];
 let mapZoom=1,mapRAF=0;
+// the map is the campaign board (round 6): the road's towns taken (yours), the next mission's town (pulsing), the ones ahead
+// (numbered), and the base cities. Tap a town to see where it stands, or an open city to fly from there
 function mapHTML(){
-  const R=mapReg(),M=MAPIMG[R],st=mstate(),home=mapStart(),nodes=mapNodes();
-  const pos=n=>ll2f(n.lat,n.lon).map(v=>(v*100).toFixed(2)+'%');
-  const ring=o=>{const [x,y]=ll2f(o.lat,o.lon),[,y2]=ll2f(o.lat+RANGE/69,o.lon),ry=(y-y2)*M.h,rx=ry;return `<ellipse cx="${(x*M.W).toFixed(1)}" cy="${(y*M.H).toFixed(1)}" rx="${(rx*M.W/M.w).toFixed(1)}" ry="${(ry*M.H/M.h).toFixed(1)}"/>`};
-  const line=[home,...nodes].map(n=>{const [x,y]=ll2f(n.lat,n.lon);return (x*M.W).toFixed(1)+','+(y*M.H).toFixed(1)}).join(' ');
-  const pins=nodes.map(n=>{const own=nodeOwned(n),found=!n.arrive&&st.found[n.id],rng=inRange(n),[l,t]=pos(n),cls=own?'own':found?'found':rng?'scan':'far';
-    return `<button class="mpin ${cls}" data-act="mnode" data-n="${n.id}" style="left:${l};top:${t}"><span class="dot">${own?icon('target'):found?enemyArt(n.art):'?'}</span><span class="lbl">${esc(n.where)}${found&&!own?` · Power ${basePow(findBase('rt_'+n.id))}`:''}${own?(n.arrive?' · Open for missions':' · Outpost'):''}</span></button>`}).join('');
+  const R=mapReg(),M=MAPIMG[R],C=camp(),ch=cityChain(),home=mapStart(),stops=pageStops(),hc=onPage2()?'vegas':ch[0],won=Math.min(7,C.st[C.city]||0),nOpen=ch.filter(c=>C.open[c]).length;
+  // the last city's patrols sit close together, so the board spreads them in a ring around the city (about 135 pixels out)
+  const ring=onPage2()&&C.open[ch[2]]?cityStops(ch[2]):[],rc=ll2f(CITY[ch[2]].lat,CITY[ch[2]].lon);
+  const pos=n=>{const j=ring.findIndex(x=>x.id===n.id),f=j<0?ll2f(n.lat,n.lon):[rc[0]+135/M.W*Math.cos(j/7*Math.PI*2-Math.PI/2),rc[1]+135/M.H*Math.sin(j/7*Math.PI*2-Math.PI/2)];return f.map(v=>(clamp(v,.01,.99)*100).toFixed(2)+'%')};
+  const line=[home,...stops.filter(x=>!(onPage2()&&C.open[ch[2]]&&cityStops(ch[2]).some(y=>y.id===x.id)))].map(n=>{const [x,y]=ll2f(n.lat,n.lon);return (x*M.W).toFixed(1)+','+(y*M.H).toFixed(1)}).join(' ');
+  const pins=stops.map(n=>{const t=campStop(n.id)||{},[l,tp]=pos(n),cls=t.cityOpen?'own city':t.taken?'own':t.next?'next':'ahead';
+    return `<button class="mpin ${cls}" data-act="mnode" data-n="${n.id}" style="left:${l};top:${tp}"><span class="dot">${t.cityOpen||t.taken?icon('target'):t.next?enemyArt(n.art||'raider'):String((t.j||0)+1)}</span><span class="lbl">${esc(n.assault?CITY[n.assault].name:n.where)}${t.cityOpen?' · Open base':t.taken?' · Taken':t.next?' · Next mission':''}</span></button>`}).join('');
   const [hl,ht]=pos(home);
-  return `<div class="mtop"><b>${onPage2()?'Road to '+esc(REGION_NAME[R]):esc(FACTIONS[S.faction].place)}</b><span class="muted">Range ${RANGE} mi from your base and each outpost</span><button class="btn" data-act="mzoom" data-z="-1">−</button><button class="btn" data-act="mzoom" data-z="1">+</button><button class="btn primary" data-act="mclose">BASE</button></div>
+  return `<div class="mtop"><b>${onPage2()?'Road to '+esc(REGION_NAME[R]):'Road to Las Vegas'}</b><span class="muted">Flying from ${esc(CITY[C.city].name)}: ${won} of 7 missions won. Hangar missions take the road outpost by outpost.</span>${nOpen>1?'<button class="btn" data-act="citysheet">SWITCH BASE</button>':''}<button class="btn" data-act="mzoom" data-z="-1">−</button><button class="btn" data-act="mzoom" data-z="1">+</button><button class="btn primary" data-act="mclose">BASE</button></div>
   <div class="mscroll" id="mscroll"><div class="mcanvas" id="mcanvas" style="width:${Math.round(M.W*mapZoom)}px;height:${Math.round(M.H*mapZoom)}px">
     <img src="${M.src}" alt="Map of the ${R==='moab'?'Moab':'Lake Tahoe'} to Las Vegas region">
-    <svg viewBox="0 0 ${M.W} ${M.H}" preserveAspectRatio="none"><g class="rings">${mapOwned().map(ring).join('')}</g><polyline class="road" points="${line}"/></svg>
-    <div class="mpin home" style="left:${hl};top:${ht}"><span class="dot">${icon('door')}</span><span class="lbl">${esc(home.name)} · ${esc(home.where)}</span></div>
+    <svg viewBox="0 0 ${M.W} ${M.H}" preserveAspectRatio="none"><polyline class="road" points="${line}"/></svg>
+    <button class="mpin home city" data-act="mcity" data-c="${hc}" style="left:${hl};top:${ht}"><span class="dot">${icon('door')}</span><span class="lbl">${esc(CITY[hc].name)}${C.city===hc?' · Flying from here':' · Tap to fly from here'}</span></button>
     ${pins}<div id="mplane" class="mplane" hidden>${icon('plane')}</div>
     ${(MAP_FAR[R]||[]).map((f,i)=>{const go=!!f.region&&(onPage2()?f.region===mapHomeKey():f.region===ONWARD[mapHomeKey()]&&roadOpen()),pos=f.dir==='east'?'right:6px;top:38%':f.dir==='west'?'left:6px;top:38%':'right:6px;bottom:6px',lb=go?(onPage2()?'Back to '+REGION_NAME[f.region]:'Road to '+REGION_NAME[f.region]):f.name;
       return `<button class="mfar${go?' go':''}" data-act="${go?'mpage':'mfar'}" data-i="${i}" data-p="${onPage2()?0:1}" style="${pos}">${f.dir==='west'?'◂ ':''}${esc(lb)}${f.dir==='west'?'':' ▸'}</button>`}).join('')}
@@ -3277,7 +3363,8 @@ function openMap(){
   if(!mapReg()){toast('The '+FACTIONS[S.faction].place+' map is coming in a later update.','warn');return}
   let ov=$('#mapview');if(!ov){ov=document.createElement('div');ov.id='mapview';document.body.appendChild(ov)}
   ov.innerHTML=mapHTML();ov.hidden=false;document.body.classList.add('in-map');
-  const sc=$('#mscroll'),m0=mapStart(),[hx,hy]=ll2f(m0.lat,m0.lon),cv=$('#mcanvas');
+  // the map opens on your next mission's town when it's on this page (else on the page's base)
+  const C=camp(),nx=cityStops(C.city)[Math.min(6,C.st[C.city]||0)],sc=$('#mscroll'),m0=nx&&pageStops().some(x=>x.id===nx.id)?nx:mapStart(),[hx,hy]=ll2f(m0.lat,m0.lon),cv=$('#mcanvas');
   sc.scrollLeft=Math.max(0,hx*cv.offsetWidth-sc.clientWidth*.3);sc.scrollTop=Math.max(0,hy*cv.offsetHeight-sc.clientHeight*.35);
   cancelAnimationFrame(mapRAF);mapRAF=requestAnimationFrame(mapLoop);
 }
@@ -3286,7 +3373,14 @@ function mapLoop(){const ov=$('#mapview');if(!ov||ov.hidden) return;const st=mst
   if(pl){const r=st.recon,n=r&&mapNodes().find(x=>x.id===r.id);if(r&&n){const o=r.from;const f=clamp((S.t+(performance.now()-tickAt)/1000-r.start)/(r.end-r.start),0,1),go=f<.5?f*2:2-f*2;
       const [x0,y0]=ll2f(o.lat,o.lon),[x1,y1]=ll2f(n.lat,n.lon);pl.hidden=false;pl.style.left=((x0+(x1-x0)*go)*100)+'%';pl.style.top=((y0+(y1-y0)*go)*100)+'%';pl.style.transform=`translate(-50%,-50%) rotate(${Math.atan2(y1-y0,x1-x0)*57.3+(f<.5?0:180)+45}deg)`}else pl.hidden=true}
   mapRAF=requestAnimationFrame(mapLoop)}
-function mapNodeSheet(id){
+// a town or city on the campaign board
+function mapNodeSheet(id){const t=campStop(id);if(!t) return;const C=camp(),s=t.s,c=t.c,city=CITY[c],isCity=!!s.assault,go=x=>`<button class="btn primary" data-act="mcity" data-c="${x}">FLY FROM ${esc(CITY[x].name.toUpperCase())}</button>`;let body='';
+  if(isCity&&t.cityOpen) body=`<div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>${esc(CITY[s.assault].name)} is yours</b><span>${C.city===s.assault?'Your crew is flying from here now.':'Switch here to fly its missions.'}</span></span></div>${C.city===s.assault?'':go(s.assault)}`;
+  else if(t.taken) body=`<div class="li"><span class="thumb icon">${icon('target')}</span><span class="grow"><b>Taken</b><span>Your crew knocked out the gang here in mission ${t.j+1} from ${esc(city.name)}.</span></span></div>`;
+  else if(t.next) body=`<div class="muted">Next up: mission ${t.j+1} of 7 from ${esc(city.name)}. ${C.city===c?'Launch it from any plane in the Hangar.':'Switch to '+esc(city.name)+' and launch it from the Hangar.'}</div>${C.city===c?'':go(c)}`;
+  else body=`<div class="muted">Mission ${t.j+1} of 7 from ${esc(city.name)}${C.open[c]?'':' (that city is still locked)'}. ${isCity?'Win it and '+esc(CITY[s.assault].name)+' opens as a base you can fly from.':'Win the missions before it first.'}</div>`;
+  openSheet(esc(isCity?CITY[s.assault].name:s.where),`<div class="muted">${esc(s.name)}</div>${body}`)}
+function mapNodeSheetOld(id){
   const n=mapNodes().find(x=>x.id===id);if(!n) return;const st=mstate(),{from,dist}=nodeFrom(n),b=findBase('rt_'+n.id),pl=reconPlane();
   let body=`<div class="muted">${esc(n.where)} is ${Math.round(miles(mapStart(),n))} miles from your ${onPage2()?'Las Vegas outpost':'base'}${from&&from!==mapStart()&&!(from.lat===mapStart().lat&&from.lon===mapStart().lon)?`, ${Math.round(dist)} miles from your ${esc(from.where)} outpost`:''}.</div>`;
   if(n.arrive){
@@ -3787,7 +3881,7 @@ function groundColor(mk,m,ny,wet,noise){
   return c;
 }
 function startMission(vid){
-  const v=VEH.find(x=>x.id===vid),mk=missionKey(),route=ROUTES[mk][v.cat];
+  const v=VEH.find(x=>x.id===vid),plan=v.cat==='air'?campMission():null,mk=plan?plan.terrain:missionKey(),route=ROUTES[mk][v.cat];
   const pilot=pilotFor(); if(!pilot||!route||S.res.power<20||M) return;
   closeSheet();sfxInit();
   missionOrient(true);
@@ -3796,7 +3890,7 @@ function startMission(vid){
   root.innerHTML='<div class="m-load">LOADING THE REAL MAP<small>Warming up the engines...</small></div>';
   Promise.all([loadThree(),loadTerrain()]).then(()=>{
     S.res.power-=20; updateHUD();
-    buildMission(v,mk,route,pilot);
+    buildMission(v,mk,route,pilot,plan);
   }).catch(e=>{
     console.error('mission failed to start',e);
     root.innerHTML='<div class="m-load"><div>COULD NOT LOAD THE 3D MAP<small>Check your internet connection and try again.</small><br><button class="btn" id="m-fail">BACK TO BASE</button></div></div>';
@@ -4155,7 +4249,7 @@ function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,
   // round 6: a mix of gang vehicles: a pickup with a gun in the back, a truck, a fast buggy and a tough SUV
   else if(en.kind==='convoy'){const sd=Math.random()<.5?-1:1,lats=[22,32,44,14].map(x=>x*sd).concat([22,32,44].map(x=>-x*sd));
     for(let k=0;k<en.n;k++){const s=en.s+k*rnd(26,38),p=at(s),lat=lats.find(l=>!M.waterAt(p.x+p.nx*l,p.z+p.nz*l));if(lat==null) continue;
-      const md=['pickup','truck','buggy','suv'][(k+(en.v||0))%4],g=K[md](),x=p.x+p.nx*lat,z=p.z+p.nz*lat,hp=md==='suv'?(tier.hp>1?5:4):md==='buggy'?2:(tier.hp>1?4:3);
+      const mix=tier.mix||['pickup','truck','buggy','suv'],md=mix[(k+(en.v||0))%mix.length],g=K[md](),x=p.x+p.nx*lat,z=p.z+p.nz*lat,hp=md==='suv'?(tier.hp>1?5:4):md==='buggy'?2:(tier.hp>1?4:3);
       g.scale.multiplyScalar(1.6);g.position.set(x,M.heightAt(x,z),z);add('truck',g,{r:9,cr:4.5,off:3.5,hp,s,lat,dir:-1,air:true,model:md,wk:md==='truck'?null:md,spd:md==='buggy'?15:9,cd:tier.orb&&md==='pickup'?rnd(1.5,3):null})}}
   // a slow gang recon plane a few seconds ahead, a little above the flight line, flying the same way: catch it from behind
   else if(en.kind==='recon'){const s=(M.prog||0)+Math.max(260,M.cruise*3.2),p=at(s),lat=(Math.random()<.5?-1:1)*rnd(8,18),g=K.recon();
@@ -4167,10 +4261,12 @@ function foeSpawn(en){const T=window.THREE,K=M.kit,c=M.course,v=M.v,tier=M.tier,
       if([[0,L],[30,L+22],[-18,L+10]].every(([ds,l])=>{const q=at(en.s+ds);return !M.waterAt(q.x+q.nx*l*s1,q.z+q.nz*l*s1)})){sd=s1;L0=L}}
     if(!sd) return;
     const put=(kind,g,ds,l,o)=>{const q=at(en.s+ds),x=q.x+q.nx*l*sd,z=q.z+q.nz*l*sd;g.position.set(x,M.heightAt(x,z)-.3,z);g.rotation.y=Math.atan2(q.dx,q.dz)+(sd>0?0:Math.PI);return add(kind,g,Object.assign({s:en.s+ds,lat:l*sd},o))};
+    // early in the campaign a fort is just a bunker behind barriers; turrets, then a dish, join as it gets harder
+    const fl=tier.fort==null?3:tier.fort;
     put('bunker',K.bunker(),0,L0,{r:8,off:3,hp:tier.hp>1?6:4,cd:tier.orb?rnd(2,3.5):null});
-    put('dish',K.dish(),30,L0+22,{r:8,off:8,hp:3});
-    put('turret',K.turret(),-18,L0+10,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
-    if(tier.group>2) put('turret',K.turret(),20,L0+6,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
+    if(fl>=3) put('dish',K.dish(),30,L0+22,{r:8,off:8,hp:3});
+    if(fl>=2) put('turret',K.turret(),-18,L0+10,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
+    if(fl>=2&&tier.group>2) put('turret',K.turret(),20,L0+6,{r:5,off:2.4,hp:2,cd:tier.orb?rnd(1.2,2.4):null});
     put('wall',K.wall(),4,L0-12,{r:9,off:1,hp:2});
     put('barricade',K.barricade(),-34,L0-4,{r:7,off:1,hp:2})}
 }
@@ -4320,7 +4416,7 @@ function flickIn(x){if(!M) return;const f=M.flick||(M.flick={side:0,dir:0,at:-9}
   if(Math.abs(x)<.35) f.side=0;else if(s) f.side=s}
 // mission scale: map stretch, tree size and vehicle size relative to the original prototype
 const MWS=2.5,TREE_S=.38,VEH_S=.65,AIR_S=.85;
-function buildMission(v,mk,route,pilot){
+function buildMission(v,mk,route,pilot,plan){
   // WS stretches the real map so lakes and canyons read at a believable size next to the vehicles
   const T=window.THREE,t=TERRAIN[mk],n0=t.n,WS=MWS,size=t.km*100*WS,VEX=mk==='moab'?2.2:1.4;
   const dec=decodeMap(t);
@@ -4348,7 +4444,7 @@ function buildMission(v,mk,route,pilot){
   const type=missionType(v),armed=isArmed(v);
   const FM=v.cat==='air'?flightModel(v):null;
   // the course comes first, because a road is cut into the terrain before the terrain is built
-  const cell=size/(n-1),tier=MTIERS[tierOf()],VU=vUp(v),VW=misWpn(v);
+  const cell=size/(n-1),tier=plan?plan.tier:MTIERS[tierOf()],VU=vUp(v),VW=misWpn(v);
   const maxS=(FM?comp(FM.vmax):(v.cat==='sea'?28+v.spd*9:20+v.spd*10)*(1+.05*(VU.spd-1)))*(.85+.15*condMul(v));
   const cruise=FM?((S.assist||'casual')==='casual'?Math.min(comp(FM.vmax*.72)*STAR_K,STAR_MAX):comp(FM.vmax*.72)):maxS*.85;
   const baseG=[t.base[0]*sc,t.base[1]*sc];
@@ -4525,12 +4621,12 @@ function buildMission(v,mk,route,pilot){
   // checkpoints: two gates, then the Badlands outpost (a radar to blow up, a camp to photograph, or a last gate)
   // the ENEMY OUTPOST (planes on a strike run) takes about 5 and a half (ROOKIE), 6 and a half (PILOT) or 7 and a half (ACE)
   // seconds of steady fire from this plane's guns, or three missiles. It stands 30 units to one side of the flight line
-  const gunHz=VW.beam?1/VW.rate:VW.rocket||VW.pierce?1/clamp(VW.rate/2,.035,1):1/gunCadence(VW),outHP=Math.max(12,Math.round(gunHz*((VW.dmg||4)>=20?2:1)*[5.5,6.5,7.5][tierOf()]*.85)),outLat=(Math.random()<.5?-1:1)*30;
+  const gunHz=VW.beam?1/VW.rate:VW.rocket||VW.pierce?1/clamp(VW.rate/2,.035,1):1/gunCadence(VW),outHP=Math.max(12,Math.round(gunHz*((VW.dmg||4)>=20?2:1)*(plan?5.5+Math.min(2.5,plan.d):[5.5,6.5,7.5][tierOf()])*.85)),outLat=(Math.random()<.5?-1:1)*30;
   const ringMat=new T.MeshBasicMaterial({color:0x2ec4c9}),ringNext=new T.MeshBasicMaterial({color:0xffe27a});
   const beamMat=new T.MeshBasicMaterial({color:0x2ec4c9,transparent:true,opacity:.22,depthWrite:false}),beamRed=new T.MeshBasicMaterial({color:0xff4d5e,transparent:true,opacity:.25,depthWrite:false});
   const stops=course.cps.map((cp,i)=>{
     const final=cp.final,kind=!final||type==='rally'?'ring':type==='strike'?'targets':'photo',p=CP(cp.s);
-    const st={name:cp.near,x:cp.x,z:cp.z,s:cp.s,final,targets:[],kind};
+    const st={name:final&&plan?'at '+plan.stop.where:cp.near,x:cp.x,z:cp.z,s:cp.s,final,targets:[],kind};
     const gh=v.cat==='air'?heightAt(cp.x,cp.z):p.y;
     if(kind==='ring'){const R=v.cat==='air'?24:v.cat==='sea'?15:18;st.y=v.cat==='air'?cp.y:gh+R*.6;
       st.ring=new T.Mesh(new T.TorusGeometry(R,v.cat==='air'?2.6:2.2,10,40),i===0?ringNext:ringMat);st.ring.position.set(cp.x,st.y,cp.z);scene.add(st.ring)}
@@ -4555,13 +4651,13 @@ function buildMission(v,mk,route,pilot){
     // supply balloons, and (ACE) enemy jets. The last hop ends at the enemy outpost (or the gang camp to photograph)
     if(v.cat==='air'){enc.push({s:s0+.28*H,kind:'drones',n:tier.group});if(tier.group>2&&h<2) enc.push({s:s0+.9*H,kind:'drones',n:tier.group-1});
       // round 6: a gang fort every hop, a mixed convoy, and a slow recon plane on the middle hop (and the last one on PILOT and ACE)
-      enc.push({s:s0+.42*H,kind:'fort'});enc.push({s:s0+.58*H,kind:'convoy',n:h===2?3:2,v:h});enc.push({s:s0+.7*H,kind:'balloons'});
-      if(h===1||(h===2&&tier.group>2)) enc.push({s:s0+.2*H,kind:'recon'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
+      if(tier.fort!==0) enc.push({s:s0+.42*H,kind:'fort'});enc.push({s:s0+.58*H,kind:'convoy',n:h===2?3:2,v:h});enc.push({s:s0+.7*H,kind:'balloons'});
+      if(tier.recon!==false&&(h===1||(h===2&&tier.group>2))) enc.push({s:s0+.2*H,kind:'recon'});if(tier.jets&&h>0) enc.push({s:s0+.12*H,kind:'jets',n:tier.jets})}
     else if(v.cat==='ground'){enc.push({s:s0+.3*H,kind:'bots',n:tier.group});enc.push({s:s0+.55*H,kind:'block'});enc.push({s:s0+.78*H,kind:'hover',n:2});
       if(tier.trucks&&h>0) enc.push({s:s0+.4*H,kind:tier.trucks>1&&h===2?'chase':'oncoming'})}
     else{enc.push({s:s0+.35*H,kind:'drones',n:tier.group,low:true});enc.push({s:s0+.66*H,kind:'mines'})}}
   enc.sort((a,b)=>a.s-b.s);
-  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:e.kind==='fort'?PTS.bunker+PTS.dish+PTS.turret*(tier.group>2?2:1)+PTS.wall+PTS.barricade:e.kind==='recon'?PTS.recon:PTS.truck),0)
+  const scoreMax=1.3*enc.reduce((a,e)=>a+(e.kind==='drones'?e.n*PTS.drone:e.kind==='balloons'?2*PTS.balloon:e.kind==='bots'?e.n*PTS.bot:e.kind==='hover'?2*PTS.drone:e.kind==='block'?PTS.block:e.kind==='mines'?3*PTS.mine:e.kind==='jets'?e.n*PTS.jet:e.kind==='convoy'?e.n*PTS.truck:e.kind==='fort'?PTS.bunker+PTS.wall+PTS.barricade+((tier.fort==null||tier.fort>=2)?PTS.turret*(tier.group>2?2:1):0)+((tier.fort==null||tier.fort>=3)?PTS.dish:0):e.kind==='recon'?PTS.recon:PTS.truck),0)
     +lane.length*(v.cat==='ground'?PTS.token:v.cat==='air'?PTS.box:PTS.ring)*.6+2*PTS.gate+(type==='strike'?(v.cat==='air'?PTS.outpost:PTS.radar+PTS.block):type==='recon'?PTS.camp:PTS.gate)+(course.low?PTS.ghost*.6+(arch?PTS.arch*.6:0):0)+obst.length*PTS.dodge*.6;
   const model=buildVehicle(T,v,armed,{env:vehEnv(T,renderer)});model.scale.setScalar(VEH_S*(v.cat==='air'?AIR_S:1));model.visible=false;model.rotation.order='YXZ';scene.add(model);
   const s0p=course.low?CP(0):null,o0=s0p||home,d0=CP(80);
@@ -4572,7 +4668,7 @@ function buildMission(v,mk,route,pilot){
     maxS,heightAt,waterAt,size,root,lastBonk:-9,model,ringMat,ringNext,kit:foeKit(T,renderer),fxSph:new T.SphereGeometry(1,12,8),fxRing:new T.RingGeometry(.82,1,40),orbGeo:new T.SphereGeometry(1.5,12,8),orbMat:new T.MeshBasicMaterial({color:0xff8a2a,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),orbGood:new T.MeshBasicMaterial({color:0x7ff0f3,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),shotGeo:VW.rocket?new T.CylinderGeometry(.35,.35,2.6,8).rotateX(Math.PI/2):v.cat==='air'?new T.BoxGeometry(.45,.45,1):new T.BoxGeometry(.32,.32,1),shotMat:new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}),
     puffGeo:new T.SphereGeometry(1,10,7),flashMesh:(()=>{const f=new T.Mesh(new T.SphereGeometry(1.1,8,6),new T.MeshBasicMaterial({color:0xfff1b0,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false}));f.visible=false;scene.add(f);return f})(),
     beam:VW.beam?(()=>{const b=new T.Mesh(new T.CylinderGeometry(.25,.25,1,6,1,true).rotateX(Math.PI/2).translate(0,0,.5),new T.MeshBasicMaterial({color:VW.color,transparent:true,opacity:.8,blending:T.AdditiveBlending,depthWrite:false}));b.visible=false;scene.add(b);return b})():null,wpn:VW,heat:0,hot:false,gunSide:0,guns:v.cat==='air'?model.userData.guns||null:null,msl:mslCount(v),mslMax:mslCount(v),missiles:[],mslCd:0,mslShot:0,mslHits:0,mslMesh:v.cat==='air'?mslMesh(T):null,armMul:1/(1+.25*(VU.arm-1))/condMul(v),intel:0,bitGeo:new T.BoxGeometry(1.4,1.4,1.4),bitMat:toonMat(T,0x9a6a3a),VEX,minElev:t.min,low:!!course.low,run,radarUp:42+gh,radar:0,spotted:0,arch,treeGrid:course.low?TG:null,radarMesh,
-    obst,sthr:1,burstT:0,burstGap:0,shotN:0,lockR:lockRange(cruise),lockNeed:lockTime(v),slugGeo:VW.gun&&v.cat==='air'?new T.CylinderGeometry(.13,.17,1,6).rotateX(Math.PI/2):null,
+    obst,plan,sthr:1,burstT:0,burstGap:0,shotN:0,lockR:lockRange(cruise),lockNeed:lockTime(v),slugGeo:VW.gun&&v.cat==='air'?new T.CylinderGeometry(.13,.17,1,6).rotateX(Math.PI/2):null,
     slugMat:VW.gun&&v.cat==='air'?new T.MeshPhongMaterial({color:0x9aa1a8,specular:0xffffff,shininess:110,emissive:0x1e2226}):null};
   {const mm=$('#minimap'),g=mm.getContext('2d'),img=g.createImageData(160,160);
     for(let y=0;y<160;y++)for(let x=0;x<160;x++){const gi=Math.min(n-1,Math.round(y*(n-1)/159))*n+Math.min(n-1,Math.round(x*(n-1)/159));
@@ -4586,7 +4682,7 @@ function buildMission(v,mk,route,pilot){
   M.raf=requestAnimationFrame(missionLoop);
   setCam('cockpit');M.camSnap=true;laneTint();
   {const b=$('#m-brief'),who=String(pilot.name||'Pilot').split(' ')[0];
-    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, low-level run: ${esc(run.name)}. ${esc(run.brief)} Stay low in the pink boxes: climb above the red radar line and the gang spots you.${obst.length?` Giant ${mk==='moab'?'rock towers':'trees'} stand in the way: steer around them.`:''}${type==='strike'?' At the end, destroy the enemy outpost: lock on from far out and fire missiles, or keep the guns on it.':''}`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
+    b.innerHTML=`<small>TOWER</small>${course.low?`${esc(who)}, ${plan?`${plan.done?'patrol':'mission '+(plan.k+1)+' of 7'} from ${esc(CITY[plan.city].name)}: ${plan.stop.assault?'the gang fortress at '+esc(CITY[plan.stop.assault].name):'the gang outpost at '+esc(plan.stop.where)}, by way of ${esc(run.name)}.`:`low-level run: ${esc(run.name)}. ${esc(run.brief)}`} Stay low in the pink boxes: climb above the red radar line and the gang spots you.${obst.length?` Giant ${mk==='moab'?'rock towers':'trees'} stand in the way: steer around them.`:''}${type==='strike'?' At the end, destroy the enemy outpost: lock on from far out and fire missiles, or keep the guns on it.':''}`:`${esc(who)}, three quick hops to the Badlands outpost ${esc(stops[2].name)}. ${v.cat==='ground'?'Stay on the road, blast the bots and grab the gems!':v.cat==='sea'?'Follow the rings on the water and blast the drones and mines!':'Fly through the pink boxes: they line you up on the targets. Pull the stick down to climb, push it up to dive. Blast the drones!'}`}${v.cat==='air'&&(S.assist||'casual')==='casual'?' Double tap left or right (or flick the stick twice) to barrel roll and smash close bad guys. AUTOPILOT can fly you back on course.':''}<em>Tap anywhere to skip</em>`;b.hidden=false}
   root.addEventListener('pointerdown',()=>{if(M&&M.intro>0) M.intro=.001},true);
 }
 function missionResize(){if(!M) return;const r=M.root;M.renderer.setSize(r.clientWidth,r.clientHeight);M.camera.aspect=r.clientWidth/r.clientHeight;ckLook();turnCheck()}
@@ -5270,7 +5366,7 @@ function finishMission(won){
   if(!M||M.done) return; M.done=true;
   // a low-level run finished without the radar ever seeing you is a ghost run
   if(won&&M.low&&!M.spotted){M.score+=PTS.ghost;popAt(null,'GHOST RUN!','+'+PTS.ghost+' NEVER SPOTTED',true)}
-  const lowRun=!!M.low,spottedN=M.spotted||0,archOK=!!M.archOK,mslShot=M.mslShot||0,mslHits=M.mslHits||0,obN=(M.obst||[]).length,dodges=M.dodges||0;
+  const lowRun=!!M.low,spottedN=M.spotted||0,archOK=!!M.archOK,mslShot=M.mslShot||0,mslHits=M.mslHits||0,obN=(M.obst||[]).length,dodges=M.dodges||0,plan=M.plan,outDown=!!M.outpostDown,missedFin=!!M.missedFinal;
   const v=M.v,mk=M.mk,ko=M.ko,type=M.type,hits=M.hits,photos=M.photos,bulls=M.bulls||0,missed=(M.missed||0)+(M.missedFinal?1:0),score=M.score||0,tier=M.tier,outName=M.stops[M.stops.length-1].name,rings=M.laneGot||0,rolls=M.rolls||0;
   const stars=won?(score>=M.scoreMax*.7?3:score>=M.scoreMax*.4?2:1):0,starTxt='★'.repeat(stars)+'☆'.repeat(3-stars);
   banner(won?(M.missedFinal?'MISSION DONE!':M.outpostDown?'OUTPOST DOWN!':'OUTPOST FOUND!'):'MAYDAY!',won?starTxt:'',won?'win':'lose');sfx(won?'win':'lose');
@@ -5280,7 +5376,9 @@ function finishMission(won){
       const key=mk+':'+v.cat;S.found=S.found||{};const firstTime=!S.found[key];S.found[key]=true;
       const base=type==='strike'?15000+4000*hits:type==='recon'?14000+3500*photos:12000+3000*Math.max(0,3-missed);
       // round 6 doubled the bad guys on a plane run, so knockouts and points count for less there, keeping the cash near round 5's
-      const kK=v.cat==='air'?200:300,sK=v.cat==='air'?2:3,cr=Math.round((base+kK*ko+sK*score)*(1+.03*level())*tier.rew)+(firstTime?25000:0)+1000*bulls;S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
+      // the campaign: a plane mission that knocked out its outpost moves you one stop down the road (and a cleared city pays a bonus)
+      const adv=plan&&outDown&&!missedFin?campAdvance(plan):null;
+      const kK=v.cat==='air'?200:300,sK=v.cat==='air'?2:3,cr=Math.round((base+kK*ko+sK*score)*(1+.03*level())*tier.rew)+(firstTime?25000:0)+1000*bulls+(adv&&adv.bonus||0);S.res.credits+=cr;S.xp+=60;if(firstTime)S.res.ap=Math.min(5,S.res.ap+1);
       const pilot=pilotFor();if(pilot) pilot.xp+=40;
       S.mwins=(S.mwins||0)+1;let prize='';
       if(PRIZES[S.mwins]) prize=grantPrize(VEH.find(x=>x.id===PRIZES[S.mwins]),'Mission '+S.mwins+' prize');
@@ -5292,6 +5390,7 @@ function finishMission(won){
         <div class="muted" style="text-align:center">${firstTime?'You discovered a Badlands Gang outpost '+esc(outName)+'!':'Another clean run. The Badlands Gang is getting nervous.'}</div>
         <div class="stats"><div class="stat"><span class="label">Score</span><b>${score.toLocaleString()}</b></div><div class="stat"><span class="label">Cash</span><b>+${money(cr)}</b></div><div class="stat"><span class="label">Bad guys KO</span><b>${ko}</b></div></div>
         <div class="muted" style="font-size:12px">${tier.name} challenge${tier.rew>1?` (cash x${tier.rew})`:''}. ${v.cat==='ground'?'Gems':v.cat==='air'?'Boxes':'Rings'}: ${rings}.${type==='strike'?' Targets: '+hits+'.':type==='recon'?' Photos: '+photos+'.':''}${rolls?' Barrel rolls: '+rolls+'.':''}${mslShot?' Missiles: '+mslHits+' hit'+(mslHits===1?'':'s')+' from '+mslShot+'.':''}${lowRun?(spottedN?' Spotted by radar: '+spottedN+'.':' Never spotted: ghost run!'):''}${archOK?' Flew under the arch!':''}${obN?' Giant obstacles dodged: '+dodges+' of '+obN+'.':''} ${stars<3?'Score more points for three stars.':'Three stars!'}</div>
+        ${campDone(adv,plan,missedFin)}
         ${firstTime?'<div class="muted" style="font-size:12px">First discovery bonus: +$25,000 and +1 Adventure Point.</div>':''}
         ${bulls?`<div class="muted" style="font-size:12px">Bullseye checkpoints: ${bulls} (+${money(1000*bulls)})</div>`:''}${missed?`<div class="muted" style="font-size:12px">Missed: ${missed}. Go through each checkpoint for the full reward.</div>`:''}
         ${prize}${np?`<div class="muted" style="font-size:12px">Mission wins: ${S.mwins}. Next prize: ${esc(np.v.name)} in ${np.left} more win${np.left>1?'s':''}.</div>`:''}
@@ -5549,6 +5648,7 @@ $('#panel').addEventListener('click',e=>{
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
   else if(a==='mrecon') startRecon(b.dataset.n);
   else if(a==='mreg'){S.mreg=b.dataset.r;save();missionSheet(b.dataset.v)}
+  else if(a==='mcity'){setCity(b.dataset.c);if(b.dataset.v) missionSheet(b.dataset.v);else{closeSheet();const mv=$('#mapview');if(mv&&!mv.hidden) openMap()}}
   else if(a==='mtier'){const t=+b.dataset.t;S.mtier=t===tierAuto()?null:t;save();missionSheet(b.dataset.v)}
   else if(a==='mcap'){closeMap();planSheet('rt_'+b.dataset.n)}
   else if(a==='mfar'){const f=MAP_FAR[mapReg()][+b.dataset.i];openSheet(esc(f.name),`<div class="muted">${esc(f.note)}</div>`)}
@@ -5642,9 +5742,12 @@ function recruitSheet(){
 function recruit(){ if(S.res.credits<2500){toast('Recruiting costs $2,500.','warn');return} if(S.crew.length>=crewCap()){toast('No bunks left! Build Sleeping Quarters first.','warn');return} S.res.credits-=2500; closeSheet(); arrival(false) }
 $('#b-store').onclick=()=>storeSheet();
 $('#mapbtn').onclick=()=>openMap();
+$('#citybtn').onclick=()=>{if(S&&!B) citySheet()};
 $('#defbtn').onclick=()=>{if(S&&!B) defenseSheet()};
 document.addEventListener('click',e=>{const b=e.target.closest('#mapview [data-act]');if(!b) return;const a=b.dataset.act;
   if(a==='mclose') closeMap();
+  else if(a==='mcity'){setCity(b.dataset.c);openMap()}
+  else if(a==='citysheet') citySheet();
   else if(a==='mpage'){mapPage=+b.dataset.p;openMap()}
   else if(a==='mzoom'){const sc=$('#mscroll'),cx=(sc.scrollLeft+sc.clientWidth/2)/sc.scrollWidth,cy=(sc.scrollTop+sc.clientHeight/2)/sc.scrollHeight;mapZoom=clamp(mapZoom*(+b.dataset.z>0?1.4:1/1.4),Math.min(1,Math.max(sc.clientWidth/MAPIMG[mapReg()].W,sc.clientHeight/MAPIMG[mapReg()].H)),2.2);$('#mapview').innerHTML=mapHTML();const s2=$('#mscroll');s2.scrollLeft=cx*s2.scrollWidth-s2.clientWidth/2;s2.scrollTop=cy*s2.scrollHeight-s2.clientHeight/2}
   else if(a==='mnode') mapNodeSheet(b.dataset.n);
