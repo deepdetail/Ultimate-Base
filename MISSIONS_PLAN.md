@@ -460,7 +460,82 @@ Still to come: bosses and the realistic look.
 - Real terrain for the Nevada and Utah towns, a flyover on the map when a city opens, and Sky Vegas and the Bahamas as later cities.
 - The first missions may feel easy for a high-level save like Phoenix's. A way for veterans to skip ahead is one option.
 
+## Round 6, Ship C (November 17), J and Phoenix: real rock, and walls, gaps and tunnels
+Asked for:
+1. **Moab obstacles:** they didn't love the Moab spires. Make them look more like real rocks.
+2. **New obstacle types, varied across the mission progression:**
+   - Walls you have to fly over.
+   - A flat wall with a gap you fly through (like flying under a bridge).
+   - A bigger, grander arch to fly under (the old one felt small).
+   - A short cave or tunnel you fly into and out of. One of the Tahoe missions should have one.
+   - Mixed into missions as the progression gets harder, not all at once.
+
+- **Real-looking rock:**
+  - The Moab rock towers (the obstacles), the sandstone pillars along the canyons and Balanced Rock now share one shape: a tower that tapers in stepped ledges, the way layered sandstone weathers, up to a flat top of darker cap rock. Before, they were stacked cylinders.
+  - They're banded red, orange and cream like real Moab rock, with ragged sides.
+  - The Sierra's rock (its walls and the tunnel's spur) is banded granite gray.
+- **The grand arch:**
+  - About 240 units across (it was 150) and about 65 units over the flight line, in layered sandstone.
+  - In a deep canyon its feet go into the canyon walls instead of standing on the rims far overhead, so you see it span the canyon as you fly under.
+  - Still worth 500 points.
+- **Walls to fly over:**
+  - A rock wall right across the corridor (a fin of sandstone in Moab, granite in the Sierra), about 20 units over the flight line.
+  - Pull up over it: OVER THE WALL! +60.
+  - Hit it and it stings like a giant tree, then bumps you up over the top.
+  - Only on dry ground.
+- **A wall with a gap:**
+  - A concrete gang wall across the corridor with one gap in the middle, framed in yellow hazard stripes, and a box in the gap to line you up: THREADED THE GAP! +100.
+  - Over water it's a bridge instead: a steel deck on concrete piers, with a box under it: UNDER THE BRIDGE! +100.
+  - Hit the wall, the deck or a pier and you get nudged back toward the gap.
+- **The tunnel:**
+  - A short tunnel through a rock spur: about 1.5 seconds of flying, 46 to 67 units wide and 32 to 46 tall, with lamps along the roof and a box at the mouth.
+  - The boxes level out through it, so letting go flies you down the middle: THROUGH THE TUNNEL! +150.
+  - Scrape the side and it costs about half a crash and nudges you back to the middle.
+  - It goes on the straightest dry stretch in the middle of the run.
+- **When they show up (the mix):**
+  - **Lake Tahoe:**
+    - Missions 1 and 2: only giant trees and rock stacks.
+    - Mission 3 adds a wall.
+    - Mission 4 adds the tunnel, always: a mission with a tunnel gets a canyon run (the Truckee River Canyon or Donner Lake to Emerald Bay), never a shoreline run over the lake.
+    - Missions 5 to 7: a wall and a wall with a gap.
+  - **Las Vegas:** a wall and a gap from mission 1, two walls from mission 4, a tunnel in missions 5 and 7, two gaps from mission 6.
+  - **The last city:** two walls and two gaps every mission, and a tunnel every other mission.
+  - **Patrols around Lake Tahoe:** a wall and a gap, and a tunnel every other one.
+  - **The rules:**
+    - Walls and gaps take turns.
+    - Every run keeps at least one giant tree or rock tower.
+    - The total still depends on the run's length (2 to 6 obstacles), so a slow plane's short run gets fewer.
+- **What tells you:**
+  - **The mission card's "New this mission":**
+    - "a wall to fly over" (Lake Tahoe 3)
+    - "a short tunnel" (Lake Tahoe 4, the first time only)
+    - "a wall with a gap (or a bridge) to fly through" (Lake Tahoe 5)
+    - "two walls to fly over" (Las Vegas 4)
+    - "two walls with gaps" (Las Vegas 6)
+  - **The tower's briefing** names what's on the run, for example "Up ahead: pull up over the wall and stay in the middle of the tunnel."
+  - **The warning and the beep** come only when you're lined up to hit it. They look at your height over the boxes and how far off center you are, carried forward to the obstacle, so a pilot already lined up for a gap or a tunnel hears nothing.
+  - **The summary** reads "Obstacles cleared: X of Y" and counts every kind.
+- **Measured in the headless simulation** (three scripted pilots: a careful one, a careless one with autopilot steering only, and a sloppy one 40 units off center):
+  - **Lake Tahoe mission 4** (Truckee River Canyon, L-39):
+    - Careful: over the wall and through the tunnel, no damage.
+    - Careless: hit the wall (7 hull), bumped over, then through the tunnel (it's centered).
+    - Sloppy: hit the wall and scraped the tunnel twice (12 hull).
+    - All three finished.
+  - **Lake Tahoe patrol** (West Shore): the bridge over the lake. Careful and careless both flew under it (+100). Sloppy flew under the side span (no bonus, no hit).
+  - **Las Vegas mission 5** (Colorado River Gorge, F-18): two walls, the tunnel and a gap. Careful cleared all four. Careless hit both walls (8 each) and still made the tunnel and the gap.
+  - **Moab mission 7** (Cessna, a short run): a wall, the tunnel and a rock tower. All three pilots finished.
+  - **The warning:** in the final pass, only the sloppy pilot heard TUNNEL AHEAD (the careful and careless pilots were already lined up), and all three heard WALL AHEAD.
+  - **The arch:** every pilot flew under it on every Moab-canyon run.
+  - **Hitting the tunnel's rock face:** just above the mouth you're bumped into the tunnel; high on the spur, up over the top; on the spur's side, up over the side. The rock collides where it's drawn (its rounded top).
+  - **Tunnel placement:** tunnels fit on every canyon run the L-39, F-18 and Cessna get, and the climb into one is 14 degrees at most.
+  - **The radar:** flying over a wall stays under it (the wall's top is about 20 units up, the radar line 62 or more).
+  - **Unchanged:** the campaign flow (mission 1, the assault on Las Vegas, Las Vegas mission 1 and its arch bonus) and the kids' saves (Phoenix's and the Moab test copy).
+
+### Next for obstacles
+- Moving obstacles (a swinging crane, a drawbridge), power lines to duck under, and gang graffiti on the gap walls.
+- The real canyon floor shows in a corner of some Moab tunnels (it only looks like drifted sand, and you can't hit it in the middle).
+
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
 - Recorded voice lines and music (the sound effects are code-made for now).
-- Bonus targets and obstacles from the roster (comms towers, turrets, rock arches, cables) placed along the courses.
+- More obstacles from the roster (comms towers, power cables) placed along the courses.
