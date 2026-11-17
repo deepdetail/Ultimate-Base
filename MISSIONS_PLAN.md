@@ -334,6 +334,66 @@ Tabled for later: an end boss, importing 3D assets (the Cessna 182 model), and d
 - Lock time upgrades in the Hangar.
 - Tabled by J and Phoenix: an end boss, the Cessna 182 3D model, and deeper weapon and plane upgrades.
 
+## Round 6, Ship A (November 17), J and Phoenix
+Asked for, round 6 items 1, 3 and 4, plus a follow-up:
+1. Move the big comic-book combo pop-up out of the middle of the screen to a small status readout on the far left. It's distracting mid-flight.
+3. Give each enemy type its own explosion.
+4. More kinds of enemies: a slow recon plane (Cessna-like), more ground cars, satellite dishes, small bunkers, mini turrets, walls and barricades.
+
+Follow-up: recon flights should end at the outpost, not the camp photo.
+
+Next is Ship B, the city-by-city mission progression:
+- About seven missions per city, getting harder each time, with the new bad guys rolled out step by step.
+- Clearing a city unlocks the next base city.
+- A base switch button, and tapping an unlocked base on the map switches to it.
+
+Bosses come after that, and the realistic Metal Storm-style look (item 2) later.
+
+- **Status readout:**
+  - Combos, kills, checkpoints, bonuses and alerts scroll by in small lines on the far left. The newest is on top, at most 4 show, and each fades after about 3 seconds.
+  - Colors: amber for combos, green for good news, red for SPOTTED! and COME AROUND!.
+  - Only GO! and the end of the mission still get a big banner in the middle.
+  - The floating HIT! words are gone. A quick white X around the gunsight marks each hit instead.
+  - Sideways phones show the readout under the AUTOPILOT button; upright, under the objective.
+- **Explosions by enemy type:**
+  - Drones: an electric pop with blue sparks and rotor bits.
+  - Enemy jets: a big fireball, then a crash on the ground.
+  - The recon plane: a fireball, and a white smoke trail as it spins down.
+  - Cars and trucks: a rising fireball, then a burning wreck tipped on its side, with black smoke and flames. Buggies blow up smaller.
+  - Balloons: a pop with confetti.
+  - Mines: a water geyser.
+  - Road blocks, concrete barriers and barricades: they crumble in a cloud of dust.
+  - Bunkers: a heavy blast with a dust ring and concrete chunks, leaving a flattened, smoking ruin.
+  - Dishes: sparks and a toppled dish.
+  - Turrets: the gun gets blown off.
+  - Each has its own sound: zap, crack, pop, splash, crunch or boom.
+- **New bad guys (planes):**
+  - **Gang forts:** one every hop, beside the flight line on dry ground. Each has:
+    - a concrete bunker
+    - a mini turret (two on PILOT and ACE) that swings toward you
+    - a satellite dish
+    - a row of concrete barriers
+    - a sandbag barricade with steel hedgehogs
+    - On PILOT and ACE the bunker and turrets shoot orbs.
+  - **Mixed convoys:**
+    - A pickup with a gun in the back that swings toward you (it shoots on PILOT and ACE).
+    - A truck, a fast buggy and a tough SUV.
+  - **A slow recon plane:**
+    - A gang Cessna a little above the flight line, flying the same way at about 40 percent of your speed, so you catch it from behind.
+    - One on the middle hop, plus another on the last hop on PILOT and ACE.
+  - **Points:** bunker 300, turret 200, recon plane 200, dish 150, barriers and barricades 60, vehicles 250.
+- **Recon flights end at the outpost:** every plane now flies a strike run to the enemy outpost, including planes without a weapon upgrade, which have the Wing Guns and missiles. The camp photo is gone from flying missions.
+- **Cash:** doubling the bad guys made plane missions pay 30 to 60 percent more, because knockouts and points count toward the cash. On plane runs those now count for less, which keeps the cash near round 5's level (the kids' test runs now pay 0 to 20 percent more). Ship B's per-city rewards will set this properly.
+- **Measured in the headless simulation:**
+  - **L-39 on East Shore:**
+    - 3 forts, a mixed convoy every hop and the recon plane appeared.
+    - A scripted pilot knocked out most of them and the outpost, with no errors.
+    - The readout never showed more than 4 lines, and it sits clear of the AUTOPILOT button in both orientations.
+  - **Cessna without a weapon upgrade, in Moab:** now a strike run; the outpost was destroyed.
+  - **F-16 on ACE:** 6 turrets, 4 enemy jets and 2 recon planes; the outpost was destroyed.
+  - **The kids' saves:** Phoenix's and Dude's runs all destroyed the outpost, and the summaries are fine.
+  - **Other vehicles:** cars, the tank, the boat, the hover saucer, ASSISTED and REAL PILOT run with no errors.
+
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
 - Recorded voice lines and music (the sound effects are code-made for now).
