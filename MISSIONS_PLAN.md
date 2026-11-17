@@ -394,6 +394,72 @@ Bosses come after that, and the realistic Metal Storm-style look (item 2) later.
   - **The kids' saves:** Phoenix's and Dude's runs all destroyed the outpost, and the summaries are fine.
   - **Other vehicles:** cars, the tank, the boat, the hover saucer, ASSISTED and REAL PILOT run with no errors.
 
+## Round 6, Ship B (November 17), J and Phoenix: the campaign, city by city
+Asked for, in order of importance:
+1. **Mission progression.** The Hangar gave a random mission every time, and the map let you click a town, go there and raid it. J wanted that replaced:
+   - Flying missions from the Hangar should advance you along the map, outpost by outpost.
+   - About seven successful missions per city, getting slightly harder each time, with cooler, varied bad guys.
+   - Clearing them unlocks the next base city.
+   - A button switches between unlocked bases, and tapping an unlocked base on the map switches to it.
+2. Recon flights end at the outpost (shipped in Ship A).
+
+Still to come: bosses and the realistic look.
+
+- **Three base cities:** your home (Lake Tahoe or Moab), then Las Vegas, then the other home region.
+- **Seven missions per city:**
+  - **From your home:** six outposts down the road to Las Vegas, then the assault on the Las Vegas gang fortress.
+    - Lake Tahoe's road: Truckee, Carson City, Yerington, Hawthorne, Tonopah, Beatty, then Las Vegas.
+    - Moab's road drops one Utah town to make seven.
+  - **From Las Vegas:** six towns down the road to the other home region, then the assault on it. From the Lake Tahoe side: Mesquite, St. George, Cedar City, Torrey, Hanksville, Green River, then Moab.
+  - **The last city:** seven patrols around it. For Moab: Delicate Arch, Fiery Furnace, Balanced Rock, Slickrock, Colorado River, Canyonlands and Castle Valley.
+  - **What counts:** a mission counts when its outpost is destroyed. If the outpost is still standing at the end, you fly that mission again.
+  - **Opening a city:** winning the seventh mission opens the next city, with a bonus ($50,000, then $100,000), and the summary offers to fly from there.
+  - **After a city is cleared:** its missions become patrols at its top difficulty.
+- **Harder each mission, with the new bad guys rolling out:**
+  - **Lake Tahoe (ROOKIE):**
+    - Mission 1: drones, a truck convoy and supply balloons.
+    - Mission 2: adds the slow recon plane.
+    - Mission 3: gang forts (a bunker behind barriers) and fast buggies.
+    - Mission 4: mini turrets.
+    - Mission 5: drones, bunkers and turrets that shoot back, plus satellite dishes and pickups with guns.
+    - Mission 7: tougher red drones.
+  - **Las Vegas (PILOT):** bigger squads, two turrets a fort and armored SUVs from mission 1, and an enemy jet from mission 3.
+  - **The last city (ACE):** two enemy jets from mission 2.
+  - **Pay and armor:** the cash grows with the difficulty (about 4 percent more each mission). The enemy outpost's armor grows too, from 5.5 seconds of gunfire at the start up to 8.
+  - **The mission card shows:** the mission number, seven progress dots, the outpost, the difficulty and what's new this mission.
+- **Switching base cities:**
+  - **Ways to switch:**
+    - A city button on the main screen, above the MAP button, once two cities are open.
+    - City tabs on every mission card.
+    - Tapping an open city on the map, or SWITCH BASE there.
+  - Your crew flies its plane missions from the city you pick. Cars and boats fly from it too, on that city's map.
+  - Your base itself stays where it is.
+- **The map is the campaign board:**
+  - Each town on the road shows Taken, Next mission (pulsing), or the number of a mission still ahead. Cities show Open base.
+  - Tap a town to see where it stands.
+  - The recon flights and raids from the map are gone.
+  - It opens on your next mission's town, and the last city's patrols sit in a ring around it.
+- **Old saves:**
+  - Towns captured on the old map count as missions won (Dude's save starts at mission 2).
+  - Capturing Las Vegas opens it.
+  - A region your planes reached opens everything before it. The Moab test copy of Phoenix's save has all three cities open, with Moab at mission 1.
+  - Phoenix's real save starts at Lake Tahoe mission 1.
+- **Where missions fly, for now:** the Nevada towns fly on the Sierra 3D map and the Utah towns on the Moab canyons, named for the town, until each stretch gets its own terrain.
+- **Measured in the headless simulation:**
+  - **Fresh game, mission 1 (Truckee, ROOKIE):** drones, trucks and balloons only. Won with the outpost down, then "Truckee is yours! Next: mission 2 of 7, Carson City."
+  - **Mission 7, the assault on Las Vegas:** forts and the recon plane by then, and armor 60. Won; Las Vegas opened with the $50,000 bonus, and the city button appeared.
+  - **Las Vegas mission 1 (Mesquite, PILOT, on the Moab canyons):** won, then "Next: mission 2 of 7, St. George."
+  - **The kids' saves:**
+    - Phoenix's: mission 1 won on all three test runs.
+    - Dude's: mission 2 won (his old map progress carried over).
+    - The Moab test copy: Lake Tahoe and Las Vegas cleared, Moab open at mission 1.
+  - **Other vehicles:** cars, the tank, the boat, the hover saucer, ASSISTED and REAL PILOT run with no errors.
+
+### Next for the campaign
+- Bosses at the city assaults (a fortress, and the original six-legged walker), once J and Phoenix answer.
+- Real terrain for the Nevada and Utah towns, a flyover on the map when a city opens, and Sky Vegas and the Bahamas as later cities.
+- The first missions may feel easy for a high-level save like Phoenix's. A way for veterans to skip ahead is one option.
+
 ### Still to come
 - Story missions per location (a short story, a cutscene, a boss), an automated takeoff in the intro, and a look-around in the cockpit during the briefing.
 - Recorded voice lines and music (the sound effects are code-made for now).
